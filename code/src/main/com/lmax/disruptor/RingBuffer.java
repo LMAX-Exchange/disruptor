@@ -56,9 +56,10 @@ public final class RingBuffer<T extends Entry>
     public T claimNext()
     {
         long sequence = claimStrategy.getAndIncrement();
-        T next = (T)entries[(int)sequence & ringModMask];
-        next.setSequence(sequence, appendCallback);
-        return next;
+        T entry = (T)entries[(int)sequence & ringModMask];
+        entry.setSequence(sequence, appendCallback);
+
+        return entry;
     }
 
     /**
