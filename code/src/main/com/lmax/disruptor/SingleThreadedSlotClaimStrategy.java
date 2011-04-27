@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
-final class SingleThreadedSequenceClaimStrategy
-    implements SequenceClaimStrategy
+final class SingleThreadedSlotClaimStrategy
+    implements SlotClaimStrategy
 {
     private long sequence;
 

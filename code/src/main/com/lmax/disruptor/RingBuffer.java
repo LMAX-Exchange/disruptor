@@ -27,25 +27,25 @@ public final class RingBuffer<T extends Entry>
     private final CommitCallback appendCallback = new AppendCommitCallback();
     private final CommitCallback setCallback = new SetCommitCallback();
 
-    private final SequenceClaimStrategy sequenceClaimStrategy;
+    private final SlotClaimStrategy slotClaimStrategy;
     private final Lock lock = new ReentrantLock();
     private final Condition consumerNotifyCondition = lock.newCondition();
 
     private volatile long cursor = INITIAL_CURSOR_VALUE;
 
     public RingBuffer(final Factory<T> entryFactory, final int size,
-                      final SequenceClaimThreadingStrategy sequenceClaimThreadingStrategy)
+                      final SlotClaimThreadingStrategy slotClaimThreadingStrategy)
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         entries = new Object[sizeAsPowerOfTwo];
         fill(entryFactory);
-        sequenceClaimStrategy = sequenceClaimThreadingStrategy.newInstance();
+        slotClaimStrategy = slotClaimThreadingStrategy.newInstance();
     }
 
     public RingBuffer(final Factory<T> entryFactory, final int size)
     {
-        this(entryFactory, size, SequenceClaimThreadingStrategy.MULTI_THREADED);
+        this(entryFactory, size, SlotClaimThreadingStrategy.MULTI_THREADED);
     }
 
     /**
@@ -55,7 +55,7 @@ public final class RingBuffer<T extends Entry>
      */
     public T claimNext()
     {
-        long sequence = sequenceClaimStrategy.getAndIncrement();
+        long sequence = slotClaimStrategy.getAndIncrement();
         T next = (T)entries[(int)sequence & ringModMask];
         next.setSequence(sequence, appendCallback);
         return next;
@@ -161,7 +161,7 @@ public final class RingBuffer<T extends Entry>
     {
         public void commit(long sequence)
         {
-            sequenceClaimStrategy.setSequence(sequence + 1);
+            slotClaimStrategy.setSequence(sequence + 1);
             cursor = sequence;
 
             notifyConsumers();

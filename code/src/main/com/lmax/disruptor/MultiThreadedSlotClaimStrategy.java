@@ -2,8 +2,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-final class MultiThreadedSequenceClaimStrategy
-    implements SequenceClaimStrategy
+final class MultiThreadedSlotClaimStrategy
+    implements SlotClaimStrategy
 {
     private final AtomicLong sequence = new AtomicLong(0);
 

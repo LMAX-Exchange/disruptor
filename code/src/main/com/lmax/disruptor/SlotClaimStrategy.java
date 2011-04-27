@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-public interface SequenceClaimStrategy
+public interface SlotClaimStrategy
 {
     long getAndIncrement();
     void setSequence(long sequence);
