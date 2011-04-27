@@ -27,25 +27,25 @@ public final class RingBuffer<T extends Entry>
     private final CommitCallback appendCallback = new AppendCommitCallback();
     private final CommitCallback setCallback = new SetCommitCallback();
 
-    private final SlotClaimStrategy slotClaimStrategy;
+    private final ClaimStrategy claimStrategy;
     private final Lock lock = new ReentrantLock();
     private final Condition consumerNotifyCondition = lock.newCondition();
 
     private volatile long cursor = INITIAL_CURSOR_VALUE;
 
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
-                      final SlotClaimThreadingStrategy slotClaimThreadingStrategy)
+                      final ClaimStrategy.Option claimStrategyOption)
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         entries = new Object[sizeAsPowerOfTwo];
         fill(entryFactory);
-        slotClaimStrategy = slotClaimThreadingStrategy.newInstance();
+        claimStrategy = claimStrategyOption.newInstance();
     }
 
     public RingBuffer(final EntryFactory<T> entryFactory, final int size)
     {
-        this(entryFactory, size, SlotClaimThreadingStrategy.MULTI_THREADED);
+        this(entryFactory, size, ClaimStrategy.Option.MULTI_THREADED);
     }
 
     /**
@@ -55,7 +55,7 @@ public final class RingBuffer<T extends Entry>
      */
     public T claimNext()
     {
-        long sequence = slotClaimStrategy.getAndIncrement();
+        long sequence = claimStrategy.getAndIncrement();
         T next = (T)entries[(int)sequence & ringModMask];
         next.setSequence(sequence, appendCallback);
         return next;
@@ -161,7 +161,7 @@ public final class RingBuffer<T extends Entry>
     {
         public void commit(long sequence)
         {
-            slotClaimStrategy.setSequence(sequence + 1);
+            claimStrategy.setSequence(sequence + 1);
             cursor = sequence;
 
             notifyConsumers();
