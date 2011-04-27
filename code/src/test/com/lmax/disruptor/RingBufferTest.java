@@ -26,7 +26,7 @@ public class RingBufferTest
     @Before
     public void setUp()
     {
-        ringBuffer = new RingBuffer<StubEntry>(StubEntry.FACTORY, 20);
+        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
         barrier = ringBuffer.createBarrier();
     }
 

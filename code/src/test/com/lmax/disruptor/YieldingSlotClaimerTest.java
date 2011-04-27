@@ -10,7 +10,7 @@ public final class YieldingSlotClaimerTest
     @Test
     public void shouldClaimFirstSlot()
     {
-        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.FACTORY, 100);
+        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.ENTRY_FACTORY, 100);
         TestEventConsumer eventProcessor = new TestEventConsumer(0);
 
         SlotClaimer<TestEntry> slotClaimer = new YieldingSlotClaimer<TestEntry>(0, ringBuffer, eventProcessor);
@@ -25,7 +25,7 @@ public final class YieldingSlotClaimerTest
 	{
     	int sequence = 15;
 
-        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.FACTORY, 100);
+        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.ENTRY_FACTORY, 100);
         TestEventConsumer eventProcessor = new TestEventConsumer(0);
 
         SlotClaimer<TestEntry> slotClaimer = new YieldingSlotClaimer<TestEntry>(20, ringBuffer, eventProcessor);

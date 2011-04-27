@@ -8,9 +8,9 @@ public final class BatchEventConsumerTest
     @Test
     public void shouldDoStuff()
     {
-        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.FACTORY, 100);
+        RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.ENTRY_FACTORY, 100);
         ThresholdBarrier<TestEntry> barrier = ringBuffer.createBarrier();
-        EventHandler<TestEntry> eventHandler = new EventHandler<TestEntry>()
+        BatchEventHandler<TestEntry> batchEventHandler = new BatchEventHandler<TestEntry>()
         {
             @Override
             public void onEvent(final TestEntry entry) throws Exception
@@ -30,7 +30,7 @@ public final class BatchEventConsumerTest
             }
         };
 
-        BatchEventConsumer batchEventConsumer = new BatchEventConsumer<TestEntry>(barrier, eventHandler);
+        BatchEventConsumer batchEventConsumer = new BatchEventConsumer<TestEntry>(barrier, batchEventHandler);
 
         batchEventConsumer.halt();
         batchEventConsumer.run();

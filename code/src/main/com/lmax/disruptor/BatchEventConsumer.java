@@ -7,16 +7,16 @@ public final class BatchEventConsumer<T extends Entry>
     private volatile boolean running = true;
 
     private final ThresholdBarrier<T> barrier;
-    private final EventHandler<T> handler;
+    private final BatchEventHandler<T> handlerBatch;
     private EventExceptionHandler eventExceptionHandler = new FatalEventExceptionHandler();
 
     private final boolean noProgressTracker;
 
     public BatchEventConsumer(final ThresholdBarrier<T> barrier,
-                              final EventHandler<T> handler)
+                              final BatchEventHandler<T> handlerBatch)
     {
         this.barrier = barrier;
-        this.handler = handler;
+        this.handlerBatch = handlerBatch;
         this.noProgressTracker = true;
     }
 
@@ -24,7 +24,7 @@ public final class BatchEventConsumer<T extends Entry>
                               final ProgressReportingEventHandler<T> handler)
     {
         this.barrier = barrier;
-        this.handler = handler;
+        this.handlerBatch = handler;
 
         this.noProgressTracker = false;
         handler.setProgressTracker(new ProgressTrackerCallback());
@@ -72,7 +72,7 @@ public final class BatchEventConsumer<T extends Entry>
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
                     entry = barrier.getRingBuffer().get(i);
-                    handler.onEvent(entry);
+                    handlerBatch.onEvent(entry);
 
                     if (noProgressTracker)
                     {
@@ -80,7 +80,7 @@ public final class BatchEventConsumer<T extends Entry>
                     }
                 }
 
-                handler.onEndOfBatch();
+                handlerBatch.onEndOfBatch();
             }
             catch (final AlertException ex)
             {
@@ -92,7 +92,7 @@ public final class BatchEventConsumer<T extends Entry>
             }
         }
 
-        handler.onCompletion();
+        handlerBatch.onCompletion();
     }
 
     public final class ProgressTrackerCallback

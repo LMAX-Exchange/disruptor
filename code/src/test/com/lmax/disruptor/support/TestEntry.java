@@ -2,7 +2,7 @@ package com.lmax.disruptor.support;
 
 
 import com.lmax.disruptor.AbstractEntry;
-import com.lmax.disruptor.Factory;
+import com.lmax.disruptor.EntryFactory;
 
 public final class TestEntry
     extends AbstractEntry
@@ -13,7 +13,7 @@ public final class TestEntry
         return "Test Entry";
     }
 
-    public final static Factory<TestEntry> FACTORY = new Factory<TestEntry>()
+    public final static EntryFactory<TestEntry> ENTRY_FACTORY = new EntryFactory<TestEntry>()
     {
         public TestEntry create()
         {

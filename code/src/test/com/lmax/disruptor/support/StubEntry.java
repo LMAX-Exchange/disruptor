@@ -1,7 +1,7 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.AbstractEntry;
-import com.lmax.disruptor.Factory;
+import com.lmax.disruptor.EntryFactory;
 
 public final class StubEntry extends AbstractEntry
 {
@@ -27,7 +27,7 @@ public final class StubEntry extends AbstractEntry
         this.value = value;
     }
 
-    public final static Factory<StubEntry> FACTORY = new Factory<StubEntry>()
+    public final static EntryFactory<StubEntry> ENTRY_FACTORY = new EntryFactory<StubEntry>()
     {
         public StubEntry create()
         {

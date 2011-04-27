@@ -10,7 +10,7 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 /**
  * Ring based store of reusable entries that are at items being exchanged between producers and consumers.
  *
- * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination.
+ * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 @SuppressWarnings("unchecked")
 public final class RingBuffer<T extends Entry>
@@ -33,7 +33,7 @@ public final class RingBuffer<T extends Entry>
 
     private volatile long cursor = INITIAL_CURSOR_VALUE;
 
-    public RingBuffer(final Factory<T> entryFactory, final int size,
+    public RingBuffer(final EntryFactory<T> entryFactory, final int size,
                       final SlotClaimThreadingStrategy slotClaimThreadingStrategy)
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
@@ -43,7 +43,7 @@ public final class RingBuffer<T extends Entry>
         slotClaimStrategy = slotClaimThreadingStrategy.newInstance();
     }
 
-    public RingBuffer(final Factory<T> entryFactory, final int size)
+    public RingBuffer(final EntryFactory<T> entryFactory, final int size)
     {
         this(entryFactory, size, SlotClaimThreadingStrategy.MULTI_THREADED);
     }
@@ -116,11 +116,11 @@ public final class RingBuffer<T extends Entry>
         return cursor;
     }
 
-    private void fill(Factory<T> entryFactory)
+    private void fill(EntryFactory<T> entryEntryFactory)
     {
         for (int i = 0; i < entries.length; i++)
         {
-            entries[i] = entryFactory.create();
+            entries[i] = entryEntryFactory.create();
         }
     }
 

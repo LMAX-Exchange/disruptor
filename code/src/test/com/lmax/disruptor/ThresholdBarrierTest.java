@@ -34,7 +34,7 @@ public class ThresholdBarrierTest
     {
         mockery = new Mockery();
 
-        ringBuffer = new RingBuffer<StubEntry>(StubEntry.FACTORY, 20);
+        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
         eventProcessor1 = mockery.mock(EventConsumer.class, "eventConsumer1");
         eventProcessor2 = mockery.mock(EventConsumer.class, "eventConsumer2");
         eventProcessor3 = mockery.mock(EventConsumer.class, "eventConsumer3");
