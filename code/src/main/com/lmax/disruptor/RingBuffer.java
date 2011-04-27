@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 
 /**
- * Ring based store of reusable entries that are at items being exchanged between producers and consumers.
+ * Ring based store of reusable entries that are items containing the data being exchanged between producers and consumers representing an event.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
