@@ -14,7 +14,7 @@ public class AlertException extends Exception
      * @return this instance.
      */
     @Override
-    public synchronized Throwable fillInStackTrace()
+    public Throwable fillInStackTrace()
     {
         return this;
     }
