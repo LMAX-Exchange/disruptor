@@ -71,7 +71,7 @@ public final class BatchEventConsumer<T extends Entry>
 
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
-                    entry = barrier.getRingBuffer().get(i);
+                    entry = barrier.getRingBuffer().getEntry(i);
                     handlerBatch.onEvent(entry);
 
                     if (noProgressTracker)

@@ -36,7 +36,7 @@ public final class ReadingCallable implements Callable<List<StubEntry>>
         thresholdBarrier.waitFor(toWaitFor);
         for (long l = initial; l <= toWaitFor; l++)
         {
-            messages.add(ringBuffer.get(l));
+            messages.add(ringBuffer.getEntry(l));
         }
         return messages;
     }

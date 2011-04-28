@@ -94,7 +94,7 @@ public final class RingBuffer<T extends Entry>
      * @param sequence for the entry.
      * @return entry matching the sequence.
      */
-    public T get(long sequence)
+    public T getEntry(long sequence)
     {
         return (T)entries[(int)sequence & ringModMask];
     }

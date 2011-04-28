@@ -44,7 +44,7 @@ public class RingBufferTest
         long sequence = barrier.waitFor(0);
         assertEquals(0, sequence);
 
-        StubEntry entry = ringBuffer.get(sequence);
+        StubEntry entry = ringBuffer.getEntry(sequence);
         assertEquals(expectedEntry, entry);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -64,7 +64,7 @@ public class RingBufferTest
         long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
-        StubEntry entry = ringBuffer.get(sequence);
+        StubEntry entry = ringBuffer.getEntry(sequence);
         assertEquals(expectedEntry, entry);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -109,7 +109,7 @@ public class RingBufferTest
 
         for (int i = 0; i < numMessages; i++)
         {
-            assertEquals(i, ringBuffer.get(i).getValue());
+            assertEquals(i, ringBuffer.getEntry(i).getValue());
         }
     }
 
@@ -131,7 +131,7 @@ public class RingBufferTest
 
         for (int i = offset; i < numMessages + offset; i++)
         {
-            assertEquals(i, ringBuffer.get(i).getValue());
+            assertEquals(i, ringBuffer.getEntry(i).getValue());
         }
     }
 
@@ -146,7 +146,7 @@ public class RingBufferTest
         long sequence = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
-        StubEntry entry = ringBuffer.get(sequence);
+        StubEntry entry = ringBuffer.getEntry(sequence);
         assertEquals(expectedEntry, entry);
 
         assertEquals(expectedSequence, ringBuffer.getCursor());
