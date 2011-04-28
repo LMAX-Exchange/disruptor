@@ -39,8 +39,9 @@ public final class RingBuffer<T extends Entry>
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         entries = new Object[sizeAsPowerOfTwo];
-        fill(entryFactory);
         claimStrategy = claimStrategyOption.newInstance();
+
+        fill(entryFactory);
     }
 
     public RingBuffer(final EntryFactory<T> entryFactory, final int size)
@@ -72,6 +73,7 @@ public final class RingBuffer<T extends Entry>
     {
         T entry = (T)entries[(int)sequence & ringModMask];
         entry.setSequence(sequence, setCallback);
+
         return entry;
     }
 
@@ -143,8 +145,8 @@ public final class RingBuffer<T extends Entry>
     {
         public void commit(long sequence)
         {
-            long slotMinusOne = sequence - 1;
-            while (cursor != slotMinusOne)
+            final long sequenceMinusOne = sequence - 1;
+            while (cursor != sequenceMinusOne)
             {
                 // busy spin
             }
