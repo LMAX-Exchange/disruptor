@@ -3,7 +3,7 @@ package com.lmax.disruptor;
 /**
  * EventConsumers waitFor {@link Entry}s to become available for consumption from the {@link RingBuffer}
  */
-public interface EventConsumer extends Runnable
+public interface EventConsumer<T extends  Entry> extends Runnable
 {
     /**
      * Get the sequence upto which this EventConsumer has consumed {@link Entry}s
@@ -17,7 +17,7 @@ public interface EventConsumer extends Runnable
      *
      * @return the barrier being waited on.
      */
-    ThresholdBarrier getBarrier();
+    ThresholdBarrier<T> getBarrier();
 
     /**
      * Signal that this EventConsumer should stop when it has finished consuming at the next clean break.

@@ -46,7 +46,7 @@ public final class BatchEventConsumer<T extends Entry>
         return sequence;
     }
 
-    public ThresholdBarrier getBarrier()
+    public ThresholdBarrier<? extends T> getBarrier()
     {
         return barrier;
     }
