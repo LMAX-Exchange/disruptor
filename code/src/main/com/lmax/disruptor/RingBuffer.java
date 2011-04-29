@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 
 /**
- * Ring based store of reusable entries that are items containing the data representing an event being exchanged between producers and consumers.
+ * Ring based store of reusable entries containing the data representing an event being exchanged between producers and consumers.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -143,7 +143,7 @@ public final class RingBuffer<T extends Entry>
     /**
      * Callback to be used when claiming slots in sequence and cursor is catching up with claim
      * for notifying the the consumers of progress. This will busy spin on the commit until previous
-     * producers have committed lower sequence Entries.
+     * producers have committed lower sequence entries.
      */
     private final class AppendCommitCallback implements CommitCallback
     {
