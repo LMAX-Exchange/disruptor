@@ -195,6 +195,7 @@ public final class RingBuffer<T extends Entry>
             return RingBuffer.this;
         }
 
+        @Override
         public long getAvailableSequence()
         {
             long minimum = cursor;
@@ -255,6 +256,7 @@ public final class RingBuffer<T extends Entry>
             return waitStrategy.waitFor(sequence, timeout, units);
         }
 
+        @Override
         public void alert()
         {
             waitStrategy.alert();
