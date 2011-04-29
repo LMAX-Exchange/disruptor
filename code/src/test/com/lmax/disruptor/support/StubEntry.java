@@ -6,6 +6,7 @@ import com.lmax.disruptor.EntryFactory;
 public final class StubEntry extends AbstractEntry
 {
     private int value;
+    private String testString;
 
     public StubEntry(int i)
     {
@@ -25,6 +26,16 @@ public final class StubEntry extends AbstractEntry
     public void setValue(int value)
     {
         this.value = value;
+    }
+
+    public String getTestString()
+    {
+        return testString;
+    }
+
+    public void setTestString(final String testString)
+    {
+        this.testString = testString;
     }
 
     public final static EntryFactory<StubEntry> ENTRY_FACTORY = new EntryFactory<StubEntry>()

@@ -31,7 +31,7 @@ public final class RingBuffer<T extends Entry>
      *
      * @param entryFactory to create {@link Entry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for producers claiming {@link Entry} in the ring.
+     * @param claimStrategyOption threading strategy for producers claiming {@link Entry}s in the ring.
      * @param waitStrategyOption waiting strategy employed by consumers waiting on {@link Entry}s becoming available.
      */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
