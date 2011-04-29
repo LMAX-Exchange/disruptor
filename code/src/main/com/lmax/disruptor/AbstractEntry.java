@@ -29,7 +29,7 @@ public abstract class AbstractEntry implements Entry
      * {@inheritDoc}
      */
     @Override
-    public void setSequence(long sequence, CommitCallback commitCallback)
+    public void setSequence(final long sequence, final CommitCallback commitCallback)
     {
         this.sequence = sequence;
         this.commitCallback = commitCallback;

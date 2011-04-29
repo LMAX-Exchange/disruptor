@@ -158,6 +158,7 @@ public class RingBufferTest
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Future<List<StubEntry>> f = EXECUTOR.submit(new ReadingCallable(barrier, ringBuffer, initial, toWaitFor));
         barrier.await();
+
         return f;
     }
 }

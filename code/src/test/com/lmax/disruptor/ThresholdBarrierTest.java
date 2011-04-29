@@ -24,9 +24,9 @@ public class ThresholdBarrierTest
 {
     private Mockery mockery;
     private RingBuffer<StubEntry> ringBuffer;
-    private EventConsumer eventProcessor1;
-    private EventConsumer eventProcessor2;
-    private EventConsumer eventProcessor3;
+    private EventConsumer eventConsumer1;
+    private EventConsumer eventConsumer2;
+    private EventConsumer eventConsumer3;
     private ThresholdBarrier<StubEntry> thresholdBarrier;
 
     @Before
@@ -35,10 +35,10 @@ public class ThresholdBarrierTest
         mockery = new Mockery();
 
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        eventProcessor1 = mockery.mock(EventConsumer.class, "eventConsumer1");
-        eventProcessor2 = mockery.mock(EventConsumer.class, "eventConsumer2");
-        eventProcessor3 = mockery.mock(EventConsumer.class, "eventConsumer3");
-        thresholdBarrier = ringBuffer.createBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
+        eventConsumer1 = mockery.mock(EventConsumer.class, "eventConsumer1");
+        eventConsumer2 = mockery.mock(EventConsumer.class, "eventConsumer2");
+        eventConsumer3 = mockery.mock(EventConsumer.class, "eventConsumer3");
+        thresholdBarrier = ringBuffer.createBarrier(eventConsumer1, eventConsumer2, eventConsumer3);
     }
 
     @Test
@@ -48,13 +48,13 @@ public class ThresholdBarrierTest
         mockery.checking(new Expectations()
         {
             {
-                one(eventProcessor1).getSequence();
+                one(eventConsumer1).getSequence();
                 will(returnValue(expectedMinimum));
 
-                one(eventProcessor2).getSequence();
+                one(eventConsumer2).getSequence();
                 will(returnValue(86L));
 
-                one(eventProcessor3).getSequence();
+                one(eventConsumer3).getSequence();
                 will(returnValue(2384378L));
             }
         });
@@ -74,13 +74,13 @@ public class ThresholdBarrierTest
         mockery.checking(new Expectations()
         {
             {
-                one(eventProcessor1).getSequence();
+                one(eventConsumer1).getSequence();
                 will(returnValue(expectedNumberMessages));
 
-                one(eventProcessor2).getSequence();
+                one(eventConsumer2).getSequence();
                 will(returnValue(expectedWorkSequence));
 
-                one(eventProcessor3).getSequence();
+                one(eventConsumer3).getSequence();
                 will(returnValue(expectedWorkSequence));
             }
         });
@@ -111,6 +111,7 @@ public class ThresholdBarrierTest
                 StubEntry entry = ringBuffer.claimNext();
                 entry.setValue((int) entry.getSequence());
                 entry.commit();
+
                 for (StubEventConsumer stubWorker : workers)
                 {
                     stubWorker.setSequence(entry.getSequence());
@@ -135,13 +136,13 @@ public class ThresholdBarrierTest
         mockery.checking(new Expectations()
         {
             {
-                allowing(eventProcessor1).getSequence();
+                allowing(eventConsumer1).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
 
-                allowing(eventProcessor2).getSequence();
+                allowing(eventConsumer2).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
 
-                allowing(eventProcessor3).getSequence();
+                allowing(eventConsumer3).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
             }
         });
@@ -170,7 +171,8 @@ public class ThresholdBarrierTest
         assertTrue(latch.await(1, TimeUnit.SECONDS));
         thresholdBarrier.alert();
         t.join();
-        assertTrue("Thread was not interupted", alerted[0]);
+
+        assertTrue("Thread was not interrupted", alerted[0]);
     }
 
     @Test
@@ -179,20 +181,20 @@ public class ThresholdBarrierTest
         long expectedNumberMessages = 10;
         fillRingBuffer(expectedNumberMessages);
 
-        final StubEventConsumer[] eventProcessors = new StubEventConsumer[3];
-        for (int i = 0, size = eventProcessors.length; i < size; i++)
+        final StubEventConsumer[] eventConsumers = new StubEventConsumer[3];
+        for (int i = 0, size = eventConsumers.length; i < size; i++)
         {
-            eventProcessors[i] = new StubEventConsumer();
-            eventProcessors[i].setSequence(expectedNumberMessages - 2);
+            eventConsumers[i] = new StubEventConsumer();
+            eventConsumers[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final ThresholdBarrier barrier = ringBuffer.createBarrier(eventProcessors);
+        final ThresholdBarrier barrier = ringBuffer.createBarrier(eventConsumers);
 
         Runnable runnable = new Runnable()
         {
             public void run()
             {
-                for (StubEventConsumer stubWorker : eventProcessors)
+                for (StubEventConsumer stubWorker : eventConsumers)
                 {
                     stubWorker.setSequence(stubWorker.getSequence() + 1);
                 }
@@ -225,6 +227,7 @@ public class ThresholdBarrierTest
             this.sequence = sequence;
         }
 
+        @Override
         public long getSequence()
         {
             return sequence;

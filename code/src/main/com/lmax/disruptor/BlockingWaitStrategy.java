@@ -29,7 +29,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence)
+    public long waitFor(final long sequence)
         throws AlertException, InterruptedException
     {
         if (ringBuffer.getCursor() < sequence)
@@ -53,7 +53,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence, long timeout, TimeUnit units)
+    public long waitFor(final long sequence, final long timeout, final TimeUnit units)
         throws AlertException, InterruptedException
     {
         if (ringBuffer.getCursor() < sequence)

@@ -19,7 +19,7 @@ public final class YieldingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence)
+    public long waitFor(final long sequence)
         throws AlertException, InterruptedException
     {
         while (ringBuffer.getCursor() < sequence)
@@ -32,7 +32,7 @@ public final class YieldingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence, long timeout, TimeUnit units)
+    public long waitFor(final long sequence, final long timeout, final TimeUnit units)
         throws AlertException, InterruptedException
     {
         final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);

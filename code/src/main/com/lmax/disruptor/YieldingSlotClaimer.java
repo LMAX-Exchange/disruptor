@@ -33,7 +33,7 @@ public final class YieldingSlotClaimer<T extends Entry>
     }
 
     @Override
-    public T claimSequence(long sequence)
+    public T claimSequence(final long sequence)
     {
         final RingBuffer<? extends T> ringBuffer = getRingBuffer();
 

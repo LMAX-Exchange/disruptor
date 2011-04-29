@@ -82,7 +82,7 @@ public final class RingBuffer<T extends Entry>
      * @param sequence to be claimed
      * @return the claimed entry
      */
-    public T claimSequence(long sequence)
+    public T claimSequence(final long sequence)
     {
         T entry = (T)entries[(int)sequence & ringModMask];
         entry.setSequence(sequence, setCallback);
@@ -96,7 +96,7 @@ public final class RingBuffer<T extends Entry>
      * @param eventConsumers this barrier will track
      * @return the barrier gated as required
      */
-    public ThresholdBarrier<T> createBarrier(EventConsumer... eventConsumers)
+    public ThresholdBarrier<T> createBarrier(final EventConsumer... eventConsumers)
     {
         return new RingBufferThresholdBarrier(waitStrategy, eventConsumers);
     }
@@ -107,7 +107,7 @@ public final class RingBuffer<T extends Entry>
      * @param sequence for the entry.
      * @return entry matching the sequence.
      */
-    public T getEntry(long sequence)
+    public T getEntry(final long sequence)
     {
         return (T)entries[(int)sequence & ringModMask];
     }
@@ -132,7 +132,7 @@ public final class RingBuffer<T extends Entry>
         return cursor;
     }
 
-    private void fill(EntryFactory<T> entryEntryFactory)
+    private void fill(final EntryFactory<T> entryEntryFactory)
     {
         for (int i = 0; i < entries.length; i++)
         {
@@ -147,7 +147,7 @@ public final class RingBuffer<T extends Entry>
      */
     private final class AppendCommitCallback implements CommitCallback
     {
-        public void commit(long sequence)
+        public void commit(final long sequence)
         {
             final long sequenceMinusOne = sequence - 1;
             while (cursor != sequenceMinusOne)
@@ -166,7 +166,7 @@ public final class RingBuffer<T extends Entry>
      */
     private final class SetCommitCallback implements CommitCallback
     {
-        public void commit(long sequence)
+        public void commit(final long sequence)
         {
             claimStrategy.setSequence(sequence + 1);
             cursor = sequence;
@@ -183,7 +183,7 @@ public final class RingBuffer<T extends Entry>
         private final EventConsumer[] eventConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferThresholdBarrier(WaitStrategy waitStrategy, EventConsumer... eventConsumers)
+        public RingBufferThresholdBarrier(final WaitStrategy waitStrategy, final EventConsumer... eventConsumers)
         {
             this.waitStrategy = waitStrategy;
             this.eventConsumers = eventConsumers;
@@ -209,7 +209,8 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public long waitFor(long sequence) throws AlertException, InterruptedException
+        public long waitFor(final long sequence)
+            throws AlertException, InterruptedException
         {
             if (0 != eventConsumers.length)
             {
@@ -233,7 +234,8 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public long waitFor(long sequence, long timeout, TimeUnit units) throws InterruptedException, AlertException
+        public long waitFor(final long sequence, final long timeout, final TimeUnit units)
+            throws InterruptedException, AlertException
         {
             if (0 != eventConsumers.length)
             {
