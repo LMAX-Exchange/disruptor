@@ -1,20 +1,20 @@
 package com.lmax.disruptor;
 
 /**
- * SlotClaimer that uses a busy spin strategy when trying to claim a slot in the {@link RingBuffer}
+ * EntryClaimer that uses a busy spin strategy when trying to claim a {@link Entry} in the {@link RingBuffer}
  *
  * This strategy is a good option when low-latency is the highest priority.
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
-public final class BusySpinSlotClaimer<T extends Entry>
-    extends AbstractSlotClaimer<T>
+public final class BusySpinEntryClaimer<T extends Entry>
+    extends AbstractEntryClaimer<T>
 {
-    public BusySpinSlotClaimer(final int bufferReserveThreshold,
-                               final RingBuffer<? extends T> ringBuffer,
-                               final EventConsumer... gatingEventConsumers)
+    public BusySpinEntryClaimer(final int bufferReserveThreshold,
+                                final RingBuffer<? extends T> ringBuffer,
+                                final EntryConsumer... gatingEntryConsumers)
     {
-        super(bufferReserveThreshold, ringBuffer, gatingEventConsumers);
+        super(bufferReserveThreshold, ringBuffer, gatingEntryConsumers);
     }
 
     @Override
@@ -23,7 +23,7 @@ public final class BusySpinSlotClaimer<T extends Entry>
         final RingBuffer<? extends T> ringBuffer = getRingBuffer();
 
         final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-        while (ringBuffer.getCursor() - getConsumedEventSequence() >= threshold)
+        while (ringBuffer.getCursor() - getConsumedEntrySequence() >= threshold)
         {
             // busy spin
         }
@@ -37,7 +37,7 @@ public final class BusySpinSlotClaimer<T extends Entry>
         final RingBuffer<? extends T> ringBuffer = getRingBuffer();
 
         final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-        while (sequence - getConsumedEventSequence() >= threshold)
+        while (sequence - getConsumedEntrySequence() >= threshold)
         {
         	// busy spin
         }

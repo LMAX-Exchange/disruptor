@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Blocking strategy that uses locks and a condition variable for
- * {@link EventConsumer}s waiting on a barrier.
+ * {@link EntryConsumer}s waiting on a barrier.
  *
  * This strategy should be used when performance and low-latency are not as important
  * as CPU resource.

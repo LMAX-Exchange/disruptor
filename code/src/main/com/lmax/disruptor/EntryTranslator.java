@@ -5,7 +5,7 @@ package com.lmax.disruptor;
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface EventTranslator<T extends Entry>
+public interface EntryTranslator<T extends Entry>
 {
     /**
      * Translate a data representation into fields set in given {@link Entry}

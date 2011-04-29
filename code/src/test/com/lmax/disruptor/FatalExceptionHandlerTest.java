@@ -5,6 +5,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,19 +13,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RunWith(JMock.class)
-public final class IgnoreEventExceptionHandlerTest
+public final class FatalExceptionHandlerTest
 {
     private final Mockery context = new Mockery();
 
-    public IgnoreEventExceptionHandlerTest()
+    public FatalExceptionHandlerTest()
     {
         context.setImposteriser(ClassImposteriser.INSTANCE);
     }
 
     @Test
-    public void shouldHandleAndIgnoreException()
+    public void shouldHandleFatalException()
     {
-        final Exception ex = new Exception();
+        final Exception causeException = new Exception();
         final Entry entry = new TestEntry();
 
         final Logger logger = context.mock(Logger.class);
@@ -32,11 +33,19 @@ public final class IgnoreEventExceptionHandlerTest
         context.checking(new Expectations()
         {
             {
-                oneOf(logger).log(Level.INFO, "Exception processing: " + entry, ex);
+                oneOf(logger).log(Level.SEVERE, "Exception processing: " + entry, causeException);
             }
         });
 
-        EventExceptionHandler eventExceptionHandler = new IgnoreEventExceptionHandler(logger);
-        eventExceptionHandler.handle(ex, entry);
+        ExceptionHandler exceptionHandler = new FatalExceptionHandler(logger);
+
+        try
+        {
+            exceptionHandler.handle(causeException, entry);
+        }
+        catch (RuntimeException ex)
+        {
+            Assert.assertEquals(causeException, ex.getCause());
+        }
     }
 }

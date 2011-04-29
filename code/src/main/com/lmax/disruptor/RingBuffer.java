@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 
 /**
- * Ring based store of reusable entries containing the data representing an event being exchanged between producers and consumers.
+ * Ring based store of reusable entries containing the data representing an {@link Entry} being exchanged between producers and consumers.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -31,8 +31,8 @@ public final class RingBuffer<T extends Entry>
      *
      * @param entryFactory to create {@link Entry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for producers claiming slots in the ring.
-     * @param waitStrategyOption waiting strategy employed by consumers waiting on events.
+     * @param claimStrategyOption threading strategy for producers claiming {@link Entry} in the ring.
+     * @param waitStrategyOption waiting strategy employed by consumers waiting on {@link Entry}s becoming available.
      */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
@@ -91,14 +91,14 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Create a barrier that gates on the RingBuffer and a list of {@link EventConsumer}s
+     * Create a barrier that gates on the RingBuffer and a list of {@link EntryConsumer}s
      *
-     * @param eventConsumers this barrier will track
+     * @param entryConsumers this barrier will track
      * @return the barrier gated as required
      */
-    public ThresholdBarrier<T> createBarrier(final EventConsumer... eventConsumers)
+    public ThresholdBarrier<T> createBarrier(final EntryConsumer... entryConsumers)
     {
-        return new RingBufferThresholdBarrier(waitStrategy, eventConsumers);
+        return new RingBufferThresholdBarrier(waitStrategy, entryConsumers);
     }
 
     /**
@@ -141,7 +141,7 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Callback to be used when claiming slots in sequence and cursor is catching up with claim
+     * Callback to be used when claiming {@link Entry}s in sequence and cursor is catching up with claim
      * for notifying the the consumers of progress. This will busy spin on the commit until previous
      * producers have committed lower sequence entries.
      */
@@ -161,7 +161,7 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Callback to be used when claiming slots and the cursor is explicitly set by the producer when you are sure only one
+     * Callback to be used when claiming {@link Entry}s and the cursor is explicitly set by the producer when you are sure only one
      * producer exists.
      */
     private final class SetCommitCallback implements CommitCallback
@@ -176,17 +176,17 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EventConsumer}(s)
+     * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
      */
     private final class RingBufferThresholdBarrier implements ThresholdBarrier
     {
-        private final EventConsumer[] eventConsumers;
+        private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferThresholdBarrier(final WaitStrategy waitStrategy, final EventConsumer... eventConsumers)
+        public RingBufferThresholdBarrier(final WaitStrategy waitStrategy, final EntryConsumer... entryConsumers)
         {
             this.waitStrategy = waitStrategy;
-            this.eventConsumers = eventConsumers;
+            this.entryConsumers = entryConsumers;
         }
 
         @Override
@@ -199,9 +199,9 @@ public final class RingBuffer<T extends Entry>
         public long getAvailableSequence()
         {
             long minimum = cursor;
-            for (int i = 0, size = eventConsumers.length; i < size; i++)
+            for (int i = 0, size = entryConsumers.length; i < size; i++)
             {
-                long sequence = eventConsumers[i].getSequence();
+                long sequence = entryConsumers[i].getSequence();
                 minimum = minimum < sequence ? minimum : sequence;
             }
 
@@ -212,7 +212,7 @@ public final class RingBuffer<T extends Entry>
         public long waitFor(final long sequence)
             throws AlertException, InterruptedException
         {
-            if (0 != eventConsumers.length)
+            if (0 != entryConsumers.length)
             {
                 long availableSequence = getAvailableSequence();
                 if (availableSequence >= sequence)
@@ -237,7 +237,7 @@ public final class RingBuffer<T extends Entry>
         public long waitFor(final long sequence, final long timeout, final TimeUnit units)
             throws InterruptedException, AlertException
         {
-            if (0 != eventConsumers.length)
+            if (0 != entryConsumers.length)
             {
                 long availableSequence = getAvailableSequence();
                 if (availableSequence >= sequence)

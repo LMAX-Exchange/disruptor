@@ -1,21 +1,21 @@
 package com.lmax.disruptor;
 
 /**
- * SlotClaimer that uses a thread yielding strategy when trying to claim a slot in the {@link RingBuffer}.
+ * EntryClaimer that uses a thread yielding strategy when trying to claim a {@link Entry} in the {@link RingBuffer}.
  * <p>
  * This strategy is a good compromise between performance and CPU resource.
  * <p>
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
-public final class YieldingSlotClaimer<T extends Entry>
-    extends AbstractSlotClaimer<T>
+public final class YieldingEntryClaimer<T extends Entry>
+    extends AbstractEntryClaimer<T>
 {
 
-    public YieldingSlotClaimer(final int bufferReserve,
-                               final RingBuffer<? extends T> ringBuffer,
-                               final EventConsumer... gatingEventConsumers)
+    public YieldingEntryClaimer(final int bufferReserve,
+                                final RingBuffer<? extends T> ringBuffer,
+                                final EntryConsumer... gatingEntryConsumers)
     {
-        super(bufferReserve, ringBuffer, gatingEventConsumers);
+        super(bufferReserve, ringBuffer, gatingEntryConsumers);
     }
 
     @Override
@@ -24,7 +24,7 @@ public final class YieldingSlotClaimer<T extends Entry>
         final RingBuffer<? extends T> ringBuffer = getRingBuffer();
 
         final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-        while (ringBuffer.getCursor() - getConsumedEventSequence() >= threshold)
+        while (ringBuffer.getCursor() - getConsumedEntrySequence() >= threshold)
         {
             Thread.yield();
         }
@@ -38,7 +38,7 @@ public final class YieldingSlotClaimer<T extends Entry>
         final RingBuffer<? extends T> ringBuffer = getRingBuffer();
 
         final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-        while (sequence - getConsumedEventSequence() >= threshold)
+        while (sequence - getConsumedEntrySequence() >= threshold)
         {
             Thread.yield();
         }

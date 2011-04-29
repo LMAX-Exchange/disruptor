@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Coordination barrier for tracking the cursor for producers and sequence of
- * dependent {@link EventConsumer}s for a {@link RingBuffer}
+ * dependent {@link EntryConsumer}s for a {@link RingBuffer}
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
@@ -18,9 +18,9 @@ public interface ThresholdBarrier<T extends Entry>
     RingBuffer<? extends T> getRingBuffer();
 
     /**
-     * Get the sequence number that the {@link RingBuffer} and dependent {@link EventConsumer}s have progressed to.
+     * Get the sequence number that the {@link RingBuffer} and dependent {@link EntryConsumer}s have progressed to.
      *
-     * This is the RingBuffer cursor and minimum sequence number of the dependent {@link EventConsumer}s.
+     * This is the RingBuffer cursor and minimum sequence number of the dependent {@link EntryConsumer}s.
      *
      * @return the sequence that is now valid for consuming.
      */

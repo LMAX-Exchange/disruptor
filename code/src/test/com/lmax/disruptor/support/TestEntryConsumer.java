@@ -1,15 +1,15 @@
 package com.lmax.disruptor.support;
 
 
-import com.lmax.disruptor.EventConsumer;
+import com.lmax.disruptor.EntryConsumer;
 import com.lmax.disruptor.ThresholdBarrier;
 
-public final class TestEventConsumer
-    implements EventConsumer
+public final class TestEntryConsumer
+    implements EntryConsumer
 {
     private volatile long sequence = -7;
 
-    public TestEventConsumer(final long initialSequence)
+    public TestEntryConsumer(final long initialSequence)
     {
         sequence = initialSequence;
     }

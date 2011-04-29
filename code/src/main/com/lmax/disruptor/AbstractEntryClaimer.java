@@ -1,34 +1,34 @@
 package com.lmax.disruptor;
 
 /**
- * Convenience class holding common functionality for {@link SlotClaimer}s.
+ * Convenience class holding common functionality for {@link EntryClaimer}s.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public abstract class AbstractSlotClaimer<T extends Entry>
-    implements SlotClaimer<T>
+public abstract class AbstractEntryClaimer<T extends Entry>
+    implements EntryClaimer<T>
 {
     private final int bufferReserve;
     private final RingBuffer<? extends T> ringBuffer;
-    private final EventConsumer[] gatingEventConsumers;
+    private final EntryConsumer[] gatingEntryConsumers;
 
-    public AbstractSlotClaimer(final int bufferReserve,
-                               final RingBuffer<? extends T> ringBuffer,
-                               final EventConsumer... gatingEventConsumers)
+    public AbstractEntryClaimer(final int bufferReserve,
+                                final RingBuffer<? extends T> ringBuffer,
+                                final EntryConsumer... gatingEntryConsumers)
     {
         if (null == ringBuffer)
         {
             throw new NullPointerException();
         }
 
-        if (gatingEventConsumers.length == 0)
+        if (gatingEntryConsumers.length == 0)
         {
             throw new IllegalArgumentException();
         }
 
         this.bufferReserve = bufferReserve;
         this.ringBuffer = ringBuffer;
-        this.gatingEventConsumers = gatingEventConsumers;
+        this.gatingEntryConsumers = gatingEntryConsumers;
     }
 
     public abstract T claimNext();
@@ -40,11 +40,11 @@ public abstract class AbstractSlotClaimer<T extends Entry>
     }
 
     @Override
-    public long getConsumedEventSequence()
+    public long getConsumedEntrySequence()
     {
         long minimum = ringBuffer.getCursor();
 
-        for (EventConsumer consumer : gatingEventConsumers)
+        for (EntryConsumer consumer : gatingEntryConsumers)
         {
             long sequence = consumer.getSequence();
             minimum = minimum < sequence ? minimum : sequence;

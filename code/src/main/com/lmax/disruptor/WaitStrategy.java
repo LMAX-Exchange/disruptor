@@ -3,7 +3,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Strategy employed for making {@link EventConsumer}s wait on a {@link RingBuffer}.
+ * Strategy employed for making {@link EntryConsumer}s wait on a {@link RingBuffer}.
  */
 public interface WaitStrategy
 {
@@ -30,7 +30,7 @@ public interface WaitStrategy
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
-     * Alert {@link EventConsumer}s that a change in status has occurred by causing an {@link AlertException} to be thrown.
+     * Alert {@link EntryConsumer}s that a change in status has occurred by causing an {@link AlertException} to be thrown.
      */
     void alert();
 

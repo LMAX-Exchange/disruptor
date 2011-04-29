@@ -2,28 +2,28 @@ package com.lmax.disruptor;
 
 /**
  * Implementations of this strategy can handled the necessary threading requirements
- * for claiming slots in the {@link RingBuffer}.
+ * for claiming {@link Entry}s in the {@link RingBuffer}.
  *
- * The slot index is a the sequence value mod the {@link RingBuffer} capacity.
+ * The {@link Entry} index is a the sequence value mod the {@link RingBuffer} capacity.
  */
 public interface ClaimStrategy
 {
     /**
      * Claim the next sequence index in the {@link RingBuffer} and increment.
      *
-     * @return the slot index to be used for the producer.
+     * @return the {@link Entry} index to be used for the producer.
      */
     long getAndIncrement();
 
     /**
-     * Set the current sequence value for claiming slots in the {@link RingBuffer}
+     * Set the current sequence value for claiming {@link Entry} in the {@link RingBuffer}
      *
      * @param sequence to be set as the current value.
      */
     void setSequence(long sequence);
 
     /**
-     * Indicates the threading policy to be applied for claiming slots by producers to the {@link com.lmax.disruptor.RingBuffer}
+     * Indicates the threading policy to be applied for claiming {@link Entry}s by producers to the {@link com.lmax.disruptor.RingBuffer}
      */
     enum Option
     {

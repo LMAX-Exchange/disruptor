@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Yielding strategy that uses a Thread.yield() for
- * {@link EventConsumer}s waiting on a barrier.
+ * {@link EntryConsumer}s waiting on a barrier.
  *
  * This strategy is a good compromise between performance and CPU resource.
  */

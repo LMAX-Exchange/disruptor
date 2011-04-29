@@ -3,17 +3,17 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.TestEntry;
 import org.junit.Test;
 
-public final class BatchEventConsumerTest
+public final class BatchEntryConsumerTest
 {
     @Test
     public void shouldDoStuff()
     {
         RingBuffer<TestEntry> ringBuffer = new RingBuffer<TestEntry>(TestEntry.ENTRY_FACTORY, 100);
         ThresholdBarrier<TestEntry> barrier = ringBuffer.createBarrier();
-        BatchEventHandler<TestEntry> batchEventHandler = new BatchEventHandler<TestEntry>()
+        BatchEntryHandler<TestEntry> batchEntryHandler = new BatchEntryHandler<TestEntry>()
         {
             @Override
-            public void onEvent(final TestEntry entry) throws Exception
+            public void onAvailable(final TestEntry entry) throws Exception
             {
 
             }
@@ -30,10 +30,10 @@ public final class BatchEventConsumerTest
             }
         };
 
-        BatchEventConsumer batchEventConsumer = new BatchEventConsumer<TestEntry>(barrier, batchEventHandler);
+        BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<TestEntry>(barrier, batchEntryHandler);
 
-        batchEventConsumer.halt();
-        batchEventConsumer.run();
-        batchEventConsumer.getBarrier();
+        batchEntryConsumer.halt();
+        batchEntryConsumer.run();
+        batchEntryConsumer.getBarrier();
     }
 }

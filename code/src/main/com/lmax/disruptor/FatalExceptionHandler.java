@@ -7,17 +7,17 @@ import java.util.logging.Logger;
  * Convenience implementation of an exception handler that using standard JDK logging to log
  * the exception as {@link Level}.SEVERE and re-throw it wrapped in a {@link RuntimeException}
  */
-public final class FatalEventExceptionHandler implements EventExceptionHandler
+public final class FatalExceptionHandler implements ExceptionHandler
 {
-    private final static Logger LOGGER = Logger.getLogger(FatalEventExceptionHandler.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(FatalExceptionHandler.class.getName());
     private final Logger logger;
 
-    public FatalEventExceptionHandler()
+    public FatalExceptionHandler()
     {
         this.logger = LOGGER;
     }
 
-    public FatalEventExceptionHandler(final Logger logger)
+    public FatalExceptionHandler(final Logger logger)
     {
         this.logger = logger;
     }

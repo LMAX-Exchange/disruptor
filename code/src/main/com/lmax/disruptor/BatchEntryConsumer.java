@@ -2,31 +2,31 @@ package com.lmax.disruptor;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the events to a {@link BatchEventHandler}.
+ * and delegating the available {@link Entry}s to a {@link BatchEntryHandler}.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class BatchEventConsumer<T extends Entry>
-    implements EventConsumer
+public final class BatchEntryConsumer<T extends Entry>
+    implements EntryConsumer
 {
     private volatile long sequence = -1L;
     private volatile boolean running = true;
 
     private final ThresholdBarrier<T> barrier;
-    private final BatchEventHandler<T> handlerBatch;
-    private EventExceptionHandler eventExceptionHandler = new FatalEventExceptionHandler();
+    private final BatchEntryHandler<T> handlerBatch;
+    private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
     private final boolean noProgressTracker;
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
-     * the onEvent method returns from the delegated call to the {@link BatchEventHandler}
+     * the onAvailable method returns from the delegated call to the {@link BatchEntryHandler}
      *
      * @param barrier on which it is waiting.
-     * @param handler is the delegate to which events are dispatched.
+     * @param handler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEventConsumer(final ThresholdBarrier<T> barrier,
-                              final BatchEventHandler<T> handler)
+    public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
+                              final BatchEntryHandler<T> handler)
     {
         this.barrier = barrier;
         this.handlerBatch = handler;
@@ -34,14 +34,14 @@ public final class BatchEventConsumer<T extends Entry>
     }
 
     /**
-     * Construct a batch consumer that will rely on the {@link ProgressReportingEventHandler}
-     * to callback via the {@link BatchEventConsumer.ProgressTrackerCallback} when it has completed with a sequence.
+     * Construct a batch consumer that will rely on the {@link ProgressReportingEntryHandler}
+     * to callback via the {@link BatchEntryConsumer.ProgressTrackerCallback} when it has completed with a sequence.
      *
      * @param barrier on which it is waiting.
-     * @param handler is the delegate to which events are dispatched.
+     * @param handler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEventConsumer(final ThresholdBarrier<T> barrier,
-                              final ProgressReportingEventHandler<T> handler)
+    public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
+                              final ProgressReportingEntryHandler<T> handler)
     {
         this.barrier = barrier;
         this.handlerBatch = handler;
@@ -51,18 +51,18 @@ public final class BatchEventConsumer<T extends Entry>
     }
 
     /**
-     * Set a new {@link EventExceptionHandler} for handling exceptions propagated out of the {@link BatchEventConsumer}
+     * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEntryConsumer}
      *
-     * @param eventExceptionHandler to replace the existing handler.
+     * @param exceptionHandler to replace the existing handler.
      */
-    public void setEventExceptionHandler(final EventExceptionHandler eventExceptionHandler)
+    public void setExceptionHandler(final ExceptionHandler exceptionHandler)
     {
-        if (null == eventExceptionHandler)
+        if (null == exceptionHandler)
         {
             throw new NullPointerException();
         }
 
-        this.eventExceptionHandler = eventExceptionHandler;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -99,7 +99,7 @@ public final class BatchEventConsumer<T extends Entry>
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
                     entry = barrier.getRingBuffer().getEntry(i);
-                    handlerBatch.onEvent(entry);
+                    handlerBatch.onAvailable(entry);
 
                     if (noProgressTracker)
                     {
@@ -115,7 +115,7 @@ public final class BatchEventConsumer<T extends Entry>
             }
             catch (final Exception ex)
             {
-                eventExceptionHandler.handle(ex, entry);
+                exceptionHandler.handle(ex, entry);
             }
         }
 
@@ -123,7 +123,7 @@ public final class BatchEventConsumer<T extends Entry>
     }
 
     /**
-     * Used by the {@link BatchEventConsumer} to signal when it has completed consuming a given sequence.
+     * Used by the {@link BatchEntryConsumer} to signal when it has completed consuming a given sequence.
      */
     public final class ProgressTrackerCallback
     {
@@ -134,7 +134,7 @@ public final class BatchEventConsumer<T extends Entry>
          */
         public void onCompleted(final long sequence)
         {
-            BatchEventConsumer.this.sequence = sequence;
+            BatchEntryConsumer.this.sequence = sequence;
         }
     }
 }
