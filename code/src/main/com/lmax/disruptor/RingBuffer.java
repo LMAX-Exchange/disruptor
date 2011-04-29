@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 
 /**
- * Ring based store of reusable entries that are items containing the data being exchanged between producers and consumers representing an event.
+ * Ring based store of reusable entries that are items containing the data representing an event being exchanged between producers and consumers.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -181,14 +181,12 @@ public final class RingBuffer<T extends Entry>
     private final class RingBufferThresholdBarrier implements ThresholdBarrier
     {
         private final EventConsumer[] eventConsumers;
-        private final boolean hasGatingEventProcessors;
         private final WaitStrategy waitStrategy;
 
         public RingBufferThresholdBarrier(WaitStrategy waitStrategy, EventConsumer... eventConsumers)
         {
             this.waitStrategy = waitStrategy;
             this.eventConsumers = eventConsumers;
-            hasGatingEventProcessors = eventConsumers.length != 0;
         }
 
         @Override
@@ -212,7 +210,7 @@ public final class RingBuffer<T extends Entry>
         @Override
         public long waitFor(long sequence) throws AlertException, InterruptedException
         {
-            if (hasGatingEventProcessors)
+            if (0 != eventConsumers.length)
             {
                 long availableSequence = getAvailableSequence();
                 if (availableSequence >= sequence)
@@ -236,7 +234,7 @@ public final class RingBuffer<T extends Entry>
         @Override
         public long waitFor(long sequence, long timeout, TimeUnit units) throws InterruptedException, AlertException
         {
-            if (hasGatingEventProcessors)
+            if (0 != eventConsumers.length)
             {
                 long availableSequence = getAvailableSequence();
                 if (availableSequence >= sequence)
