@@ -1,9 +1,6 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 
@@ -18,9 +15,6 @@ public final class RingBuffer<T extends Entry>
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1;
 
-    /** Pre-allocated exception to avoid garbage generation */
-    public static final AlertException ALERT_EXCEPTION = new AlertException();
-
     private final Object[] entries;
     private final int ringModMask;
 
@@ -28,25 +22,44 @@ public final class RingBuffer<T extends Entry>
     private final CommitCallback setCallback = new SetCommitCallback();
 
     private final ClaimStrategy claimStrategy;
-    private final Lock lock = new ReentrantLock();
-    private final Condition consumerNotifyCondition = lock.newCondition();
+    private final WaitStrategy waitStrategy;
 
     private volatile long cursor = INITIAL_CURSOR_VALUE;
 
+    /**
+     * Construct a RingBuffer with the full option set.
+     *
+     * @param entryFactory to create {@link Entry}s for filling the RingBuffer
+     * @param size of the RingBuffer that will be rounded up to the next power of 2
+     * @param claimStrategyOption threading strategy for producers claiming slots in the ring.
+     * @param waitStrategyOption waiting strategy employed by consumers waiting on events.
+     */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
-                      final ClaimStrategy.Option claimStrategyOption)
+                      final ClaimStrategy.Option claimStrategyOption,
+                      final WaitStrategy.Option waitStrategyOption)
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         entries = new Object[sizeAsPowerOfTwo];
+
         claimStrategy = claimStrategyOption.newInstance();
+        waitStrategy = waitStrategyOption.newInstance(this);
 
         fill(entryFactory);
     }
 
+    /**
+     * Construct a RingBuffer with default strategies of:
+     * {@link ClaimStrategy.Option}.MULTI_THREADED and {@link WaitStrategy.Option}.BLOCKING
+     *
+     * @param entryFactory to create {@link Entry}s for filling the RingBuffer
+     * @param size of the RingBuffer that will be rounded up to the next power of 2
+     */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size)
     {
-        this(entryFactory, size, ClaimStrategy.Option.MULTI_THREADED);
+        this(entryFactory, size,
+             ClaimStrategy.Option.MULTI_THREADED,
+             WaitStrategy.Option.BLOCKING);
     }
 
     /**
@@ -85,7 +98,7 @@ public final class RingBuffer<T extends Entry>
      */
     public ThresholdBarrier<T> createBarrier(EventConsumer... eventConsumers)
     {
-        return new RingBufferThresholdBarrier(eventConsumers);
+        return new RingBufferThresholdBarrier(waitStrategy, eventConsumers);
     }
 
     /**
@@ -127,21 +140,12 @@ public final class RingBuffer<T extends Entry>
         }
     }
 
-    private void notifyConsumers()
-    {
-        lock.lock();
-
-        consumerNotifyCondition.signalAll();
-
-        lock.unlock();
-    }
-
     /**
      * Callback to be used when claiming slots in sequence and cursor is catching up with claim
      * for notifying the the consumers of progress. This will busy spin on the commit until previous
      * producers have committed lower sequence Entries.
      */
-    final class AppendCommitCallback implements CommitCallback
+    private final class AppendCommitCallback implements CommitCallback
     {
         public void commit(long sequence)
         {
@@ -152,7 +156,7 @@ public final class RingBuffer<T extends Entry>
             }
             cursor = sequence;
 
-            notifyConsumers();
+            waitStrategy.notifyConsumers();
         }
     }
 
@@ -160,29 +164,29 @@ public final class RingBuffer<T extends Entry>
      * Callback to be used when claiming slots and the cursor is explicitly set by the producer when you are sure only one
      * producer exists.
      */
-    final class SetCommitCallback implements CommitCallback
+    private final class SetCommitCallback implements CommitCallback
     {
         public void commit(long sequence)
         {
             claimStrategy.setSequence(sequence + 1);
             cursor = sequence;
 
-            notifyConsumers();
+            waitStrategy.notifyConsumers();
         }
     }
 
     /**
      * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EventConsumer}(s)
      */
-    final class RingBufferThresholdBarrier implements ThresholdBarrier
+    private final class RingBufferThresholdBarrier implements ThresholdBarrier
     {
         private final EventConsumer[] eventConsumers;
         private final boolean hasGatingEventProcessors;
+        private final WaitStrategy waitStrategy;
 
-        private volatile boolean alerted = false;
-
-        public RingBufferThresholdBarrier(EventConsumer... eventConsumers)
+        public RingBufferThresholdBarrier(WaitStrategy waitStrategy, EventConsumer... eventConsumers)
         {
+            this.waitStrategy = waitStrategy;
             this.eventConsumers = eventConsumers;
             hasGatingEventProcessors = eventConsumers.length != 0;
         }
@@ -193,12 +197,12 @@ public final class RingBuffer<T extends Entry>
             return RingBuffer.this;
         }
 
-        public long getProcessedEventSequence()
+        public long getAvailableSequence()
         {
             long minimum = cursor;
-            for (EventConsumer eventConsumer : eventConsumers)
+            for (int i = 0, size = eventConsumers.length; i < size; i++)
             {
-                long sequence = eventConsumer.getSequence();
+                long sequence = eventConsumers[i].getSequence();
                 minimum = minimum < sequence ? minimum : sequence;
             }
 
@@ -206,117 +210,56 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public long waitFor(long sequence)
-            throws AlertException, InterruptedException
+        public long waitFor(long sequence) throws AlertException, InterruptedException
         {
             if (hasGatingEventProcessors)
             {
-                long completedProcessedEventSequence = getProcessedEventSequence();
-                if (completedProcessedEventSequence >= sequence)
+                long availableSequence = getAvailableSequence();
+                if (availableSequence >= sequence)
                 {
-                    return completedProcessedEventSequence;
+                    return availableSequence;
                 }
 
-                waitForRingBuffer(sequence);
+                waitStrategy.waitFor(sequence);
 
-                while ((completedProcessedEventSequence = getProcessedEventSequence()) < sequence)
+                while ((availableSequence = getAvailableSequence()) < sequence)
                 {
-                    checkForAlert();
+                    waitStrategy.checkForAlert();
                 }
 
-                return completedProcessedEventSequence;
+                return availableSequence;
             }
 
-            return waitForRingBuffer(sequence);
+            return waitStrategy.waitFor(sequence);
         }
 
         @Override
-        public long waitFor(long sequence, long timeout, TimeUnit units)
-            throws AlertException, InterruptedException
+        public long waitFor(long sequence, long timeout, TimeUnit units) throws InterruptedException, AlertException
         {
             if (hasGatingEventProcessors)
             {
-                long completedProcessedEventSequence = getProcessedEventSequence();
-                if (completedProcessedEventSequence >= sequence)
+                long availableSequence = getAvailableSequence();
+                if (availableSequence >= sequence)
                 {
-                    return completedProcessedEventSequence;
+                    return availableSequence;
                 }
 
-                waitForRingBuffer(sequence, timeout, units);
+                waitStrategy.waitFor(sequence, timeout, units);
 
-                while ((completedProcessedEventSequence = getProcessedEventSequence()) < sequence)
+                while ((availableSequence = getAvailableSequence()) < sequence)
                 {
-                    checkForAlert();
+                    waitStrategy.checkForAlert();
                 }
 
-                return completedProcessedEventSequence;
+                return availableSequence;
             }
 
-            return waitForRingBuffer(sequence, timeout, units);
-        }
-
-        private long waitForRingBuffer(long sequence)
-            throws AlertException, InterruptedException
-        {
-            if (cursor < sequence)
-            {
-                lock.lock();
-                try
-                {
-                    while (cursor < sequence)
-                    {
-                        checkForAlert();
-                        consumerNotifyCondition.await();
-                    }
-                }
-                finally
-                {
-                    lock.unlock();
-                }
-            }
-
-            return cursor;
-        }
-
-        private long waitForRingBuffer(long sequence, long timeout, TimeUnit units)
-            throws AlertException, InterruptedException
-        {
-            if (cursor < sequence)
-            {
-                lock.lock();
-                try
-                {
-                    while (cursor < sequence)
-                    {
-                        checkForAlert();
-                        if (!consumerNotifyCondition.await(timeout, units))
-                        {
-                            break;
-                        }
-                    }
-                }
-                finally
-                {
-                    lock.unlock();
-                }
-            }
-
-            return cursor;
-        }
-
-        public void checkForAlert() throws AlertException
-        {
-            if (alerted)
-            {
-                alerted = false;
-                throw ALERT_EXCEPTION;
-            }
+            return waitStrategy.waitFor(sequence, timeout, units);
         }
 
         public void alert()
         {
-            alerted = true;
-            notifyConsumers();
+            waitStrategy.alert();
         }
     }
 }

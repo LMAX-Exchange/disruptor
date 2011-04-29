@@ -61,7 +61,7 @@ public class ThresholdBarrierTest
 
         ringBuffer.claimSequence(2384378L).commit();
 
-        assertEquals(expectedMinimum, thresholdBarrier.getProcessedEventSequence());
+        assertEquals(expectedMinimum, thresholdBarrier.getAvailableSequence());
     }
 
     @Test

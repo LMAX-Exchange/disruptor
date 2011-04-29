@@ -20,11 +20,11 @@ public interface ThresholdBarrier<T extends Entry>
     /**
      * Get the sequence number that the {@link RingBuffer} and dependent {@link EventConsumer}s have progressed to.
      *
-     * This is the RingBuffer cursor and minimum sequence number of the dependent EventProcessors.
+     * This is the RingBuffer cursor and minimum sequence number of the dependent {@link EventConsumer}s.
      *
      * @return the sequence that is now valid for consuming.
      */
-    long getProcessedEventSequence();
+    long getAvailableSequence();
 
     /**
      * Wait for the given sequence to be available for consumption.
@@ -47,13 +47,6 @@ public interface ThresholdBarrier<T extends Entry>
      * @throws InterruptedException if the thread needs awaking on a condition variable.
      */
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
-
-    /**
-     * Check for a status change in the Disruptor being alerted to be used by the consumers.
-     *
-     * @throws AlertException if a status change is being signalled.
-     */
-    void checkForAlert() throws AlertException;
 
     /**
      * Alert the consumers of a status change.

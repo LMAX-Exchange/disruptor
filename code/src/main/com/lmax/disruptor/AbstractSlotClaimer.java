@@ -1,15 +1,18 @@
 package com.lmax.disruptor;
 
-
-
+/**
+ * Convenience class holding common functionality for {@link SlotClaimer}s.
+ *
+ * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
+ */
 public abstract class AbstractSlotClaimer<T extends Entry>
     implements SlotClaimer<T>
 {
-    private final int bufferReserveThreshold;
+    private final int bufferReserve;
     private final RingBuffer<? extends T> ringBuffer;
     private final EventConsumer[] gatingEventConsumers;
 
-    public AbstractSlotClaimer(final int bufferReserveThreshold,
+    public AbstractSlotClaimer(final int bufferReserve,
                                final RingBuffer<? extends T> ringBuffer,
                                final EventConsumer... gatingEventConsumers)
     {
@@ -23,7 +26,7 @@ public abstract class AbstractSlotClaimer<T extends Entry>
             throw new IllegalArgumentException();
         }
 
-        this.bufferReserveThreshold = bufferReserveThreshold;
+        this.bufferReserve = bufferReserve;
         this.ringBuffer = ringBuffer;
         this.gatingEventConsumers = gatingEventConsumers;
     }
@@ -50,8 +53,8 @@ public abstract class AbstractSlotClaimer<T extends Entry>
         return minimum;
     }
 
-    protected int getBufferReserveThreshold()
+    protected int getBufferReserve()
     {
-        return bufferReserveThreshold;
+        return bufferReserve;
     }
 }

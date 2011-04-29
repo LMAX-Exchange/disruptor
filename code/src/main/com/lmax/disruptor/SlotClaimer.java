@@ -3,6 +3,8 @@ package com.lmax.disruptor;
 /**
  * Abstraction for claiming slots in a {@link RingBuffer} while tracking dependent {@link EventConsumer}s
  *
+ * This strategy is a good option when CPU resource is limited.
+ *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
 public interface SlotClaimer<T extends Entry>
@@ -23,7 +25,7 @@ public interface SlotClaimer<T extends Entry>
     T claimSequence(long sequence);
 
     /**
-     * Get the sequence that {@link EventConsumer}s have consumed from the {@link RingBuffer}
+     * Get the sequence up to which the {@link EventConsumer}s have consumed from the {@link RingBuffer}
      *
      * @return the consumed to sequence
      */

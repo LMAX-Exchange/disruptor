@@ -6,7 +6,7 @@ package com.lmax.disruptor;
  *
  * The slot index is a the sequence value mod the {@link RingBuffer} capacity.
  */
-interface ClaimStrategy
+public interface ClaimStrategy
 {
     /**
      * Claim the next sequence index in the {@link RingBuffer} and increment.
