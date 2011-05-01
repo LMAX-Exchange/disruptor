@@ -100,7 +100,13 @@ public final class BlockingWaitStrategy implements WaitStrategy
     public void notifyConsumers()
     {
         lock.lock();
-        consumerNotifyCondition.signalAll();
-        lock.unlock();
+        try
+        {
+            consumerNotifyCondition.signalAll();
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 }
