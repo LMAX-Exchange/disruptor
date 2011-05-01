@@ -102,7 +102,7 @@ public final class BatchEntryConsumer<T extends Entry>
 
                     if (noProgressTracker)
                     {
-                        sequence = i;
+                        sequence = entry.getSequence();
                     }
                 }
 
@@ -117,7 +117,7 @@ public final class BatchEntryConsumer<T extends Entry>
                 exceptionHandler.handle(ex, entry);
                 if (noProgressTracker)
                 {
-                    sequence++;
+                    sequence = entry.getSequence();
                 }
             }
         }
