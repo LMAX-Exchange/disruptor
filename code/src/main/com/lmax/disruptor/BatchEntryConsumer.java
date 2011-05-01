@@ -13,7 +13,7 @@ public final class BatchEntryConsumer<T extends Entry>
     private volatile boolean running = true;
 
     private final ThresholdBarrier<T> barrier;
-    private final BatchEntryHandler<T> handlerBatch;
+    private final BatchEntryHandler<T> entryHandler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
     private final boolean noProgressTracker;
@@ -23,13 +23,13 @@ public final class BatchEntryConsumer<T extends Entry>
      * the onAvailable method returns from the delegated call to the {@link BatchEntryHandler}
      *
      * @param barrier on which it is waiting.
-     * @param handler is the delegate to which {@link Entry}s are dispatched.
+     * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
     public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
-                              final BatchEntryHandler<T> handler)
+                              final BatchEntryHandler<T> entryHandler)
     {
         this.barrier = barrier;
-        this.handlerBatch = handler;
+        this.entryHandler = entryHandler;
         this.noProgressTracker = true;
     }
 
@@ -38,22 +38,22 @@ public final class BatchEntryConsumer<T extends Entry>
      * to callback via the {@link BatchEntryConsumer.ProgressTrackerCallback} when it has completed with a sequence.
      *
      * @param barrier on which it is waiting.
-     * @param handler is the delegate to which {@link Entry}s are dispatched.
+     * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
     public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
-                              final ProgressReportingEntryHandler<T> handler)
+                              final ProgressReportingEntryHandler<T> entryHandler)
     {
         this.barrier = barrier;
-        this.handlerBatch = handler;
+        this.entryHandler = entryHandler;
 
         this.noProgressTracker = false;
-        handler.setProgressTracker(new ProgressTrackerCallback());
+        entryHandler.setProgressTracker(new ProgressTrackerCallback());
     }
 
     /**
      * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEntryConsumer}
      *
-     * @param exceptionHandler to replace the existing handler.
+     * @param exceptionHandler to replace the existing entryHandler.
      */
     public void setExceptionHandler(final ExceptionHandler exceptionHandler)
     {
@@ -99,7 +99,7 @@ public final class BatchEntryConsumer<T extends Entry>
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
                     entry = barrier.getRingBuffer().getEntry(i);
-                    handlerBatch.onAvailable(entry);
+                    entryHandler.onAvailable(entry);
 
                     if (noProgressTracker)
                     {
@@ -107,7 +107,7 @@ public final class BatchEntryConsumer<T extends Entry>
                     }
                 }
 
-                handlerBatch.onEndOfBatch();
+                entryHandler.onEndOfBatch();
             }
             catch (final AlertException ex)
             {
@@ -119,7 +119,7 @@ public final class BatchEntryConsumer<T extends Entry>
             }
         }
 
-        handlerBatch.onCompletion();
+        entryHandler.onCompletion();
     }
 
     /**

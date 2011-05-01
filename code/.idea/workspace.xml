@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b3ca458d-497f-452f-b95c-f17ad27c4126" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/test.xml" afterPath="$PROJECT_DIR$/.idea/libraries/test.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/com/lmax/disruptor/RingBufferTest.java" afterPath="$PROJECT_DIR$/src/test/com/lmax/disruptor/RingBufferTest.java" />
-      <change type="MOVED" beforePath="D:\Disruptor\disruptor\code\src\test\com\lmax\disruptor\support\ReadingCallable.java" afterPath="$PROJECT_DIR$/src/test/com/lmax/disruptor/support/TestConsumer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java" afterPath="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java" afterPath="$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java" />
     </list>
     <ignored path="disruptor.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -69,19 +71,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="RingBuffer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java">
+      <file leaf-file-name="BatchEntryConsumerTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="79" selection-start="1791" selection-end="1791" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="83" column="113" selection-start="2795" selection-end="2795" vertical-scroll-proportion="0.47754136">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RingBufferTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/RingBufferTest.java">
+      <file leaf-file-name="BatchEntryConsumer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="82" selection-start="1232" selection-end="1232" vertical-scroll-proportion="-1.6323878">
+            <state line="49" column="68" selection-start="2055" selection-end="2055" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -101,10 +105,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/EntryFactory.java" />
-        <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/EntryConsumer.java" />
-        <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java" />
-        <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/AbstractEntryClaimer.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryHandler.java" />
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/BusySpinEntryClaimerTest.java" />
@@ -112,11 +112,15 @@
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/FatalExceptionHandlerTest.java" />
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/IgnoreExceptionHandlerTest.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/ProgressReportingEntryHandler.java" />
-        <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java" />
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/YieldingEntryClaimerTest.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java" />
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/RingBufferTest.java" />
         <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/support/TestConsumer.java" />
+        <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/YieldingWaitStrategyTest.java" />
+        <option value="$PROJECT_DIR$/build.xml" />
+        <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java" />
+        <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java" />
+        <option value="$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java" />
       </list>
     </option>
   </component>
@@ -150,8 +154,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Favorites" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -221,20 +223,18 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
+              <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="disruptor" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="support" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -244,7 +244,7 @@
     <property name="project.structure.proportion" value="0.0" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="recentsLimit" value="5" />
-    <property name="options.lastSelected" value="preferences.lookFeel" />
+    <property name="options.lastSelected" value="fileTemplates" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/FIX-Probe/trunk" />
     <property name="DefaultHtmlFileTemplate" value="Html" />
@@ -254,9 +254,9 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -270,84 +270,15 @@
       <recent name="com.lmax.commons.disruptor.support" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration default="false" name="BatchEntryConsumerTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="disruptor" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.BatchEntryConsumerTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="MultiThreadedSlotClaimStrategyTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="disruptor" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.MultiThreadedSlotClaimStrategyTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="SingleThreadedSlotClaimStrategyTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="disruptor" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.SingleThreadedSlotClaimStrategyTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="UtilTest.shouldReturnNextPowerOfTwo" type="JUnit" factoryName="JUnit" temporary="true">
+  <component name="RunManager" selected="JUnit.BatchEntryConsumerTest.shouldCallMethodsInLifecycleOrderForABatch">
+    <configuration default="false" name="UtilTest.shouldReturnExactPowerOfTwo" type="JUnit" factoryName="JUnit" temporary="true">
       <extension name="coverage" enabled="false" merge="false" />
       <module name="disruptor" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
       <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.UtilTest" />
-      <option name="METHOD_NAME" value="shouldReturnNextPowerOfTwo" />
+      <option name="METHOD_NAME" value="shouldReturnExactPowerOfTwo" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
@@ -363,14 +294,83 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="false" name="UtilTest.shouldReturnExactPowerOfTwo" type="JUnit" factoryName="JUnit" temporary="true">
+    <configuration default="false" name="BatchEntryConsumerTest.shouldReturnProvidedBarrier" type="JUnit" factoryName="JUnit" temporary="true">
       <extension name="coverage" enabled="false" merge="false" />
       <module name="disruptor" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.UtilTest" />
-      <option name="METHOD_NAME" value="shouldReturnExactPowerOfTwo" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.BatchEntryConsumerTest" />
+      <option name="METHOD_NAME" value="shouldReturnProvidedBarrier" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ThresholdBarrierTest.shouldReturnProvidedRingBuffer" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" />
+      <module name="disruptor" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.ThresholdBarrierTest" />
+      <option name="METHOD_NAME" value="shouldReturnProvidedRingBuffer" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="BatchEntryConsumerTest.shouldCallMethodsInLifecycleOrder" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" />
+      <module name="disruptor" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.BatchEntryConsumerTest" />
+      <option name="METHOD_NAME" value="shouldCallMethodsInLifecycleOrder" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="BatchEntryConsumerTest.shouldCallMethodsInLifecycleOrderForABatch" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" />
+      <module name="disruptor" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.BatchEntryConsumerTest" />
+      <option name="METHOD_NAME" value="shouldCallMethodsInLifecycleOrderForABatch" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
@@ -463,11 +463,11 @@
       </method>
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.BatchEntryConsumerTest" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.MultiThreadedSlotClaimStrategyTest" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.SingleThreadedSlotClaimStrategyTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.UtilTest.shouldReturnNextPowerOfTwo" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.UtilTest.shouldReturnExactPowerOfTwo" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.UtilTest.shouldReturnExactPowerOfTwo" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.BatchEntryConsumerTest.shouldReturnProvidedBarrier" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.ThresholdBarrierTest.shouldReturnProvidedRingBuffer" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.BatchEntryConsumerTest.shouldCallMethodsInLifecycleOrder" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.BatchEntryConsumerTest.shouldCallMethodsInLifecycleOrderForABatch" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -524,20 +524,20 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290993" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24943139" sideWeight="0.67005074" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32760596" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24943139" sideWeight="0.67005074" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32875144" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32875144" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3993865" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2522964" sideWeight="0.67239404" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32994923" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298969" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290993" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -557,7 +557,7 @@
     <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rename of event to entry where appropriate for consistency." />
+    <option name="LAST_COMMIT_MESSAGE" value="Rename of CallableReader to TestConsumer." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -583,6 +583,7 @@
     <MESSAGE value="Javadoc improvements." />
     <MESSAGE value="Consistency sweep on style and naming." />
     <MESSAGE value="Rename of event to entry where appropriate for consistency." />
+    <MESSAGE value="Rename of CallableReader to TestConsumer." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -600,64 +601,9 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="61" selection-start="1673" selection-end="1673" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="45" selection-start="848" selection-end="848" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BusySpinEntryClaimer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="50" selection-start="945" selection-end="945" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="29" selection-start="990" selection-end="990" vertical-scroll-proportion="0.6953405" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/AbstractEntryClaimer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="21" selection-start="1229" selection-end="1229" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/BusySpinEntryClaimerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="39" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/EntryFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="111" selection-start="235" selection-end="235" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/ExceptionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="65" selection-start="98" selection-end="98" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/FatalExceptionHandlerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="29" selection-start="420" selection-end="420" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/IgnoreExceptionHandlerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="25" selection-start="975" selection-end="975" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/ProgressReportingEntryHandler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="8" column="111" selection-start="494" selection-end="494" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="183" column="48" selection-start="5800" selection-end="5800" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/YieldingEntryClaimerTest.java">
@@ -667,31 +613,162 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/support/TestConsumer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="68" selection-start="1428" selection-end="1428" vertical-scroll-proportion="0.7434988">
-          <folding />
-        </state>
+        <state line="43" column="68" selection-start="1428" selection-end="1428" vertical-scroll-proportion="0.7434988" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="79" selection-start="1791" selection-end="1791" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="43" column="79" selection-start="1791" selection-end="1791" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/BusySpinEntryClaimerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="39" selection-start="905" selection-end="905" vertical-scroll-proportion="0.50236404" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/SingleThreadedClaimStrategyTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="19" selection-start="97" selection-end="97" vertical-scroll-proportion="0.08037825" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/SingleThreadedClaimStrategy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="0" selection-start="327" selection-end="327" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/WaitStrategy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="38" column="106" selection-start="1554" selection-end="1554" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/MultiThreadedClaimStrategyTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="19" selection-start="97" selection-end="97" vertical-scroll-proportion="0.08037825" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/YieldingWaitStrategy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="100" selection-start="1160" selection-end="1160" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="49" column="71" selection-start="1569" selection-end="1569" vertical-scroll-proportion="0.30141845" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/RingBufferTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="82" selection-start="1232" selection-end="1232" vertical-scroll-proportion="-1.6323878">
+        <state line="38" column="40" selection-start="1179" selection-end="1179" vertical-scroll-proportion="0.4822695" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/support/TestEntry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="19" selection-start="139" selection-end="139" vertical-scroll-proportion="0.100472815">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchEntryConsumer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="49" column="68" selection-start="2055" selection-end="2055" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/ThresholdBarrierTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="120" column="66" selection-start="3852" selection-end="3852" vertical-scroll-proportion="0.095744684">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/com/lmax/disruptor/BatchEntryConsumerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="113" selection-start="2795" selection-end="2795" vertical-scroll-proportion="0.47754136">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
   </component>
   <component name="masterDetails">
     <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
       <state key="Copyright.UI">
         <settings>
           <splitter-proportions />
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>Android</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.6</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>disruptor</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>test</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
         </settings>
       </state>
       <state key="ScopeChooserConfigurable.UI">

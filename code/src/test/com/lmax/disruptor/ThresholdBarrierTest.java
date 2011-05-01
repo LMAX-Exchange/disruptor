@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(JMock.class)
-public class ThresholdBarrierTest
+public final class ThresholdBarrierTest
 {
     private Mockery mockery;
     private RingBuffer<StubEntry> ringBuffer;
@@ -206,6 +206,12 @@ public class ThresholdBarrierTest
         long expectedWorkSequence = expectedNumberMessages - 1;
         long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
+    }
+
+    @Test
+    public void shouldReturnProvidedRingBuffer()
+    {
+        assertEquals(ringBuffer, thresholdBarrier.getRingBuffer());
     }
 
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException

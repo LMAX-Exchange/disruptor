@@ -2,6 +2,7 @@
   <library name="test">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib/test" />
+      <root url="file://$PROJECT_DIR$/lib/test" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
