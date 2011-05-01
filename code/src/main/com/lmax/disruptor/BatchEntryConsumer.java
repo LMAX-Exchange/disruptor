@@ -20,7 +20,7 @@ public final class BatchEntryConsumer<T extends Entry>
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
-     * the onAvailable method returns from the delegated call to the {@link BatchEntryHandler}
+     * the {@link BatchEntryHandler#onAvailable(Entry)} method returns.
      *
      * @param barrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
@@ -126,12 +126,12 @@ public final class BatchEntryConsumer<T extends Entry>
     }
 
     /**
-     * Used by the {@link BatchEntryConsumer} to signal when it has completed consuming a given sequence.
+     * Used by the {@link BatchEntryHandler} to signal when it has completed consuming a given sequence.
      */
     public final class ProgressTrackerCallback
     {
         /**
-         * Signal that the sequence has been consumed.
+         * Notify that the handler has consumed up to a given sequence.
          *
          * @param sequence that has been consumed.
          */
