@@ -9,14 +9,14 @@ package com.lmax.disruptor;
 public final class BatchEntryConsumer<T extends Entry>
     implements EntryConsumer
 {
-    private volatile long sequence = -1L;
     private volatile boolean running = true;
+    private volatile long sequence = -1L;
 
     private final ThresholdBarrier<T> barrier;
     private final BatchEntryHandler<T> entryHandler;
+    private final boolean noProgressTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
-    private final boolean noProgressTracker;
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
@@ -53,7 +53,7 @@ public final class BatchEntryConsumer<T extends Entry>
     /**
      * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEntryConsumer}
      *
-     * @param exceptionHandler to replace the existing entryHandler.
+     * @param exceptionHandler to replace the existing exceptionHandler.
      */
     public void setExceptionHandler(final ExceptionHandler exceptionHandler)
     {
@@ -87,9 +87,8 @@ public final class BatchEntryConsumer<T extends Entry>
     public void run()
     {
         T entry = null;
-        final Thread thisThread = Thread.currentThread();
 
-        while (running && !thisThread.isInterrupted())
+        while (running)
         {
             try
             {
@@ -116,6 +115,10 @@ public final class BatchEntryConsumer<T extends Entry>
             catch (final Exception ex)
             {
                 exceptionHandler.handle(ex, entry);
+                if (noProgressTracker)
+                {
+                    sequence++;
+                }
             }
         }
 

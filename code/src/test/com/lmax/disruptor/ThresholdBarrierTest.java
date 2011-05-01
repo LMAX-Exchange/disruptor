@@ -1,5 +1,6 @@
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.support.Actions.countDown;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -9,10 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.lmax.disruptor.support.StubEntry;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.api.Action;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.action.DoAllAction;
 import org.junit.Before;
 import org.junit.Test;
@@ -254,17 +252,5 @@ public final class ThresholdBarrierTest
         public void run()
         {
         }
-    }
-
-    protected Action countDown(final CountDownLatch latch)
-    {
-        return new CustomAction("Count Down Latch")
-        {
-            public Object invoke(Invocation invocation) throws Throwable
-            {
-                latch.countDown();
-                return null;
-            }
-        };
     }
 }

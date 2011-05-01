@@ -9,10 +9,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+
+import static com.lmax.disruptor.support.Actions.countDown;
+
 @RunWith(JMock.class)
 public final class BatchEntryConsumerTest
 {
     private final Mockery context = new Mockery();
+    private final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
 
     private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 10);
     private final ThresholdBarrier<StubEntry> barrier = ringBuffer.createBarrier();
@@ -29,7 +34,7 @@ public final class BatchEntryConsumerTest
     public void shouldCallMethodsInLifecycleOrder()
         throws Exception
     {
-        final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations()
         {
@@ -39,6 +44,7 @@ public final class BatchEntryConsumerTest
 
                 oneOf(batchEntryHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
+                will(countDown(latch));
 
                 oneOf(batchEntryHandler).onCompletion();
                 inSequence(lifecycleSequence);
@@ -58,6 +64,7 @@ public final class BatchEntryConsumerTest
         }
 
         batchEntryConsumer.halt();
+        barrier.alert();
         thread.join();
     }
 
@@ -65,7 +72,7 @@ public final class BatchEntryConsumerTest
     public void shouldCallMethodsInLifecycleOrderForBatch()
         throws Exception
     {
-        final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations()
         {
@@ -79,6 +86,7 @@ public final class BatchEntryConsumerTest
 
                 oneOf(batchEntryHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
+                will(countDown(latch));
 
                 oneOf(batchEntryHandler).onCompletion();
                 inSequence(lifecycleSequence);
@@ -92,12 +100,68 @@ public final class BatchEntryConsumerTest
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
-        while (batchEntryConsumer.getSequence() != 2)
-        {
-            Thread.yield();
-        }
+        latch.await();
 
         batchEntryConsumer.halt();
+        barrier.alert();
         thread.join();
+    }
+
+    @Test
+    public void shouldCallExceptionHandlerOnUncaughtException()
+        throws Exception
+    {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Exception ex = new Exception();
+        final BatchEntryHandler<StubEntry> batchEntryHandler = new TestBatchEntryHandler<StubEntry>(ex);
+        final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(barrier, batchEntryHandler);
+
+        final ExceptionHandler exceptionHandler = context.mock(ExceptionHandler.class);
+        batchEntryConsumer.setExceptionHandler(exceptionHandler);
+
+        context.checking(new Expectations()
+        {
+            {
+                oneOf(exceptionHandler).handle(ex, ringBuffer.getEntry(0));
+                will(countDown(latch));
+            }
+        });
+
+        Thread thread = new Thread(batchEntryConsumer);
+        thread.start();
+
+        ringBuffer.claimNext().commit();
+
+        latch.await();
+
+        batchEntryConsumer.halt();
+        barrier.alert();
+        thread.join();
+    }
+
+    private static final class TestBatchEntryHandler<T extends Entry> implements BatchEntryHandler<T>
+    {
+        private final Exception ex;
+
+        private TestBatchEntryHandler(final Exception ex)
+        {
+            this.ex = ex;
+        }
+
+        @Override
+        public void onAvailable(final T entry) throws Exception
+        {
+            throw ex;
+        }
+
+        @Override
+        public void onEndOfBatch() throws Exception
+        {
+        }
+
+        @Override
+        public void onCompletion()
+        {
+        }
     }
 }
