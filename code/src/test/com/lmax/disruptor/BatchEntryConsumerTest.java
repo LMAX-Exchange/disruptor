@@ -8,7 +8,6 @@ import org.jmock.Sequence;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JMock;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,6 +33,12 @@ public final class BatchEntryConsumerTest
     public void shouldReturnProvidedBarrier()
     {
         assertEquals(barrier, batchEntryConsumer.getBarrier());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldThrowExceptionOnSettingNullExceptionHandler()
+    {
+        batchEntryConsumer.setExceptionHandler(null);
     }
 
     @Test
