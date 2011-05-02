@@ -56,7 +56,8 @@ public final class BatchEntryConsumerTest
 
         Assert.assertEquals(-1L, batchEntryConsumer.getSequence());
 
-        ringBuffer.claimNext().commit();
+        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
+        claimer.claimNext().commit();
 
         while (batchEntryConsumer.getSequence() != 0)
         {
@@ -92,9 +93,10 @@ public final class BatchEntryConsumerTest
             }
         });
 
-        ringBuffer.claimNext().commit();
-        ringBuffer.claimNext().commit();
-        ringBuffer.claimNext().commit();
+        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
+        claimer.claimNext().commit();
+        claimer.claimNext().commit();
+        claimer.claimNext().commit();
 
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
@@ -128,7 +130,8 @@ public final class BatchEntryConsumerTest
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
-        ringBuffer.claimNext().commit();
+        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
+        claimer.claimNext().commit();
 
         latch.await();
 

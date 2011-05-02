@@ -21,13 +21,15 @@ public class RingBufferTest
 {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private RingBuffer<StubEntry> ringBuffer;
-    private ThresholdBarrier thresholdBarrier;
+    private ThresholdBarrier<StubEntry> thresholdBarrier;
+    private Claimer<StubEntry> claimer;
 
     @Before
     public void setUp()
     {
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
         thresholdBarrier = ringBuffer.createBarrier();
+        claimer = ringBuffer.createClaimer(0);
     }
 
     @Test
@@ -37,7 +39,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = ringBuffer.claimNext();
+        StubEntry oldEntry = claimer.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
@@ -57,7 +59,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = ringBuffer.claimNext();
+        StubEntry oldEntry = claimer.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
@@ -85,7 +87,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = ringBuffer.claimNext();
+        StubEntry oldEntry = claimer.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
@@ -98,7 +100,7 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = ringBuffer.claimNext();
+            StubEntry entry = claimer.claimNext();
             entry.setValue(i);
             entry.commit();
         }
@@ -120,7 +122,7 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset ; i++)
         {
-            StubEntry entry = ringBuffer.claimNext();
+            StubEntry entry = claimer.claimNext();
             entry.setValue(i);
             entry.commit();
         }
@@ -139,7 +141,7 @@ public class RingBufferTest
     public void shouldSetAtSpecificSequence() throws Exception
     {
         long expectedSequence = 5;
-        StubEntry expectedEntry = ringBuffer.claimSequence(expectedSequence);
+        StubEntry expectedEntry = claimer.claimSequence(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
         expectedEntry.commit();
 

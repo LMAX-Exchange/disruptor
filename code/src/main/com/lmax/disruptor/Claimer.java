@@ -5,7 +5,7 @@ package com.lmax.disruptor;
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
-public interface EntryClaimer<T extends Entry>
+public interface Claimer<T extends Entry>
 {
     /**
      * Claim the next {@link Entry} in sequence for a producer on the {@link RingBuffer}
@@ -35,4 +35,11 @@ public interface EntryClaimer<T extends Entry>
      * @return the {@link RingBuffer}
      */
     RingBuffer<? extends T> getRingBuffer();
+
+    /**
+     * The number of slots in the buffer that have been reserved to prevent wrapping.
+     *
+     * @return size of the reserve.
+     */
+    int getBufferReserve();
 }

@@ -20,44 +20,46 @@ import org.junit.runner.RunWith;
 @RunWith(JMock.class)
 public final class ThresholdBarrierTest
 {
-    private Mockery mockery;
+    private Mockery context;
     private RingBuffer<StubEntry> ringBuffer;
     private EntryConsumer entryConsumer1;
     private EntryConsumer entryConsumer2;
     private EntryConsumer entryConsumer3;
     private ThresholdBarrier<StubEntry> thresholdBarrier;
+    private Claimer<StubEntry> claimer;
 
     @Before
     public void setUp()
     {
-        mockery = new Mockery();
+        context = new Mockery();
 
-        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        entryConsumer1 = mockery.mock(EntryConsumer.class, "entryConsumer1");
-        entryConsumer2 = mockery.mock(EntryConsumer.class, "entryConsumer2");
-        entryConsumer3 = mockery.mock(EntryConsumer.class, "entryConsumer3");
+        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 64);
+        entryConsumer1 = context.mock(EntryConsumer.class, "entryConsumer1");
+        entryConsumer2 = context.mock(EntryConsumer.class, "entryConsumer2");
+        entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
         thresholdBarrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
+        claimer = ringBuffer.createClaimer(0);
     }
 
     @Test
     public void shouldGetMinOffWorkers() throws Exception
     {
         final long expectedMinimum = 3;
-        mockery.checking(new Expectations()
+        context.checking(new Expectations()
         {
             {
                 one(entryConsumer1).getSequence();
                 will(returnValue(expectedMinimum));
 
                 one(entryConsumer2).getSequence();
-                will(returnValue(86L));
+                will(returnValue(17L));
 
                 one(entryConsumer3).getSequence();
-                will(returnValue(2384378L));
+                will(returnValue(19L));
             }
         });
 
-        ringBuffer.claimSequence(2384378L).commit();
+        claimer.claimSequence(19L).commit();
 
         assertEquals(expectedMinimum, thresholdBarrier.getAvailableSequence());
     }
@@ -69,7 +71,7 @@ public final class ThresholdBarrierTest
         final long expectedWorkSequence = 9;
         fillRingBuffer(expectedNumberMessages);
 
-        mockery.checking(new Expectations()
+        context.checking(new Expectations()
         {
             {
                 one(entryConsumer1).getSequence();
@@ -106,7 +108,7 @@ public final class ThresholdBarrierTest
         {
             public void run()
             {
-                StubEntry entry = ringBuffer.claimNext();
+                StubEntry entry = claimer.claimNext();
                 entry.setValue((int) entry.getSequence());
                 entry.commit();
 
@@ -131,7 +133,7 @@ public final class ThresholdBarrierTest
         fillRingBuffer(expectedNumberMessages);
         final CountDownLatch latch = new CountDownLatch(9);
 
-        mockery.checking(new Expectations()
+        context.checking(new Expectations()
         {
             {
                 allowing(entryConsumer1).getSequence();
@@ -216,7 +218,7 @@ public final class ThresholdBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            StubEntry entry = ringBuffer.claimNext();
+            StubEntry entry = claimer.claimNext();
             entry.setValue((int) i);
             entry.commit();
         }

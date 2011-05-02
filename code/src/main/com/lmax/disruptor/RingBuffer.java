@@ -63,42 +63,28 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Claim the next entry in sequence for use by a producer.
-     *
-     * @return the next entry in the sequence.
-     */
-    public T claimNext()
-    {
-        long sequence = claimStrategy.getAndIncrement();
-        T entry = (T)entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence, appendCallback);
-
-        return entry;
-    }
-
-    /**
-     * Claim a particular entry in sequence when you know only one producer exists.
-     *
-     * @param sequence to be claimed
-     * @return the claimed entry
-     */
-    public T claimSequence(final long sequence)
-    {
-        T entry = (T)entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence, setCallback);
-
-        return entry;
-    }
-
-    /**
-     * Create a barrier that gates on the RingBuffer and a list of {@link EntryConsumer}s
+     * Create a {@link ThresholdBarrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
      *
      * @param entryConsumers this barrier will track
      * @return the barrier gated as required
      */
     public ThresholdBarrier<T> createBarrier(final EntryConsumer... entryConsumers)
     {
-        return new RingBufferThresholdBarrier(waitStrategy, entryConsumers);
+        return new RingBufferThresholdBarrier<T>(this, waitStrategy, entryConsumers);
+    }
+
+    /**
+     * Create a {@link Claimer} on this RingBuffer that tracks dependent {@link EntryConsumer}s.
+     *
+     * The bufferReserve should be at least the number of producing threads.
+     *
+     * @param bufferReserve size of of the buffer to be reserved.
+     * @param entryConsumers to be tracked to prevent wrapping.
+     * @return a {@link Claimer} with the above configuration.
+     */
+    public Claimer<T> createClaimer(final int bufferReserve, final EntryConsumer... entryConsumers)
+    {
+        return new YieldingClaimer<T>(this, bufferReserve, entryConsumers);
     }
 
     /**
@@ -140,6 +126,23 @@ public final class RingBuffer<T extends Entry>
         }
     }
 
+    private T claimNext()
+    {
+        long sequence = claimStrategy.getAndIncrement();
+        T entry = (T)entries[(int)sequence & ringModMask];
+        entry.setSequence(sequence, appendCallback);
+
+        return entry;
+    }
+
+    private T claimSequence(final long sequence)
+    {
+        T entry = (T)entries[(int)sequence & ringModMask];
+        entry.setSequence(sequence, setCallback);
+
+        return entry;
+    }
+
     /**
      * Callback to be used when claiming {@link Entry}s in sequence and cursor is catching up with claim
      * for notifying the the consumers of progress. This will busy spin on the commit until previous
@@ -178,27 +181,31 @@ public final class RingBuffer<T extends Entry>
     /**
      * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
      */
-    private final class RingBufferThresholdBarrier implements ThresholdBarrier
+    private static final class RingBufferThresholdBarrier<T extends Entry> implements ThresholdBarrier<T>
     {
+        private final RingBuffer<? extends T> ringBuffer;
         private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferThresholdBarrier(final WaitStrategy waitStrategy, final EntryConsumer... entryConsumers)
+        public RingBufferThresholdBarrier(final RingBuffer<? extends T> ringBuffer,
+                                          final WaitStrategy waitStrategy,
+                                          final EntryConsumer... entryConsumers)
         {
+            this.ringBuffer = ringBuffer;
             this.waitStrategy = waitStrategy;
             this.entryConsumers = entryConsumers;
         }
 
         @Override
-        public RingBuffer getRingBuffer()
+        public RingBuffer<? extends T> getRingBuffer()
         {
-            return RingBuffer.this;
+            return ringBuffer;
         }
 
         @Override
         public long getAvailableSequence()
         {
-            long minimum = cursor;
+            long minimum = ringBuffer.getCursor();
             for (int i = 0, size = entryConsumers.length; i < size; i++)
             {
                 long sequence = entryConsumers[i].getSequence();
@@ -262,6 +269,78 @@ public final class RingBuffer<T extends Entry>
         public void alert()
         {
             waitStrategy.alert();
+        }
+    }
+
+    /**
+     * Claimer that uses a thread yielding strategy when trying to claim a {@link Entry} in the {@link RingBuffer}.
+     *
+     * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
+     */
+    private final class YieldingClaimer<T extends Entry>
+        implements Claimer<T>
+    {
+        private final RingBuffer<? extends T> ringBuffer;
+        private final int bufferReserve;
+        private final EntryConsumer[] gatingEntryConsumers;
+
+        public YieldingClaimer(final RingBuffer<? extends T> ringBuffer,
+                               final int bufferReserve,
+                               final EntryConsumer... gatingEntryConsumers)
+        {
+            this.bufferReserve = bufferReserve;
+            this.ringBuffer = ringBuffer;
+            this.gatingEntryConsumers = gatingEntryConsumers;
+        }
+
+        @Override
+        public T claimNext()
+        {
+            final long threshold = ringBuffer.getCapacity() - getBufferReserve();
+            while (ringBuffer.getCursor() - getConsumedEntrySequence() >= threshold)
+            {
+                Thread.yield();
+            }
+
+            return ringBuffer.claimNext();
+        }
+
+        @Override
+        public T claimSequence(final long sequence)
+        {
+            final long threshold = ringBuffer.getCapacity() - getBufferReserve();
+            while (sequence - getConsumedEntrySequence() >= threshold)
+            {
+                Thread.yield();
+            }
+
+            return ringBuffer.claimSequence(sequence);
+        }
+
+        @Override
+        public RingBuffer<? extends T> getRingBuffer()
+        {
+            return ringBuffer;
+        }
+
+        @Override
+        public long getConsumedEntrySequence()
+        {
+            long minimum = ringBuffer.getCursor();
+
+            for (EntryConsumer consumer : gatingEntryConsumers)
+            {
+                long sequence = consumer.getSequence();
+                minimum = minimum < sequence ? minimum : sequence;
+            }
+
+            return minimum;
+        }
+
+        @Override
+        public int getBufferReserve()
+        {
+            return bufferReserve;
         }
     }
 }
