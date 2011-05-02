@@ -18,14 +18,14 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(JMock.class)
-public final class ThresholdBarrierTest
+public final class BarrierTest
 {
     private Mockery context;
     private RingBuffer<StubEntry> ringBuffer;
     private EntryConsumer entryConsumer1;
     private EntryConsumer entryConsumer2;
     private EntryConsumer entryConsumer3;
-    private ThresholdBarrier<StubEntry> thresholdBarrier;
+    private Barrier<StubEntry> barrier;
     private Claimer<StubEntry> claimer;
 
     @Before
@@ -37,7 +37,7 @@ public final class ThresholdBarrierTest
         entryConsumer1 = context.mock(EntryConsumer.class, "entryConsumer1");
         entryConsumer2 = context.mock(EntryConsumer.class, "entryConsumer2");
         entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
-        thresholdBarrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
+        barrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
         claimer = ringBuffer.createClaimer(0);
     }
 
@@ -61,7 +61,7 @@ public final class ThresholdBarrierTest
 
         claimer.claimSequence(19L).commit();
 
-        assertEquals(expectedMinimum, thresholdBarrier.getAvailableSequence());
+        assertEquals(expectedMinimum, barrier.getAvailableSequence());
     }
 
     @Test
@@ -85,7 +85,7 @@ public final class ThresholdBarrierTest
             }
         });
 
-        long completedWorkSequence = thresholdBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -102,7 +102,7 @@ public final class ThresholdBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final ThresholdBarrier barrier = ringBuffer.createBarrier(workers);
+        final Barrier barrier = ringBuffer.createBarrier(workers);
 
         Runnable runnable = new Runnable()
         {
@@ -154,7 +154,7 @@ public final class ThresholdBarrierTest
             {
                 try
                 {
-                    thresholdBarrier.waitFor(expectedNumberMessages - 1);
+                    barrier.waitFor(expectedNumberMessages - 1);
                 }
                 catch (AlertException e)
                 {
@@ -169,7 +169,7 @@ public final class ThresholdBarrierTest
 
         t.start();
         assertTrue(latch.await(1, TimeUnit.SECONDS));
-        thresholdBarrier.alert();
+        barrier.alert();
         t.join();
 
         assertTrue("Thread was not interrupted", alerted[0]);
@@ -188,7 +188,7 @@ public final class ThresholdBarrierTest
             entryConsumers[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final ThresholdBarrier barrier = ringBuffer.createBarrier(entryConsumers);
+        final Barrier barrier = ringBuffer.createBarrier(entryConsumers);
 
         Runnable runnable = new Runnable()
         {
@@ -211,7 +211,7 @@ public final class ThresholdBarrierTest
     @Test
     public void shouldReturnProvidedRingBuffer()
     {
-        assertEquals(ringBuffer, thresholdBarrier.getRingBuffer());
+        assertEquals(ringBuffer, barrier.getRingBuffer());
     }
 
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException
@@ -240,7 +240,7 @@ public final class ThresholdBarrierTest
         }
 
         @Override
-        public ThresholdBarrier getBarrier()
+        public Barrier getBarrier()
         {
             return null;
         }

@@ -2,7 +2,7 @@ package com.lmax.disruptor.support;
 
 
 import com.lmax.disruptor.EntryConsumer;
-import com.lmax.disruptor.ThresholdBarrier;
+import com.lmax.disruptor.Barrier;
 
 public final class TestEntryConsumer
     implements EntryConsumer
@@ -21,7 +21,7 @@ public final class TestEntryConsumer
     }
 
     @Override
-    public ThresholdBarrier getBarrier()
+    public Barrier getBarrier()
     {
         return null;
     }

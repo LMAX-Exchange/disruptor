@@ -1,7 +1,7 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.ThresholdBarrier;
+import com.lmax.disruptor.Barrier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public final class TestConsumer implements Callable<List<StubEntry>>
     private final long toWaitForSequence;
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
-    private final ThresholdBarrier thresholdBarrier;
+    private final Barrier barrier;
 
     public TestConsumer(final CyclicBarrier barrier,
                         final RingBuffer<StubEntry> ringBuffer,
@@ -25,14 +25,14 @@ public final class TestConsumer implements Callable<List<StubEntry>>
         this.ringBuffer = ringBuffer;
         this.initialSequence = initialSequence;
         this.toWaitForSequence = toWaitForSequence;
-        thresholdBarrier = ringBuffer.createBarrier();
+        this.barrier = ringBuffer.createBarrier();
     }
 
     @Override
     public List<StubEntry> call() throws Exception
     {
         cyclicBarrier.await();
-        thresholdBarrier.waitFor(toWaitForSequence);
+        barrier.waitFor(toWaitForSequence);
 
         final List<StubEntry> messages = new ArrayList<StubEntry>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)

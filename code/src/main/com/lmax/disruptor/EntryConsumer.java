@@ -17,11 +17,11 @@ public interface EntryConsumer<T extends  Entry> extends Runnable
      *
      * @return the barrier being waited on.
      */
-    ThresholdBarrier<T> getBarrier();
+    Barrier<T> getBarrier();
 
     /**
      * Signal that this EntryConsumer should stop when it has finished consuming at the next clean break.
-     * It will call {@link ThresholdBarrier#alert()} to notify the thread to check status.
+     * It will call {@link Barrier#alert()} to notify the thread to check status.
      */
     void halt();
 }

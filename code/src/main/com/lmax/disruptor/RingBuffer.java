@@ -63,14 +63,14 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Create a {@link ThresholdBarrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
+     * Create a {@link Barrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
      *
      * @param entryConsumers this barrier will track
      * @return the barrier gated as required
      */
-    public ThresholdBarrier<T> createBarrier(final EntryConsumer... entryConsumers)
+    public Barrier<T> createBarrier(final EntryConsumer... entryConsumers)
     {
-        return new RingBufferThresholdBarrier<T>(this, waitStrategy, entryConsumers);
+        return new RingBufferBarrier<T>(this, waitStrategy, entryConsumers);
     }
 
     /**
@@ -181,15 +181,15 @@ public final class RingBuffer<T extends Entry>
     /**
      * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
      */
-    private static final class RingBufferThresholdBarrier<T extends Entry> implements ThresholdBarrier<T>
+    private static final class RingBufferBarrier<T extends Entry> implements Barrier<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
         private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferThresholdBarrier(final RingBuffer<? extends T> ringBuffer,
-                                          final WaitStrategy waitStrategy,
-                                          final EntryConsumer... entryConsumers)
+        public RingBufferBarrier(final RingBuffer<? extends T> ringBuffer,
+                                 final WaitStrategy waitStrategy,
+                                 final EntryConsumer... entryConsumers)
         {
             this.ringBuffer = ringBuffer;
             this.waitStrategy = waitStrategy;

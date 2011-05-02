@@ -74,7 +74,7 @@ public interface WaitStrategy
         /**
          * Used by the {@link com.lmax.disruptor.RingBuffer} as a polymorphic constructor.
          *
-         * @param ringBuffer the {@link ThresholdBarrier} is waiting on.
+         * @param ringBuffer the {@link Barrier} is waiting on.
          * @return a new instance of the WaitStrategy
          */
         abstract WaitStrategy newInstance(RingBuffer ringBuffer);

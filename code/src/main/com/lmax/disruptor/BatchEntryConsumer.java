@@ -12,9 +12,9 @@ public final class BatchEntryConsumer<T extends Entry>
     private volatile boolean running = true;
     private volatile long sequence = -1L;
 
-    private final ThresholdBarrier<T> barrier;
+    private final Barrier<T> barrier;
     private final BatchEntryHandler<T> entryHandler;
-    private final boolean noProgressTracker;
+    private final boolean noSequenceTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
 
@@ -25,29 +25,29 @@ public final class BatchEntryConsumer<T extends Entry>
      * @param barrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
+    public BatchEntryConsumer(final Barrier<T> barrier,
                               final BatchEntryHandler<T> entryHandler)
     {
         this.barrier = barrier;
         this.entryHandler = entryHandler;
-        this.noProgressTracker = true;
+        this.noSequenceTracker = true;
     }
 
     /**
-     * Construct a batch consumer that will rely on the {@link ProgressReportingEntryHandler}
-     * to callback via the {@link BatchEntryConsumer.ProgressTrackerCallback} when it has completed with a sequence.
+     * Construct a batch consumer that will rely on the {@link SequenceTrackingEntryHandler}
+     * to callback via the {@link com.lmax.disruptor.BatchEntryConsumer.SequenceTrackerCallback} when it has completed with a sequence.
      *
      * @param barrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final ThresholdBarrier<T> barrier,
-                              final ProgressReportingEntryHandler<T> entryHandler)
+    public BatchEntryConsumer(final Barrier<T> barrier,
+                              final SequenceTrackingEntryHandler<T> entryHandler)
     {
         this.barrier = barrier;
         this.entryHandler = entryHandler;
 
-        this.noProgressTracker = false;
-        entryHandler.setProgressTracker(new ProgressTrackerCallback());
+        this.noSequenceTracker = false;
+        entryHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
     }
 
     /**
@@ -72,7 +72,7 @@ public final class BatchEntryConsumer<T extends Entry>
     }
 
     @Override
-    public ThresholdBarrier<? extends T> getBarrier()
+    public Barrier<? extends T> getBarrier()
     {
         return barrier;
     }
@@ -101,7 +101,7 @@ public final class BatchEntryConsumer<T extends Entry>
                     entry = barrier.getRingBuffer().getEntry(i);
                     entryHandler.onAvailable(entry);
 
-                    if (noProgressTracker)
+                    if (noSequenceTracker)
                     {
                         sequence = entry.getSequence();
                     }
@@ -116,7 +116,7 @@ public final class BatchEntryConsumer<T extends Entry>
             catch (final Exception ex)
             {
                 exceptionHandler.handle(ex, entry);
-                if (noProgressTracker)
+                if (noSequenceTracker)
                 {
                     sequence = entry.getSequence();
                 }
@@ -129,7 +129,7 @@ public final class BatchEntryConsumer<T extends Entry>
     /**
      * Used by the {@link BatchEntryHandler} to signal when it has completed consuming a given sequence.
      */
-    public final class ProgressTrackerCallback
+    public final class SequenceTrackerCallback
     {
         /**
          * Notify that the handler has consumed up to a given sequence.

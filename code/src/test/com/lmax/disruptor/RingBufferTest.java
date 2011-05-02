@@ -21,14 +21,14 @@ public class RingBufferTest
 {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private RingBuffer<StubEntry> ringBuffer;
-    private ThresholdBarrier<StubEntry> thresholdBarrier;
+    private Barrier<StubEntry> barrier;
     private Claimer<StubEntry> claimer;
 
     @Before
     public void setUp()
     {
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        thresholdBarrier = ringBuffer.createBarrier();
+        barrier = ringBuffer.createBarrier();
         claimer = ringBuffer.createClaimer(0);
     }
 
@@ -43,7 +43,7 @@ public class RingBufferTest
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
-        long sequence = thresholdBarrier.waitFor(0);
+        long sequence = barrier.waitFor(0);
         assertEquals(0, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);
@@ -63,7 +63,7 @@ public class RingBufferTest
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
-        long sequence = thresholdBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);
@@ -76,7 +76,7 @@ public class RingBufferTest
     @Test
     public void shouldGetWithTimeout() throws Exception
     {
-        long sequence = thresholdBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequence);
     }
 
@@ -106,7 +106,7 @@ public class RingBufferTest
         }
 
         int expectedSequence = numMessages - 1;
-        long available = thresholdBarrier.waitFor(expectedSequence);
+        long available = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = 0; i < numMessages; i++)
@@ -128,7 +128,7 @@ public class RingBufferTest
         }
 
         int expectedSequence = numMessages + offset - 1;
-        long available = thresholdBarrier.waitFor(expectedSequence);
+        long available = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = offset; i < numMessages + offset; i++)
@@ -145,7 +145,7 @@ public class RingBufferTest
         expectedEntry.setValue((int) expectedSequence);
         expectedEntry.commit();
 
-        long sequence = thresholdBarrier.waitFor(expectedSequence);
+        long sequence = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);

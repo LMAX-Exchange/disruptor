@@ -15,30 +15,31 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 
 import static com.lmax.disruptor.support.Actions.countDown;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JMock.class)
 public final class BatchEntryConsumerTest
 {
     private final Mockery context = new Mockery();
     private final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
+    private final CountDownLatch latch = new CountDownLatch(1);
 
-    private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 10);
-    private final ThresholdBarrier<StubEntry> barrier = ringBuffer.createBarrier();
+    private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
+    private final Barrier<StubEntry> barrier = ringBuffer.createBarrier();
     @SuppressWarnings("unchecked") private final BatchEntryHandler<StubEntry> batchEntryHandler = context.mock(BatchEntryHandler.class);
     private final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(barrier, batchEntryHandler);
+    private final Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
 
     @Test
     public void shouldReturnProvidedBarrier()
     {
-        Assert.assertEquals(barrier, batchEntryConsumer.getBarrier());
+        assertEquals(barrier, batchEntryConsumer.getBarrier());
     }
 
     @Test
     public void shouldCallMethodsInLifecycleOrder()
         throws Exception
     {
-        final CountDownLatch latch = new CountDownLatch(1);
-
         context.checking(new Expectations()
         {
             {
@@ -57,9 +58,8 @@ public final class BatchEntryConsumerTest
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
-        Assert.assertEquals(-1L, batchEntryConsumer.getSequence());
+        assertEquals(-1L, batchEntryConsumer.getSequence());
 
-        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
         claimer.claimNext().commit();
 
         latch.await();
@@ -72,8 +72,6 @@ public final class BatchEntryConsumerTest
     public void shouldCallMethodsInLifecycleOrderForBatch()
         throws Exception
     {
-        final CountDownLatch latch = new CountDownLatch(1);
-
         context.checking(new Expectations()
         {
             {
@@ -93,7 +91,6 @@ public final class BatchEntryConsumerTest
             }
         });
 
-        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
         claimer.claimNext().commit();
         claimer.claimNext().commit();
         claimer.claimNext().commit();
@@ -111,7 +108,6 @@ public final class BatchEntryConsumerTest
     public void shouldCallExceptionHandlerOnUncaughtException()
         throws Exception
     {
-        final CountDownLatch latch = new CountDownLatch(1);
         final Exception ex = new Exception();
         final ExceptionHandler exceptionHandler = context.mock(ExceptionHandler.class);
         batchEntryConsumer.setExceptionHandler(exceptionHandler);
@@ -148,7 +144,6 @@ public final class BatchEntryConsumerTest
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
-        Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
         claimer.claimNext().commit();
 
         latch.await();

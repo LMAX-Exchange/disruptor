@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
-public interface ThresholdBarrier<T extends Entry>
+public interface Barrier<T extends Entry>
 {
     /**
      * Get the {@link RingBuffer} underlying this barrier.
