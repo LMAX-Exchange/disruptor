@@ -1,9 +1,12 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEntry;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Assert;
 import org.junit.Test;
@@ -110,17 +113,35 @@ public final class BatchEntryConsumerTest
     {
         final CountDownLatch latch = new CountDownLatch(1);
         final Exception ex = new Exception();
-        final BatchEntryHandler<StubEntry> batchEntryHandler = new TestBatchEntryHandler<StubEntry>(ex);
-        final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(barrier, batchEntryHandler);
-
         final ExceptionHandler exceptionHandler = context.mock(ExceptionHandler.class);
         batchEntryConsumer.setExceptionHandler(exceptionHandler);
 
         context.checking(new Expectations()
         {
             {
+                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(0));
+                inSequence(lifecycleSequence);
+                will(new Action()
+                {
+                    @Override
+                    public Object invoke(final Invocation invocation) throws Throwable
+                    {
+                        throw ex;
+                    }
+
+                    @Override
+                    public void describeTo(final Description description)
+                    {
+                        description.appendText("Throws exception");
+                    }
+                });
+
                 oneOf(exceptionHandler).handle(ex, ringBuffer.getEntry(0));
+                inSequence(lifecycleSequence);
                 will(countDown(latch));
+
+                oneOf(batchEntryHandler).onCompletion();
+                inSequence(lifecycleSequence);
             }
         });
 
@@ -134,31 +155,5 @@ public final class BatchEntryConsumerTest
 
         batchEntryConsumer.halt();
         thread.join();
-    }
-
-    private static final class TestBatchEntryHandler<T extends Entry> implements BatchEntryHandler<T>
-    {
-        private final Exception ex;
-
-        private TestBatchEntryHandler(final Exception ex)
-        {
-            this.ex = ex;
-        }
-
-        @Override
-        public void onAvailable(final T entry) throws Exception
-        {
-            throw ex;
-        }
-
-        @Override
-        public void onEndOfBatch() throws Exception
-        {
-        }
-
-        @Override
-        public void onCompletion()
-        {
-        }
     }
 }
