@@ -27,7 +27,7 @@ public interface Claimer<T extends Entry>
      *
      * @return the consumed to sequence
      */
-    long getConsumedEntrySequence();
+    long getConsumedSequence();
 
     /**
      * Get the underlying {@link RingBuffer} in which {@link Entry}s are being claimed.

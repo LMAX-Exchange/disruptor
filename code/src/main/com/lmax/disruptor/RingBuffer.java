@@ -297,7 +297,7 @@ public final class RingBuffer<T extends Entry>
         public T claimNext()
         {
             final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-            while (ringBuffer.getCursor() - getConsumedEntrySequence() >= threshold)
+            while (ringBuffer.getCursor() - getConsumedSequence() >= threshold)
             {
                 Thread.yield();
             }
@@ -309,7 +309,7 @@ public final class RingBuffer<T extends Entry>
         public T claimSequence(final long sequence)
         {
             final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-            while (sequence - getConsumedEntrySequence() >= threshold)
+            while (sequence - getConsumedSequence() >= threshold)
             {
                 Thread.yield();
             }
@@ -324,7 +324,7 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public long getConsumedEntrySequence()
+        public long getConsumedSequence()
         {
             long minimum = ringBuffer.getCursor();
 
