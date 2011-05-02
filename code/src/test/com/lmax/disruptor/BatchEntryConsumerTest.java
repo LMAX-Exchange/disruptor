@@ -59,10 +59,7 @@ public final class BatchEntryConsumerTest
         Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
         claimer.claimNext().commit();
 
-        while (batchEntryConsumer.getSequence() != 0)
-        {
-            Thread.yield();
-        }
+        latch.await();
 
         batchEntryConsumer.halt();
         thread.join();
