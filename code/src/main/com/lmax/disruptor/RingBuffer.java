@@ -50,7 +50,7 @@ public final class RingBuffer<T extends Entry>
 
     /**
      * Construct a RingBuffer with default strategies of:
-     * {@link ClaimStrategy.Option}.MULTI_THREADED and {@link WaitStrategy.Option}.BLOCKING
+     * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#BLOCKING}
      *
      * @param entryFactory to create {@link Entry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2

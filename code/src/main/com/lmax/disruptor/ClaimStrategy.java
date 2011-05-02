@@ -27,6 +27,7 @@ public interface ClaimStrategy
      */
     enum Option
     {
+        /** Makes the {@link RingBuffer} thread safe for claiming {@link Entry}s by multiple producing threads. */
         MULTI_THREADED
         {
             @Override
@@ -36,6 +37,7 @@ public interface ClaimStrategy
             }
         },
 
+         /** Optimised {@link RingBuffer} from use by single thread claiming {@link Entry}s as a  producer. */
         SINGLE_THREADED
         {
             @Override
