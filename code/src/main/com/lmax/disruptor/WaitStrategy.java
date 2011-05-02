@@ -51,6 +51,7 @@ public interface WaitStrategy
      */
     enum Option
     {
+        /** This strategy uses a condition variable inside a lock to block the consumer which saves CPU resource as the expense of lock contention. */
         BLOCKING
         {
             @Override
@@ -60,6 +61,7 @@ public interface WaitStrategy
             }
         },
 
+        /** This strategy calls Thread.yield() in a loop as a waiting strategy which reduces contention at the expense of CPU resource. */
         YIELDING
         {
             @Override
