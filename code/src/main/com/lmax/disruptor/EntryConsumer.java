@@ -21,8 +21,7 @@ public interface EntryConsumer<T extends  Entry> extends Runnable
 
     /**
      * Signal that this EntryConsumer should stop when it has finished consuming at the next clean break.
-     * If thread is waiting on a {@link ThresholdBarrier} is it necessary to call {@link ThresholdBarrier#alert()}
-     * to notify the thread to check status.
+     * It will call {@link ThresholdBarrier#alert()} to notify the thread to check status.
      */
     void halt();
 }

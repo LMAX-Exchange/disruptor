@@ -81,6 +81,7 @@ public final class BatchEntryConsumer<T extends Entry>
     public void halt()
     {
         running = false;
+        barrier.alert();
     }
 
     @Override

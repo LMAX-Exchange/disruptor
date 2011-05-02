@@ -64,7 +64,6 @@ public final class BatchEntryConsumerTest
         }
 
         batchEntryConsumer.halt();
-        barrier.alert();
         thread.join();
     }
 
@@ -103,7 +102,6 @@ public final class BatchEntryConsumerTest
         latch.await();
 
         batchEntryConsumer.halt();
-        barrier.alert();
         thread.join();
     }
 
@@ -135,7 +133,6 @@ public final class BatchEntryConsumerTest
         latch.await();
 
         batchEntryConsumer.halt();
-        barrier.alert();
         thread.join();
     }
 
