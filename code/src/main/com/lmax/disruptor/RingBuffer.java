@@ -84,7 +84,7 @@ public final class RingBuffer<T extends Entry>
      */
     public Claimer<T> createClaimer(final int bufferReserve, final EntryConsumer... entryConsumers)
     {
-        return new YieldingClaimer<T>(this, bufferReserve, entryConsumers);
+        return new RingBufferClaimer<T>(this, bufferReserve, entryConsumers);
     }
 
     /**
@@ -277,20 +277,20 @@ public final class RingBuffer<T extends Entry>
      *
      * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
      */
-    private final class YieldingClaimer<T extends Entry>
+    private final class RingBufferClaimer<T extends Entry>
         implements Claimer<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
         private final int bufferReserve;
-        private final EntryConsumer[] gatingEntryConsumers;
+        private final EntryConsumer[] entryConsumers;
 
-        public YieldingClaimer(final RingBuffer<? extends T> ringBuffer,
-                               final int bufferReserve,
-                               final EntryConsumer... gatingEntryConsumers)
+        public RingBufferClaimer(final RingBuffer<? extends T> ringBuffer,
+                                 final int bufferReserve,
+                                 final EntryConsumer... entryConsumers)
         {
             this.bufferReserve = bufferReserve;
             this.ringBuffer = ringBuffer;
-            this.gatingEntryConsumers = gatingEntryConsumers;
+            this.entryConsumers = entryConsumers;
         }
 
         @Override
@@ -328,7 +328,7 @@ public final class RingBuffer<T extends Entry>
         {
             long minimum = ringBuffer.getCursor();
 
-            for (EntryConsumer consumer : gatingEntryConsumers)
+            for (EntryConsumer consumer : entryConsumers)
             {
                 long sequence = consumer.getSequence();
                 minimum = minimum < sequence ? minimum : sequence;
