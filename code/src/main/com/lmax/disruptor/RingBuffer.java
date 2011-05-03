@@ -223,11 +223,9 @@ public final class RingBuffer<T extends Entry>
 
             if (0 != entryConsumers.length)
             {
-                availableSequence = getAvailableSequence();
-                while (availableSequence < sequence)
+                while ((availableSequence = getAvailableSequence()) < sequence)
                 {
                     waitStrategy.checkForAlert();
-                    availableSequence = getAvailableSequence();
                 }
             }
 
@@ -242,11 +240,9 @@ public final class RingBuffer<T extends Entry>
 
             if (0 != entryConsumers.length)
             {
-                availableSequence = getAvailableSequence();
-                while (availableSequence < sequence)
+                while ((availableSequence = getAvailableSequence()) < sequence)
                 {
                     waitStrategy.checkForAlert();
-                    availableSequence = getAvailableSequence();
                 }
             }
 
