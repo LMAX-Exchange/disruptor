@@ -221,17 +221,13 @@ public final class RingBuffer<T extends Entry>
         {
             if (0 != entryConsumers.length)
             {
-                long availableSequence = getAvailableSequence();
-                if (availableSequence >= sequence)
-                {
-                    return availableSequence;
-                }
-
                 waitStrategy.waitFor(ringBuffer, sequence);
 
-                while ((availableSequence = getAvailableSequence()) < sequence)
+                long availableSequence = getAvailableSequence();
+                while (availableSequence < sequence)
                 {
                     waitStrategy.checkForAlert();
+                    availableSequence = getAvailableSequence();
                 }
 
                 return availableSequence;
@@ -246,17 +242,13 @@ public final class RingBuffer<T extends Entry>
         {
             if (0 != entryConsumers.length)
             {
-                long availableSequence = getAvailableSequence();
-                if (availableSequence >= sequence)
-                {
-                    return availableSequence;
-                }
-
                 waitStrategy.waitFor(ringBuffer, sequence, timeout, units);
 
-                while ((availableSequence = getAvailableSequence()) < sequence)
+                long availableSequence = getAvailableSequence();
+                while (availableSequence < sequence)
                 {
                     waitStrategy.checkForAlert();
+                    availableSequence = getAvailableSequence();
                 }
 
                 return availableSequence;
