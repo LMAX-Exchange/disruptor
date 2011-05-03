@@ -19,7 +19,7 @@ public interface Entry
      * @param sequence to be assigned to this Entry
      * @param commitCallback for signalling when the claimed Entry is available for consumers of a {@link RingBuffer}.
      */
-    void setSequence(long sequence, CommitCallback commitCallback);
+    void setSequence(long sequence, RingBuffer.CommitCallback commitCallback);
 
     /**
      * Indicate that this entry has been updated and is now available to the consumers of a {@link RingBuffer}.

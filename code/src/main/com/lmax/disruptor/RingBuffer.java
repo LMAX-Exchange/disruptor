@@ -343,4 +343,18 @@ public final class RingBuffer<T extends Entry>
             return bufferReserve;
         }
     }
+
+    /**
+     * Callback into {@link com.lmax.disruptor.RingBuffer} to signal that the producer has populated the {@link com.lmax.disruptor.Entry}
+     * and it is not ready for use.
+     */
+    interface CommitCallback
+    {
+        /**
+         * Callback to signal {@link com.lmax.disruptor.Entry} is ready for consumption.
+         *
+         * @param sequence of the {@link com.lmax.disruptor.Entry} that is ready for consumption.
+         */
+        public void commit(long sequence);
+    }
 }
