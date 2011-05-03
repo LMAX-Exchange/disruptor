@@ -3,8 +3,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Implementations of this strategy can handled the necessary threading requirements
- * for claiming {@link Entry}s in the {@link RingBuffer}.
+ * Strategies employed for claiming the sequence of {@link Entry}s in the {@link RingBuffer} by producers.
  *
  * The {@link Entry} index is a the sequence value mod the {@link RingBuffer} capacity.
  */
@@ -65,6 +64,9 @@ public interface ClaimStrategy
         abstract ClaimStrategy newInstance();
     }
 
+    /**
+     * Strategy to be used when there are multiple producer threads claiming {@link Entry}s.
+     */
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
@@ -92,6 +94,9 @@ public interface ClaimStrategy
         }
     }
 
+    /**
+     * Optimised strategy can be used when there is a single producer thread claiming {@link Entry}s.
+     */
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
