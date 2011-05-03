@@ -98,7 +98,7 @@ public final class BatchEntryConsumer<T extends Entry>
 
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
-                    entry = barrier.getRingBuffer().getEntry(i);
+                    entry = barrier.getEntry(i);
                     entryHandler.onAvailable(entry);
 
                     if (noSequenceTracker)

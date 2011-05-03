@@ -203,6 +203,12 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
+        public T getEntry(final long sequence)
+        {
+            return ringBuffer.getEntry(sequence);
+        }
+
+        @Override
         public long getAvailableSequence()
         {
             long minimum = ringBuffer.getCursor();

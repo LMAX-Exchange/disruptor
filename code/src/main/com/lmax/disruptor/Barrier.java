@@ -18,6 +18,14 @@ public interface Barrier<T extends Entry>
     RingBuffer<? extends T> getRingBuffer();
 
     /**
+     * Get the {@link Entry} for a given sequence from the underlying {@link RingBuffer}.
+     *
+     * @param sequence of the {@link Entry} to get.
+     * @return the {@link Entry} for the sequence.
+     */
+    T getEntry(long sequence);
+
+    /**
      * Get the sequence number that the {@link RingBuffer} and dependent {@link EntryConsumer}s have progressed to.
      *
      * This is the RingBuffer cursor and minimum sequence number of the dependent {@link EntryConsumer}s.
