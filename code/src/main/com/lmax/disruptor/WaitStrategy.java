@@ -1,6 +1,9 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Strategy employed for making {@link EntryConsumer}s wait on a {@link RingBuffer}.
@@ -59,7 +62,7 @@ public interface WaitStrategy
             @Override
             public WaitStrategy newInstance()
             {
-                return new BlockingWaitStrategy();
+                return new BlockingStrategy();
             }
         },
 
@@ -69,7 +72,7 @@ public interface WaitStrategy
             @Override
             public WaitStrategy newInstance()
             {
-                return new YieldingWaitStrategy();
+                return new YieldingStrategy();
             }
         };
 
@@ -79,5 +82,172 @@ public interface WaitStrategy
          * @return a new instance of the WaitStrategy
          */
         abstract WaitStrategy newInstance();
+    }
+
+    /**
+     * Blocking strategy that uses locks and a condition variable for
+     * {@link com.lmax.disruptor.EntryConsumer}s waiting on a barrier.
+     *
+     * This strategy should be used when performance and low-latency are not as important
+     * as CPU resource.
+     */
+    static final class BlockingStrategy implements WaitStrategy
+    {
+        /** Pre-allocated exception to avoid garbage generation */
+        public static final AlertException ALERT_EXCEPTION = new AlertException();
+
+        private final Lock lock = new ReentrantLock();
+        private final Condition consumerNotifyCondition = lock.newCondition();
+
+        private volatile boolean alerted = false;
+
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence)
+            throws AlertException, InterruptedException
+        {
+            if (ringBuffer.getCursor() < sequence)
+            {
+                lock.lock();
+                try
+                {
+                    while (ringBuffer.getCursor() < sequence)
+                    {
+                        checkForAlert();
+                        consumerNotifyCondition.await();
+                    }
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
+            throws AlertException, InterruptedException
+        {
+            if (ringBuffer.getCursor() < sequence)
+            {
+                lock.lock();
+                try
+                {
+                    while (ringBuffer.getCursor() < sequence)
+                    {
+                        checkForAlert();
+                        if (!consumerNotifyCondition.await(timeout, units))
+                        {
+                            break;
+                        }
+                    }
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public void checkForAlert() throws AlertException
+        {
+            if (alerted)
+            {
+                alerted = false;
+                throw ALERT_EXCEPTION;
+            }
+        }
+
+        @Override
+        public void alert()
+        {
+            alerted = true;
+            notifyConsumers();
+        }
+
+        @Override
+        public void notifyConsumers()
+        {
+            lock.lock();
+            try
+            {
+                consumerNotifyCondition.signalAll();
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+    }
+
+    /**
+     * Yielding strategy that uses a Thread.yield() for
+     * {@link com.lmax.disruptor.EntryConsumer}s waiting on a barrier.
+     *
+     * This strategy is a good compromise between performance and CPU resource.
+     */
+    static final class YieldingStrategy implements WaitStrategy
+    {
+        private volatile boolean alerted = false;
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence)
+            throws AlertException, InterruptedException
+        {
+            while (ringBuffer.getCursor() < sequence)
+            {
+                checkForAlert();
+                Thread.yield();
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
+            throws AlertException, InterruptedException
+        {
+            final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+            final long currentTime = System.currentTimeMillis();
+
+            while (ringBuffer.getCursor() < sequence)
+            {
+                checkForAlert();
+                Thread.yield();
+                if (timeoutMs < System.currentTimeMillis() - currentTime)
+                {
+                    break;
+                }
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public void checkForAlert() throws AlertException
+        {
+            if (alerted)
+            {
+                alerted = false;
+                throw new AlertException();
+            }
+        }
+
+        @Override
+        public void alert()
+        {
+            alerted = true;
+            notifyConsumers();
+        }
+
+        @Override
+        public void notifyConsumers()
+        {
+        }
     }
 }

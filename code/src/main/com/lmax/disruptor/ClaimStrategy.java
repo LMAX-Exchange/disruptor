@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Implementations of this strategy can handled the necessary threading requirements
  * for claiming {@link Entry}s in the {@link RingBuffer}.
@@ -41,7 +43,7 @@ public interface ClaimStrategy
             @Override
             public ClaimStrategy newInstance()
             {
-                return new MultiThreadedClaimStrategy();
+                return new MultiThreadedStrategy();
             }
         },
 
@@ -51,7 +53,7 @@ public interface ClaimStrategy
             @Override
             public ClaimStrategy newInstance()
             {
-                return new SingleThreadedClaimStrategy();
+                return new SingleThreadedStrategy();
             }
         };
 
@@ -61,5 +63,56 @@ public interface ClaimStrategy
          * @return a new instance of the ClaimStrategy
          */
         abstract ClaimStrategy newInstance();
+    }
+
+    static final class MultiThreadedStrategy
+        implements ClaimStrategy
+    {
+        private final AtomicLong sequence = new AtomicLong(0);
+
+        @Override
+        public long getAndIncrement()
+        {
+            return sequence.getAndIncrement();
+        }
+
+        @Override
+        public void setSequence(final long sequence)
+        {
+            this.sequence.set(sequence);
+        }
+
+        @Override
+        public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
+        {
+            while (ringBuffer.getCursor() != sequence)
+            {
+                // busy spin
+            }
+        }
+    }
+
+    static final class SingleThreadedStrategy
+        implements ClaimStrategy
+    {
+        private long sequence;
+
+        @Override
+        public long getAndIncrement()
+        {
+            return sequence++;
+        }
+
+        @Override
+        public void setSequence(final long sequence)
+        {
+            this.sequence = sequence;
+        }
+
+        @Override
+        public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
+        {
+            // no op for this class
+        }
     }
 }
