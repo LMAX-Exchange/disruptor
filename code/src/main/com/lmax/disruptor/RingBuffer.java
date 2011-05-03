@@ -43,7 +43,7 @@ public final class RingBuffer<T extends Entry>
         entries = new Object[sizeAsPowerOfTwo];
 
         claimStrategy = claimStrategyOption.newInstance();
-        waitStrategy = waitStrategyOption.newInstance(this);
+        waitStrategy = waitStrategyOption.newInstance();
 
         fill(entryFactory);
     }
@@ -152,13 +152,8 @@ public final class RingBuffer<T extends Entry>
     {
         public void commit(final long sequence)
         {
-            final long sequenceMinusOne = sequence - 1;
-            while (cursor != sequenceMinusOne)
-            {
-                // busy spin
-            }
+            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
             cursor = sequence;
-
             waitStrategy.notifyConsumers();
         }
     }
@@ -171,9 +166,8 @@ public final class RingBuffer<T extends Entry>
     {
         public void commit(final long sequence)
         {
-            claimStrategy.setSequence(sequence + 1);
+            claimStrategy.setSequence(sequence + 1L);
             cursor = sequence;
-
             waitStrategy.notifyConsumers();
         }
     }
@@ -233,7 +227,7 @@ public final class RingBuffer<T extends Entry>
                     return availableSequence;
                 }
 
-                waitStrategy.waitFor(sequence);
+                waitStrategy.waitFor(ringBuffer, sequence);
 
                 while ((availableSequence = getAvailableSequence()) < sequence)
                 {
@@ -243,7 +237,7 @@ public final class RingBuffer<T extends Entry>
                 return availableSequence;
             }
 
-            return waitStrategy.waitFor(sequence);
+            return waitStrategy.waitFor(ringBuffer, sequence);
         }
 
         @Override
@@ -258,7 +252,7 @@ public final class RingBuffer<T extends Entry>
                     return availableSequence;
                 }
 
-                waitStrategy.waitFor(sequence, timeout, units);
+                waitStrategy.waitFor(ringBuffer, sequence, timeout, units);
 
                 while ((availableSequence = getAvailableSequence()) < sequence)
                 {
@@ -268,7 +262,7 @@ public final class RingBuffer<T extends Entry>
                 return availableSequence;
             }
 
-            return waitStrategy.waitFor(sequence, timeout, units);
+            return waitStrategy.waitFor(ringBuffer, sequence, timeout, units);
         }
 
         @Override

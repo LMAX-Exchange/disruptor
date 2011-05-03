@@ -16,4 +16,10 @@ final class SingleThreadedClaimStrategy
     {
         this.sequence = sequence;
     }
+
+    @Override
+    public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
+    {
+        // no op for this class
+    }
 }

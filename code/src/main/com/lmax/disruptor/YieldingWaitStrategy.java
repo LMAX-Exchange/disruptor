@@ -10,16 +10,10 @@ import java.util.concurrent.TimeUnit;
  */
 public final class YieldingWaitStrategy implements WaitStrategy
 {
-    private final RingBuffer ringBuffer;
     private volatile boolean alerted = false;
 
-    public YieldingWaitStrategy(final RingBuffer ringBuffer)
-    {
-        this.ringBuffer = ringBuffer;
-    }
-
     @Override
-    public long waitFor(final long sequence)
+    public long waitFor(final RingBuffer ringBuffer, final long sequence)
         throws AlertException, InterruptedException
     {
         while (ringBuffer.getCursor() < sequence)
@@ -32,7 +26,7 @@ public final class YieldingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(final long sequence, final long timeout, final TimeUnit units)
+    public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
         throws AlertException, InterruptedException
     {
         final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);

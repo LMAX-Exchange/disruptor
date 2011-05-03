@@ -18,4 +18,13 @@ final class MultiThreadedClaimStrategy
     {
         this.sequence.set(sequence);
     }
+
+    @Override
+    public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
+    {
+        while (ringBuffer.getCursor() != sequence)
+        {
+            // busy spin
+        }
+    }
 }

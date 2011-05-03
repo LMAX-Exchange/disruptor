@@ -10,16 +10,18 @@ public interface WaitStrategy
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer}
      *
+     * @param ringBuffer on which to wait.
      * @param sequence to be waited on.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(long sequence) throws AlertException, InterruptedException;
+    long waitFor(RingBuffer ringBuffer, long sequence) throws AlertException, InterruptedException;
 
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer} with a timeout specified.
      *
+     * @param ringBuffer on which to wait.
      * @param sequence to be waited on.
      * @param timeout value to abort after.
      * @param units of the timeout value.
@@ -27,7 +29,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
+    long waitFor(RingBuffer ringBuffer, long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
      * Alert {@link EntryConsumer}s that a change in status has occurred by causing an {@link AlertException} to be thrown.
@@ -55,9 +57,9 @@ public interface WaitStrategy
         BLOCKING
         {
             @Override
-            public WaitStrategy newInstance(RingBuffer ringBuffer)
+            public WaitStrategy newInstance()
             {
-                return new BlockingWaitStrategy(ringBuffer);
+                return new BlockingWaitStrategy();
             }
         },
 
@@ -65,18 +67,17 @@ public interface WaitStrategy
         YIELDING
         {
             @Override
-            public WaitStrategy newInstance(RingBuffer ringBuffer)
+            public WaitStrategy newInstance()
             {
-                return new YieldingWaitStrategy(ringBuffer);
+                return new YieldingWaitStrategy();
             }
         };
 
         /**
          * Used by the {@link com.lmax.disruptor.RingBuffer} as a polymorphic constructor.
          *
-         * @param ringBuffer the {@link Barrier} is waiting on.
          * @return a new instance of the WaitStrategy
          */
-        abstract WaitStrategy newInstance(RingBuffer ringBuffer);
+        abstract WaitStrategy newInstance();
     }
 }

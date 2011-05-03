@@ -23,6 +23,14 @@ public interface ClaimStrategy
     void setSequence(long sequence);
 
     /**
+     * Wait for the current claim to reach a given sequence.
+     *
+     * @param sequence to wait for.
+     * @param ringBuffer on which to wait forCursor
+     */
+    void waitForCursor(long sequence, RingBuffer ringBuffer);
+
+    /**
      * Indicates the threading policy to be applied for claiming {@link Entry}s by producers to the {@link com.lmax.disruptor.RingBuffer}
      */
     enum Option

@@ -17,19 +17,14 @@ public final class BlockingWaitStrategy implements WaitStrategy
     /** Pre-allocated exception to avoid garbage generation */
     public static final AlertException ALERT_EXCEPTION = new AlertException();
 
-    private final RingBuffer ringBuffer;
     private final Lock lock = new ReentrantLock();
     private final Condition consumerNotifyCondition = lock.newCondition();
 
     private volatile boolean alerted = false;
 
-    public BlockingWaitStrategy(final RingBuffer ringBuffer)
-    {
-        this.ringBuffer = ringBuffer;
-    }
 
     @Override
-    public long waitFor(final long sequence)
+    public long waitFor(final RingBuffer ringBuffer, final long sequence)
         throws AlertException, InterruptedException
     {
         if (ringBuffer.getCursor() < sequence)
@@ -53,7 +48,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(final long sequence, final long timeout, final TimeUnit units)
+    public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
         throws AlertException, InterruptedException
     {
         if (ringBuffer.getCursor() < sequence)
