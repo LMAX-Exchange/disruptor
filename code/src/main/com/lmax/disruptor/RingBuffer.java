@@ -221,7 +221,7 @@ public final class RingBuffer<T extends Entry>
         {
             long availableSequence = waitStrategy.waitFor(ringBuffer, sequence);
 
-            if (0 != entryConsumers.length)
+            if (entryConsumers.length != 0)
             {
                 while ((availableSequence = getAvailableSequence()) < sequence)
                 {
@@ -234,11 +234,11 @@ public final class RingBuffer<T extends Entry>
 
         @Override
         public long waitFor(final long sequence, final long timeout, final TimeUnit units)
-            throws InterruptedException, AlertException
+            throws AlertException, InterruptedException
         {
             long availableSequence = waitStrategy.waitFor(ringBuffer, sequence, timeout, units);
 
-            if (0 != entryConsumers.length)
+            if (entryConsumers.length != 0)
             {
                 while ((availableSequence = getAvailableSequence()) < sequence)
                 {
