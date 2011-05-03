@@ -18,8 +18,8 @@ public final class RingBuffer<T extends Entry>
     private final Object[] entries;
     private final int ringModMask;
 
-    private final CommitCallback appendCallback = new AppendCommitCallback();
-    private final CommitCallback setCallback = new SetCommitCallback();
+    private final CommitCallback claimNextCallback = new ClaimNextCommitCallback();
+    private final CommitCallback claimSequenceCallback = new SetSequenceCommitCallback();
 
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
@@ -130,7 +130,7 @@ public final class RingBuffer<T extends Entry>
     {
         long sequence = claimStrategy.getAndIncrement();
         T entry = (T)entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence, appendCallback);
+        entry.setSequence(sequence, claimNextCallback);
 
         return entry;
     }
@@ -138,7 +138,7 @@ public final class RingBuffer<T extends Entry>
     private T claimSequence(final long sequence)
     {
         T entry = (T)entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence, setCallback);
+        entry.setSequence(sequence, claimSequenceCallback);
 
         return entry;
     }
@@ -148,7 +148,7 @@ public final class RingBuffer<T extends Entry>
      * for notifying the the consumers of progress. This will busy spin on the commit until previous
      * producers have committed lower sequence entries.
      */
-    private final class AppendCommitCallback implements CommitCallback
+    private final class ClaimNextCommitCallback implements CommitCallback
     {
         public void commit(final long sequence)
         {
@@ -162,7 +162,7 @@ public final class RingBuffer<T extends Entry>
      * Callback to be used when claiming {@link Entry}s and the cursor is explicitly set by the producer when you are sure only one
      * producer exists.
      */
-    private final class SetCommitCallback implements CommitCallback
+    private final class SetSequenceCommitCallback implements CommitCallback
     {
         public void commit(final long sequence)
         {
