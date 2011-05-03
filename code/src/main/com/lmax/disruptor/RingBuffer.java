@@ -206,9 +206,9 @@ public final class RingBuffer<T extends Entry>
         public long getAvailableSequence()
         {
             long minimum = ringBuffer.getCursor();
-            for (int i = 0, size = entryConsumers.length; i < size; i++)
+            for (EntryConsumer entryConsumer : entryConsumers)
             {
-                long sequence = entryConsumers[i].getSequence();
+                long sequence = entryConsumer.getSequence();
                 minimum = minimum < sequence ? minimum : sequence;
             }
 
