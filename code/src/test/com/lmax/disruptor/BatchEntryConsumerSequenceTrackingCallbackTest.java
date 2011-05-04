@@ -17,8 +17,8 @@ public class BatchEntryConsumerSequenceTrackingCallbackTest
         throws Exception
     {
         final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
-        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
-        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createClaimer(0);
+        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0);
         final SequenceTrackingEntryHandler<StubEntry> handler = new TestSequenceTrackingEntryHandler<StubEntry>();
         final BatchEntryConsumer<StubEntry> batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, handler);
 

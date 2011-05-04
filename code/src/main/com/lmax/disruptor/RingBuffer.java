@@ -68,7 +68,7 @@ public final class RingBuffer<T extends Entry>
      * @param entryConsumers this barrier will track
      * @return the barrier gated as required
      */
-    public ConsumerBarrier<T> createBarrier(final EntryConsumer... entryConsumers)
+    public ConsumerBarrier<T> createConsumerBarrier(final EntryConsumer... entryConsumers)
     {
         return new RingBufferConsumerBarrier<T>(this, waitStrategy, entryConsumers);
     }
@@ -82,7 +82,7 @@ public final class RingBuffer<T extends Entry>
      * @param entryConsumers to be tracked to prevent wrapping.
      * @return a {@link ProducerBarrier} with the above configuration.
      */
-    public ProducerBarrier<T> createClaimer(final int bufferReserve, final EntryConsumer... entryConsumers)
+    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final EntryConsumer... entryConsumers)
     {
         return new RingBufferProducerBarrier<T>(this, bufferReserve, entryConsumers);
     }

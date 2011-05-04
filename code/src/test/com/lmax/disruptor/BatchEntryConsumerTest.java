@@ -24,10 +24,10 @@ public final class BatchEntryConsumerTest
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
-    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
+    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     @SuppressWarnings("unchecked") private final BatchEntryHandler<StubEntry> batchEntryHandler = context.mock(BatchEntryHandler.class);
     private final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, batchEntryHandler);
-    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createClaimer(0, batchEntryConsumer);
+    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchEntryConsumer);
 
     @Test
     public void shouldReturnProvidedBarrier()

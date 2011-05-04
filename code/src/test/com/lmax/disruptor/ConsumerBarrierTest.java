@@ -37,8 +37,8 @@ public final class ConsumerBarrierTest
         entryConsumer1 = context.mock(EntryConsumer.class, "entryConsumer1");
         entryConsumer2 = context.mock(EntryConsumer.class, "entryConsumer2");
         entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
-        consumerBarrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
-        producerBarrier = ringBuffer.createClaimer(0);
+        consumerBarrier = ringBuffer.createConsumerBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
+        producerBarrier = ringBuffer.createProducerBarrier(0);
     }
 
     @Test
@@ -102,7 +102,7 @@ public final class ConsumerBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final ConsumerBarrier consumerBarrier = ringBuffer.createBarrier(workers);
+        final ConsumerBarrier consumerBarrier = ringBuffer.createConsumerBarrier(workers);
 
         Runnable runnable = new Runnable()
         {
@@ -188,7 +188,7 @@ public final class ConsumerBarrierTest
             entryConsumers[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final ConsumerBarrier consumerBarrier = ringBuffer.createBarrier(entryConsumers);
+        final ConsumerBarrier consumerBarrier = ringBuffer.createConsumerBarrier(entryConsumers);
 
         Runnable runnable = new Runnable()
         {

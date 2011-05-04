@@ -28,8 +28,8 @@ public class RingBufferTest
     public void setUp()
     {
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        consumerBarrier = ringBuffer.createBarrier();
-        producerBarrier = ringBuffer.createClaimer(0);
+        consumerBarrier = ringBuffer.createConsumerBarrier();
+        producerBarrier = ringBuffer.createProducerBarrier(0);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class RingBufferTest
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
+        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
 
         final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(cyclicBarrier, consumerBarrier, initial, toWaitFor));
 
