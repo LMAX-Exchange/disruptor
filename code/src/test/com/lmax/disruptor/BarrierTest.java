@@ -208,12 +208,6 @@ public final class BarrierTest
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
-    @Test
-    public void shouldReturnProvidedRingBuffer()
-    {
-        assertEquals(ringBuffer, barrier.getRingBuffer());
-    }
-
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException
     {
         for (long i = 0; i < expectedNumberMessages; i++)

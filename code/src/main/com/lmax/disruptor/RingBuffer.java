@@ -88,17 +88,6 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Get the entry for a given sequence from the RingBuffer
-     *
-     * @param sequence for the entry.
-     * @return entry matching the sequence.
-     */
-    public T getEntry(final long sequence)
-    {
-        return (T)entries[(int)sequence & ringModMask];
-    }
-
-    /**
      * The capacity of the RingBuffer to hold entries.
      *
      * @return the size of the RingBuffer.
@@ -117,6 +106,18 @@ public final class RingBuffer<T extends Entry>
     {
         return cursor;
     }
+
+    /**
+     * Get the entry for a given sequence from the RingBuffer
+     *
+     * @param sequence for the entry.
+     * @return entry matching the sequence.
+     */
+    T getEntry(final long sequence)
+    {
+        return (T)entries[(int)sequence & ringModMask];
+    }
+
 
     private void fill(final EntryFactory<T> entryEntryFactory)
     {
@@ -177,23 +178,17 @@ public final class RingBuffer<T extends Entry>
      */
     private static final class RingBufferBarrier<T extends Entry> implements Barrier<T>
     {
-        private final RingBuffer<? extends T> ringBuffer;
+        private final RingBuffer<T> ringBuffer;
         private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferBarrier(final RingBuffer<? extends T> ringBuffer,
+        public RingBufferBarrier(final RingBuffer<T> ringBuffer,
                                  final WaitStrategy waitStrategy,
                                  final EntryConsumer... entryConsumers)
         {
             this.ringBuffer = ringBuffer;
             this.waitStrategy = waitStrategy;
             this.entryConsumers = entryConsumers;
-        }
-
-        @Override
-        public RingBuffer<? extends T> getRingBuffer()
-        {
-            return ringBuffer;
         }
 
         @Override
@@ -299,12 +294,6 @@ public final class RingBuffer<T extends Entry>
             }
 
             return ringBuffer.claimSequence(sequence);
-        }
-
-        @Override
-        public RingBuffer<? extends T> getRingBuffer()
-        {
-            return ringBuffer;
         }
 
         @Override

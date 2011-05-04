@@ -11,13 +11,6 @@ import java.util.concurrent.TimeUnit;
 public interface Barrier<T extends Entry>
 {
     /**
-     * Get the {@link RingBuffer} underlying this barrier.
-     *
-     * @return the {@link RingBuffer}
-     */
-    RingBuffer<? extends T> getRingBuffer();
-
-    /**
      * Get the {@link Entry} for a given sequence from the underlying {@link RingBuffer}.
      *
      * @param sequence of the {@link Entry} to get.

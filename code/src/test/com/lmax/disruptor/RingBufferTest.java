@@ -157,9 +157,12 @@ public class RingBufferTest
     private Future<List<StubEntry>> getMessages(final long initial, final long toWaitFor)
         throws InterruptedException, BrokenBarrierException
     {
-        final CyclicBarrier barrier = new CyclicBarrier(2);
-        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(barrier, ringBuffer, initial, toWaitFor));
-        barrier.await();
+        final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+        final Barrier<StubEntry> barrier = ringBuffer.createBarrier();
+
+        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(cyclicBarrier, barrier, initial, toWaitFor));
+
+        cyclicBarrier.await();
 
         return f;
     }

@@ -29,12 +29,6 @@ public interface Claimer<T extends Entry>
      */
     long getConsumedSequence();
 
-    /**
-     * Get the underlying {@link RingBuffer} in which {@link Entry}s are being claimed.
-     *
-     * @return the {@link RingBuffer}
-     */
-    RingBuffer<? extends T> getRingBuffer();
 
     /**
      * The number of slots in the buffer that have been reserved to prevent wrapping.
