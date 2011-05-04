@@ -17,21 +17,21 @@ public class BatchEntryConsumerSequenceTrackingCallbackTest
         throws Exception
     {
         final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
-        final Barrier<StubEntry> barrier = ringBuffer.createBarrier();
-        final Claimer<StubEntry> claimer = ringBuffer.createClaimer(0);
+        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
+        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createClaimer(0);
         final SequenceTrackingEntryHandler<StubEntry> handler = new TestSequenceTrackingEntryHandler<StubEntry>();
-        final BatchEntryConsumer<StubEntry> batchEntryConsumer = new BatchEntryConsumer<StubEntry>(barrier, handler);
+        final BatchEntryConsumer<StubEntry> batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, handler);
 
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
         assertEquals(-1L, batchEntryConsumer.getSequence());
-        claimer.claimNext().commit();
-        claimer.claimNext().commit();
+        producerBarrier.claimNext().commit();
+        producerBarrier.claimNext().commit();
         onAvailableLatch.await();
         assertEquals(-1L, batchEntryConsumer.getSequence());
 
-        claimer.claimNext().commit();
+        producerBarrier.claimNext().commit();
         readyToCallbackLatch.await();
         assertEquals(2L, batchEntryConsumer.getSequence());
 

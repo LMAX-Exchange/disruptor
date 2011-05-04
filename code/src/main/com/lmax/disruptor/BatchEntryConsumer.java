@@ -12,7 +12,7 @@ public final class BatchEntryConsumer<T extends Entry>
     private volatile boolean running = true;
     private volatile long sequence = -1L;
 
-    private final Barrier<T> barrier;
+    private final ConsumerBarrier<T> consumerBarrier;
     private final BatchEntryHandler<T> entryHandler;
     private final boolean noSequenceTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
@@ -22,13 +22,13 @@ public final class BatchEntryConsumer<T extends Entry>
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
      * the {@link BatchEntryHandler#onAvailable(Entry)} method returns.
      *
-     * @param barrier on which it is waiting.
+     * @param consumerBarrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final Barrier<T> barrier,
+    public BatchEntryConsumer(final ConsumerBarrier<T> consumerBarrier,
                               final BatchEntryHandler<T> entryHandler)
     {
-        this.barrier = barrier;
+        this.consumerBarrier = consumerBarrier;
         this.entryHandler = entryHandler;
         this.noSequenceTracker = true;
     }
@@ -37,13 +37,13 @@ public final class BatchEntryConsumer<T extends Entry>
      * Construct a batch consumer that will rely on the {@link SequenceTrackingEntryHandler}
      * to callback via the {@link com.lmax.disruptor.BatchEntryConsumer.SequenceTrackerCallback} when it has completed with a sequence.
      *
-     * @param barrier on which it is waiting.
+     * @param consumerBarrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final Barrier<T> barrier,
+    public BatchEntryConsumer(final ConsumerBarrier<T> consumerBarrier,
                               final SequenceTrackingEntryHandler<T> entryHandler)
     {
-        this.barrier = barrier;
+        this.consumerBarrier = consumerBarrier;
         this.entryHandler = entryHandler;
 
         this.noSequenceTracker = false;
@@ -72,16 +72,16 @@ public final class BatchEntryConsumer<T extends Entry>
     }
 
     @Override
-    public Barrier<? extends T> getBarrier()
+    public ConsumerBarrier<? extends T> getConsumerBarrier()
     {
-        return barrier;
+        return consumerBarrier;
     }
 
     @Override
     public void halt()
     {
         running = false;
-        barrier.alert();
+        consumerBarrier.alert();
     }
 
     @Override
@@ -94,11 +94,11 @@ public final class BatchEntryConsumer<T extends Entry>
             try
             {
                 final long nextSequence = sequence + 1;
-                final long availableSeq = barrier.waitFor(nextSequence);
+                final long availableSeq = consumerBarrier.waitFor(nextSequence);
 
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
-                    entry = barrier.getEntry(i);
+                    entry = consumerBarrier.getEntry(i);
                     entryHandler.onAvailable(entry);
 
                     if (noSequenceTracker)

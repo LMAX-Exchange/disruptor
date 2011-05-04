@@ -63,28 +63,28 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Create a {@link Barrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
+     * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
      *
      * @param entryConsumers this barrier will track
      * @return the barrier gated as required
      */
-    public Barrier<T> createBarrier(final EntryConsumer... entryConsumers)
+    public ConsumerBarrier<T> createBarrier(final EntryConsumer... entryConsumers)
     {
-        return new RingBufferBarrier<T>(this, waitStrategy, entryConsumers);
+        return new RingBufferConsumerBarrier<T>(this, waitStrategy, entryConsumers);
     }
 
     /**
-     * Create a {@link Claimer} on this RingBuffer that tracks dependent {@link EntryConsumer}s.
+     * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link EntryConsumer}s.
      *
      * The bufferReserve should be at least the number of producing threads.
      *
      * @param bufferReserve size of of the buffer to be reserved.
      * @param entryConsumers to be tracked to prevent wrapping.
-     * @return a {@link Claimer} with the above configuration.
+     * @return a {@link ProducerBarrier} with the above configuration.
      */
-    public Claimer<T> createClaimer(final int bufferReserve, final EntryConsumer... entryConsumers)
+    public ProducerBarrier<T> createClaimer(final int bufferReserve, final EntryConsumer... entryConsumers)
     {
-        return new RingBufferClaimer<T>(this, bufferReserve, entryConsumers);
+        return new RingBufferProducerBarrier<T>(this, bufferReserve, entryConsumers);
     }
 
     /**
@@ -174,17 +174,17 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Barrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
+     * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
      */
-    private static final class RingBufferBarrier<T extends Entry> implements Barrier<T>
+    private static final class RingBufferConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
     {
         private final RingBuffer<T> ringBuffer;
         private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
 
-        public RingBufferBarrier(final RingBuffer<T> ringBuffer,
-                                 final WaitStrategy waitStrategy,
-                                 final EntryConsumer... entryConsumers)
+        public RingBufferConsumerBarrier(final RingBuffer<T> ringBuffer,
+                                         final WaitStrategy waitStrategy,
+                                         final EntryConsumer... entryConsumers)
         {
             this.ringBuffer = ringBuffer;
             this.waitStrategy = waitStrategy;
@@ -252,20 +252,20 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Claimer that uses a thread yielding strategy when trying to claim a {@link Entry} in the {@link RingBuffer}.
+     * ProducerBarrier that uses a thread yielding strategy when trying to claim a {@link Entry} in the {@link RingBuffer}.
      *
      * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
      */
-    private final class RingBufferClaimer<T extends Entry>
-        implements Claimer<T>
+    private final class RingBufferProducerBarrier<T extends Entry>
+        implements ProducerBarrier<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
         private final int bufferReserve;
         private final EntryConsumer[] entryConsumers;
 
-        public RingBufferClaimer(final RingBuffer<? extends T> ringBuffer,
-                                 final int bufferReserve,
-                                 final EntryConsumer... entryConsumers)
+        public RingBufferProducerBarrier(final RingBuffer<? extends T> ringBuffer,
+                                         final int bufferReserve,
+                                         final EntryConsumer... entryConsumers)
         {
             this.bufferReserve = bufferReserve;
             this.ringBuffer = ringBuffer;

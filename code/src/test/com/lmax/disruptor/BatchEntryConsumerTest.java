@@ -24,15 +24,15 @@ public final class BatchEntryConsumerTest
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
-    private final Barrier<StubEntry> barrier = ringBuffer.createBarrier();
+    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
     @SuppressWarnings("unchecked") private final BatchEntryHandler<StubEntry> batchEntryHandler = context.mock(BatchEntryHandler.class);
-    private final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(barrier, batchEntryHandler);
-    private final Claimer<StubEntry> claimer = ringBuffer.createClaimer(0, batchEntryConsumer);
+    private final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, batchEntryHandler);
+    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createClaimer(0, batchEntryConsumer);
 
     @Test
     public void shouldReturnProvidedBarrier()
     {
-        assertEquals(barrier, batchEntryConsumer.getBarrier());
+        assertEquals(consumerBarrier, batchEntryConsumer.getConsumerBarrier());
     }
 
     @Test(expected = NullPointerException.class)
@@ -65,7 +65,7 @@ public final class BatchEntryConsumerTest
 
         assertEquals(-1L, batchEntryConsumer.getSequence());
 
-        claimer.claimNext().commit();
+        producerBarrier.claimNext().commit();
 
         latch.await();
 
@@ -96,9 +96,9 @@ public final class BatchEntryConsumerTest
             }
         });
 
-        claimer.claimNext().commit();
-        claimer.claimNext().commit();
-        claimer.claimNext().commit();
+        producerBarrier.claimNext().commit();
+        producerBarrier.claimNext().commit();
+        producerBarrier.claimNext().commit();
 
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
@@ -149,7 +149,7 @@ public final class BatchEntryConsumerTest
         Thread thread = new Thread(batchEntryConsumer);
         thread.start();
 
-        claimer.claimNext().commit();
+        producerBarrier.claimNext().commit();
 
         latch.await();
 

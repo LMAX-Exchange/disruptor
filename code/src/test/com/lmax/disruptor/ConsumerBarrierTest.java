@@ -18,15 +18,15 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(JMock.class)
-public final class BarrierTest
+public final class ConsumerBarrierTest
 {
     private Mockery context;
     private RingBuffer<StubEntry> ringBuffer;
     private EntryConsumer entryConsumer1;
     private EntryConsumer entryConsumer2;
     private EntryConsumer entryConsumer3;
-    private Barrier<StubEntry> barrier;
-    private Claimer<StubEntry> claimer;
+    private ConsumerBarrier<StubEntry> consumerBarrier;
+    private ProducerBarrier<StubEntry> producerBarrier;
 
     @Before
     public void setUp()
@@ -37,8 +37,8 @@ public final class BarrierTest
         entryConsumer1 = context.mock(EntryConsumer.class, "entryConsumer1");
         entryConsumer2 = context.mock(EntryConsumer.class, "entryConsumer2");
         entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
-        barrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
-        claimer = ringBuffer.createClaimer(0);
+        consumerBarrier = ringBuffer.createBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
+        producerBarrier = ringBuffer.createClaimer(0);
     }
 
     @Test
@@ -59,9 +59,9 @@ public final class BarrierTest
             }
         });
 
-        claimer.claimSequence(19L).commit();
+        producerBarrier.claimSequence(19L).commit();
 
-        assertEquals(expectedMinimum, barrier.getAvailableSequence());
+        assertEquals(expectedMinimum, consumerBarrier.getAvailableSequence());
     }
 
     @Test
@@ -85,7 +85,7 @@ public final class BarrierTest
             }
         });
 
-        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = consumerBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -102,13 +102,13 @@ public final class BarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final Barrier barrier = ringBuffer.createBarrier(workers);
+        final ConsumerBarrier consumerBarrier = ringBuffer.createBarrier(workers);
 
         Runnable runnable = new Runnable()
         {
             public void run()
             {
-                StubEntry entry = claimer.claimNext();
+                StubEntry entry = producerBarrier.claimNext();
                 entry.setValue((int) entry.getSequence());
                 entry.commit();
 
@@ -122,7 +122,7 @@ public final class BarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages;
-        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = consumerBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -154,7 +154,7 @@ public final class BarrierTest
             {
                 try
                 {
-                    barrier.waitFor(expectedNumberMessages - 1);
+                    consumerBarrier.waitFor(expectedNumberMessages - 1);
                 }
                 catch (AlertException e)
                 {
@@ -169,7 +169,7 @@ public final class BarrierTest
 
         t.start();
         assertTrue(latch.await(1, TimeUnit.SECONDS));
-        barrier.alert();
+        consumerBarrier.alert();
         t.join();
 
         assertTrue("Thread was not interrupted", alerted[0]);
@@ -188,7 +188,7 @@ public final class BarrierTest
             entryConsumers[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final Barrier barrier = ringBuffer.createBarrier(entryConsumers);
+        final ConsumerBarrier consumerBarrier = ringBuffer.createBarrier(entryConsumers);
 
         Runnable runnable = new Runnable()
         {
@@ -204,7 +204,7 @@ public final class BarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages - 1;
-        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = consumerBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -212,7 +212,7 @@ public final class BarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            StubEntry entry = claimer.claimNext();
+            StubEntry entry = producerBarrier.claimNext();
             entry.setValue((int) i);
             entry.commit();
         }
@@ -234,7 +234,7 @@ public final class BarrierTest
         }
 
         @Override
-        public Barrier getBarrier()
+        public ConsumerBarrier getConsumerBarrier()
         {
             return null;
         }

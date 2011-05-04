@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
 /**
- * Used to alert consumers waiting at a {@link Barrier} of status changes.
+ * Used to alert consumers waiting at a {@link ConsumerBarrier} of status changes.
  * <P>
  * It does not fill in a stack trace for performance reasons.
  */

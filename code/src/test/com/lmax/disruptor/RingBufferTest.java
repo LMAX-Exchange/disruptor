@@ -21,15 +21,15 @@ public class RingBufferTest
 {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private RingBuffer<StubEntry> ringBuffer;
-    private Barrier<StubEntry> barrier;
-    private Claimer<StubEntry> claimer;
+    private ConsumerBarrier<StubEntry> consumerBarrier;
+    private ProducerBarrier<StubEntry> producerBarrier;
 
     @Before
     public void setUp()
     {
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        barrier = ringBuffer.createBarrier();
-        claimer = ringBuffer.createClaimer(0);
+        consumerBarrier = ringBuffer.createBarrier();
+        producerBarrier = ringBuffer.createClaimer(0);
     }
 
     @Test
@@ -39,11 +39,11 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = claimer.claimNext();
+        StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
-        long sequence = barrier.waitFor(0);
+        long sequence = consumerBarrier.waitFor(0);
         assertEquals(0, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);
@@ -59,11 +59,11 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = claimer.claimNext();
+        StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
-        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);
@@ -76,7 +76,7 @@ public class RingBufferTest
     @Test
     public void shouldGetWithTimeout() throws Exception
     {
-        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequence);
     }
 
@@ -87,7 +87,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = claimer.claimNext();
+        StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
         oldEntry.commit();
 
@@ -100,13 +100,13 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = claimer.claimNext();
+            StubEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
             entry.commit();
         }
 
         int expectedSequence = numMessages - 1;
-        long available = barrier.waitFor(expectedSequence);
+        long available = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = 0; i < numMessages; i++)
@@ -122,13 +122,13 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset ; i++)
         {
-            StubEntry entry = claimer.claimNext();
+            StubEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
             entry.commit();
         }
 
         int expectedSequence = numMessages + offset - 1;
-        long available = barrier.waitFor(expectedSequence);
+        long available = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = offset; i < numMessages + offset; i++)
@@ -141,11 +141,11 @@ public class RingBufferTest
     public void shouldSetAtSpecificSequence() throws Exception
     {
         long expectedSequence = 5;
-        StubEntry expectedEntry = claimer.claimSequence(expectedSequence);
+        StubEntry expectedEntry = producerBarrier.claimSequence(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
         expectedEntry.commit();
 
-        long sequence = barrier.waitFor(expectedSequence);
+        long sequence = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
         StubEntry entry = ringBuffer.getEntry(sequence);
@@ -158,9 +158,9 @@ public class RingBufferTest
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final Barrier<StubEntry> barrier = ringBuffer.createBarrier();
+        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createBarrier();
 
-        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(cyclicBarrier, barrier, initial, toWaitFor));
+        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(cyclicBarrier, consumerBarrier, initial, toWaitFor));
 
         cyclicBarrier.await();
 

@@ -5,7 +5,7 @@ package com.lmax.disruptor;
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */
-public interface Claimer<T extends Entry>
+public interface ProducerBarrier<T extends Entry>
 {
     /**
      * Claim the next {@link Entry} in sequence for a producer on the {@link RingBuffer}

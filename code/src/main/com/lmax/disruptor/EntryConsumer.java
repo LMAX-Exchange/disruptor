@@ -13,15 +13,15 @@ public interface EntryConsumer<T extends  Entry> extends Runnable
     long getSequence();
 
     /**
-     * Get the Barrier on which this EntryConsumer is waiting for {@link Entry}s
+     * Get the ConsumerBarrier on which this EntryConsumer is waiting for {@link Entry}s
      *
      * @return the barrier being waited on.
      */
-    Barrier<T> getBarrier();
+    ConsumerBarrier<T> getConsumerBarrier();
 
     /**
      * Signal that this EntryConsumer should stop when it has finished consuming at the next clean break.
-     * It will call {@link Barrier#alert()} to notify the thread to check status.
+     * It will call {@link ConsumerBarrier#alert()} to notify the thread to check status.
      */
     void halt();
 }
