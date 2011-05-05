@@ -86,7 +86,7 @@
 
     <target name="dist" depends="build">
         <jar destfile="${dir.dist}/disruptor.jar" basedir="${dir.main.build}"/>
-        <jar destfile="${dir.dist}/disruptor-src.jar" basedir="${dir.main.src}"/>
+        <zip destfile="${dir.dist}/disruptor-src.zip" basedir="${dir.main.src}"/>
         <zip destfile="${dir.dist}/disruptor-api.zip" basedir="${dir.docs}"/>
     </target>
 
