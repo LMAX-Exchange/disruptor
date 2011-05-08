@@ -74,6 +74,16 @@ public interface WaitStrategy
             {
                 return new YieldingStrategy();
             }
+        },
+
+        /** This strategy calls spins in a loop as a waiting strategy which is lowest and most consistent latency but ties up a CPU */
+        BUSY_SPIN
+        {
+            @Override
+            public WaitStrategy newInstance()
+            {
+                return new BusySpinStrategy();
+            }
         };
 
         /**
@@ -219,7 +229,71 @@ public interface WaitStrategy
             {
                 checkForAlert();
                 Thread.yield();
-                if (timeoutMs < System.currentTimeMillis() - currentTime)
+                if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                {
+                    break;
+                }
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public void checkForAlert() throws AlertException
+        {
+            if (alerted)
+            {
+                alerted = false;
+                throw new AlertException();
+            }
+        }
+
+        @Override
+        public void alert()
+        {
+            alerted = true;
+            notifyConsumers();
+        }
+
+        @Override
+        public void notifyConsumers()
+        {
+        }
+    }
+
+    /**
+     * Busy Spin strategy that uses a busy spin loop for
+     * {@link com.lmax.disruptor.EntryConsumer}s waiting on a barrier.
+     *
+     * This strategy is a good compromise between performance and CPU resource.
+     */
+    static final class BusySpinStrategy implements WaitStrategy
+    {
+        private volatile boolean alerted = false;
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence)
+            throws AlertException, InterruptedException
+        {
+            while (ringBuffer.getCursor() < sequence)
+            {
+                checkForAlert();
+            }
+
+            return ringBuffer.getCursor();
+        }
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
+            throws AlertException, InterruptedException
+        {
+            final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+            final long currentTime = System.currentTimeMillis();
+
+            while (ringBuffer.getCursor() < sequence)
+            {
+                checkForAlert();
+                if (timeoutMs < (System.currentTimeMillis() - currentTime))
                 {
                     break;
                 }
