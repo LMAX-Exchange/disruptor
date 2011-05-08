@@ -87,6 +87,7 @@ public final class BatchEntryConsumer<T extends Entry>
     @Override
     public void run()
     {
+        running = true;
         T entry = null;
 
         while (running)

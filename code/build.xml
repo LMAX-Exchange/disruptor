@@ -5,6 +5,7 @@
     <property name="dir.main.build" value="target/main/classes"/>
 
     <property name="dir.test.src" value="src/test"/>
+    <property name="dir.perf.src" value="src/perf"/>
     <property name="dir.test.build" value="target/test/classes"/>
     <property name="dir.test.lib" value="lib/test"/>
 
@@ -66,6 +67,29 @@
             <batchtest fork="false" todir="${dir.reports}">
                 <fileset dir="${dir.test.src}">
                     <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="perf:test"
+            depends="test:prepare, build"
+            description="Run the performance tests">
+        <javac destdir="${dir.test.build}"
+               includeAntRuntime="false"
+               debug="true"
+               nowarn="true">
+            <classpath refid="test.classpath"/>
+            <src path="${dir.perf.src}"/>
+        </javac>
+        <junit printsummary="on"
+               fork="false"
+               haltonfailure="true">
+            <classpath refid="test.classpath"/>
+            <formatter type="plain"/>
+            <batchtest fork="false" todir="${dir.reports}">
+                <fileset dir="${dir.perf.src}">
+                    <include name="**/*PerfTest.java"/>
                 </fileset>
             </batchtest>
         </junit>
