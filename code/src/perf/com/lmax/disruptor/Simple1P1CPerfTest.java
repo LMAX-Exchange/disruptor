@@ -14,7 +14,7 @@ public final class Simple1P1CPerfTest
 
     private final RingBuffer<PerfEntry> ringBuffer = new RingBuffer<PerfEntry>(PerfEntry.ENTRY_FACTORY, RING_SIZE,
                                                                                ClaimStrategy.Option.SINGLE_THREADED,
-                                                                               WaitStrategy.Option.YIELDING);
+                                                                               WaitStrategy.Option.BUSY_SPIN);
     private final ConsumerBarrier<PerfEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final TestEntryHandler testEntryHandler = new TestEntryHandler();
     private final BatchEntryConsumer<PerfEntry> batchEntryConsumer = new BatchEntryConsumer<PerfEntry>(consumerBarrier, testEntryHandler);
@@ -38,7 +38,7 @@ public final class Simple1P1CPerfTest
         System.out.println("Disruptor 1P1C opsPerSecond = " + disruptorOpsPerSecond);
         System.out.println("BlockingQueue 1P1C opsPerSecond = " + blockingQueueOpsPerSecond);
 
-        Assert.assertTrue(disruptorOpsPerSecond > blockingQueueOpsPerSecond);
+        Assert.assertTrue("Performance preserved", disruptorOpsPerSecond > (blockingQueueOpsPerSecond * 2));
     }
 
     private long runDisruptorPass() throws InterruptedException
@@ -60,7 +60,7 @@ public final class Simple1P1CPerfTest
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (batchEntryConsumer.getSequence() < expectedSequence)
+        while (producerBarrier.getConsumedSequence() < expectedSequence)
         {
             Thread.yield();
         }
