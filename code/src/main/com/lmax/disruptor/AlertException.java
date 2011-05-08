@@ -8,6 +8,16 @@ package com.lmax.disruptor;
 @SuppressWarnings("serial")
 public class AlertException extends Exception
 {
+    /** Pre-allocated exception to avoid garbage generation */
+    public static final AlertException ALERT_EXCEPTION = new AlertException();
+
+    /**
+     * Prevent constructor so only a single instance exists.
+     */
+    private AlertException()
+    {
+    }
+
     /**
      * Overridden so the stack trace is not filled in for this exception for performance reasons.
      *

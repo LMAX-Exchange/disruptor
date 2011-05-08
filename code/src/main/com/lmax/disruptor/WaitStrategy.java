@@ -5,6 +5,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
+
 /**
  * Strategy employed for making {@link EntryConsumer}s wait on a {@link RingBuffer}.
  */
@@ -103,9 +105,6 @@ public interface WaitStrategy
      */
     static final class BlockingStrategy implements WaitStrategy
     {
-        /** Pre-allocated exception to avoid garbage generation */
-        public static final AlertException ALERT_EXCEPTION = new AlertException();
-
         private final Lock lock = new ReentrantLock();
         private final Condition consumerNotifyCondition = lock.newCondition();
 
@@ -244,7 +243,7 @@ public interface WaitStrategy
             if (alerted)
             {
                 alerted = false;
-                throw new AlertException();
+                throw ALERT_EXCEPTION;
             }
         }
 
@@ -308,7 +307,7 @@ public interface WaitStrategy
             if (alerted)
             {
                 alerted = false;
-                throw new AlertException();
+                throw ALERT_EXCEPTION;
             }
         }
 
