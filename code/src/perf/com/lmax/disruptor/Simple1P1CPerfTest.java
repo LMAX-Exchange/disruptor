@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.PerfEntry;
+import com.lmax.disruptor.support.ValueEntry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,13 +12,13 @@ public final class Simple1P1CPerfTest
     private static final int RING_SIZE = 4096;
     private static final long ITERATIONS = 1000 * 1000 * 100;
 
-    private final RingBuffer<PerfEntry> ringBuffer = new RingBuffer<PerfEntry>(PerfEntry.ENTRY_FACTORY, RING_SIZE,
-                                                                               ClaimStrategy.Option.SINGLE_THREADED,
-                                                                               WaitStrategy.Option.BUSY_SPIN);
-    private final ConsumerBarrier<PerfEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+    private final RingBuffer<ValueEntry> ringBuffer = new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
+                                                                                 ClaimStrategy.Option.SINGLE_THREADED,
+                                                                                 WaitStrategy.Option.BUSY_SPIN);
+    private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final TestEntryHandler testEntryHandler = new TestEntryHandler();
-    private final BatchEntryConsumer<PerfEntry> batchEntryConsumer = new BatchEntryConsumer<PerfEntry>(consumerBarrier, testEntryHandler);
-    private final ProducerBarrier<PerfEntry> producerBarrier = ringBuffer.createProducerBarrier(1, batchEntryConsumer);
+    private final BatchEntryConsumer<ValueEntry> batchEntryConsumer = new BatchEntryConsumer<ValueEntry>(consumerBarrier, testEntryHandler);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(1, batchEntryConsumer);
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(RING_SIZE);
     private final BlockingQueueConsumer blockingQueueConsumer = new BlockingQueueConsumer(blockingQueue);
@@ -52,7 +52,7 @@ public final class Simple1P1CPerfTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            PerfEntry entry = producerBarrier.claimNext();
+            ValueEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
             entry.commit();
 
@@ -108,7 +108,7 @@ public final class Simple1P1CPerfTest
     }
 
     public static final class TestEntryHandler
-        implements BatchEntryHandler<PerfEntry>
+        implements BatchEntryHandler<ValueEntry>
     {
         private long value;
 
@@ -123,7 +123,7 @@ public final class Simple1P1CPerfTest
         }
 
         @Override
-        public void onAvailable(final PerfEntry entry) throws Exception
+        public void onAvailable(final ValueEntry entry) throws Exception
         {
             value += entry.getValue();
         }

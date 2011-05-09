@@ -3,7 +3,7 @@ package com.lmax.disruptor.support;
 import com.lmax.disruptor.AbstractEntry;
 import com.lmax.disruptor.EntryFactory;
 
-public final class PerfEntry extends AbstractEntry
+public final class ValueEntry extends AbstractEntry
 {
     private long value;
 
@@ -17,11 +17,11 @@ public final class PerfEntry extends AbstractEntry
         this.value = value;
     }
 
-    public final static EntryFactory<PerfEntry> ENTRY_FACTORY = new EntryFactory<PerfEntry>()
+    public final static EntryFactory<ValueEntry> ENTRY_FACTORY = new EntryFactory<ValueEntry>()
     {
-        public PerfEntry create()
+        public ValueEntry create()
         {
-            return new PerfEntry();
+            return new ValueEntry();
         }
     };
 }
