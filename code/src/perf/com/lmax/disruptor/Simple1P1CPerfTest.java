@@ -38,7 +38,7 @@ public final class Simple1P1CPerfTest
         System.out.println("Disruptor 1P1C opsPerSecond = " + disruptorOpsPerSecond);
         System.out.println("BlockingQueue 1P1C opsPerSecond = " + blockingQueueOpsPerSecond);
 
-        Assert.assertTrue("Performance preserved", disruptorOpsPerSecond > blockingQueueOpsPerSecond);
+        Assert.assertTrue("Performance degraded", disruptorOpsPerSecond > blockingQueueOpsPerSecond);
     }
 
     private long runDisruptorPass() throws InterruptedException
