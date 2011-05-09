@@ -29,7 +29,7 @@ public final class Simple1P1CPerfTest
 
     private final RingBuffer<ValueEntry> ringBuffer = new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
                                                                                  ClaimStrategy.Option.SINGLE_THREADED,
-                                                                                 WaitStrategy.Option.BUSY_SPIN);
+                                                                                 WaitStrategy.Option.YIELDING);
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final TestEntryHandler testEntryHandler = new TestEntryHandler();
     private final BatchEntryConsumer<ValueEntry> batchEntryConsumer = new BatchEntryConsumer<ValueEntry>(consumerBarrier, testEntryHandler);
@@ -42,18 +42,22 @@ public final class Simple1P1CPerfTest
     public void shouldCompareDisruptorVsArrayBlockingQueue()
         throws Exception
     {
-        long disruptorOpsPerSecond = 0L;
-        long blockingQueueOpsPerSecond = 0L;
-        for (int i = 0; i < 3; i++)
+        final int RUNS = 3;
+        long[] disruptorOps = new long[RUNS];
+        long[] queueOps = new long[RUNS];
+
+        for (int i = 0; i < RUNS; i++)
         {
-            disruptorOpsPerSecond = runDisruptorPass();
-            blockingQueueOpsPerSecond = runBlockingQueuePass();
+            disruptorOps[i] = runDisruptorPass();
+            queueOps[i] = runBlockingQueuePass();
         }
 
-        System.out.println("Disruptor 1P1C opsPerSecond = " + disruptorOpsPerSecond);
-        System.out.println("BlockingQueue 1P1C opsPerSecond = " + blockingQueueOpsPerSecond);
+        for (int i = 0; i < RUNS; i++)
+        {
+            System.out.format("OpsPerSecond run %d: Disruptor=%d, BlockingQueue=%d\n", i, disruptorOps[i], queueOps[i]);
+        }
 
-        Assert.assertTrue("Performance degraded", disruptorOpsPerSecond > blockingQueueOpsPerSecond);
+        Assert.assertTrue("Performance degraded", disruptorOps[RUNS - 1] > queueOps[RUNS - 1]);
     }
 
     private long runDisruptorPass() throws InterruptedException

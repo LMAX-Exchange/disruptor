@@ -97,70 +97,14 @@ public interface WaitStrategy
     }
 
     /**
-     * Blocking strategy that uses locks and a condition variable for
+     * Busy Spin strategy that uses a busy spin loop for
      * {@link com.lmax.disruptor.EntryConsumer}s waiting on a barrier.
      *
-     * This strategy should be used when performance and low-latency are not as important
-     * as CPU resource.
+     * This strategy is a good compromise between performance and CPU resource.
      */
-    static final class BlockingStrategy implements WaitStrategy
+    static abstract class AbstractWaitStrategy implements WaitStrategy
     {
-        private final Lock lock = new ReentrantLock();
-        private final Condition consumerNotifyCondition = lock.newCondition();
-
-        private volatile boolean alerted = false;
-
-
-        @Override
-        public long waitFor(final RingBuffer ringBuffer, final long sequence)
-            throws AlertException, InterruptedException
-        {
-            if (ringBuffer.getCursor() < sequence)
-            {
-                lock.lock();
-                try
-                {
-                    while (ringBuffer.getCursor() < sequence)
-                    {
-                        checkForAlert();
-                        consumerNotifyCondition.await();
-                    }
-                }
-                finally
-                {
-                    lock.unlock();
-                }
-            }
-
-            return ringBuffer.getCursor();
-        }
-
-        @Override
-        public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
-            throws AlertException, InterruptedException
-        {
-            if (ringBuffer.getCursor() < sequence)
-            {
-                lock.lock();
-                try
-                {
-                    while (ringBuffer.getCursor() < sequence)
-                    {
-                        checkForAlert();
-                        if (!consumerNotifyCondition.await(timeout, units))
-                        {
-                            break;
-                        }
-                    }
-                }
-                finally
-                {
-                    lock.unlock();
-                }
-            }
-
-            return ringBuffer.getCursor();
-        }
+        volatile boolean alerted = false;
 
         @Override
         public void checkForAlert() throws AlertException
@@ -177,6 +121,77 @@ public interface WaitStrategy
         {
             alerted = true;
             notifyConsumers();
+        }
+
+        @Override
+        public void notifyConsumers()
+        {
+        }
+    }
+
+    /**
+     * Blocking strategy that uses locks and a condition variable for
+     * {@link com.lmax.disruptor.EntryConsumer}s waiting on a barrier.
+     *
+     * This strategy should be used when performance and low-latency are not as important
+     * as CPU resource.
+     */
+    static final class BlockingStrategy extends AbstractWaitStrategy
+    {
+        private final Lock lock = new ReentrantLock();
+        private final Condition consumerNotifyCondition = lock.newCondition();
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence)
+            throws AlertException, InterruptedException
+        {
+            long cursor;
+            if ((cursor = ringBuffer.getCursor()) < sequence)
+            {
+                lock.lock();
+                try
+                {
+                    while ((cursor = ringBuffer.getCursor()) < sequence)
+                    {
+                        checkForAlert();
+                        consumerNotifyCondition.await();
+                    }
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            }
+
+            return cursor;
+        }
+
+        @Override
+        public long waitFor(final RingBuffer ringBuffer, final long sequence, final long timeout, final TimeUnit units)
+            throws AlertException, InterruptedException
+        {
+            long cursor;
+            if ((cursor = ringBuffer.getCursor()) < sequence)
+            {
+                lock.lock();
+                try
+                {
+                    while ((cursor = ringBuffer.getCursor()) < sequence)
+                    {
+                        checkForAlert();
+                        if (!consumerNotifyCondition.await(timeout, units))
+                        {
+                            break;
+                        }
+                    }
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            }
+
+            return cursor;
         }
 
         @Override
@@ -200,21 +215,21 @@ public interface WaitStrategy
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
-    static final class YieldingStrategy implements WaitStrategy
+    static final class YieldingStrategy extends AbstractWaitStrategy
     {
-        private volatile boolean alerted = false;
-
         @Override
         public long waitFor(final RingBuffer ringBuffer, final long sequence)
             throws AlertException, InterruptedException
         {
-            while (ringBuffer.getCursor() < sequence)
+            long cursor;
+
+            while ((cursor = ringBuffer.getCursor()) < sequence)
             {
                 checkForAlert();
                 Thread.yield();
             }
 
-            return ringBuffer.getCursor();
+            return cursor;
         }
 
         @Override
@@ -223,8 +238,9 @@ public interface WaitStrategy
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
+            long cursor;
 
-            while (ringBuffer.getCursor() < sequence)
+            while ((cursor = ringBuffer.getCursor()) < sequence)
             {
                 checkForAlert();
                 Thread.yield();
@@ -234,29 +250,7 @@ public interface WaitStrategy
                 }
             }
 
-            return ringBuffer.getCursor();
-        }
-
-        @Override
-        public void checkForAlert() throws AlertException
-        {
-            if (alerted)
-            {
-                alerted = false;
-                throw ALERT_EXCEPTION;
-            }
-        }
-
-        @Override
-        public void alert()
-        {
-            alerted = true;
-            notifyConsumers();
-        }
-
-        @Override
-        public void notifyConsumers()
-        {
+            return cursor;
         }
     }
 
@@ -266,20 +260,20 @@ public interface WaitStrategy
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
-    static final class BusySpinStrategy implements WaitStrategy
+    static final class BusySpinStrategy extends AbstractWaitStrategy
     {
-        private volatile boolean alerted = false;
-
         @Override
         public long waitFor(final RingBuffer ringBuffer, final long sequence)
             throws AlertException, InterruptedException
         {
-            while (ringBuffer.getCursor() < sequence)
+            long cursor;
+
+            while ((cursor = ringBuffer.getCursor()) < sequence)
             {
                 checkForAlert();
             }
 
-            return ringBuffer.getCursor();
+            return cursor;
         }
 
         @Override
@@ -288,8 +282,9 @@ public interface WaitStrategy
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
+            long cursor;
 
-            while (ringBuffer.getCursor() < sequence)
+            while ((cursor = ringBuffer.getCursor()) < sequence)
             {
                 checkForAlert();
                 if (timeoutMs < (System.currentTimeMillis() - currentTime))
@@ -298,29 +293,7 @@ public interface WaitStrategy
                 }
             }
 
-            return ringBuffer.getCursor();
-        }
-
-        @Override
-        public void checkForAlert() throws AlertException
-        {
-            if (alerted)
-            {
-                alerted = false;
-                throw ALERT_EXCEPTION;
-            }
-        }
-
-        @Override
-        public void alert()
-        {
-            alerted = true;
-            notifyConsumers();
-        }
-
-        @Override
-        public void notifyConsumers()
-        {
+            return cursor;
         }
     }
 }
