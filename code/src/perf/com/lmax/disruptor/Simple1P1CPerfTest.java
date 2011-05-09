@@ -7,6 +7,21 @@ import org.junit.Test;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ *             +-----------------------------+
+ *             |                             |
+ *             |                             v
+ * +----+    +----+    +----+    +----+    +----+
+ * | P1 |--->| PB |--->| RB |<---| CB |<---| C1 |
+ * +----+    +----+    +----+    +----+    +----+
+ *
+ * P1 - Producer 1
+ * PB - Producer Barrier
+ * RB - Ring Buffer
+ * CB - Consumer Barrier
+ * C1 - Consumer 1
+ *
+ */
 public final class Simple1P1CPerfTest
 {
     private static final int RING_SIZE = 4096;
