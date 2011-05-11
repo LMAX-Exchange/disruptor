@@ -4,8 +4,7 @@ import com.lmax.disruptor.support.ValueEntry;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.*;
 
 /**
  *             +-----------------------------+
@@ -24,7 +23,8 @@ import java.util.concurrent.BlockingQueue;
  */
 public final class Simple1P1CPerfTest
 {
-    private static final int RING_SIZE = 4096;
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final int RING_SIZE = 8192;
     private static final long ITERATIONS = 1000 * 1000 * 100;
 
     private final RingBuffer<ValueEntry> ringBuffer = new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
@@ -43,28 +43,25 @@ public final class Simple1P1CPerfTest
         throws Exception
     {
         final int RUNS = 3;
-        long[] disruptorOps = new long[RUNS];
-        long[] queueOps = new long[RUNS];
+        long disruptorOps = 0L;
+        long queueOps = 0L;
 
         for (int i = 0; i < RUNS; i++)
         {
-            disruptorOps[i] = runDisruptorPass();
-            queueOps[i] = runBlockingQueuePass();
+            queueOps = runBlockingQueuePass();
+            disruptorOps = runDisruptorPass();
+
+            System.out.format("OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
+                              Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
         }
 
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.out.format("OpsPerSecond run %d: Disruptor=%d, BlockingQueue=%d\n", i, disruptorOps[i], queueOps[i]);
-        }
-
-        Assert.assertTrue("Performance degraded", disruptorOps[RUNS - 1] > queueOps[RUNS - 1]);
+        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
     }
 
     private long runDisruptorPass() throws InterruptedException
     {
         testEntryHandler.reset();
-        Thread thread = new Thread(batchEntryConsumer);
-        thread.start();
+        EXECUTOR.submit(batchEntryConsumer);
 
         long value = 0L;
         long start = System.currentTimeMillis();
@@ -79,15 +76,14 @@ public final class Simple1P1CPerfTest
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (producerBarrier.getConsumedSequence() < expectedSequence)
+        while (batchEntryConsumer.getSequence() < expectedSequence)
         {
-            Thread.yield();
+            // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
 
         batchEntryConsumer.halt();
-        thread.join();
 
         Assert.assertEquals(value, testEntryHandler.getValue());
 
@@ -97,8 +93,7 @@ public final class Simple1P1CPerfTest
     private long runBlockingQueuePass() throws InterruptedException
     {
         blockingQueueConsumer.reset();
-        Thread thread = new Thread(blockingQueueConsumer);
-        thread.start();
+        Future future =  EXECUTOR.submit(blockingQueueConsumer);
 
         long value = 0L;
         long start = System.currentTimeMillis();
@@ -112,14 +107,13 @@ public final class Simple1P1CPerfTest
         final long expectedSequence = ITERATIONS - 1;
         while (blockingQueueConsumer.getSequence() < expectedSequence)
         {
-            Thread.yield();
+            // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
 
         blockingQueueConsumer.halt();
-        thread.interrupt();
-        thread.join();
+        future.cancel(true);
 
         Assert.assertEquals(value, blockingQueueConsumer.getValue());
 
@@ -160,7 +154,7 @@ public final class Simple1P1CPerfTest
 
     public static final class BlockingQueueConsumer implements Runnable
     {
-        private volatile boolean running = true;
+        private volatile boolean running;
         private volatile long sequence;
         private long value;
 
@@ -195,8 +189,7 @@ public final class Simple1P1CPerfTest
         public void run()
         {
             running = true;
-
-            while (running && !Thread.currentThread().isInterrupted())
+            while (running)
             {
                 try
                 {
@@ -204,12 +197,11 @@ public final class Simple1P1CPerfTest
                     this.value += value;
                     sequence = value;
                 }
-                catch (Exception ex)
+                catch (InterruptedException ex)
                 {
-                    // fall through
+                    break;
                 }
             }
-
         }
     }
 }

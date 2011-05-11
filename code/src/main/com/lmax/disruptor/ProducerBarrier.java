@@ -21,19 +21,4 @@ public interface ProducerBarrier<T extends Entry>
      * @return the claimed {@link Entry}
      */
     T claimSequence(long sequence);
-
-    /**
-     * Get the sequence up to which the {@link EntryConsumer}s have consumed from the {@link RingBuffer}
-     *
-     * @return the consumed to sequence
-     */
-    long getConsumedSequence();
-
-
-    /**
-     * The number of slots in the buffer that have been reserved to prevent wrapping.
-     *
-     * @return size of the reserve.
-     */
-    int getBufferReserve();
 }

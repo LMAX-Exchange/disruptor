@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.support.Actions.countDown;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
@@ -39,29 +40,6 @@ public final class ConsumerBarrierTest
         entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
         consumerBarrier = ringBuffer.createConsumerBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
         producerBarrier = ringBuffer.createProducerBarrier(0);
-    }
-
-    @Test
-    public void shouldGetMinOffWorkers() throws Exception
-    {
-        final long expectedMinimum = 3;
-        context.checking(new Expectations()
-        {
-            {
-                one(entryConsumer1).getSequence();
-                will(returnValue(expectedMinimum));
-
-                one(entryConsumer2).getSequence();
-                will(returnValue(17L));
-
-                one(entryConsumer3).getSequence();
-                will(returnValue(19L));
-            }
-        });
-
-        producerBarrier.claimSequence(19L).commit();
-
-        assertEquals(expectedMinimum, consumerBarrier.getAvailableSequence());
     }
 
     @Test
@@ -206,6 +184,18 @@ public final class ConsumerBarrierTest
         long expectedWorkSequence = expectedNumberMessages - 1;
         long completedWorkSequence = consumerBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
+    }
+
+    @Test
+    public void shouldSetAndClearAlertStatus()
+    {
+        assertFalse(consumerBarrier.isAlerted());
+
+        consumerBarrier.alert();
+        assertTrue(consumerBarrier.isAlerted());
+
+        consumerBarrier.clearAlert();
+        assertFalse(consumerBarrier.isAlerted());
     }
 
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException

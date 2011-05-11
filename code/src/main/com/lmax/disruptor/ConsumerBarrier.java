@@ -19,15 +19,6 @@ public interface ConsumerBarrier<T extends Entry>
     T getEntry(long sequence);
 
     /**
-     * Get the sequence number that the {@link RingBuffer} and dependent {@link EntryConsumer}s have progressed to.
-     *
-     * This is the RingBuffer cursor and minimum sequence number of the dependent {@link EntryConsumer}s.
-     *
-     * @return the sequence that is now valid for consuming.
-     */
-    long getAvailableSequence();
-
-    /**
      * Wait for the given sequence to be available for consumption.
      *
      * @param sequence to wait for
@@ -50,7 +41,20 @@ public interface ConsumerBarrier<T extends Entry>
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
-     * Alert the consumers of a status change.
+     * The current alert status for the barrier.
+     *
+     * @return true if in alert otherwise false.
+     */
+    boolean isAlerted();
+
+    /**
+     * Alert the consumers of a status change and stay in this status until cleared.
      */
     void alert();
+
+    /**
+     * Clear the current alert status.
+     */
+    void clearAlert();
+
 }

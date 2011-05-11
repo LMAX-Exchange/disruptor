@@ -2,7 +2,9 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
+import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
  * Ring based store of reusable entries containing the data representing an {@link Entry} being exchanged between producers and consumers.
@@ -14,6 +16,7 @@ public final class RingBuffer<T extends Entry>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1;
+    private volatile long cursor = INITIAL_CURSOR_VALUE;
 
     private final Object[] entries;
     private final int ringModMask;
@@ -23,8 +26,6 @@ public final class RingBuffer<T extends Entry>
 
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
-
-    private volatile long cursor = INITIAL_CURSOR_VALUE;
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -155,7 +156,7 @@ public final class RingBuffer<T extends Entry>
         {
             claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
             cursor = sequence;
-            waitStrategy.notifyConsumers();
+            waitStrategy.signalAll();
         }
     }
 
@@ -169,7 +170,7 @@ public final class RingBuffer<T extends Entry>
         {
             claimStrategy.setSequence(sequence + 1L);
             cursor = sequence;
-            waitStrategy.notifyConsumers();
+            waitStrategy.signalAll();
         }
     }
 
@@ -181,6 +182,7 @@ public final class RingBuffer<T extends Entry>
         private final RingBuffer<T> ringBuffer;
         private final EntryConsumer[] entryConsumers;
         private final WaitStrategy waitStrategy;
+        private volatile boolean alerted = false;
 
         public RingBufferConsumerBarrier(final RingBuffer<T> ringBuffer,
                                          final WaitStrategy waitStrategy,
@@ -198,29 +200,19 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public long getAvailableSequence()
-        {
-            long minimum = ringBuffer.getCursor();
-            for (EntryConsumer entryConsumer : entryConsumers)
-            {
-                long sequence = entryConsumer.getSequence();
-                minimum = minimum < sequence ? minimum : sequence;
-            }
-
-            return minimum;
-        }
-
-        @Override
         public long waitFor(final long sequence)
             throws AlertException, InterruptedException
         {
-            long availableSequence = waitStrategy.waitFor(ringBuffer, sequence);
+            long availableSequence = waitStrategy.waitFor(ringBuffer, this, sequence);
 
             if (entryConsumers.length != 0)
             {
-                while ((availableSequence = getAvailableSequence()) < sequence)
+                while ((availableSequence = getMinimumSequence(entryConsumers)) < sequence)
                 {
-                    waitStrategy.checkForAlert();
+                    if (alerted)
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
                 }
             }
 
@@ -231,13 +223,16 @@ public final class RingBuffer<T extends Entry>
         public long waitFor(final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            long availableSequence = waitStrategy.waitFor(ringBuffer, sequence, timeout, units);
+            long availableSequence = waitStrategy.waitFor(ringBuffer, this, sequence, timeout, units);
 
             if (entryConsumers.length != 0)
             {
-                while ((availableSequence = getAvailableSequence()) < sequence)
+                while ((availableSequence = getMinimumSequence(entryConsumers)) < sequence)
                 {
-                    waitStrategy.checkForAlert();
+                    if (alerted)
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
                 }
             }
 
@@ -245,9 +240,22 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
+        public boolean isAlerted()
+        {
+            return alerted;
+        }
+
+        @Override
         public void alert()
         {
-            waitStrategy.alert();
+            alerted = true;
+            waitStrategy.signalAll();
+        }
+
+        @Override
+        public void clearAlert()
+        {
+            alerted = false;
         }
     }
 
@@ -260,23 +268,22 @@ public final class RingBuffer<T extends Entry>
         implements ProducerBarrier<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
-        private final int bufferReserve;
         private final EntryConsumer[] entryConsumers;
+        private final int threshold;
 
         public RingBufferProducerBarrier(final RingBuffer<? extends T> ringBuffer,
                                          final int bufferReserve,
                                          final EntryConsumer... entryConsumers)
         {
-            this.bufferReserve = bufferReserve;
             this.ringBuffer = ringBuffer;
             this.entryConsumers = entryConsumers;
+            this.threshold = ringBuffer.getCapacity() - bufferReserve;
         }
 
         @Override
         public T claimNext()
         {
-            final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-            while (ringBuffer.getCursor() - getConsumedSequence() >= threshold)
+            while ((ringBuffer.getCursor() - getMinimumSequence(entryConsumers)) >= threshold)
             {
                 Thread.yield();
             }
@@ -287,33 +294,12 @@ public final class RingBuffer<T extends Entry>
         @Override
         public T claimSequence(final long sequence)
         {
-            final long threshold = ringBuffer.getCapacity() - getBufferReserve();
-            while (sequence - getConsumedSequence() >= threshold)
+            while ((sequence - getMinimumSequence(entryConsumers)) >= threshold)
             {
                 Thread.yield();
             }
 
             return ringBuffer.claimSequence(sequence);
-        }
-
-        @Override
-        public long getConsumedSequence()
-        {
-            long minimum = ringBuffer.getCursor();
-
-            for (EntryConsumer consumer : entryConsumers)
-            {
-                long sequence = consumer.getSequence();
-                minimum = minimum < sequence ? minimum : sequence;
-            }
-
-            return minimum;
-        }
-
-        @Override
-        public int getBufferReserve()
-        {
-            return bufferReserve;
         }
     }
 
