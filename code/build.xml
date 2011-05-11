@@ -35,7 +35,8 @@
 
     <target name="test:prepare">
         <mkdir dir="${dir.test.build}"/>
-        <mkdir dir="${dir.reports}"/>
+        <mkdir dir="${dir.reports}/unit"/>
+        <mkdir dir="${dir.reports}/perf"/>
     </target>
 
     <target name="build"
@@ -63,13 +64,19 @@
                fork="false"
                haltonfailure="true">
             <classpath refid="test.classpath"/>
-            <formatter type="plain"/>
-            <batchtest fork="false" todir="${dir.reports}">
+            <formatter type="xml"/>
+            <batchtest fork="false" todir="${dir.reports}/unit">
                 <fileset dir="${dir.test.src}">
                     <include name="**/*Test.java"/>
                 </fileset>
             </batchtest>
         </junit>
+        <junitreport todir="${dir.reports}/unit">
+          <fileset dir="${dir.reports}/unit">
+            <include name="TEST-*.xml" />
+          </fileset>
+          <report todir="${dir.reports}/unit" />
+        </junitreport>
     </target>
 
     <target name="perf:test"
@@ -85,14 +92,21 @@
         <junit printsummary="on"
                fork="false"
                haltonfailure="true">
+            <jvmarg value="-XX:+AggressiveOpts -XX:+UseParallelGC -Xms2g -Xmx2g"/>
             <classpath refid="test.classpath"/>
-            <formatter type="plain"/>
-            <batchtest fork="false" todir="${dir.reports}">
+            <formatter type="xml"/>
+            <batchtest fork="false" todir="${dir.reports}/perf">
                 <fileset dir="${dir.perf.src}">
                     <include name="**/*PerfTest.java"/>
                 </fileset>
             </batchtest>
         </junit>
+        <junitreport todir="${dir.reports}/perf">
+          <fileset dir="${dir.reports}/perf">
+            <include name="TEST-*.xml" />
+          </fileset>
+          <report todir="${dir.reports}/perf" />
+        </junitreport>
     </target>
 
     <target name="javadoc" depends="main:prepare">

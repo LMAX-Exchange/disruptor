@@ -7,6 +7,8 @@ import org.junit.Test;
 import java.util.concurrent.*;
 
 /**
+ * Exchange a series of items between 1 producer and 1 consumer.
+ *
  *             +-----------------------------+
  *             |                             |
  *             |                             v
@@ -21,7 +23,7 @@ import java.util.concurrent.*;
  * C1 - Consumer 1
  *
  */
-public final class Simple1P1CPerfTest
+public final class Exchanger1P1CPerfTest
 {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final int RING_SIZE = 8192;
@@ -51,8 +53,8 @@ public final class Simple1P1CPerfTest
             queueOps = runBlockingQueuePass();
             disruptorOps = runDisruptorPass();
 
-            System.out.format("OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
-                              Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
+            System.out.format("%s OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
+                              getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
         }
 
         Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
