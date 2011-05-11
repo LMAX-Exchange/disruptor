@@ -7,14 +7,34 @@ import org.junit.Test;
 import java.util.concurrent.*;
 
 /**
- * Exchange a series of items between 1 producer and 1 consumer.
+ * UniCast a series of items between 1 producer and 1 consumer.
  *
+ * +----+    +----+
+ * | P1 |--->| C1 |
+ * +----+    +----+
+ *
+ * Queue Based:
+ *
+ * +----+    +----+    +----+
+ * | P1 |--->| Q1 |<---| C1 |
+ * +----+    +----+    +----+
+ *
+ * P1 - Producer 1
+ * Q1 - Queue 1
+ * C1 - Consumer 1
+
+ * Disruptor:
+ *                   watch to prevent wrap
  *             +-----------------------------+
  *             |                             |
  *             |                             v
  * +----+    +----+    +----+    +----+    +----+
  * | P1 |--->| PB |--->| RB |<---| CB |<---| C1 |
  * +----+    +----+    +----+    +----+    +----+
+ *                                  ^        |
+ *                                  |        |
+ *                                  +--------+
+ *                                    waitFor
  *
  * P1 - Producer 1
  * PB - Producer Barrier
@@ -23,11 +43,11 @@ import java.util.concurrent.*;
  * C1 - Consumer 1
  *
  */
-public final class Exchanger1P1CPerfTest
+public final class UniCast1P1CPerfTest
 {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final int RING_SIZE = 8192;
-    private static final long ITERATIONS = 1000 * 1000 * 100;
+    private static final long ITERATIONS = 1000 * 1000 * 50;
 
     private final RingBuffer<ValueEntry> ringBuffer = new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
                                                                                  ClaimStrategy.Option.SINGLE_THREADED,
