@@ -264,7 +264,7 @@ public final class RingBuffer<T extends Entry>
      *
      * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
      */
-    private final class RingBufferProducerBarrier<T extends Entry>
+    private static final class RingBufferProducerBarrier<T extends Entry>
         implements ProducerBarrier<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
