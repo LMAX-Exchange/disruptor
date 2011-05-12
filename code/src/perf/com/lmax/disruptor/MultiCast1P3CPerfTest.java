@@ -16,6 +16,7 @@ package com.lmax.disruptor;
  *           +----+
 
  * Queue Based:
+ * ============
  *
  *           +----+    +----+
  *    +----->| Q1 |<---| C1 |
@@ -38,6 +39,7 @@ package com.lmax.disruptor;
  * C3 - Consumer 3
  *
  * Disruptor:
+ * ==========
  *                            watch to prevent wrap
  *             +-----------------------------+---------+---------+
  *             |                             |         |         |

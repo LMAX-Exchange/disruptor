@@ -14,6 +14,7 @@ import java.util.concurrent.*;
  * +----+    +----+
  *
  * Queue Based:
+ * ============
  *
  * +----+    +----+    +----+
  * | P1 |--->| Q1 |<---| C1 |
@@ -24,6 +25,7 @@ import java.util.concurrent.*;
  * C1 - Consumer 1
 
  * Disruptor:
+ * ==========
  *                   watch to prevent wrap
  *             +-----------------------------+
  *             |                             |
