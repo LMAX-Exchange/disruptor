@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming {@link Entry}s in a {@link RingBuffer} while tracking dependent {@link EntryConsumer}s
+ * Abstraction for claiming {@link Entry}s in a {@link RingBuffer} while tracking dependent {@link Consumer}s
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */

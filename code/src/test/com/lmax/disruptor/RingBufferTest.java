@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.lmax.disruptor.support.DaemonThreadFactory;
-import com.lmax.disruptor.support.TestConsumer;
+import com.lmax.disruptor.support.TestWaiter;
 import com.lmax.disruptor.support.StubEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -160,7 +160,7 @@ public class RingBufferTest
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
         final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
 
-        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestConsumer(cyclicBarrier, consumerBarrier, initial, toWaitFor));
+        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, consumerBarrier, initial, toWaitFor));
 
         cyclicBarrier.await();
 

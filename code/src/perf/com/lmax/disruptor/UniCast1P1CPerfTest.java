@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.concurrent.*;
 
 /**
+ * <pre>
  * UniCast a series of items between 1 producer and 1 consumer.
  *
  * +----+    +----+
@@ -16,6 +17,7 @@ import java.util.concurrent.*;
  * Queue Based:
  * ============
  *
+ *        put      take
  * +----+    +----+    +----+
  * | P1 |--->| Q1 |<---| C1 |
  * +----+    +----+    +----+
@@ -26,14 +28,14 @@ import java.util.concurrent.*;
 
  * Disruptor:
  * ==========
- *                   watch to prevent wrap
+ *                   track to prevent wrap
  *             +-----------------------------+
  *             |                             |
  *             |                             v
  * +----+    +----+    +----+    +----+    +----+
- * | P1 |--->| PB |--->| RB |<---| CB |<---| C1 |
+ * | P1 |--->| PB |--->| RB |<---| CB |    | C1 |
  * +----+    +----+    +----+    +----+    +----+
- *                                  ^        |
+ *                claim      get    ^        |
  *                                  |        |
  *                                  +--------+
  *                                    waitFor
@@ -43,7 +45,7 @@ import java.util.concurrent.*;
  * RB - Ring Buffer
  * CB - Consumer Barrier
  * C1 - Consumer 1
- *
+ * </pre>
  */
 public final class UniCast1P1CPerfTest
 {
@@ -55,15 +57,15 @@ public final class UniCast1P1CPerfTest
                                                                                  ClaimStrategy.Option.SINGLE_THREADED,
                                                                                  WaitStrategy.Option.YIELDING);
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    private final TestEntryHandler testEntryHandler = new TestEntryHandler();
-    private final BatchEntryConsumer<ValueEntry> batchEntryConsumer = new BatchEntryConsumer<ValueEntry>(consumerBarrier, testEntryHandler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(1, batchEntryConsumer);
+    private final TestHandler testHandler = new TestHandler();
+    private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, testHandler);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(1, batchConsumer);
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(RING_SIZE);
-    private final BlockingQueueConsumer blockingQueueConsumer = new BlockingQueueConsumer(blockingQueue);
+    private final QueueConsumer queueConsumer = new QueueConsumer(blockingQueue);
 
     @Test
-    public void shouldCompareDisruptorVsArrayBlockingQueue()
+    public void shouldCompareDisruptorVsQueue()
         throws Exception
     {
         final int RUNS = 3;
@@ -72,7 +74,7 @@ public final class UniCast1P1CPerfTest
 
         for (int i = 0; i < RUNS; i++)
         {
-            queueOps = runBlockingQueuePass();
+            queueOps = runQueuePass();
             disruptorOps = runDisruptorPass();
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
@@ -84,8 +86,8 @@ public final class UniCast1P1CPerfTest
 
     private long runDisruptorPass() throws InterruptedException
     {
-        testEntryHandler.reset();
-        EXECUTOR.submit(batchEntryConsumer);
+        testHandler.reset();
+        EXECUTOR.submit(batchConsumer);
 
         long value = 0L;
         long start = System.currentTimeMillis();
@@ -100,24 +102,24 @@ public final class UniCast1P1CPerfTest
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (batchEntryConsumer.getSequence() < expectedSequence)
+        while (batchConsumer.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
 
-        batchEntryConsumer.halt();
+        batchConsumer.halt();
 
-        Assert.assertEquals(value, testEntryHandler.getValue());
+        Assert.assertEquals(value, testHandler.getValue());
 
         return opsPerSecond;
     }
 
-    private long runBlockingQueuePass() throws InterruptedException
+    private long runQueuePass() throws InterruptedException
     {
-        blockingQueueConsumer.reset();
-        Future future =  EXECUTOR.submit(blockingQueueConsumer);
+        queueConsumer.reset();
+        Future future =  EXECUTOR.submit(queueConsumer);
 
         long value = 0L;
         long start = System.currentTimeMillis();
@@ -129,23 +131,22 @@ public final class UniCast1P1CPerfTest
         }
 
         final long expectedSequence = ITERATIONS - 1;
-        while (blockingQueueConsumer.getSequence() < expectedSequence)
+        while (queueConsumer.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
 
-        blockingQueueConsumer.halt();
+        queueConsumer.halt();
         future.cancel(true);
 
-        Assert.assertEquals(value, blockingQueueConsumer.getValue());
+        Assert.assertEquals(value, queueConsumer.getValue());
 
         return opsPerSecond;
     }
 
-    public static final class TestEntryHandler
-        implements BatchEntryHandler<ValueEntry>
+    public static final class TestHandler implements BatchHandler<ValueEntry>
     {
         private long value;
 
@@ -176,7 +177,7 @@ public final class UniCast1P1CPerfTest
         }
     }
 
-    public static final class BlockingQueueConsumer implements Runnable
+    public static final class QueueConsumer implements Runnable
     {
         private volatile boolean running;
         private volatile long sequence;
@@ -184,7 +185,7 @@ public final class UniCast1P1CPerfTest
 
         private final BlockingQueue<Long> blockingQueue;
 
-        public BlockingQueueConsumer(final BlockingQueue<Long> blockingQueue)
+        public QueueConsumer(final BlockingQueue<Long> blockingQueue)
         {
             this.blockingQueue = blockingQueue;
         }

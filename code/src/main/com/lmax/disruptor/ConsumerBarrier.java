@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Coordination barrier for tracking the cursor for producers and sequence of
- * dependent {@link EntryConsumer}s for a {@link RingBuffer}
+ * dependent {@link Consumer}s for a {@link RingBuffer}
  *
  * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
  */

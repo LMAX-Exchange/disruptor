@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 
-public final class TestConsumer implements Callable<List<StubEntry>>
+public final class TestWaiter implements Callable<List<StubEntry>>
 {
     private final long toWaitForSequence;
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
     private final ConsumerBarrier<StubEntry> consumerBarrier;
 
-    public TestConsumer(final CyclicBarrier cyclicBarrier,
-                        final ConsumerBarrier<StubEntry> consumerBarrier,
-                        final long initialSequence,
-                        final long toWaitForSequence)
+    public TestWaiter(final CyclicBarrier cyclicBarrier,
+                      final ConsumerBarrier<StubEntry> consumerBarrier,
+                      final long initialSequence,
+                      final long toWaitForSequence)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.initialSequence = initialSequence;

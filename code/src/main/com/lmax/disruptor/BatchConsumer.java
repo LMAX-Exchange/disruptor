@@ -2,56 +2,56 @@ package com.lmax.disruptor;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available {@link Entry}s to a {@link BatchEntryHandler}.
+ * and delegating the available {@link Entry}s to a {@link BatchHandler}.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class BatchEntryConsumer<T extends Entry>
-    implements EntryConsumer
+public final class BatchConsumer<T extends Entry>
+    implements Consumer
 {
     private volatile boolean running = true;
     private volatile long sequence = -1L;
 
     private final ConsumerBarrier<T> consumerBarrier;
-    private final BatchEntryHandler<T> entryHandler;
+    private final BatchHandler<T> handler;
     private final boolean noSequenceTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
-     * the {@link BatchEntryHandler#onAvailable(Entry)} method returns.
+     * the {@link BatchHandler#onAvailable(Entry)} method returns.
      *
      * @param consumerBarrier on which it is waiting.
-     * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
+     * @param handler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final ConsumerBarrier<T> consumerBarrier,
-                              final BatchEntryHandler<T> entryHandler)
+    public BatchConsumer(final ConsumerBarrier<T> consumerBarrier,
+                         final BatchHandler<T> handler)
     {
         this.consumerBarrier = consumerBarrier;
-        this.entryHandler = entryHandler;
+        this.handler = handler;
         this.noSequenceTracker = true;
     }
 
     /**
-     * Construct a batch consumer that will rely on the {@link SequenceTrackingEntryHandler}
-     * to callback via the {@link com.lmax.disruptor.BatchEntryConsumer.SequenceTrackerCallback} when it has completed with a sequence.
+     * Construct a batch consumer that will rely on the {@link SequenceTrackingHandler}
+     * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has completed with a sequence.
      *
      * @param consumerBarrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
      */
-    public BatchEntryConsumer(final ConsumerBarrier<T> consumerBarrier,
-                              final SequenceTrackingEntryHandler<T> entryHandler)
+    public BatchConsumer(final ConsumerBarrier<T> consumerBarrier,
+                         final SequenceTrackingHandler<T> entryHandler)
     {
         this.consumerBarrier = consumerBarrier;
-        this.entryHandler = entryHandler;
+        this.handler = entryHandler;
 
         this.noSequenceTracker = false;
         entryHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
     }
 
     /**
-     * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEntryConsumer}
+     * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchConsumer}
      *
      * @param exceptionHandler to replace the existing exceptionHandler.
      */
@@ -65,17 +65,22 @@ public final class BatchEntryConsumer<T extends Entry>
         this.exceptionHandler = exceptionHandler;
     }
 
+    /**
+     * Get the {@link ConsumerBarrier} the {@link Consumer} is waiting on.
+     *
+      * @return the barrier this {@link Consumer} is using.
+     */
+    public ConsumerBarrier<? extends T> getConsumerBarrier()
+    {
+        return consumerBarrier;
+    }
+
     @Override
     public long getSequence()
     {
         return sequence;
     }
 
-    @Override
-    public ConsumerBarrier<? extends T> getConsumerBarrier()
-    {
-        return consumerBarrier;
-    }
 
     @Override
     public void halt()
@@ -84,6 +89,9 @@ public final class BatchEntryConsumer<T extends Entry>
         consumerBarrier.alert();
     }
 
+    /**
+     * It is ok to have another thread rerun this method after a halt().
+     */
     @Override
     public void run()
     {
@@ -100,7 +108,7 @@ public final class BatchEntryConsumer<T extends Entry>
                 for (long i = nextSequence; i <= availableSeq; i++)
                 {
                     entry = consumerBarrier.getEntry(i);
-                    entryHandler.onAvailable(entry);
+                    handler.onAvailable(entry);
 
                     if (noSequenceTracker)
                     {
@@ -108,7 +116,7 @@ public final class BatchEntryConsumer<T extends Entry>
                     }
                 }
 
-                entryHandler.onEndOfBatch();
+                handler.onEndOfBatch();
             }
             catch (final AlertException ex)
             {
@@ -124,11 +132,11 @@ public final class BatchEntryConsumer<T extends Entry>
             }
         }
 
-        entryHandler.onCompletion();
+        handler.onCompletion();
     }
 
     /**
-     * Used by the {@link BatchEntryHandler} to signal when it has completed consuming a given sequence.
+     * Used by the {@link BatchHandler} to signal when it has completed consuming a given sequence.
      */
     public final class SequenceTrackerCallback
     {
@@ -139,7 +147,7 @@ public final class BatchEntryConsumer<T extends Entry>
          */
         public void onCompleted(final long sequence)
         {
-            BatchEntryConsumer.this.sequence = sequence;
+            BatchConsumer.this.sequence = sequence;
         }
     }
 }

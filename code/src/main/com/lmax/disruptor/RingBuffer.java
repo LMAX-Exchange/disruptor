@@ -64,28 +64,28 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link EntryConsumer}s
+     * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link Consumer}s
      *
-     * @param entryConsumers this barrier will track
+     * @param consumers this barrier will track
      * @return the barrier gated as required
      */
-    public ConsumerBarrier<T> createConsumerBarrier(final EntryConsumer... entryConsumers)
+    public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumers)
     {
-        return new RingBufferConsumerBarrier<T>(this, waitStrategy, entryConsumers);
+        return new RingBufferConsumerBarrier<T>(this, waitStrategy, consumers);
     }
 
     /**
-     * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link EntryConsumer}s.
+     * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
      *
      * The bufferReserve should be at least the number of producing threads.
      *
      * @param bufferReserve size of of the buffer to be reserved.
-     * @param entryConsumers to be tracked to prevent wrapping.
+     * @param consumers to be tracked to prevent wrapping.
      * @return a {@link ProducerBarrier} with the above configuration.
      */
-    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final EntryConsumer... entryConsumers)
+    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final Consumer... consumers)
     {
-        return new RingBufferProducerBarrier<T>(this, bufferReserve, entryConsumers);
+        return new RingBufferProducerBarrier<T>(this, bufferReserve, consumers);
     }
 
     /**
@@ -175,22 +175,22 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link EntryConsumer}(s)
+     * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
     private static final class RingBufferConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
     {
         private final RingBuffer<T> ringBuffer;
-        private final EntryConsumer[] entryConsumers;
+        private final Consumer[] consumers;
         private final WaitStrategy waitStrategy;
         private volatile boolean alerted = false;
 
         public RingBufferConsumerBarrier(final RingBuffer<T> ringBuffer,
                                          final WaitStrategy waitStrategy,
-                                         final EntryConsumer... entryConsumers)
+                                         final Consumer... consumers)
         {
             this.ringBuffer = ringBuffer;
             this.waitStrategy = waitStrategy;
-            this.entryConsumers = entryConsumers;
+            this.consumers = consumers;
         }
 
         @Override
@@ -205,9 +205,9 @@ public final class RingBuffer<T extends Entry>
         {
             long availableSequence = waitStrategy.waitFor(ringBuffer, this, sequence);
 
-            if (entryConsumers.length != 0)
+            if (consumers.length != 0)
             {
-                while ((availableSequence = getMinimumSequence(entryConsumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
                 {
                     if (alerted)
                     {
@@ -225,9 +225,9 @@ public final class RingBuffer<T extends Entry>
         {
             long availableSequence = waitStrategy.waitFor(ringBuffer, this, sequence, timeout, units);
 
-            if (entryConsumers.length != 0)
+            if (consumers.length != 0)
             {
-                while ((availableSequence = getMinimumSequence(entryConsumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
                 {
                     if (alerted)
                     {
@@ -268,22 +268,22 @@ public final class RingBuffer<T extends Entry>
         implements ProducerBarrier<T>
     {
         private final RingBuffer<? extends T> ringBuffer;
-        private final EntryConsumer[] entryConsumers;
+        private final Consumer[] consumers;
         private final int threshold;
 
         public RingBufferProducerBarrier(final RingBuffer<? extends T> ringBuffer,
                                          final int bufferReserve,
-                                         final EntryConsumer... entryConsumers)
+                                         final Consumer... consumers)
         {
             this.ringBuffer = ringBuffer;
-            this.entryConsumers = entryConsumers;
+            this.consumers = consumers;
             this.threshold = ringBuffer.getCapacity() - bufferReserve;
         }
 
         @Override
         public T claimNext()
         {
-            while ((ringBuffer.getCursor() - getMinimumSequence(entryConsumers)) >= threshold)
+            while ((ringBuffer.getCursor() - getMinimumSequence(consumers)) >= threshold)
             {
                 Thread.yield();
             }
@@ -294,7 +294,7 @@ public final class RingBuffer<T extends Entry>
         @Override
         public T claimSequence(final long sequence)
         {
-            while ((sequence - getMinimumSequence(entryConsumers)) >= threshold)
+            while ((sequence - getMinimumSequence(consumers)) >= threshold)
             {
                 Thread.yield();
             }

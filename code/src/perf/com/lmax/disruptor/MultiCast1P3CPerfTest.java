@@ -1,6 +1,13 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.ValueEntry;
+import org.junit.Test;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
+ * <pre>
  * MultiCast a series of items between 1 producer and 3 consumers.
  *
  *           +----+
@@ -17,8 +24,8 @@ package com.lmax.disruptor;
 
  * Queue Based:
  * ============
- *
- *           +----+    +----+
+ *                 take
+ *   put     +----+    +----+
  *    +----->| Q1 |<---| C1 |
  *    |      +----+    +----+
  *    |
@@ -40,14 +47,14 @@ package com.lmax.disruptor;
  *
  * Disruptor:
  * ==========
- *                            watch to prevent wrap
+ *                            track to prevent wrap
  *             +-----------------------------+---------+---------+
  *             |                             |         |         |
  *             |                             v         v         v
  * +----+    +----+    +----+    +----+    +----+    +----+    +----+
  * | P1 |--->| PB |--->| RB |<---| CB |    | C1 |    | C2 |    | C3 |
  * +----+    +----+    +----+    +----+    +----+    +----+    +----+
- *                                  ^        |          |        |
+ *                claim      get    ^        |          |        |
  *                                  |        |          |        |
  *                                  +--------+----------+--------+
  *                                               waitFor
@@ -59,8 +66,21 @@ package com.lmax.disruptor;
  * C1 - Consumer 1
  * C2 - Consumer 2
  * C3 - Consumer 3
- *
+ * </pre>
  */
 public final class MultiCast1P3CPerfTest
 {
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final int RING_SIZE = 8192;
+    private static final long ITERATIONS = 1000 * 1000 * 50;
+
+    private final RingBuffer<ValueEntry> ringBuffer = new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
+                                                                                 ClaimStrategy.Option.SINGLE_THREADED,
+                                                                                 WaitStrategy.Option.YIELDING);
+
+    @Test
+    public void shouldCompareDisruptorVsQueues()
+        throws Exception
+    {
+    }
 }

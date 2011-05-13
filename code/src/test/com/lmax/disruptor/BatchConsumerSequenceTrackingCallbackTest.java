@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 
-public class BatchEntryConsumerSequenceTrackingCallbackTest
+public class BatchConsumerSequenceTrackingCallbackTest
 {
     private final CountDownLatch onAvailableLatch = new CountDownLatch(2);
     private final CountDownLatch readyToCallbackLatch = new CountDownLatch(1);
@@ -19,32 +19,32 @@ public class BatchEntryConsumerSequenceTrackingCallbackTest
         final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
         final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
         final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0);
-        final SequenceTrackingEntryHandler<StubEntry> handler = new TestSequenceTrackingEntryHandler<StubEntry>();
-        final BatchEntryConsumer<StubEntry> batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, handler);
+        final SequenceTrackingHandler<StubEntry> handler = new TestSequenceTrackingHandler();
+        final BatchConsumer<StubEntry> batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, handler);
 
-        Thread thread = new Thread(batchEntryConsumer);
+        Thread thread = new Thread(batchConsumer);
         thread.start();
 
-        assertEquals(-1L, batchEntryConsumer.getSequence());
+        assertEquals(-1L, batchConsumer.getSequence());
         producerBarrier.claimNext().commit();
         producerBarrier.claimNext().commit();
         onAvailableLatch.await();
-        assertEquals(-1L, batchEntryConsumer.getSequence());
+        assertEquals(-1L, batchConsumer.getSequence());
 
         producerBarrier.claimNext().commit();
         readyToCallbackLatch.await();
-        assertEquals(2L, batchEntryConsumer.getSequence());
+        assertEquals(2L, batchConsumer.getSequence());
 
-        batchEntryConsumer.halt();
+        batchConsumer.halt();
         thread.join();
     }
 
-    private class TestSequenceTrackingEntryHandler<T> implements SequenceTrackingEntryHandler<StubEntry>
+    private class TestSequenceTrackingHandler implements SequenceTrackingHandler<StubEntry>
     {
-        private BatchEntryConsumer.SequenceTrackerCallback sequenceTrackerCallback;
+        private BatchConsumer.SequenceTrackerCallback sequenceTrackerCallback;
 
         @Override
-        public void setSequenceTrackerCallback(final BatchEntryConsumer.SequenceTrackerCallback sequenceTrackerCallback)
+        public void setSequenceTrackerCallback(final BatchConsumer.SequenceTrackerCallback sequenceTrackerCallback)
         {
             this.sequenceTrackerCallback = sequenceTrackerCallback;
         }

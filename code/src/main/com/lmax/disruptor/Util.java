@@ -18,16 +18,16 @@ public final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link EntryConsumer}s.
+     * Get the minimum sequence from an array of {@link Consumer}s.
      *
-     * @param entryConsumers to compare.
+     * @param consumers to compare.
      * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
      */
-    public static long getMinimumSequence(final EntryConsumer[] entryConsumers)
+    public static long getMinimumSequence(final Consumer[] consumers)
     {
         long minimum = Long.MAX_VALUE;
 
-        for (EntryConsumer consumer : entryConsumers)
+        for (Consumer consumer : consumers)
         {
             long sequence = consumer.getSequence();
             minimum = minimum < sequence ? minimum : sequence;

@@ -1,7 +1,6 @@
 package com.lmax.disruptor;
 
 import static com.lmax.disruptor.support.Actions.countDown;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -23,9 +22,9 @@ public final class ConsumerBarrierTest
 {
     private Mockery context;
     private RingBuffer<StubEntry> ringBuffer;
-    private EntryConsumer entryConsumer1;
-    private EntryConsumer entryConsumer2;
-    private EntryConsumer entryConsumer3;
+    private Consumer consumer1;
+    private Consumer consumer2;
+    private Consumer consumer3;
     private ConsumerBarrier<StubEntry> consumerBarrier;
     private ProducerBarrier<StubEntry> producerBarrier;
 
@@ -35,10 +34,10 @@ public final class ConsumerBarrierTest
         context = new Mockery();
 
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 64);
-        entryConsumer1 = context.mock(EntryConsumer.class, "entryConsumer1");
-        entryConsumer2 = context.mock(EntryConsumer.class, "entryConsumer2");
-        entryConsumer3 = context.mock(EntryConsumer.class, "entryConsumer3");
-        consumerBarrier = ringBuffer.createConsumerBarrier(entryConsumer1, entryConsumer2, entryConsumer3);
+        consumer1 = context.mock(Consumer.class, "consumer1");
+        consumer2 = context.mock(Consumer.class, "consumer2");
+        consumer3 = context.mock(Consumer.class, "consumer3");
+        consumerBarrier = ringBuffer.createConsumerBarrier(consumer1, consumer2, consumer3);
         producerBarrier = ringBuffer.createProducerBarrier(0);
     }
 
@@ -52,13 +51,13 @@ public final class ConsumerBarrierTest
         context.checking(new Expectations()
         {
             {
-                one(entryConsumer1).getSequence();
+                one(consumer1).getSequence();
                 will(returnValue(expectedNumberMessages));
 
-                one(entryConsumer2).getSequence();
+                one(consumer2).getSequence();
                 will(returnValue(expectedWorkSequence));
 
-                one(entryConsumer3).getSequence();
+                one(consumer3).getSequence();
                 will(returnValue(expectedWorkSequence));
             }
         });
@@ -73,10 +72,10 @@ public final class ConsumerBarrierTest
         long expectedNumberMessages = 10;
         fillRingBuffer(expectedNumberMessages);
 
-        final StubEntryConsumer[] workers = new StubEntryConsumer[3];
+        final StubConsumer[] workers = new StubConsumer[3];
         for (int i = 0, size = workers.length; i < size; i++)
         {
-            workers[i] = new StubEntryConsumer();
+            workers[i] = new StubConsumer();
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
@@ -90,7 +89,7 @@ public final class ConsumerBarrierTest
                 entry.setValue((int) entry.getSequence());
                 entry.commit();
 
-                for (StubEntryConsumer stubWorker : workers)
+                for (StubConsumer stubWorker : workers)
                 {
                     stubWorker.setSequence(entry.getSequence());
                 }
@@ -114,13 +113,13 @@ public final class ConsumerBarrierTest
         context.checking(new Expectations()
         {
             {
-                allowing(entryConsumer1).getSequence();
+                allowing(consumer1).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
 
-                allowing(entryConsumer2).getSequence();
+                allowing(consumer2).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
 
-                allowing(entryConsumer3).getSequence();
+                allowing(consumer3).getSequence();
                 will(new DoAllAction(countDown(latch), returnValue(8L)));
             }
         });
@@ -159,10 +158,10 @@ public final class ConsumerBarrierTest
         long expectedNumberMessages = 10;
         fillRingBuffer(expectedNumberMessages);
 
-        final StubEntryConsumer[] entryConsumers = new StubEntryConsumer[3];
+        final StubConsumer[] entryConsumers = new StubConsumer[3];
         for (int i = 0, size = entryConsumers.length; i < size; i++)
         {
-            entryConsumers[i] = new StubEntryConsumer();
+            entryConsumers[i] = new StubConsumer();
             entryConsumers[i].setSequence(expectedNumberMessages - 2);
         }
 
@@ -172,7 +171,7 @@ public final class ConsumerBarrierTest
         {
             public void run()
             {
-                for (StubEntryConsumer stubWorker : entryConsumers)
+                for (StubConsumer stubWorker : entryConsumers)
                 {
                     stubWorker.setSequence(stubWorker.getSequence() + 1);
                 }
@@ -208,7 +207,7 @@ public final class ConsumerBarrierTest
         }
     }
 
-    private static class StubEntryConsumer implements EntryConsumer
+    private static class StubConsumer implements Consumer
     {
         private volatile long sequence;
 
@@ -221,12 +220,6 @@ public final class ConsumerBarrierTest
         public long getSequence()
         {
             return sequence;
-        }
-
-        @Override
-        public ConsumerBarrier getConsumerBarrier()
-        {
-            return null;
         }
 
         @Override

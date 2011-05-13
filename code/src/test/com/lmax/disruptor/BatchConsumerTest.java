@@ -17,7 +17,7 @@ import static com.lmax.disruptor.support.Actions.countDown;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMock.class)
-public final class BatchEntryConsumerTest
+public final class BatchConsumerTest
 {
     private final Mockery context = new Mockery();
     private final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
@@ -25,20 +25,20 @@ public final class BatchEntryConsumerTest
 
     private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
     private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    @SuppressWarnings("unchecked") private final BatchEntryHandler<StubEntry> batchEntryHandler = context.mock(BatchEntryHandler.class);
-    private final BatchEntryConsumer batchEntryConsumer = new BatchEntryConsumer<StubEntry>(consumerBarrier, batchEntryHandler);
-    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchEntryConsumer);
-
-    @Test
-    public void shouldReturnProvidedBarrier()
-    {
-        assertEquals(consumerBarrier, batchEntryConsumer.getConsumerBarrier());
-    }
+    @SuppressWarnings("unchecked") private final BatchHandler<StubEntry> batchHandler = context.mock(BatchHandler.class);
+    private final BatchConsumer batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, batchHandler);
+    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
-        batchEntryConsumer.setExceptionHandler(null);
+        batchConsumer.setExceptionHandler(null);
+    }
+
+    @Test
+    public void shouldReturnUnderlyingBarrier()
+    {
+        assertEquals(consumerBarrier, batchConsumer.getConsumerBarrier());
     }
 
     @Test
@@ -48,28 +48,28 @@ public final class BatchEntryConsumerTest
         context.checking(new Expectations()
         {
             {
-                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(0));
+                oneOf(batchHandler).onAvailable(ringBuffer.getEntry(0));
                 inSequence(lifecycleSequence);
 
-                oneOf(batchEntryHandler).onEndOfBatch();
+                oneOf(batchHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
 
-                oneOf(batchEntryHandler).onCompletion();
+                oneOf(batchHandler).onCompletion();
                 inSequence(lifecycleSequence);
             }
         });
 
-        Thread thread = new Thread(batchEntryConsumer);
+        Thread thread = new Thread(batchConsumer);
         thread.start();
 
-        assertEquals(-1L, batchEntryConsumer.getSequence());
+        assertEquals(-1L, batchConsumer.getSequence());
 
         producerBarrier.claimNext().commit();
 
         latch.await();
 
-        batchEntryConsumer.halt();
+        batchConsumer.halt();
         thread.join();
     }
 
@@ -80,18 +80,18 @@ public final class BatchEntryConsumerTest
         context.checking(new Expectations()
         {
             {
-                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(0));
+                oneOf(batchHandler).onAvailable(ringBuffer.getEntry(0));
                 inSequence(lifecycleSequence);
-                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(1));
+                oneOf(batchHandler).onAvailable(ringBuffer.getEntry(1));
                 inSequence(lifecycleSequence);
-                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(2));
+                oneOf(batchHandler).onAvailable(ringBuffer.getEntry(2));
                 inSequence(lifecycleSequence);
 
-                oneOf(batchEntryHandler).onEndOfBatch();
+                oneOf(batchHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
 
-                oneOf(batchEntryHandler).onCompletion();
+                oneOf(batchHandler).onCompletion();
                 inSequence(lifecycleSequence);
             }
         });
@@ -100,12 +100,12 @@ public final class BatchEntryConsumerTest
         producerBarrier.claimNext().commit();
         producerBarrier.claimNext().commit();
 
-        Thread thread = new Thread(batchEntryConsumer);
+        Thread thread = new Thread(batchConsumer);
         thread.start();
 
         latch.await();
 
-        batchEntryConsumer.halt();
+        batchConsumer.halt();
         thread.join();
     }
 
@@ -115,12 +115,12 @@ public final class BatchEntryConsumerTest
     {
         final Exception ex = new Exception();
         final ExceptionHandler exceptionHandler = context.mock(ExceptionHandler.class);
-        batchEntryConsumer.setExceptionHandler(exceptionHandler);
+        batchConsumer.setExceptionHandler(exceptionHandler);
 
         context.checking(new Expectations()
         {
             {
-                oneOf(batchEntryHandler).onAvailable(ringBuffer.getEntry(0));
+                oneOf(batchHandler).onAvailable(ringBuffer.getEntry(0));
                 inSequence(lifecycleSequence);
                 will(new Action()
                 {
@@ -141,19 +141,19 @@ public final class BatchEntryConsumerTest
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
 
-                oneOf(batchEntryHandler).onCompletion();
+                oneOf(batchHandler).onCompletion();
                 inSequence(lifecycleSequence);
             }
         });
 
-        Thread thread = new Thread(batchEntryConsumer);
+        Thread thread = new Thread(batchConsumer);
         thread.start();
 
         producerBarrier.claimNext().commit();
 
         latch.await();
 
-        batchEntryConsumer.halt();
+        batchConsumer.halt();
         thread.join();
     }
 }

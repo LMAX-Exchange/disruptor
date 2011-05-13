@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 
 /**
- * Strategy employed for making {@link EntryConsumer}s wait on a {@link RingBuffer}.
+ * Strategy employed for making {@link Consumer}s wait on a {@link RingBuffer}.
  */
 public interface WaitStrategy
 {
@@ -88,7 +88,7 @@ public interface WaitStrategy
     }
 
     /**
-     * Blocking strategy that uses a lock and condition variable for {@link EntryConsumer}s waiting on a barrier.
+     * Blocking strategy that uses a lock and condition variable for {@link Consumer}s waiting on a barrier.
      *
      * This strategy should be used when performance and low-latency are not as important as CPU resource.
      */
@@ -174,7 +174,7 @@ public interface WaitStrategy
     }
 
     /**
-     * Yielding strategy that uses a Thread.yield() for {@link EntryConsumer}s waiting on a barrier.
+     * Yielding strategy that uses a Thread.yield() for {@link Consumer}s waiting on a barrier.
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
@@ -231,7 +231,7 @@ public interface WaitStrategy
     }
 
     /**
-     * Busy Spin strategy that uses a busy spin loop for {@link EntryConsumer}s waiting on a barrier.
+     * Busy Spin strategy that uses a busy spin loop for {@link Consumer}s waiting on a barrier.
      *
      * This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best
      * used when threads can be bound to specific CPU cores.
