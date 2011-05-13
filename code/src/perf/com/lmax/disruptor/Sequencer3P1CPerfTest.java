@@ -100,7 +100,7 @@ public final class Sequencer3P1CPerfTest
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(NUM_PRODUCERS, batchConsumer);
     private final ValueProducer[] valueProducers = new ValueProducer[NUM_PRODUCERS];
     {
         valueProducers[0] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
