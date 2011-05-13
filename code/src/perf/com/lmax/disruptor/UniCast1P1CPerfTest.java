@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.ValueAdditionHandler;
+import com.lmax.disruptor.support.ValueAdditionQueueConsumer;
 import com.lmax.disruptor.support.ValueEntry;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,25 +52,25 @@ import java.util.concurrent.*;
  */
 public final class UniCast1P1CPerfTest
 {
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-    private static final int RING_SIZE = 8192;
-    private static final long ITERATIONS = 1000 * 1000 * 50;
+    private static final int SIZE = 8192;
+    private static final long ITERATIONS = 1000L * 1000L * 50L;
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final ValueAdditionQueueConsumer queueConsumer = new ValueAdditionQueueConsumer(blockingQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
+        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.YIELDING);
+                                   WaitStrategy.Option.BUSY_SPIN);
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
     private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(RING_SIZE);
-    private final ValueAdditionQueueConsumer queueConsumer = new ValueAdditionQueueConsumer(blockingQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,8 +97,7 @@ public final class UniCast1P1CPerfTest
     private long runQueuePass() throws InterruptedException
     {
         queueConsumer.reset();
-        Future future =  EXECUTOR.submit(queueConsumer);
-
+        Future future = EXECUTOR.submit(queueConsumer);
         long value = 0L;
         long start = System.currentTimeMillis();
 
@@ -106,14 +107,13 @@ public final class UniCast1P1CPerfTest
             value += i;
         }
 
-        final long expectedSequence = ITERATIONS - 1;
+        final long expectedSequence = ITERATIONS - 1L;
         while (queueConsumer.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
-        long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
-
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         queueConsumer.halt();
         future.cancel(true);
 
@@ -126,7 +126,6 @@ public final class UniCast1P1CPerfTest
     {
         handler.reset();
         EXECUTOR.submit(batchConsumer);
-
         long value = 0L;
         long start = System.currentTimeMillis();
 
@@ -145,96 +144,11 @@ public final class UniCast1P1CPerfTest
             // busy spin
         }
 
-        long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
-
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         batchConsumer.halt();
 
         Assert.assertEquals(value, handler.getValue());
 
         return opsPerSecond;
-    }
-
-    public static final class ValueAdditionQueueConsumer implements Runnable
-    {
-        private volatile boolean running;
-        private volatile long sequence;
-        private long value;
-
-        private final BlockingQueue<Long> blockingQueue;
-
-        public ValueAdditionQueueConsumer(final BlockingQueue<Long> blockingQueue)
-        {
-            this.blockingQueue = blockingQueue;
-        }
-
-        public long getValue()
-        {
-            return value;
-        }
-
-        public void reset()
-        {
-            value = 0L;
-        }
-
-        public long getSequence()
-        {
-            return sequence;
-        }
-
-        public void halt()
-        {
-            running = false;
-        }
-
-        @Override
-        public void run()
-        {
-            running = true;
-            while (running)
-            {
-                try
-                {
-                    long value = blockingQueue.take().longValue();
-                    this.value += value;
-                    sequence = value;
-                }
-                catch (InterruptedException ex)
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    public static final class ValueAdditionHandler implements BatchHandler<ValueEntry>
-    {
-        private long value;
-
-        public long getValue()
-        {
-            return value;
-        }
-
-        public void reset()
-        {
-            value = 0L;
-        }
-
-        @Override
-        public void onAvailable(final ValueEntry entry) throws Exception
-        {
-            value += entry.getValue();
-        }
-
-        @Override
-        public void onEndOfBatch() throws Exception
-        {
-        }
-
-        @Override
-        public void onCompletion()
-        {
-        }
     }
 }

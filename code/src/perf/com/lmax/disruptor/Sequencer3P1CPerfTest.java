@@ -1,7 +1,10 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.*;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -70,6 +73,43 @@ import org.junit.Test;
  */
 public final class Sequencer3P1CPerfTest
 {
+    private static final int NUM_PRODUCERS = 3;
+    private static final int SIZE = 8192;
+    private static final long ITERATIONS = 1000L * 1000L * 50L;
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PRODUCERS + 1);
+    private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PRODUCERS + 1);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final ValueAdditionQueueConsumer queueConsumer = new ValueAdditionQueueConsumer(blockingQueue);
+    private final ValueQueueProducer[] valueQueueProducers = new ValueQueueProducer[NUM_PRODUCERS];
+    {
+        valueQueueProducers[0] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
+        valueQueueProducers[1] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
+        valueQueueProducers[2] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final RingBuffer<ValueEntry> ringBuffer =
+        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
+                                   ClaimStrategy.Option.MULTI_THREADED,
+                                   WaitStrategy.Option.YIELDING);
+
+    private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+    private final ValueAdditionHandler handler = new ValueAdditionHandler();
+    private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
+    private final ValueProducer[] valueProducers = new ValueProducer[NUM_PRODUCERS];
+    {
+        valueProducers[0] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
+        valueProducers[1] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
+        valueProducers[2] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     public void shouldCompareDisruptorVsQueues()
         throws Exception
@@ -81,7 +121,7 @@ public final class Sequencer3P1CPerfTest
         for (int i = 0; i < RUNS; i++)
         {
             queueOps = runQueuePass();
-            disruptorOps = runDisruptorPass();
+            disruptorOps = runDisruptorPass(i + 1);
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
                               getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
@@ -90,14 +130,62 @@ public final class Sequencer3P1CPerfTest
         Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
     }
 
-    private long runQueuePass()
+    private long runQueuePass() throws Exception
     {
-        return 0;
+        Future[] futures = new Future[NUM_PRODUCERS];
+        for (int i = 0; i < NUM_PRODUCERS; i++)
+        {
+            futures[i] = EXECUTOR.submit(valueQueueProducers[i]);
+        }
+        Future consumerFuture = EXECUTOR.submit(queueConsumer);
+
+        long start = System.currentTimeMillis();
+        cyclicBarrier.await();
+
+        for (int i = 0; i < NUM_PRODUCERS; i++)
+        {
+            futures[i].get();
+        }
+
+        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS) - 1L;
+        while (expectedSequence > queueConsumer.getSequence())
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (NUM_PRODUCERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        batchConsumer.halt();
+        consumerFuture.cancel(true);
+
+        return opsPerSecond;
     }
 
-    private long runDisruptorPass()
+    private long runDisruptorPass(final int passNumber) throws Exception
     {
-        return 1;
-    }
+        Future[] futures = new Future[NUM_PRODUCERS];
+        for (int i = 0; i < NUM_PRODUCERS; i++)
+        {
+            futures[i] = EXECUTOR.submit(valueProducers[i]);
+        }
+        EXECUTOR.submit(batchConsumer);
 
+        long start = System.currentTimeMillis();
+        cyclicBarrier.await();
+
+        for (int i = 0; i < NUM_PRODUCERS; i++)
+        {
+            futures[i].get();
+        }
+
+        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS * passNumber) - 1L;
+        while (expectedSequence > batchConsumer.getSequence())
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (NUM_PRODUCERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        batchConsumer.halt();
+
+        return opsPerSecond;
+    }
 }

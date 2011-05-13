@@ -2,6 +2,8 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEntry;
+import com.lmax.disruptor.support.ValueMutationHandler;
+import com.lmax.disruptor.support.ValueMutationQueueConsumer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -74,14 +76,30 @@ import java.util.concurrent.*;
 public final class MultiCast1P3CPerfTest
 {
     private static final int NUM_CONSUMERS = 3;
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
-    private static final int RING_SIZE = 8192;
+    private static final int SIZE = 8192;
     private static final long ITERATIONS = 1000 * 1000 * 50;
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_CONSUMERS];
+    {
+        blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE);
+        blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE);
+        blockingQueues[2] = new ArrayBlockingQueue<Long>(SIZE);
+    }
+
+    private final ValueMutationQueueConsumer[] queueConsumers = new ValueMutationQueueConsumer[NUM_CONSUMERS];
+    {
+        queueConsumers[0] = new ValueMutationQueueConsumer(blockingQueues[0], Operation.ADDITION);
+        queueConsumers[1] = new ValueMutationQueueConsumer(blockingQueues[1], Operation.SUBTRACTION);
+        queueConsumers[2] = new ValueMutationQueueConsumer(blockingQueues[2], Operation.AND);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, RING_SIZE,
+        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
@@ -102,22 +120,6 @@ public final class MultiCast1P3CPerfTest
     }
 
     private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumers);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_CONSUMERS];
-    {
-        blockingQueues[0] = new ArrayBlockingQueue<Long>(RING_SIZE);
-        blockingQueues[1] = new ArrayBlockingQueue<Long>(RING_SIZE);
-        blockingQueues[2] = new ArrayBlockingQueue<Long>(RING_SIZE);
-    }
-
-    private final ValueMutationQueueConsumer[] queueConsumers = new ValueMutationQueueConsumer[NUM_CONSUMERS];
-    {
-        queueConsumers[0] = new ValueMutationQueueConsumer(blockingQueues[0], Operation.ADDITION);
-        queueConsumers[1] = new ValueMutationQueueConsumer(blockingQueues[1], Operation.SUBTRACTION);
-        queueConsumers[2] = new ValueMutationQueueConsumer(blockingQueues[2], Operation.AND);
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -171,8 +173,7 @@ public final class MultiCast1P3CPerfTest
             // busy spin
         }
 
-        long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
-
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         for (int i = 0; i < NUM_CONSUMERS; i++)
         {
             queueConsumers[i].halt();
@@ -224,8 +225,7 @@ public final class MultiCast1P3CPerfTest
             // busy spin
         }
 
-        long opsPerSecond = (ITERATIONS * 1000) / (System.currentTimeMillis() - start);
-
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         for (int i = 0; i < NUM_CONSUMERS; i++)
         {
             batchConsumers[i].halt();
@@ -233,97 +233,5 @@ public final class MultiCast1P3CPerfTest
         }
 
         return opsPerSecond;
-    }
-
-    public static final class ValueMutationQueueConsumer implements Runnable
-    {
-        private volatile boolean running;
-        private volatile long sequence;
-        private long value;
-
-        private final BlockingQueue<Long> blockingQueue;
-        private final Operation operation;
-
-        public ValueMutationQueueConsumer(final BlockingQueue<Long> blockingQueue, final Operation operation)
-        {
-            this.blockingQueue = blockingQueue;
-            this.operation = operation;
-        }
-
-        public long getValue()
-        {
-            return value;
-        }
-
-        public void reset()
-        {
-            value = 0L;
-        }
-
-        public long getSequence()
-        {
-            return sequence;
-        }
-
-        public void halt()
-        {
-            running = false;
-        }
-
-        @Override
-        public void run()
-        {
-            running = true;
-            while (running)
-            {
-                try
-                {
-                    long value = blockingQueue.take().longValue();
-                    this.value = operation.op(this.value, value);
-                    sequence = value;
-                }
-                catch (InterruptedException ex)
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    public static final class ValueMutationHandler implements BatchHandler<ValueEntry>
-    {
-        private final Operation operation;
-        private long value;
-
-        public ValueMutationHandler(final Operation operation)
-        {
-            this.operation = operation;
-        }
-
-        public long getValue()
-        {
-            return value;
-        }
-
-        public void reset()
-        {
-            value = 0L;
-        }
-
-        @Override
-        public void onAvailable(final ValueEntry entry) throws Exception
-        {
-            value = operation.op(value, entry.getValue());
-        }
-
-        @Override
-        public void onEndOfBatch() throws Exception
-        {
-        }
-
-        @Override
-        public void onCompletion()
-        {
-        }
     }
 }
