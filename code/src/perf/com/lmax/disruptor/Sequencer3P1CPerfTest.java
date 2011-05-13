@@ -52,7 +52,7 @@ import org.junit.Test;
  *             ^  claim      get    ^        |
  * +----+      |                    |        |
  * | P1 |------+                    +--------+
- * +----+      |                      waitFor                         //To change body of created methods use File | Settings | File Templates.
+ * +----+      |                      waitFor
  *             |
  * +----+      |
  * | P2 |------+
