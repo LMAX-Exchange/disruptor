@@ -22,7 +22,7 @@ import java.util.concurrent.*;
  *    |      +----+
  *    +----->| C2 |
  *           +----+
-
+ *
  * Queue Based:
  * ============
  *                 take
@@ -67,6 +67,7 @@ import java.util.concurrent.*;
  * C0 - Consumer 0
  * C1 - Consumer 1
  * C2 - Consumer 2
+ *
  * </pre>
  */
 @SuppressWarnings("unchecked")

@@ -25,7 +25,7 @@ import java.util.concurrent.*;
  * P0 - Producer 0
  * Q0 - Queue 0
  * C0 - Consumer 0
-
+ *
  * Disruptor:
  * ==========
  *                   track to prevent wrap
@@ -45,6 +45,7 @@ import java.util.concurrent.*;
  * RB - RingBuffer
  * CB - ConsumerBarrier
  * C0 - Consumer 0
+ *
  * </pre>
  */
 public final class UniCast1P1CPerfTest
