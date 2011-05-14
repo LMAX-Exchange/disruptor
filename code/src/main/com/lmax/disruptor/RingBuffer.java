@@ -15,8 +15,11 @@ import static com.lmax.disruptor.Util.getMinimumSequence;
 public final class RingBuffer<T extends Entry>
 {
     /** Set to -1 as sequence starting point */
-    public static final long INITIAL_CURSOR_VALUE = -1;
+    public static final long INITIAL_CURSOR_VALUE = -1L;
+
+    public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
     private volatile long cursor = INITIAL_CURSOR_VALUE;
+    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
     private final Object[] entries;
     private final int ringModMask;

@@ -80,6 +80,8 @@ public final class MultiCast1P3CPerfTest
     private static final long ITERATIONS = 1000 * 1000 * 50;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
+    private final long[] results = new long[NUM_CONSUMERS];
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_CONSUMERS];
@@ -131,6 +133,8 @@ public final class MultiCast1P3CPerfTest
         long disruptorOps = 0L;
         long queueOps = 0L;
 
+        precomputeExpectedResults();
+
         for (int i = 0; i < RUNS; i++)
         {
             queueOps = runQueuePass();
@@ -143,6 +147,16 @@ public final class MultiCast1P3CPerfTest
         Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
     }
 
+    private void precomputeExpectedResults()
+    {
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            results[0] = Operation.ADDITION.op(results[0], i);
+            results[1] = Operation.SUBTRACTION.op(results[1], i);
+            results[2] = Operation.AND.op(results[2], i);
+        }
+    }
+
     private long runQueuePass() throws InterruptedException
     {
         Future[] futures = new Future[NUM_CONSUMERS];
@@ -152,7 +166,6 @@ public final class MultiCast1P3CPerfTest
             futures[i] = EXECUTOR.submit(queueConsumers[i]);
         }
 
-        long[] values = new long[NUM_CONSUMERS];
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -161,10 +174,6 @@ public final class MultiCast1P3CPerfTest
             blockingQueues[0].put(value);
             blockingQueues[1].put(value);
             blockingQueues[2].put(value);
-
-            values[0] = Operation.ADDITION.op(values[0], i);
-            values[1] = Operation.SUBTRACTION.op(values[1], i);
-            values[2] = Operation.AND.op(values[2], i);
         }
 
         final long expectedSequence = ITERATIONS - 1;
@@ -178,7 +187,7 @@ public final class MultiCast1P3CPerfTest
         {
             queueConsumers[i].halt();
             futures[i].cancel(true);
-            Assert.assertEquals(values[i], queueConsumers[i].getValue());
+            Assert.assertEquals(results[i], queueConsumers[i].getValue());
         }
 
         return opsPerSecond;
@@ -205,7 +214,6 @@ public final class MultiCast1P3CPerfTest
             EXECUTOR.submit(batchConsumers[i]);
         }
 
-        long[] values = new long[NUM_CONSUMERS];
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -213,10 +221,6 @@ public final class MultiCast1P3CPerfTest
             ValueEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
             entry.commit();
-
-            values[0] = Operation.ADDITION.op(values[0], i);
-            values[1] = Operation.SUBTRACTION.op(values[1], i);
-            values[2] = Operation.AND.op(values[2], i);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
@@ -229,7 +233,7 @@ public final class MultiCast1P3CPerfTest
         for (int i = 0; i < NUM_CONSUMERS; i++)
         {
             batchConsumers[i].halt();
-            Assert.assertEquals(values[i], handlers[i].getValue());
+            Assert.assertEquals(results[i], handlers[i].getValue());
         }
 
         return opsPerSecond;

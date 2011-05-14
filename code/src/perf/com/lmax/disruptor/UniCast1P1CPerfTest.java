@@ -56,6 +56,16 @@ public final class UniCast1P1CPerfTest
     private static final long ITERATIONS = 1000L * 1000L * 50L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
+    private final long expectedResult;
+    {
+        long temp = 0L;
+        for (long i = 0L; i < ITERATIONS; i++)
+        {
+            temp += i;
+        }
+        expectedResult = temp;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
@@ -98,13 +108,11 @@ public final class UniCast1P1CPerfTest
     {
         queueConsumer.reset();
         Future future = EXECUTOR.submit(queueConsumer);
-        long value = 0L;
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
         {
             blockingQueue.put(Long.valueOf(i));
-            value += i;
         }
 
         final long expectedSequence = ITERATIONS - 1L;
@@ -117,7 +125,7 @@ public final class UniCast1P1CPerfTest
         queueConsumer.halt();
         future.cancel(true);
 
-        Assert.assertEquals(value, queueConsumer.getValue());
+        Assert.assertEquals(expectedResult, queueConsumer.getValue());
 
         return opsPerSecond;
     }
@@ -126,7 +134,6 @@ public final class UniCast1P1CPerfTest
     {
         handler.reset();
         EXECUTOR.submit(batchConsumer);
-        long value = 0L;
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -134,8 +141,6 @@ public final class UniCast1P1CPerfTest
             ValueEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
             entry.commit();
-
-            value += i;
         }
 
         final long expectedSequence = ringBuffer.getCursor();
@@ -147,7 +152,7 @@ public final class UniCast1P1CPerfTest
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         batchConsumer.halt();
 
-        Assert.assertEquals(value, handler.getValue());
+        Assert.assertEquals(expectedResult, handler.getValue());
 
         return opsPerSecond;
     }
