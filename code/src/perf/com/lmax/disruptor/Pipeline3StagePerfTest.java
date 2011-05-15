@@ -3,11 +3,11 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.Function;
 import com.lmax.disruptor.support.FunctionEntry;
 import com.lmax.disruptor.support.FunctionHandler;
+import com.lmax.disruptor.support.FunctionQueueConsumer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -67,12 +67,13 @@ public final class Pipeline3StagePerfTest
     private static final long ITERATIONS = 1000 * 1000 * 50;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
-    private static final long OPERAND_TWO_INIT_VALUE = 777L;
+    private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
     private final long expectedResult;
 
     {
         long temp = 0L;
-        long operandTwo = OPERAND_TWO_INIT_VALUE;
+        long operandTwo = OPERAND_TWO_INITIAL_VALUE;
+
         for (long i = 0; i < ITERATIONS; i++)
         {
             long stageOneResult = i + operandTwo--;
@@ -83,11 +84,22 @@ public final class Pipeline3StagePerfTest
                 ++temp;
             }
         }
+
         expectedResult = temp;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    private final BlockingQueue<long[]> stepOneQueue = new ArrayBlockingQueue<long[]>(SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
+
+    private final FunctionQueueConsumer stepOneQueueConsumer =
+        new FunctionQueueConsumer(Function.STEP_ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+    private final FunctionQueueConsumer stepTwoQueueConsumer =
+        new FunctionQueueConsumer(Function.STEP_TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
+    private final FunctionQueueConsumer stepThreeQueueConsumer =
+        new FunctionQueueConsumer(Function.STEP_THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -138,11 +150,6 @@ public final class Pipeline3StagePerfTest
         Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
     }
 
-    private long runQueuePass()
-    {
-        return 0L;
-    }
-
     private long runDisruptorPass()
     {
         stepThreeFunctionHandler.reset();
@@ -153,7 +160,7 @@ public final class Pipeline3StagePerfTest
 
         long start = System.currentTimeMillis();
 
-        long operandTwo = OPERAND_TWO_INIT_VALUE;
+        long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
             FunctionEntry entry = producerBarrier.claimNext();
@@ -175,6 +182,48 @@ public final class Pipeline3StagePerfTest
         stepThreeBatchConsumer.halt();
 
         Assert.assertEquals(expectedResult, stepThreeFunctionHandler.getStepThreeCounter());
+
+        return opsPerSecond;
+    }
+
+    private long runQueuePass() throws Exception
+    {
+        stepThreeQueueConsumer.reset();
+
+        Future[] futures = new Future[NUM_CONSUMERS];
+        futures[0] = EXECUTOR.submit(stepOneQueueConsumer);
+        futures[1] = EXECUTOR.submit(stepTwoQueueConsumer);
+        futures[2] = EXECUTOR.submit(stepThreeQueueConsumer);
+
+        long start = System.currentTimeMillis();
+
+        long operandTwo = OPERAND_TWO_INITIAL_VALUE;
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            long[] values = new long[2];
+            values[0] = i;
+            values[1] = operandTwo--;
+            stepOneQueue.put(values);
+        }
+
+        final long expectedSequence = ITERATIONS - 1;
+        while (stepThreeQueueConsumer.getSequence() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+
+        stepOneQueueConsumer.halt();
+        stepTwoQueueConsumer.halt();
+        stepThreeQueueConsumer.halt();
+
+        for (Future future : futures)
+        {
+            future.cancel(true);
+        }
+
+        Assert.assertEquals(expectedResult, stepThreeQueueConsumer.getStepThreeCounter());
 
         return opsPerSecond;
     }
