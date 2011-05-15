@@ -94,8 +94,10 @@ public final class UniCast1P1CPerfTest
 
         for (int i = 0; i < RUNS; i++)
         {
-            queueOps = runQueuePass();
+            System.gc();
+
             disruptorOps = runDisruptorPass();
+            queueOps = runQueuePass();
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
                               getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));

@@ -137,8 +137,10 @@ public final class MultiCast1P3CPerfTest
 
         for (int i = 0; i < RUNS; i++)
         {
-            queueOps = runQueuePass();
+            System.gc();
+
             disruptorOps = runDisruptorPass();
+            queueOps = runQueuePass();
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
                               getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));

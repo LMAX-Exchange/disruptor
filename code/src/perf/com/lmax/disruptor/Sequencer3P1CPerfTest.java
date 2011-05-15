@@ -120,8 +120,11 @@ public final class Sequencer3P1CPerfTest
 
         for (int i = 0; i < RUNS; i++)
         {
-            queueOps = runQueuePass();
+            System.gc();
+
             disruptorOps = runDisruptorPass(i + 1);
+            queueOps = runQueuePass();
+
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
                               getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));

@@ -64,7 +64,7 @@ public final class Pipeline3StagePerfTest
 {
     private static final int NUM_CONSUMERS = 3;
     private static final int SIZE = 8192;
-    private static final long ITERATIONS = 1000 * 1000 * 1;
+    private static final long ITERATIONS = 1000 * 1000 * 50;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
     private static final long OPERAND_TWO_INIT_VALUE = 777L;
@@ -125,8 +125,11 @@ public final class Pipeline3StagePerfTest
 
         for (int i = 0; i < RUNS; i++)
         {
-            queueOps = runQueuePass();
+            System.gc();
+
             disruptorOps = runDisruptorPass();
+            queueOps = runQueuePass();
+
 
             System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
                               getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
