@@ -1,7 +1,13 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.Function;
+import com.lmax.disruptor.support.FunctionEntry;
+import com.lmax.disruptor.support.FunctionHandler;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * <pre>
@@ -56,6 +62,59 @@ import org.junit.Test;
  */
 public final class Pipeline3StagePerfTest
 {
+    private static final int NUM_CONSUMERS = 3;
+    private static final int SIZE = 8192;
+    private static final long ITERATIONS = 1000 * 1000 * 1;
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
+
+    private static final long OPERAND_TWO_INIT_VALUE = 777L;
+    private final long expectedResult;
+
+    {
+        long temp = 0L;
+        long operandTwo = OPERAND_TWO_INIT_VALUE;
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            long stageOneResult = i + operandTwo--;
+            long stageTwoResult = stageOneResult + 3;
+
+            if ((stageTwoResult & 4L) == 4L)
+            {
+                ++temp;
+            }
+        }
+        expectedResult = temp;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final RingBuffer<FunctionEntry> ringBuffer =
+        new RingBuffer<FunctionEntry>(FunctionEntry.ENTRY_FACTORY, SIZE,
+                                      ClaimStrategy.Option.SINGLE_THREADED,
+                                      WaitStrategy.Option.YIELDING);
+
+    private final ConsumerBarrier<FunctionEntry> stepOneConsumerBarrier = ringBuffer.createConsumerBarrier();
+    private final FunctionHandler stepOneFunctionHandler = new FunctionHandler(Function.STEP_ONE);
+    private final BatchConsumer<FunctionEntry> stepOneBatchConsumer =
+        new BatchConsumer<FunctionEntry>(stepOneConsumerBarrier, stepOneFunctionHandler);
+
+    private final ConsumerBarrier<FunctionEntry> stepTwoConsumerBarrier = ringBuffer.createConsumerBarrier(stepOneBatchConsumer);
+    private final FunctionHandler stepTwoFunctionHandler = new FunctionHandler(Function.STEP_TWO);
+    private final BatchConsumer<FunctionEntry> stepTwoBatchConsumer =
+        new BatchConsumer<FunctionEntry>(stepTwoConsumerBarrier, stepTwoFunctionHandler);
+
+    private final ConsumerBarrier<FunctionEntry> stepThreeConsumerBarrier = ringBuffer.createConsumerBarrier(stepTwoBatchConsumer);
+    private final FunctionHandler stepThreeFunctionHandler = new FunctionHandler(Function.STEP_THREE);
+    private final BatchConsumer<FunctionEntry> stepThreeBatchConsumer =
+        new BatchConsumer<FunctionEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
+
+    private final ProducerBarrier<FunctionEntry> producerBarrier = ringBuffer.createProducerBarrier(0, stepThreeBatchConsumer);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     public void shouldCompareDisruptorVsQueues()
         throws Exception
@@ -83,6 +142,37 @@ public final class Pipeline3StagePerfTest
 
     private long runDisruptorPass()
     {
-        return 1L;
+        stepThreeFunctionHandler.reset();
+
+        EXECUTOR.submit(stepOneBatchConsumer);
+        EXECUTOR.submit(stepTwoBatchConsumer);
+        EXECUTOR.submit(stepThreeBatchConsumer);
+
+        long start = System.currentTimeMillis();
+
+        long operandTwo = OPERAND_TWO_INIT_VALUE;
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            FunctionEntry entry = producerBarrier.claimNext();
+            entry.setOperandOne(i);
+            entry.setOperandTwo(operandTwo--);
+            entry.commit();
+        }
+
+        final long expectedSequence = ringBuffer.getCursor();
+        while (stepThreeBatchConsumer.getSequence() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+
+        stepOneBatchConsumer.halt();
+        stepTwoBatchConsumer.halt();
+        stepThreeBatchConsumer.halt();
+
+        Assert.assertEquals(expectedResult, stepThreeFunctionHandler.getStepThreeCounter());
+
+        return opsPerSecond;
     }
 }

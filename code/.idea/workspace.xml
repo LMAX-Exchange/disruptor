@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b3ca458d-497f-452f-b95c-f17ad27c4126" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/Function.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionEntry.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionHandler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchConsumer.java" afterPath="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchConsumer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java" afterPath="$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/MultiCast1P3CPerfTest.java" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/MultiCast1P3CPerfTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/UniCast1P1CPerfTest.java" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/UniCast1P1CPerfTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java" afterPath="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java" />
     </list>
     <ignored path="disruptor.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -72,19 +71,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="MultiCast1P3CPerfTest.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MultiCast1P3CPerfTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/MultiCast1P3CPerfTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="130" column="65" selection-start="4632" selection-end="4632" vertical-scroll-proportion="0.9432624">
+            <state line="239" column="0" selection-start="7176" selection-end="7889" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Pipeline3StagePerfTest.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Pipeline3StagePerfTest.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="85" column="16" selection-start="2685" selection-end="2685" vertical-scroll-proportion="0.0">
+            <state line="12" column="86" selection-start="319" selection-end="319" vertical-scroll-proportion="0.35355285">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -106,9 +105,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/ProducerBarrier.java" />
-        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Simple1P1CPerfTest.java" />
-        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Exchanger1P1CPerfTest.java" />
         <option value="$PROJECT_DIR$/build.xml" />
         <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueAdditionHandler.java" />
         <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueMutationHandler.java" />
@@ -119,9 +115,12 @@
         <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Sequencer3P1CPerfTest.java" />
         <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/MultiCast1P3CPerfTest.java" />
         <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/UniCast1P1CPerfTest.java" />
-        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchConsumer.java" />
         <option value="$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java" />
+        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/Function.java" />
+        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionEntry.java" />
+        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionHandler.java" />
+        <option value="$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java" />
       </list>
     </option>
   </component>
@@ -181,7 +180,6 @@
     </navigator>
     <panes>
       <pane id="Favorites" />
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -229,7 +227,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
+              <option name="myItemId" value="perf" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -258,6 +256,10 @@
               <option name="myItemId" value="disruptor" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="support" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -283,6 +285,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -302,19 +305,20 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="" />
     </key>
-    <key name="IntroduceConstantDialog.RECENTS_KEY">
-      <recent name="com.lmax.disruptor.Simple1P1CPerfTest" />
-    </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
       <recent name="com.lmax.disruptor.AlertException" />
+    </key>
+    <key name="IntroduceConstantDialog.RECENTS_KEY">
+      <recent name="com.lmax.disruptor.Pipeline3StagePerfTest" />
+      <recent name="com.lmax.disruptor.Simple1P1CPerfTest" />
     </key>
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.lmax.disruptor.support" />
@@ -325,53 +329,7 @@
       <recent name="com.lmax.commons.disruptor.support" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.com.lmax.disruptor in disruptor">
-    <configuration default="false" name="MultiCast1P3CPerfTest.shouldCompareDisruptorVsQueues" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="disruptor" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.MultiCast1P3CPerfTest" />
-      <option name="METHOD_NAME" value="shouldCompareDisruptorVsQueues" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Sequencer3P1CPerfTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="disruptor" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
-      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.Sequencer3P1CPerfTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.Pipeline3StagePerfTest">
     <configuration default="false" name="MultiCast1P3CPerfTest" type="JUnit" factoryName="JUnit" temporary="true">
       <extension name="coverage" enabled="false" merge="false" />
       <module name="disruptor" />
@@ -427,6 +385,52 @@
       <option name="MAIN_CLASS_NAME" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="UniCast1P1CPerfTest" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" />
+      <module name="disruptor" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.UniCast1P1CPerfTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Pipeline3StagePerfTest" type="JUnit" factoryName="JUnit" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" />
+      <module name="disruptor" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.lmax.disruptor" />
+      <option name="MAIN_CLASS_NAME" value="com.lmax.disruptor.Pipeline3StagePerfTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -518,11 +522,11 @@
       </method>
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.MultiCast1P3CPerfTest.shouldCompareDisruptorVsQueues" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.Sequencer3P1CPerfTest" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.MultiCast1P3CPerfTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.All in disruptor" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.com.lmax.disruptor in disruptor" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.MultiCast1P3CPerfTest" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.All in disruptor" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.com.lmax.disruptor in disruptor" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.UniCast1P1CPerfTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.Pipeline3StagePerfTest" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -543,7 +547,7 @@
     <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
     <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
     <option name="FORCE_UPDATE" value="false" />
-    <configuration useDefault="true">C:\Users\Martin\AppData\Roaming\Subversion</configuration>
+    <configuration useDefault="true">C:\Users\martin\AppData\Roaming\Subversion</configuration>
     <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
     <supportedVersion>125</supportedVersion>
   </component>
@@ -551,16 +555,16 @@
     <option name="myMappingRoots">
       <list>
         <SvnCopyRootSimple>
-          <option name="myVcsRoot" value="D:\Disruptor\disruptor\code" />
-          <option name="myCopyRoot" value="D:\Disruptor\disruptor\code" />
+          <option name="myVcsRoot" value="C:\Deve\Disruptor\disruptor\code" />
+          <option name="myCopyRoot" value="C:\Deve\Disruptor\disruptor\code" />
         </SvnCopyRootSimple>
       </list>
     </option>
     <option name="myMoreRealMappingRoots">
       <list>
         <SvnCopyRootSimple>
-          <option name="myVcsRoot" value="D:\Disruptor\disruptor\code" />
-          <option name="myCopyRoot" value="D:\Disruptor\disruptor\code" />
+          <option name="myVcsRoot" value="C:\Deve\Disruptor\disruptor\code" />
+          <option name="myCopyRoot" value="C:\Deve\Disruptor\disruptor\code" />
         </SvnCopyRootSimple>
       </list>
     </option>
@@ -574,7 +578,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1696" height="1026" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290993" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -582,14 +586,14 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24943139" sideWeight="0.67005074" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3987034" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32760596" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32639545" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3241491" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288426" sideWeight="0.6735395" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3980404" sideWeight="0.6930126" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24923454" sideWeight="0.6930126" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3297953" sideWeight="0.67585087" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3069874" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3063209" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32355723" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -612,7 +616,7 @@
     <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Forgot to add ring buffer reserve on the ProducerBarrier when multiple producers exist." />
+    <option name="LAST_COMMIT_MESSAGE" value="First part of 3 stage pipeline performance test" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -625,7 +629,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Refactored out unnecessary hasGatingEventProcessors field from ThresholdBarrier." />
     <MESSAGE value="Added missing @Override annotations" />
     <MESSAGE value="Javadoc corrections." />
     <MESSAGE value="Javadoc improvements." />
@@ -650,6 +653,7 @@
     <MESSAGE value="inner barrier call can be static." />
     <MESSAGE value="Completed Sequencer3P1C performance test." />
     <MESSAGE value="Forgot to add ring buffer reserve on the ProducerBarrier when multiple producers exist." />
+    <MESSAGE value="First part of 3 stage pipeline performance test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -667,26 +671,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="4" selection-start="506" selection-end="506" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueMutationHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="69" selection-start="672" selection-end="672" vertical-scroll-proportion="0.68321514" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueMutationQueueConsumer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="60" selection-start="719" selection-end="719" vertical-scroll-proportion="0.3817967" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueAdditionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="19" selection-start="97" selection-end="97" vertical-scroll-proportion="0.11764706" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueProducer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="27" column="63" selection-start="734" selection-end="734" vertical-scroll-proportion="0.7647059" />
@@ -719,45 +703,69 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/Sequencer3P1CPerfTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="99" column="71" selection-start="3075" selection-end="3075" vertical-scroll-proportion="1.9089835">
+        <state line="99" column="71" selection-start="3075" selection-end="3075" vertical-scroll-proportion="1.9089835" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="88" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.46217495" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchConsumer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="67" selection-start="213" selection-end="213" vertical-scroll-proportion="0.100472815" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/UniCast1P1CPerfTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="52" column="26" selection-start="1326" selection-end="1326" vertical-scroll-proportion="0.25476602">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java">
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/Function.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="16" selection-start="2685" selection-end="2685" vertical-scroll-proportion="0.0">
+        <state line="8" column="0" selection-start="108" selection-end="108" vertical-scroll-proportion="0.23050848">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionEntry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="5" selection-start="336" selection-end="336" vertical-scroll-proportion="0.37457627">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/UniCast1P1CPerfTest.java">
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/ValueEntry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="148" column="24" selection-start="4799" selection-end="4799" vertical-scroll-proportion="2.4113476">
+        <state line="8" column="63" selection-start="197" selection-end="197" vertical-scroll-proportion="0.20169492">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/RingBuffer.java">
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/support/FunctionHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="88" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.46217495">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/com/lmax/disruptor/BatchConsumer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="67" selection-start="213" selection-end="213" vertical-scroll-proportion="0.100472815">
+        <state line="44" column="39" selection-start="1100" selection-end="1100" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/MultiCast1P3CPerfTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="130" column="65" selection-start="4632" selection-end="4632" vertical-scroll-proportion="0.9432624">
+        <state line="239" column="0" selection-start="7176" selection-end="7889" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perf/com/lmax/disruptor/Pipeline3StagePerfTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="86" selection-start="319" selection-end="319" vertical-scroll-proportion="0.35355285">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
