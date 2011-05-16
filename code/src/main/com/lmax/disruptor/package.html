@@ -6,7 +6,112 @@
 </head>
 <body>
     <p>
-    The Disruptor is a suite of classes for exchanging and coordinating changes to continuous series of items.
+        The Disruptor is a concurrent programming framework for exchanging and coordinating work on a continuous series of items.
+        It can be used as an alternative to wiring processing stages together via queues.  The Disruptor design has the
+        characteristics of generating significantly less garbage than queues and separates the concurrency concerns so
+        non-locking algorithms can be employed resulting in greater scalability and performance.
+    </p>
+    <p>
+        It works on the principle of having a number of stages that are each single threaded with local state and memory.
+        No global memory exists and all communication is achieved by passing messages/state via managed ring buffers.
+    </p>
+    <p>
+        Almost any graph or pipeline structure can be composed via one or more Disruptor patterns.
+    </p>
+
+    <p>
+        <b>UniCast a series of items between 1 producer and 1 consumer.</b>
+        <pre>
+                                               track to prevent wrap
+                                         +-----------------------------+
+                                         |                             |
+                                         |                             v
++----+    +----+             +----+    +====+    +====+    +====+    +----+
+| P0 |--->| C0 |             | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
++----+    +----+             +----+    +====+    +====+    +====+    +----+
+                                            claim      get    ^        |
+                                                              |        |
+                                                              +--------+
+                                                                waitFor
+        </pre>
+    </p>
+    <p>
+        <b>Sequence a series of messages from multiple producers</b>
+        <pre>
+                                               track to prevent wrap
+                                         +-----------------------------+
+                                         |                             |
+                                         |                             v
++----+                       +----+    +====+    +====+    +====+    +----+
+| P0 |------+                | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
++----+      |                +----+    +====+    +====+    +====+    +----+
+            v                            ^  claim      get    ^        |
++----+    +----+             +----+      |                    |        |
+| P1 |--->| C1 |             | P1 |------+                    +--------+
++----+    +----+             +----+      |                      waitFor
+            ^                            |
++----+      |                +----+      |
+| P2 |------+                | P2 |------+
++----+                       +----+
+        </pre>
+    </p>
+    <p>
+        <b>Pipeline a series of messages</b>
+        <pre>
+                          +----+    +----+    +----+    +----+
+                          | P0 |--->| C0 |--->| C1 |--->| C2 |
+                          +----+    +----+    +----+    +----+
+
+
+
+                  track to prevent wrap
+            +------------------------------------------------------------------------+
+            |                                                                        |
+            |                                                                        v
++----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+| P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
++----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+               claim   ^  get   |   waitFor           |  waitFor           |  waitFor
+                       |        |                     |                    |
+                       +--------+---------------------+--------------------+
+        </pre>
+    </p>
+    <p>
+        <b>Multicast a series of messages to multiple consumers</b>
+        <pre>
+          +----+                                        track to prevent wrap
+   +----->| C0 |                         +-----------------------------+---------+---------+
+   |      +----+                         |                             |         |         |
+   |                                     |                             v         v         v
++----+    +----+             +----+    +====+    +====+    +====+    +----+    +----+    +----+
+| P0 |--->| C1 |             | P0 |--->| PB |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
++----+    +----+             +----+    +====+    +====+    +====+    +----+    +----+    +----+
+   |                                        claim      get    ^        |          |        |
+   |      +----+                                              |        |          |        |
+   +----->| C2 |                                              +--------+----------+--------+
+          +----+                                                           waitFor
+        </pre>
+    </p>
+    <p>
+        <b>Replicate a message then fold back the results</b>
+        <pre>
+          +----+                                  track to prevent wrap
+   +----->| C0 |-----+                   +--------------------------------------+
+   |      +----+     |                   |                                      |
+   |                 v                   |                                      v
++----+             +----+    +----+    +====+    +====+            +=====+    +----+
+| P0 |             | C2 |    | P0 |--->| PB |--->| RB |<-----------| CB1 |<---| C2 |
++----+             +----+    +----+    +====+    +====+            +=====+    +----+
+   |                 ^                      claim   ^  get            |   waitFor
+   |      +----+     |                              |                 |
+   +----->| C1 |-----+                           +=====+    +----+    |
+          +----+                                 | CB0 |<---| C0 |<---+
+                                                 +=====+    +----+    |
+                                                    ^                 |
+                                                    |       +----+    |
+                                                    +-------| C1 |<---+
+                                                  waitFor   +----+
+        </pre>
     </p>
 </body>
 </html>

@@ -41,7 +41,7 @@ import java.util.concurrent.*;
  * Q0 - Queue 0
  * Q1 - Queue 1
  * Q2 - Queue 2
- * Q2 - Queue 3
+ * Q3 - Queue 3
  * C0 - Consumer 0
  * C1 - Consumer 1
  * C2 - Consumer 2
