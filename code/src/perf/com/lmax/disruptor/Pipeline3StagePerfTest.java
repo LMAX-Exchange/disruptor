@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.Function;
+import com.lmax.disruptor.support.FunctionStep;
 import com.lmax.disruptor.support.FunctionEntry;
 import com.lmax.disruptor.support.FunctionHandler;
 import com.lmax.disruptor.support.FunctionQueueConsumer;
@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 
 /**
  * <pre>
+ *
  * Pipeline a series of stages from a producer to ultimate consumer.
  * Each consumer depends on the output of the previous consumer.
  *
@@ -18,13 +19,14 @@ import java.util.concurrent.*;
  * | P0 |--->| C0 |--->| C1 |--->| C2 |
  * +----+    +----+    +----+    +----+
  *
+ *
  * Queue Based:
  * ============
  *
  *        put      take       put      take       put      take
- * +----+    +----+    +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +----+    +====+    +----+    +====+    +----+
  * | P0 |--->| Q0 |<---| C0 |--->| Q1 |<---| C1 |--->| Q2 |<---| C2 |
- * +----+    +----+    +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +----+    +====+    +----+    +====+    +----+
  *
  * P0 - Producer 0
  * Q0 - Queue 0
@@ -34,15 +36,16 @@ import java.util.concurrent.*;
  * Q2 - Queue 2
  * C2 - Consumer 1
  *
+ *
  * Disruptor:
  * ==========
  *                   track to prevent wrap
- *             +-----------------------------+---------------------+--------------------+
- *             |                             |                     |                    |
- *             |                             v                     v                    v
- * +----+    +----+    +----+    +-----+    +----+    +-----+    +----+    +-----+    +----+
+ *             +------------------------------------------------------------------------+
+ *             |                                                                        |
+ *             |                                                                        v
+ * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
  * | P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
- * +----+    +----+    +----+    +-----+    +----+    +-----+    +----+    +-----+    +----+
+ * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
  *                claim   ^  get   |   waitFor           |  waitFor           |  waitFor
  *                        |        |                     |                    |
  *                        +--------+---------------------+--------------------+
@@ -60,7 +63,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class Pipeline3StagePerfTest
+public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_CONSUMERS = 3;
     private static final int SIZE = 8192;
@@ -94,11 +97,11 @@ public final class Pipeline3StagePerfTest
     private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
 
     private final FunctionQueueConsumer stepOneQueueConsumer =
-        new FunctionQueueConsumer(Function.STEP_ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueConsumer(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
     private final FunctionQueueConsumer stepTwoQueueConsumer =
-        new FunctionQueueConsumer(Function.STEP_TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueConsumer(FunctionStep.TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
     private final FunctionQueueConsumer stepThreeQueueConsumer =
-        new FunctionQueueConsumer(Function.STEP_THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueConsumer(FunctionStep.THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,17 +111,17 @@ public final class Pipeline3StagePerfTest
                                       WaitStrategy.Option.YIELDING);
 
     private final ConsumerBarrier<FunctionEntry> stepOneConsumerBarrier = ringBuffer.createConsumerBarrier();
-    private final FunctionHandler stepOneFunctionHandler = new FunctionHandler(Function.STEP_ONE);
+    private final FunctionHandler stepOneFunctionHandler = new FunctionHandler(FunctionStep.ONE);
     private final BatchConsumer<FunctionEntry> stepOneBatchConsumer =
         new BatchConsumer<FunctionEntry>(stepOneConsumerBarrier, stepOneFunctionHandler);
 
     private final ConsumerBarrier<FunctionEntry> stepTwoConsumerBarrier = ringBuffer.createConsumerBarrier(stepOneBatchConsumer);
-    private final FunctionHandler stepTwoFunctionHandler = new FunctionHandler(Function.STEP_TWO);
+    private final FunctionHandler stepTwoFunctionHandler = new FunctionHandler(FunctionStep.TWO);
     private final BatchConsumer<FunctionEntry> stepTwoBatchConsumer =
         new BatchConsumer<FunctionEntry>(stepTwoConsumerBarrier, stepTwoFunctionHandler);
 
     private final ConsumerBarrier<FunctionEntry> stepThreeConsumerBarrier = ringBuffer.createConsumerBarrier(stepTwoBatchConsumer);
-    private final FunctionHandler stepThreeFunctionHandler = new FunctionHandler(Function.STEP_THREE);
+    private final FunctionHandler stepThreeFunctionHandler = new FunctionHandler(FunctionStep.THREE);
     private final BatchConsumer<FunctionEntry> stepThreeBatchConsumer =
         new BatchConsumer<FunctionEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
 
@@ -127,29 +130,15 @@ public final class Pipeline3StagePerfTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
+    @Override
     public void shouldCompareDisruptorVsQueues()
         throws Exception
     {
-        final int RUNS = 3;
-        long disruptorOps = 0L;
-        long queueOps = 0L;
-
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.gc();
-
-            disruptorOps = runDisruptorPass();
-            queueOps = runQueuePass();
-
-
-            System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
-                              getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
-        }
-
-        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
+        testImplementations();
     }
 
-    private long runDisruptorPass()
+    @Override
+    protected long runDisruptorPass(final int passNumber)
     {
         stepThreeFunctionHandler.reset();
 
@@ -185,7 +174,8 @@ public final class Pipeline3StagePerfTest
         return opsPerSecond;
     }
 
-    private long runQueuePass() throws Exception
+    @Override
+    protected long runQueuePass(final int passNumber) throws Exception
     {
         stepThreeQueueConsumer.reset();
 

@@ -16,17 +16,19 @@ import java.util.concurrent.*;
  * | P0 |--->| C0 |
  * +----+    +----+
  *
+ *
  * Queue Based:
  * ============
  *
  *        put      take
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  * | P0 |--->| Q0 |<---| C0 |
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  *
  * P0 - Producer 0
  * Q0 - Queue 0
  * C0 - Consumer 0
+ *
  *
  * Disruptor:
  * ==========
@@ -34,9 +36,9 @@ import java.util.concurrent.*;
  *             +-----------------------------+
  *             |                             |
  *             |                             v
- * +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
- * +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+
  *                claim      get    ^        |
  *                                  |        |
  *                                  +--------+
@@ -50,7 +52,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class UniCast1P1CPerfTest
+public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 8192;
     private static final long ITERATIONS = 1000L * 1000L * 50L;
@@ -85,28 +87,15 @@ public final class UniCast1P1CPerfTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    public void shouldCompareDisruptorVsQueue()
+    @Override
+    public void shouldCompareDisruptorVsQueues()
         throws Exception
     {
-        final int RUNS = 3;
-        long disruptorOps = 0L;
-        long queueOps = 0L;
-
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.gc();
-
-            disruptorOps = runDisruptorPass();
-            queueOps = runQueuePass();
-
-            System.out.format("%s OpsPerSecond run %d: BlockingQueue=%d, Disruptor=%d\n",
-                              getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
-        }
-
-        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
+        testImplementations();
     }
 
-    private long runQueuePass() throws InterruptedException
+    @Override
+    protected long runQueuePass(final int passNumber) throws InterruptedException
     {
         queueConsumer.reset();
         Future future = EXECUTOR.submit(queueConsumer);
@@ -132,7 +121,8 @@ public final class UniCast1P1CPerfTest
         return opsPerSecond;
     }
 
-    private long runDisruptorPass() throws InterruptedException
+    @Override
+    protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         handler.reset();
         EXECUTOR.submit(batchConsumer);

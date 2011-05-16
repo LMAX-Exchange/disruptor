@@ -1,13 +1,13 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.*;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.*;
 
 /**
  * <pre>
+ *
  * Sequence a series of events from multiple producers going to one consumer.
  *
  * +----+
@@ -22,6 +22,7 @@ import java.util.concurrent.*;
  * | P2 |------+
  * +----+
  *
+ *
  * Queue Based:
  * ============
  *
@@ -29,9 +30,9 @@ import java.util.concurrent.*;
  * | P0 |------+
  * +----+      |
  *             v   take
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  * | P1 |--->| Q0 |<---| C0 |
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  *             ^
  * +----+      |
  * | P2 |------+
@@ -43,15 +44,16 @@ import java.util.concurrent.*;
  * Q0 - Queue 0
  * C0 - Consumer 0
  *
+ *
  * Disruptor:
  * ==========
  *                   track to prevent wrap
  *             +-----------------------------+
  *             |                             |
  *             |                             v
- * +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
- * +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+
  *             ^  claim      get    ^        |
  * +----+      |                    |        |
  * | P1 |------+                    +--------+
@@ -71,7 +73,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class Sequencer3P1CPerfTest
+public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PRODUCERS = 3;
     private static final int SIZE = 8192;
@@ -111,29 +113,15 @@ public final class Sequencer3P1CPerfTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
+    @Override
     public void shouldCompareDisruptorVsQueues()
         throws Exception
     {
-        final int RUNS = 3;
-        long disruptorOps = 0L;
-        long queueOps = 0L;
-
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.gc();
-
-            disruptorOps = runDisruptorPass(i + 1);
-            queueOps = runQueuePass();
-
-
-            System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
-                              getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
-        }
-
-        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
+        testImplementations();
     }
 
-    private long runQueuePass() throws Exception
+    @Override
+    protected long runQueuePass(final int passNumber) throws Exception
     {
         Future[] futures = new Future[NUM_PRODUCERS];
         for (int i = 0; i < NUM_PRODUCERS; i++)
@@ -163,7 +151,8 @@ public final class Sequencer3P1CPerfTest
         return opsPerSecond;
     }
 
-    private long runDisruptorPass(final int passNumber) throws Exception
+    @Override
+    protected long runDisruptorPass(final int passNumber) throws Exception
     {
         Future[] futures = new Future[NUM_PRODUCERS];
         for (int i = 0; i < NUM_PRODUCERS; i++)
@@ -180,7 +169,7 @@ public final class Sequencer3P1CPerfTest
             futures[i].get();
         }
 
-        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS * passNumber) - 1L;
+        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS * (passNumber + 1L)) - 1L;
         while (expectedSequence > batchConsumer.getSequence())
         {
             // busy spin

@@ -4,26 +4,25 @@ import java.util.concurrent.BlockingQueue;
 
 public final class FunctionQueueConsumer implements Runnable
 {
-    private final Function function;
-    private final BlockingQueue stepOneQueue;
-    private final BlockingQueue stepTwoQueue;
-    private final BlockingQueue stepThreeQueue;
+    private final FunctionStep functionStep;
+    private final BlockingQueue<long[]> stepOneQueue;
+    private final BlockingQueue<Long> stepTwoQueue;
+    private final BlockingQueue<Long> stepThreeQueue;
 
     private volatile boolean running;
     private volatile long sequence;
     private long stepThreeCounter;
 
-    public FunctionQueueConsumer(final Function function,
-                                 final BlockingQueue stepOneQueue,
-                                 final BlockingQueue stepTwoQueue,
-                                 final BlockingQueue stepThreeQueue)
+    public FunctionQueueConsumer(final FunctionStep functionStep,
+                                 final BlockingQueue<long[]> stepOneQueue,
+                                 final BlockingQueue<Long> stepTwoQueue,
+                                 final BlockingQueue<Long> stepThreeQueue)
     {
-        this.function = function;
+        this.functionStep = functionStep;
         this.stepOneQueue = stepOneQueue;
         this.stepTwoQueue = stepTwoQueue;
         this.stepThreeQueue = stepThreeQueue;
     }
-
 
     public long getStepThreeCounter()
     {
@@ -47,7 +46,6 @@ public final class FunctionQueueConsumer implements Runnable
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void run()
     {
         running = true;
@@ -55,25 +53,25 @@ public final class FunctionQueueConsumer implements Runnable
         {
             try
             {
-                switch (function)
+                switch (functionStep)
                 {
-                    case STEP_ONE:
+                    case ONE:
                     {
-                        long[] values = (long[])stepOneQueue.take();
+                        long[] values = stepOneQueue.take();
                         stepTwoQueue.put(Long.valueOf(values[0] + values[1]));
                         break;
                     }
 
-                    case STEP_TWO:
+                    case TWO:
                     {
-                        Long value = (Long)stepTwoQueue.take();
+                        Long value = stepTwoQueue.take();
                         stepThreeQueue.put(Long.valueOf(value.longValue() + 3));
                         break;
                     }
 
-                    case STEP_THREE:
+                    case THREE:
                     {
-                        Long value = (Long)stepThreeQueue.take();
+                        Long value = stepThreeQueue.take();
                         long testValue = value.longValue();
                         if ((testValue & 4L) == 4L)
                         {

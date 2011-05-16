@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 
 /**
  * <pre>
+ *
  * MultiCast a series of items between 1 producer and 3 consumers.
  *
  *           +----+
@@ -25,20 +26,21 @@ import java.util.concurrent.*;
  *    +----->| C2 |
  *           +----+
  *
+ *
  * Queue Based:
  * ============
  *                 take
- *   put     +----+    +----+
+ *   put     +====+    +----+
  *    +----->| Q0 |<---| C0 |
- *    |      +----+    +----+
+ *    |      +====+    +----+
  *    |
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  * | P0 |--->| Q1 |<---| C1 |
- * +----+    +----+    +----+
+ * +----+    +====+    +----+
  *    |
- *    |      +----+    +----+
+ *    |      +====+    +----+
  *    +----->| Q2 |<---| C2 |
- *           +----+    +----+
+ *           +====+    +----+
  *
  * P0 - Producer 0
  * Q0 - Queue 0
@@ -48,15 +50,16 @@ import java.util.concurrent.*;
  * C1 - Consumer 1
  * C2 - Consumer 2
  *
+ *
  * Disruptor:
  * ==========
  *                            track to prevent wrap
  *             +-----------------------------+---------+---------+
  *             |                             |         |         |
  *             |                             v         v         v
- * +----+    +----+    +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+    +----+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
- * +----+    +----+    +----+    +----+    +----+    +----+    +----+
+ * +----+    +====+    +====+    +====+    +----+    +----+    +----+
  *                claim      get    ^        |          |        |
  *                                  |        |          |        |
  *                                  +--------+----------+--------+
@@ -73,7 +76,7 @@ import java.util.concurrent.*;
  * </pre>
  */
 @SuppressWarnings("unchecked")
-public final class MultiCast1P3CPerfTest
+public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_CONSUMERS = 3;
     private static final int SIZE = 8192;
@@ -134,28 +137,15 @@ public final class MultiCast1P3CPerfTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
+    @Override
     public void shouldCompareDisruptorVsQueues()
         throws Exception
     {
-        final int RUNS = 3;
-        long disruptorOps = 0L;
-        long queueOps = 0L;
-
-        for (int i = 0; i < RUNS; i++)
-        {
-            System.gc();
-
-            disruptorOps = runDisruptorPass();
-            queueOps = runQueuePass();
-
-            System.out.format("%s OpsPerSecond run %d: BlockingQueues=%d, Disruptor=%d\n",
-                              getClass().getSimpleName(), Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
-        }
-
-        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
+        testImplementations();
     }
 
-    private long runQueuePass() throws InterruptedException
+    @Override
+    protected long runQueuePass(final int passNumber) throws InterruptedException
     {
         Future[] futures = new Future[NUM_CONSUMERS];
         for (int i = 0; i < NUM_CONSUMERS; i++)
@@ -204,7 +194,8 @@ public final class MultiCast1P3CPerfTest
         return minimum;
     }
 
-    private long runDisruptorPass()
+    @Override
+    protected long runDisruptorPass(final int passNumber)
     {
         for (int i = 0; i < NUM_CONSUMERS; i++)
         {

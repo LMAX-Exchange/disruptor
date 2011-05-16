@@ -4,12 +4,12 @@ import com.lmax.disruptor.BatchHandler;
 
 public final class FunctionHandler implements BatchHandler<FunctionEntry>
 {
-    private final Function function;
+    private final FunctionStep functionStep;
     private long stepThreeCounter;
 
-    public FunctionHandler(final Function function)
+    public FunctionHandler(final FunctionStep functionStep)
     {
-        this.function = function;
+        this.functionStep = functionStep;
     }
 
     public long getStepThreeCounter()
@@ -25,17 +25,17 @@ public final class FunctionHandler implements BatchHandler<FunctionEntry>
     @Override
     public void onAvailable(final FunctionEntry entry) throws Exception
     {
-        switch (function)
+        switch (functionStep)
         {
-            case STEP_ONE:
+            case ONE:
                 entry.setStepOneResult(entry.getOperandOne() + entry.getOperandTwo());
                 break;
 
-            case STEP_TWO:
+            case TWO:
                 entry.setStepTwoResult(entry.getStepOneResult() + 3L);
                 break;
 
-            case STEP_THREE:
+            case THREE:
                 if ((entry.getStepTwoResult() & 4L) == 4L)
                 {
                     stepThreeCounter++;
