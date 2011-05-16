@@ -81,6 +81,14 @@ public final class MultiCast1P3CPerfTest
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
     private final long[] results = new long[NUM_CONSUMERS];
+    {
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            results[0] = Operation.ADDITION.op(results[0], i);
+            results[1] = Operation.SUBTRACTION.op(results[1], i);
+            results[2] = Operation.AND.op(results[2], i);
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,8 +141,6 @@ public final class MultiCast1P3CPerfTest
         long disruptorOps = 0L;
         long queueOps = 0L;
 
-        precomputeExpectedResults();
-
         for (int i = 0; i < RUNS; i++)
         {
             System.gc();
@@ -147,16 +153,6 @@ public final class MultiCast1P3CPerfTest
         }
 
         Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
-    }
-
-    private void precomputeExpectedResults()
-    {
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            results[0] = Operation.ADDITION.op(results[0], i);
-            results[1] = Operation.SUBTRACTION.op(results[1], i);
-            results[2] = Operation.AND.op(results[2], i);
-        }
     }
 
     private long runQueuePass() throws InterruptedException
