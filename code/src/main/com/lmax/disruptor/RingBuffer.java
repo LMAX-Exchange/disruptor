@@ -186,7 +186,8 @@ public final class RingBuffer<T extends Entry>
             alerted = false;
         }
 
-        private long waitOnConsumers(final long sequence, long availableSequence) throws AlertException
+        private long waitOnConsumers(final long sequence, long availableSequence)
+            throws AlertException
         {
             if (consumers.length != 0)
             {
@@ -212,8 +213,7 @@ public final class RingBuffer<T extends Entry>
         private final Consumer[] consumers;
         private final int threshold;
 
-        public MultiConsumerProducerBarrier(final int bufferReserve,
-                                            final Consumer... consumers)
+        public MultiConsumerProducerBarrier(final int bufferReserve, final Consumer... consumers)
         {
             this.consumers = consumers;
             this.threshold = entries.length - bufferReserve;
