@@ -76,7 +76,7 @@ public final class RingBuffer<T extends Entry>
     /**
      * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
      *
-     * The bufferReserve should be at least the number of producing threads.
+     * The bufferReserve can be used situations were {@link Consumer}s may not be available for a while.
      *
      * @param bufferReserve size of of the buffer to be reserved.
      * @param consumersToTrack to be tracked to prevent wrapping.
@@ -211,7 +211,7 @@ public final class RingBuffer<T extends Entry>
     private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
         private final Consumer[] consumers;
-        private final int threshold;
+        private final long threshold;
 
         public ConsumerTrackingProducerBarrier(final int bufferReserve, final Consumer... consumers)
         {
@@ -223,9 +223,9 @@ public final class RingBuffer<T extends Entry>
         @SuppressWarnings("unchecked")
         public T claimNext()
         {
-            gateOnConsumers();
-
             long sequence = claimStrategy.getAndIncrement();
+            ensureConsumersAreInRange(sequence);
+
             T entry = (T)entries[(int)sequence & ringModMask];
             entry.setSequence(sequence);
 
@@ -236,7 +236,7 @@ public final class RingBuffer<T extends Entry>
         @SuppressWarnings("unchecked")
         public T claimSequence(final long sequence)
         {
-            gateOnConsumers();
+            ensureConsumersAreInRange(sequence);
 
             T entry = (T)entries[(int)sequence & ringModMask];
             entry.setSequence(sequence);
@@ -262,9 +262,9 @@ public final class RingBuffer<T extends Entry>
             waitStrategy.signalAll();
         }
 
-        private void gateOnConsumers()
+        private void ensureConsumersAreInRange(final long sequence)
         {
-            while ((cursor - getMinimumSequence(consumers)) >= threshold)
+            while ((sequence - getMinimumSequence(consumers)) >= threshold)
             {
                 Thread.yield();
             }
