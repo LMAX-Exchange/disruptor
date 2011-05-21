@@ -65,12 +65,12 @@ public final class RingBuffer<T extends Entry>
     /**
      * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link Consumer}s
      *
-     * @param consumers this barrier will track
+     * @param consumersToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumers)
+    public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumersToTrack)
     {
-        return new MultiConsumerConsumerBarrier<T>(consumers);
+        return new ConsumerTrackingConsumerBarrier<T>(consumersToTrack);
     }
 
     /**
@@ -79,12 +79,12 @@ public final class RingBuffer<T extends Entry>
      * The bufferReserve should be at least the number of producing threads.
      *
      * @param bufferReserve size of of the buffer to be reserved.
-     * @param consumers to be tracked to prevent wrapping.
+     * @param consumersToTrack to be tracked to prevent wrapping.
      * @return a {@link ProducerBarrier} with the above configuration.
      */
-    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final Consumer... consumers)
+    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final Consumer... consumersToTrack)
     {
-        return new MultiConsumerProducerBarrier(bufferReserve, consumers);
+        return new ConsumerTrackingProducerBarrier(bufferReserve, consumersToTrack);
     }
 
     /**
@@ -130,12 +130,12 @@ public final class RingBuffer<T extends Entry>
     /**
      * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
-    private final class MultiConsumerConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
+    private final class ConsumerTrackingConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
     {
         private final Consumer[] consumers;
         private volatile boolean alerted = false;
 
-        public MultiConsumerConsumerBarrier(final Consumer... consumers)
+        public ConsumerTrackingConsumerBarrier(final Consumer... consumers)
         {
             this.consumers = consumers;
         }
@@ -208,12 +208,12 @@ public final class RingBuffer<T extends Entry>
      * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
      * a {@link Entry} in the {@link RingBuffer}.
      */
-    private final class MultiConsumerProducerBarrier implements ProducerBarrier<T>
+    private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
         private final Consumer[] consumers;
         private final int threshold;
 
-        public MultiConsumerProducerBarrier(final int bufferReserve, final Consumer... consumers)
+        public ConsumerTrackingProducerBarrier(final int bufferReserve, final Consumer... consumers)
         {
             this.consumers = consumers;
             this.threshold = entries.length - bufferReserve;
