@@ -65,7 +65,7 @@ public final class BatchConsumerTest
 
         assertEquals(-1L, batchConsumer.getSequence());
 
-        producerBarrier.claimNext().commit();
+        producerBarrier.commit(producerBarrier.claimNext());
 
         latch.await();
 
@@ -96,9 +96,9 @@ public final class BatchConsumerTest
             }
         });
 
-        producerBarrier.claimNext().commit();
-        producerBarrier.claimNext().commit();
-        producerBarrier.claimNext().commit();
+        producerBarrier.commit(producerBarrier.claimNext());
+        producerBarrier.commit(producerBarrier.claimNext());
+        producerBarrier.commit(producerBarrier.claimNext());
 
         Thread thread = new Thread(batchConsumer);
         thread.start();
@@ -149,7 +149,7 @@ public final class BatchConsumerTest
         Thread thread = new Thread(batchConsumer);
         thread.start();
 
-        producerBarrier.claimNext().commit();
+        producerBarrier.commit(producerBarrier.claimNext());
 
         latch.await();
 

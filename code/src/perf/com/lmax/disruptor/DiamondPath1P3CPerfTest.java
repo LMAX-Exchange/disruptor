@@ -169,7 +169,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
         {
             FizzBuzzEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

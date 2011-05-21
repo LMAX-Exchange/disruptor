@@ -41,7 +41,7 @@ public class RingBufferTest
 
         StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
-        oldEntry.commit();
+        producerBarrier.commit(oldEntry);
 
         long sequence = consumerBarrier.waitFor(0);
         assertEquals(0, sequence);
@@ -61,7 +61,7 @@ public class RingBufferTest
 
         StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
-        oldEntry.commit();
+        producerBarrier.commit(oldEntry);
 
         long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
@@ -89,7 +89,7 @@ public class RingBufferTest
 
         StubEntry oldEntry = producerBarrier.claimNext();
         oldEntry.copy(expectedEntry);
-        oldEntry.commit();
+        producerBarrier.commit(oldEntry);
 
         assertEquals(expectedEntry, messages.get().get(0));
     }
@@ -102,7 +102,7 @@ public class RingBufferTest
         {
             StubEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         int expectedSequence = numMessages - 1;
@@ -124,7 +124,7 @@ public class RingBufferTest
         {
             StubEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         int expectedSequence = numMessages + offset - 1;
@@ -143,7 +143,7 @@ public class RingBufferTest
         long expectedSequence = 5;
         StubEntry expectedEntry = producerBarrier.claimSequence(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
-        expectedEntry.commit();
+        producerBarrier.commitSequence(expectedEntry);
 
         long sequence = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);

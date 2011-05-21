@@ -154,7 +154,7 @@ public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisrupt
             FunctionEntry entry = producerBarrier.claimNext();
             entry.setOperandOne(i);
             entry.setOperandTwo(operandTwo--);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

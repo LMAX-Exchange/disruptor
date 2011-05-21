@@ -21,4 +21,18 @@ public interface ProducerBarrier<T extends Entry>
      * @return the claimed {@link Entry}
      */
     T claimSequence(long sequence);
+
+    /**
+     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s
+     * @param entry to be committed back to the {@link RingBuffer}
+     */
+    void commit(Entry entry);
+
+    /**
+     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s.
+     * Only use this method when forcing a sequence and you are sure only one producer exists.
+     *
+     * @param entry to be committed back to the {@link RingBuffer}
+     */
+    void commitSequence(Entry entry);
 }

@@ -209,7 +209,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         {
             ValueEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

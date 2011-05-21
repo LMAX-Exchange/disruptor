@@ -133,7 +133,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
         {
             ValueEntry entry = producerBarrier.claimNext();
             entry.setValue(i);
-            entry.commit();
+            producerBarrier.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

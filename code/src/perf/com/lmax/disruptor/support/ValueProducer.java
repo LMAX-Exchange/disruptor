@@ -7,13 +7,13 @@ import java.util.concurrent.CyclicBarrier;
 public final class ValueProducer implements Runnable
 {
     private final CyclicBarrier cyclicBarrier;
-    private final ProducerBarrier<ValueEntry> barrier;
+    private final ProducerBarrier<ValueEntry> producerBarrier;
     private final long iterations;
 
-    public ValueProducer(final CyclicBarrier cyclicBarrier, final ProducerBarrier<ValueEntry> barrier, final long iterations)
+    public ValueProducer(final CyclicBarrier cyclicBarrier, final ProducerBarrier<ValueEntry> producerBarrier, final long iterations)
     {
         this.cyclicBarrier = cyclicBarrier;
-        this.barrier = barrier;
+        this.producerBarrier = producerBarrier;
         this.iterations = iterations;
     }
 
@@ -26,9 +26,9 @@ public final class ValueProducer implements Runnable
 
             for (long i = 0; i < iterations; i++)
             {
-                ValueEntry entry = barrier.claimNext();
+                ValueEntry entry = producerBarrier.claimNext();
                 entry.setValue(i);
-                entry.commit();
+                producerBarrier.commit(entry);
             }
         }
         catch (Exception ex)

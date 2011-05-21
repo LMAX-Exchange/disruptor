@@ -13,19 +13,6 @@ import static com.lmax.disruptor.Util.getMinimumSequence;
  */
 public final class RingBuffer<T extends Entry>
 {
-    /**
-     * Callback into {@link RingBuffer} to signal that the producer has populated the {@link Entry} and it is now ready for use.
-     */
-    public interface CommitCallback
-    {
-        /**
-         * Callback to signal {@link Entry} is ready for consumption.
-         *
-         * @param sequence of the {@link Entry} that is ready for consumption.
-         */
-        public void commit(long sequence);
-    }
-
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
 
@@ -35,9 +22,6 @@ public final class RingBuffer<T extends Entry>
 
     private final Object[] entries;
     private final int ringModMask;
-
-    private final CommitCallback claimNextCallback = new ClaimNextCommitCallback();
-    private final CommitCallback claimSequenceCallback = new SetSequenceCommitCallback();
 
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
@@ -144,35 +128,6 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Callback to be used when claiming {@link Entry}s in sequence and cursor is catching up with claim
-     * for notifying the the consumers of progress. This will busy spin on the commit until previous
-     * producers have committed lower sequence entries.
-     */
-    private final class ClaimNextCommitCallback implements CommitCallback
-    {
-        public void commit(final long sequence)
-        {
-            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
-            cursor = sequence;
-            waitStrategy.signalAll();
-        }
-    }
-
-    /**
-     * Callback to be used when claiming {@link Entry}s and the cursor is explicitly set by the producer
-     * when you are sure only one producer exists.
-     */
-    private final class SetSequenceCommitCallback implements CommitCallback
-    {
-        public void commit(final long sequence)
-        {
-            claimStrategy.setSequence(sequence + 1L);
-            cursor = sequence;
-            waitStrategy.signalAll();
-        }
-    }
-
-    /**
      * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
     private final class MultiConsumerConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
@@ -272,7 +227,7 @@ public final class RingBuffer<T extends Entry>
 
             long sequence = claimStrategy.getAndIncrement();
             T entry = (T)entries[(int)sequence & ringModMask];
-            entry.setSequence(sequence, claimNextCallback);
+            entry.setSequence(sequence);
 
             return entry;
         }
@@ -284,9 +239,27 @@ public final class RingBuffer<T extends Entry>
             gateOnConsumers();
 
             T entry = (T)entries[(int)sequence & ringModMask];
-            entry.setSequence(sequence, claimSequenceCallback);
+            entry.setSequence(sequence);
 
             return entry;
+        }
+
+        @Override
+        public void commit(final Entry entry)
+        {
+            long sequence = entry.getSequence();
+            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
+            cursor = sequence;
+            waitStrategy.signalAll();
+        }
+
+        @Override
+        public void commitSequence(final Entry entry)
+        {
+            long sequence = entry.getSequence();
+            claimStrategy.setSequence(sequence + 1L);
+            cursor = sequence;
+            waitStrategy.signalAll();
         }
 
         private void gateOnConsumers()

@@ -87,7 +87,7 @@ public final class ConsumerBarrierTest
             {
                 StubEntry entry = producerBarrier.claimNext();
                 entry.setValue((int) entry.getSequence());
-                entry.commit();
+                producerBarrier.commit(entry);
 
                 for (StubConsumer stubWorker : workers)
                 {
@@ -202,8 +202,8 @@ public final class ConsumerBarrierTest
         for (long i = 0; i < expectedNumberMessages; i++)
         {
             StubEntry entry = producerBarrier.claimNext();
-            entry.setValue((int) i);
-            entry.commit();
+            entry.setValue((int)i);
+            producerBarrier.commit(entry);
         }
     }
 

@@ -6,15 +6,6 @@ package com.lmax.disruptor;
 public abstract class AbstractEntry implements Entry
 {
     private long sequence;
-    private RingBuffer.CommitCallback commitCallback;
-
-    /**
-     * {@inheritDoc}
-     */
-    public void commit()
-    {
-        commitCallback.commit(sequence);
-    }
 
     /**
      * {@inheritDoc}
@@ -29,9 +20,8 @@ public abstract class AbstractEntry implements Entry
      * {@inheritDoc}
      */
     @Override
-    public void setSequence(final long sequence, final RingBuffer.CommitCallback commitCallback)
+    public void setSequence(final long sequence)
     {
         this.sequence = sequence;
-        this.commitCallback = commitCallback;
     }
 }
