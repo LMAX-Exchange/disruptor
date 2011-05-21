@@ -65,6 +65,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
         {
             temp += i;
         }
+
         expectedResult = temp;
     }
 
