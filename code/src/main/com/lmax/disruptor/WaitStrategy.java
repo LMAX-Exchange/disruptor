@@ -250,7 +250,6 @@ public interface WaitStrategy
                 {
                     throw ALERT_EXCEPTION;
                 }
-
             }
 
             return cursor;
