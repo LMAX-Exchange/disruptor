@@ -152,9 +152,7 @@ public final class RingBuffer<T extends Entry>
             throws AlertException, InterruptedException
         {
             long availableSequence = waitStrategy.waitFor(RingBuffer.this, this, sequence);
-            availableSequence = waitOnConsumers(sequence, availableSequence);
-
-            return availableSequence;
+            return waitOnConsumers(sequence, availableSequence);
         }
 
         @Override
@@ -162,9 +160,7 @@ public final class RingBuffer<T extends Entry>
             throws AlertException, InterruptedException
         {
             long availableSequence = waitStrategy.waitFor(RingBuffer.this, this, sequence, timeout, units);
-            availableSequence = waitOnConsumers(sequence, availableSequence);
-
-            return availableSequence;
+            return waitOnConsumers(sequence, availableSequence);
         }
 
         @Override
