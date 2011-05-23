@@ -153,26 +153,14 @@ public final class RingBuffer<T extends Entry>
         public long waitFor(final long sequence)
             throws AlertException, InterruptedException
         {
-            long availableSequence = waitStrategy.waitFor(RingBuffer.this, this, sequence);
-            if (consumers.length != 0)
-            {
-                availableSequence = waitOnConsumers(sequence, availableSequence);
-            }
-
-            return availableSequence;
+            return waitStrategy.waitFor(consumers, RingBuffer.this, this, sequence);
         }
 
         @Override
         public long waitFor(final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            long availableSequence = waitStrategy.waitFor(RingBuffer.this, this, sequence, timeout, units);
-            if (consumers.length != 0)
-            {
-                availableSequence = waitOnConsumers(sequence, availableSequence);
-            }
-
-            return availableSequence;
+            return waitStrategy.waitFor(consumers, RingBuffer.this, this, sequence, timeout, units);
         }
 
         @Override
@@ -192,20 +180,6 @@ public final class RingBuffer<T extends Entry>
         public void clearAlert()
         {
             alerted = false;
-        }
-
-        private long waitOnConsumers(final long sequence, long availableSequence)
-            throws AlertException
-        {
-            while ((availableSequence = getMinimumSequence(consumers)) < sequence)
-            {
-                if (alerted)
-                {
-                    throw ALERT_EXCEPTION;
-                }
-            }
-
-            return availableSequence;
         }
     }
 

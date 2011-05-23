@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
+import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
  * Strategy employed for making {@link Consumer}s wait on a {@link RingBuffer}.
@@ -15,7 +16,7 @@ public interface WaitStrategy
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer}
      *
-     *
+     * @param consumers further back the chain that must advance first
      * @param ringBuffer on which to wait.
      * @param barrier the consumer is waiting on.
      * @param sequence to be waited on.
@@ -23,11 +24,13 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(RingBuffer ringBuffer, ConsumerBarrier barrier,  long sequence) throws AlertException, InterruptedException;
+    long waitFor(Consumer[] consumers, RingBuffer ringBuffer, ConsumerBarrier barrier,  long sequence)
+        throws AlertException, InterruptedException;
 
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer} with a timeout specified.
      *
+     * @param consumers further back the chain that must advance first
      * @param ringBuffer on which to wait.
      * @param barrier the consumer is waiting on.
      * @param sequence to be waited on.
@@ -37,7 +40,8 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(RingBuffer ringBuffer, ConsumerBarrier barrier, long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
+    long waitFor(Consumer[] consumers, RingBuffer ringBuffer, ConsumerBarrier barrier, long sequence, long timeout, TimeUnit units)
+        throws AlertException, InterruptedException;
 
     /**
      * Signal those waiting that the {@link RingBuffer} cursor has advanced.
@@ -98,16 +102,16 @@ public interface WaitStrategy
         private final Condition consumerNotifyCondition = lock.newCondition();
 
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            long cursor;
-            if ((cursor = ringBuffer.getCursor()) < sequence)
+            long availableSequence;
+            if ((availableSequence = ringBuffer.getCursor()) < sequence)
             {
                 lock.lock();
                 try
                 {
-                    while ((cursor = ringBuffer.getCursor()) < sequence)
+                    while ((availableSequence = ringBuffer.getCursor()) < sequence)
                     {
                         if (barrier.isAlerted())
                         {
@@ -123,20 +127,32 @@ public interface WaitStrategy
                 }
             }
 
-            return cursor;
+            if (0 != consumers.length)
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                {
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+                }
+            }
+
+            return availableSequence;
         }
 
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+                            final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            long cursor;
-            if ((cursor = ringBuffer.getCursor()) < sequence)
+            long availableSequence;
+            if ((availableSequence = ringBuffer.getCursor()) < sequence)
             {
                 lock.lock();
                 try
                 {
-                    while ((cursor = ringBuffer.getCursor()) < sequence)
+                    while ((availableSequence = ringBuffer.getCursor()) < sequence)
                     {
                         if (barrier.isAlerted())
                         {
@@ -155,7 +171,18 @@ public interface WaitStrategy
                 }
             }
 
-            return cursor;
+            if (0 != consumers.length)
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                {
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+                }
+            }
+
+            return availableSequence;
         }
 
         @Override
@@ -181,47 +208,82 @@ public interface WaitStrategy
     static final class YieldingStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            long cursor;
+            long availableSequence;
 
-            while ((cursor = ringBuffer.getCursor()) < sequence)
+            if (0 == consumers.length)
             {
-                if (barrier.isAlerted())
+                while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
-                    throw ALERT_EXCEPTION;
-                }
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
 
-                Thread.yield();
+                    Thread.yield();
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                {
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+
+                    Thread.yield();
+                }
             }
 
-            return cursor;
+            return availableSequence;
         }
 
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+                            final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
-            long cursor;
+            long availableSequence;
 
-            while ((cursor = ringBuffer.getCursor()) < sequence)
+            if (0 == consumers.length)
             {
-                if (barrier.isAlerted())
+                while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
-                    throw ALERT_EXCEPTION;
-                }
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
 
-                Thread.yield();
-                if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    Thread.yield();
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
                 {
-                    break;
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+
+                    Thread.yield();
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
                 }
             }
 
-            return cursor;
+            return availableSequence;
         }
 
         @Override
@@ -239,44 +301,76 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            long cursor;
+            long availableSequence;
 
-            while ((cursor = ringBuffer.getCursor()) < sequence)
+            if (0 == consumers.length)
             {
-                if (barrier.isAlerted())
+                while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
-                    throw ALERT_EXCEPTION;
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                {
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
                 }
             }
 
-            return cursor;
+            return availableSequence;
         }
 
         @Override
-        public long waitFor(final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+                            final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
-            long cursor;
+            long availableSequence;
 
-            while ((cursor = ringBuffer.getCursor()) < sequence)
+            if (0 == consumers.length)
             {
-                if (barrier.isAlerted())
+                while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
-                    throw ALERT_EXCEPTION;
-                }
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
 
-                if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
                 {
-                    break;
+                    if (barrier.isAlerted())
+                    {
+                        throw ALERT_EXCEPTION;
+                    }
+
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
                 }
             }
 
-            return cursor;
+            return availableSequence;
         }
 
         @Override
