@@ -92,7 +92,6 @@
         <junit printsummary="on"
                fork="false"
                haltonfailure="true">
-            <jvmarg value="-XX:+AggressiveOpts -XX:+UseParallelGC -Xms2g -Xmx2g"/>
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
             <batchtest fork="false" todir="${dir.reports}/perf">
