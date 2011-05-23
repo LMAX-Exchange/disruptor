@@ -2,7 +2,6 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
