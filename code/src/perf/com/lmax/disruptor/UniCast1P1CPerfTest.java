@@ -39,7 +39,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+    +====+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
  * +----+    +====+    +====+    +====+    +----+
- *                nextEntry      get    ^        |
+ *                claim      get    ^        |
  *                                  |        |
  *                                  +--------+
  *                                    waitFor
