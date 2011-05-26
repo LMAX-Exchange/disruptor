@@ -199,7 +199,7 @@ public final class RingBuffer<T extends Entry>
 
         @Override
         @SuppressWarnings("unchecked")
-        public T claimNext()
+        public T claim()
         {
             long sequence = claimStrategy.getAndIncrement();
             ensureConsumersAreInRange(sequence);

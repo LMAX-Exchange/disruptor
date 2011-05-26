@@ -131,7 +131,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.claimNext();
+            ValueEntry entry = producerBarrier.claim();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }

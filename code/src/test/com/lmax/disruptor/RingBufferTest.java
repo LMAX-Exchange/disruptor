@@ -39,7 +39,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claimNext();
+        StubEntry oldEntry = producerBarrier.claim();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -59,7 +59,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claimNext();
+        StubEntry oldEntry = producerBarrier.claim();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -87,7 +87,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claimNext();
+        StubEntry oldEntry = producerBarrier.claim();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -100,7 +100,7 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = producerBarrier.claimNext();
+            StubEntry entry = producerBarrier.claim();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }
@@ -122,7 +122,7 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset ; i++)
         {
-            StubEntry entry = producerBarrier.claimNext();
+            StubEntry entry = producerBarrier.claim();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }

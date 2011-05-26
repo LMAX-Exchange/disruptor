@@ -12,7 +12,7 @@ public interface ProducerBarrier<T extends Entry>
      *
      * @return the claimed {@link Entry}
      */
-    T claimNext();
+    T claim();
 
     /**
      * Claim a specific sequence in the {@link RingBuffer} when only one producer is involved.

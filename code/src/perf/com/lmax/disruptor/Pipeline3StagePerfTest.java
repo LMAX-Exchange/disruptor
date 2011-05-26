@@ -151,7 +151,7 @@ public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisrupt
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FunctionEntry entry = producerBarrier.claimNext();
+            FunctionEntry entry = producerBarrier.claim();
             entry.setOperandOne(i);
             entry.setOperandTwo(operandTwo--);
             producerBarrier.commit(entry);

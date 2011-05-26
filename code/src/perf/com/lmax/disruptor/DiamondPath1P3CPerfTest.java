@@ -167,7 +167,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FizzBuzzEntry entry = producerBarrier.claimNext();
+            FizzBuzzEntry entry = producerBarrier.claim();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }
