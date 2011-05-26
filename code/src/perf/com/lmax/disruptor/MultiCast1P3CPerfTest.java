@@ -60,7 +60,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+    +====+    +----+    +----+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
  * +----+    +====+    +====+    +====+    +----+    +----+    +----+
- *                claim      get    ^        |         |         |
+ *                nextEntry      get    ^        |         |         |
  *                                  |        |         |         |
  *                                  +--------+---------+---------+
  *                                               waitFor
@@ -207,7 +207,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.claim();
+            ValueEntry entry = producerBarrier.nextEntry();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }

@@ -39,7 +39,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claim();
+        StubEntry oldEntry = producerBarrier.nextEntry();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -59,7 +59,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claim();
+        StubEntry oldEntry = producerBarrier.nextEntry();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -87,7 +87,7 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.claim();
+        StubEntry oldEntry = producerBarrier.nextEntry();
         oldEntry.copy(expectedEntry);
         producerBarrier.commit(oldEntry);
 
@@ -100,7 +100,7 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = producerBarrier.claim();
+            StubEntry entry = producerBarrier.nextEntry();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }
@@ -122,7 +122,7 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset ; i++)
         {
-            StubEntry entry = producerBarrier.claim();
+            StubEntry entry = producerBarrier.nextEntry();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }
@@ -141,9 +141,9 @@ public class RingBufferTest
     public void shouldSetAtSpecificSequence() throws Exception
     {
         long expectedSequence = 5;
-        StubEntry expectedEntry = producerBarrier.claimSequence(expectedSequence);
+        StubEntry expectedEntry = producerBarrier.claimEntry(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
-        producerBarrier.commitSequence(expectedEntry);
+        producerBarrier.forceCommit(expectedEntry);
 
         long sequence = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);

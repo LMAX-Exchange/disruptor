@@ -46,7 +46,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
  * | P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
  * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *                claim   ^  get    |   waitFor          |  waitFor           |  waitFor
+ *                nextEntry   ^  get    |   waitFor          |  waitFor           |  waitFor
  *                        |         |                    |                    |
  *                        +---------+--------------------+--------------------+
  *
@@ -151,7 +151,7 @@ public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisrupt
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FunctionEntry entry = producerBarrier.claim();
+            FunctionEntry entry = producerBarrier.nextEntry();
             entry.setOperandOne(i);
             entry.setOperandTwo(operandTwo--);
             producerBarrier.commit(entry);

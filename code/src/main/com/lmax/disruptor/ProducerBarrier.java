@@ -12,7 +12,13 @@ public interface ProducerBarrier<T extends Entry>
      *
      * @return the claimed {@link Entry}
      */
-    T claim();
+    T nextEntry();
+
+    /**
+     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s
+     * @param entry to be committed back to the {@link RingBuffer}
+     */
+    void commit(T entry);
 
     /**
      * Claim a specific sequence in the {@link RingBuffer} when only one producer is involved.
@@ -20,19 +26,14 @@ public interface ProducerBarrier<T extends Entry>
      * @param sequence to be claimed.
      * @return the claimed {@link Entry}
      */
-    T claimSequence(long sequence);
-
-    /**
-     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s
-     * @param entry to be committed back to the {@link RingBuffer}
-     */
-    void commit(Entry entry);
+    T claimEntry(long sequence);
 
     /**
      * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s.
      * Only use this method when forcing a sequence and you are sure only one producer exists.
+     * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
      *
      * @param entry to be committed back to the {@link RingBuffer}
      */
-    void commitSequence(Entry entry);
+    void forceCommit(T entry);
 }

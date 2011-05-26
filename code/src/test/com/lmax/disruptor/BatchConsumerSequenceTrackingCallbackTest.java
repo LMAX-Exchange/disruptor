@@ -26,12 +26,12 @@ public class BatchConsumerSequenceTrackingCallbackTest
         thread.start();
 
         assertEquals(-1L, batchConsumer.getSequence());
-        producerBarrier.commit(producerBarrier.claim());
-        producerBarrier.commit(producerBarrier.claim());
+        producerBarrier.commit(producerBarrier.nextEntry());
+        producerBarrier.commit(producerBarrier.nextEntry());
         onAvailableLatch.await();
         assertEquals(-1L, batchConsumer.getSequence());
 
-        producerBarrier.commit(producerBarrier.claim());
+        producerBarrier.commit(producerBarrier.nextEntry());
         readyToCallbackLatch.await();
         assertEquals(2L, batchConsumer.getSequence());
 

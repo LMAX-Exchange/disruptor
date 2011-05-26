@@ -24,7 +24,7 @@ public interface ClaimStrategy
     void setSequence(long sequence);
 
     /**
-     * Wait for the current claim to reach a given sequence.
+     * Wait for the current nextEntry to reach a given sequence.
      *
      * @param sequence to wait for.
      * @param ringBuffer on which to wait forCursor

@@ -26,7 +26,7 @@ public final class ValueProducer implements Runnable
 
             for (long i = 0; i < iterations; i++)
             {
-                ValueEntry entry = producerBarrier.claim();
+                ValueEntry entry = producerBarrier.nextEntry();
                 entry.setValue(i);
                 producerBarrier.commit(entry);
             }

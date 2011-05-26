@@ -183,7 +183,7 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
+     * ProducerBarrier that tracks multiple {@link Consumer}s when trying to nextEntry
      * a {@link Entry} in the {@link RingBuffer}.
      */
     public final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
@@ -199,7 +199,7 @@ public final class RingBuffer<T extends Entry>
 
         @Override
         @SuppressWarnings("unchecked")
-        public T claim()
+        public T nextEntry()
         {
             long sequence = claimStrategy.getAndIncrement();
             ensureConsumersAreInRange(sequence);
@@ -211,8 +211,17 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
+        public void commit(final T entry)
+        {
+            long sequence = entry.getSequence();
+            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
+            cursor = sequence;
+            waitStrategy.signalAll();
+        }
+
+        @Override
         @SuppressWarnings("unchecked")
-        public T claimSequence(final long sequence)
+        public T claimEntry(final long sequence)
         {
             ensureConsumersAreInRange(sequence);
 
@@ -223,16 +232,7 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public void commit(final Entry entry)
-        {
-            long sequence = entry.getSequence();
-            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
-            cursor = sequence;
-            waitStrategy.signalAll();
-        }
-
-        @Override
-        public void commitSequence(final Entry entry)
+        public void forceCommit(final T entry)
         {
             long sequence = entry.getSequence();
             claimStrategy.setSequence(sequence + 1L);

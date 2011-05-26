@@ -56,7 +56,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+            +=====+    +----+
  * | P0 |--->| PB |--->| RB |<-----------| CB1 |<---| C2 |
  * +----+    +====+    +====+            +=====+    +----+
- *                claim   ^  get            |   waitFor
+ *                nextEntry   ^  get            |   waitFor
  *                        |                 |
  *                     +=====+    +----+    |
  *                     | CB0 |<---| C0 |<---+
@@ -167,7 +167,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FizzBuzzEntry entry = producerBarrier.claim();
+            FizzBuzzEntry entry = producerBarrier.nextEntry();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }

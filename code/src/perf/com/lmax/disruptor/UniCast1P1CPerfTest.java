@@ -39,7 +39,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+    +====+    +----+
  * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
  * +----+    +====+    +====+    +====+    +----+
- *                claim      get    ^        |
+ *                nextEntry      get    ^        |
  *                                  |        |
  *                                  +--------+
  *                                    waitFor
@@ -131,7 +131,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.claim();
+            ValueEntry entry = producerBarrier.nextEntry();
             entry.setValue(i);
             producerBarrier.commit(entry);
         }

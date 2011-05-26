@@ -85,7 +85,7 @@ public final class ConsumerBarrierTest
         {
             public void run()
             {
-                StubEntry entry = producerBarrier.claim();
+                StubEntry entry = producerBarrier.nextEntry();
                 entry.setValue((int) entry.getSequence());
                 producerBarrier.commit(entry);
 
@@ -201,7 +201,7 @@ public final class ConsumerBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            StubEntry entry = producerBarrier.claim();
+            StubEntry entry = producerBarrier.nextEntry();
             entry.setValue((int)i);
             producerBarrier.commit(entry);
         }
