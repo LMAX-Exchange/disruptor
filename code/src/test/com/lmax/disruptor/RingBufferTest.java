@@ -27,9 +27,28 @@ public class RingBufferTest
     @Before
     public void setUp()
     {
+        Consumer producerGatingConsumer = new Consumer()
+        {
+            @Override
+            public long getSequence()
+            {
+                return Long.MAX_VALUE;
+            }
+
+            @Override
+            public void halt()
+            {
+            }
+
+            @Override
+            public void run()
+            {
+            }
+        };
+
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
         consumerBarrier = ringBuffer.createConsumerBarrier();
-        producerBarrier = ringBuffer.createProducerBarrier(0);
+        producerBarrier = ringBuffer.createProducerBarrier(0, producerGatingConsumer);
     }
 
     @Test

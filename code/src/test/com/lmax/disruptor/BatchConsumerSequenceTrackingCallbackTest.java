@@ -18,9 +18,9 @@ public class BatchConsumerSequenceTrackingCallbackTest
     {
         final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
         final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0);
         final SequenceTrackingHandler<StubEntry> handler = new TestSequenceTrackingHandler();
         final BatchConsumer<StubEntry> batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, handler);
+        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
 
         Thread thread = new Thread(batchConsumer);
         thread.start();

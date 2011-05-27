@@ -33,12 +33,33 @@ public final class ConsumerBarrierTest
     {
         context = new Mockery();
 
+        Consumer producerGatingConsumer = new Consumer()
+        {
+            @Override
+            public long getSequence()
+            {
+                return Long.MAX_VALUE;
+            }
+
+            @Override
+            public void halt()
+            {
+            }
+
+            @Override
+            public void run()
+            {
+            }
+        };
+
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 64);
+
         consumer1 = context.mock(Consumer.class, "consumer1");
         consumer2 = context.mock(Consumer.class, "consumer2");
         consumer3 = context.mock(Consumer.class, "consumer3");
+
         consumerBarrier = ringBuffer.createConsumerBarrier(consumer1, consumer2, consumer3);
-        producerBarrier = ringBuffer.createProducerBarrier(0);
+        producerBarrier = ringBuffer.createProducerBarrier(0, producerGatingConsumer);
     }
 
     @Test
@@ -52,13 +73,13 @@ public final class ConsumerBarrierTest
         {
             {
                 one(consumer1).getSequence();
-                will(returnValue(expectedNumberMessages));
+                will(returnValue(Long.valueOf(expectedNumberMessages)));
 
                 one(consumer2).getSequence();
-                will(returnValue(expectedWorkSequence));
+                will(returnValue(Long.valueOf(expectedWorkSequence)));
 
                 one(consumer3).getSequence();
-                will(returnValue(expectedWorkSequence));
+                will(returnValue(Long.valueOf(expectedWorkSequence)));
             }
         });
 
@@ -99,7 +120,7 @@ public final class ConsumerBarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages;
-        long completedWorkSequence = consumerBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = consumerBarrier.waitFor(expectedNumberMessages);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -114,13 +135,13 @@ public final class ConsumerBarrierTest
         {
             {
                 allowing(consumer1).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(8L)));
+                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
 
                 allowing(consumer2).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(8L)));
+                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
 
                 allowing(consumer3).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(8L)));
+                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
             }
         });
 
@@ -207,7 +228,7 @@ public final class ConsumerBarrierTest
         }
     }
 
-    private static class StubConsumer implements Consumer
+    private static final class StubConsumer implements Consumer
     {
         private volatile long sequence;
 

@@ -193,6 +193,11 @@ public final class RingBuffer<T extends Entry>
 
         public ConsumerTrackingProducerBarrier(final int bufferReserve, final Consumer... consumers)
         {
+            if (0 == consumers.length)
+            {
+                throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
+            }
+
             this.consumers = consumers;
             this.threshold = entries.length - bufferReserve;
         }
