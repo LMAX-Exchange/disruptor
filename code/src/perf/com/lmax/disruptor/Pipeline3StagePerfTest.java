@@ -46,7 +46,7 @@ import java.util.concurrent.*;
  * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
  * | P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
  * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *                claim   ^  get    |   waitFor          |  waitFor           |  waitFor
+ *                claim   ^  get    |  waitFor           |  waitFor           |  waitFor
  *                        |         |                    |                    |
  *                        +---------+--------------------+--------------------+
  *
@@ -66,8 +66,8 @@ import java.util.concurrent.*;
 public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_CONSUMERS = 3;
-    private static final int SIZE = 8192;
-    private static final long ITERATIONS = 1000 * 1000 * 50;
+    private static final int SIZE = 1024 * 32;
+    private static final long ITERATIONS = 1000 * 1000 * 500;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;

@@ -76,8 +76,8 @@ import java.util.concurrent.*;
 public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PRODUCERS = 3;
-    private static final int SIZE = 8192;
-    private static final long ITERATIONS = 1000L * 1000L * 50L;
+    private static final int SIZE = 1024 * 32;
+    private static final long ITERATIONS = 1000L * 1000L * 500L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PRODUCERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PRODUCERS + 1);
 
@@ -102,7 +102,7 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(NUM_PRODUCERS, batchConsumer);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
     private final ValueProducer[] valueProducers = new ValueProducer[NUM_PRODUCERS];
     {
         valueProducers[0] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);

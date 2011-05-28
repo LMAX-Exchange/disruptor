@@ -54,8 +54,8 @@ import java.util.concurrent.*;
  */
 public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int SIZE = 8192;
-    private static final long ITERATIONS = 1000L * 1000L * 50L;
+    private static final int SIZE = 1024 * 32;
+    private static final long ITERATIONS = 1000L * 1000L * 500L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final long expectedResult;
