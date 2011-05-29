@@ -129,7 +129,7 @@ public final class RingBuffer<T extends Entry>
     /**
      * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
-    public final class ConsumerTrackingConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
+    final class ConsumerTrackingConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
     {
         public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
         private final Consumer[] consumers;
@@ -186,7 +186,7 @@ public final class RingBuffer<T extends Entry>
      * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
      * a {@link Entry} in the {@link RingBuffer}.
      */
-    public final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
+    final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
         private final Consumer[] consumers;
         private final long threshold;
