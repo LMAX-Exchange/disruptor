@@ -29,7 +29,7 @@ public class RingBufferTest
     {
         ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
         consumerBarrier = ringBuffer.createConsumerBarrier();
-        producerBarrier = ringBuffer.createProducerBarrier(0, new NoOpConsumer(ringBuffer));
+        producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
     }
 
     @Test
@@ -141,9 +141,11 @@ public class RingBufferTest
     public void shouldSetAtSpecificSequence() throws Exception
     {
         long expectedSequence = 5;
-        StubEntry expectedEntry = producerBarrier.claimEntry(expectedSequence);
+        ForceFillProducerBarrier<StubEntry> forceFillProducerBarrier = ringBuffer.createForceFillProducerBarrier(new NoOpConsumer(ringBuffer));
+
+        StubEntry expectedEntry = forceFillProducerBarrier.claimEntry(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
-        producerBarrier.forceCommit(expectedEntry);
+        forceFillProducerBarrier.commit(expectedEntry);
 
         long sequence = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);

@@ -125,7 +125,7 @@ public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisrupt
     private final BatchConsumer<FunctionEntry> stepThreeBatchConsumer =
         new BatchConsumer<FunctionEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
 
-    private final ProducerBarrier<FunctionEntry> producerBarrier = ringBuffer.createProducerBarrier(0, stepThreeBatchConsumer);
+    private final ProducerBarrier<FunctionEntry> producerBarrier = ringBuffer.createProducerBarrier(stepThreeBatchConsumer);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

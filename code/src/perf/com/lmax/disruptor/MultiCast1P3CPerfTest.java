@@ -132,7 +132,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         batchConsumers[2] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[2]);
     }
 
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumers);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumers);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

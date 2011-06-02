@@ -75,15 +75,24 @@ public final class RingBuffer<T extends Entry>
     /**
      * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
      *
-     * The bufferReserve can be used situations were {@link Consumer}s may not be available for a while.
-     *
-     * @param bufferReserve size of of the buffer to be reserved.
      * @param consumersToTrack to be tracked to prevent wrapping.
      * @return a {@link ProducerBarrier} with the above configuration.
      */
-    public ProducerBarrier<T> createProducerBarrier(final int bufferReserve, final Consumer... consumersToTrack)
+    public ProducerBarrier<T> createProducerBarrier(final Consumer... consumersToTrack)
     {
-        return new ConsumerTrackingProducerBarrier(bufferReserve, consumersToTrack);
+        return new ConsumerTrackingProducerBarrier(consumersToTrack);
+    }
+
+    /**
+     * Create a {@link ForceFillProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
+     * This barrier is to be used for filling a RingBuffer when no other producers exist.
+     *
+     * @param consumersToTrack to be tracked to prevent wrapping.
+     * @return a {@link ForceFillProducerBarrier} with the above configuration.
+     */
+    public ForceFillProducerBarrier<T> createForceFillProducerBarrier(final Consumer... consumersToTrack)
+    {
+        return new ForceFillConsumerTrackingProducerBarrier(consumersToTrack);
     }
 
     /**
@@ -163,6 +172,12 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
+        public long getCursor()
+        {
+            return cursor;
+        }
+
+        @Override
         public boolean isAlerted()
         {
             return alerted;
@@ -189,9 +204,8 @@ public final class RingBuffer<T extends Entry>
     final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
         private final Consumer[] consumers;
-        private final long threshold;
 
-        public ConsumerTrackingProducerBarrier(final int bufferReserve, final Consumer... consumers)
+        public ConsumerTrackingProducerBarrier(final Consumer... consumers)
         {
             if (0 == consumers.length)
             {
@@ -199,7 +213,6 @@ public final class RingBuffer<T extends Entry>
             }
 
             this.consumers = consumers;
-            this.threshold = entries.length - bufferReserve;
         }
 
         @Override
@@ -225,6 +238,39 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
+        public long getCursor()
+        {
+            return cursor;
+        }
+
+        private void ensureConsumersAreInRange(final long sequence)
+        {
+            while ((sequence - getMinimumSequence(consumers)) >= entries.length)
+            {
+                Thread.yield();
+            }
+        }
+    }
+
+    /**
+     * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
+     * a {@link Entry} in the {@link RingBuffer}.
+     */
+    final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
+    {
+        private final Consumer[] consumers;
+
+        public ForceFillConsumerTrackingProducerBarrier(final Consumer... consumers)
+        {
+            if (0 == consumers.length)
+            {
+                throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
+            }
+
+            this.consumers = consumers;
+        }
+
+        @Override
         @SuppressWarnings("unchecked")
         public T claimEntry(final long sequence)
         {
@@ -237,7 +283,7 @@ public final class RingBuffer<T extends Entry>
         }
 
         @Override
-        public void forceCommit(final T entry)
+        public void commit(final T entry)
         {
             long sequence = entry.getSequence();
             claimStrategy.setSequence(sequence + 1L);
@@ -245,9 +291,15 @@ public final class RingBuffer<T extends Entry>
             waitStrategy.signalAll();
         }
 
+        @Override
+        public long getCursor()
+        {
+            return cursor;
+        }
+
         private void ensureConsumersAreInRange(final long sequence)
         {
-            while ((sequence - getMinimumSequence(consumers)) >= threshold)
+            while ((sequence - getMinimumSequence(consumers)) >= entries.length)
             {
                 Thread.yield();
             }

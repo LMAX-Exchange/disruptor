@@ -40,7 +40,7 @@ public final class ConsumerBarrierTest
         consumer3 = context.mock(Consumer.class, "consumer3");
 
         consumerBarrier = ringBuffer.createConsumerBarrier(consumer1, consumer2, consumer3);
-        producerBarrier = ringBuffer.createProducerBarrier(0, new NoOpConsumer(ringBuffer));
+        producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
     }
 
     @Test

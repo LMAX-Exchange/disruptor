@@ -41,6 +41,12 @@ public interface ConsumerBarrier<T extends Entry>
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
+     * Delegate a call to the {@link RingBuffer#getCursor()}
+     * @return value of the cursor for entries that have been published.
+     */
+    long getCursor();
+
+    /**
      * The current alert status for the barrier.
      *
      * @return true if in alert otherwise false.

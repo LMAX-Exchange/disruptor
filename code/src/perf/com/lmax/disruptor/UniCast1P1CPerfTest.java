@@ -83,7 +83,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
+    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

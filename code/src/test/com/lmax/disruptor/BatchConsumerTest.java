@@ -27,7 +27,7 @@ public final class BatchConsumerTest
     private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     @SuppressWarnings("unchecked") private final BatchHandler<StubEntry> batchHandler = context.mock(BatchHandler.class);
     private final BatchConsumer batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, batchHandler);
-    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumer);
+    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()

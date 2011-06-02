@@ -142,7 +142,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
     private final BatchConsumer<FizzBuzzEntry> batchConsumerFizzBuzz =
             new BatchConsumer<FizzBuzzEntry>(consumerBarrierFizzBuzz, fizzBuzzHandler);
 
-    private final ProducerBarrier<FizzBuzzEntry> producerBarrier = ringBuffer.createProducerBarrier(0, batchConsumerFizzBuzz);
+    private final ProducerBarrier<FizzBuzzEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumerFizzBuzz);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
