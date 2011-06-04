@@ -51,18 +51,6 @@ public final class HistogramTest
     }
 
     @Test
-    public void shouldToString()
-    {
-        histogram.addObservation(1L);
-        histogram.addObservation(7L);
-        histogram.addObservation(10L);
-        histogram.addObservation(3000);
-
-        String expectedResults = "Histogram{1 = 1, 10 = 2, 100 = 0, 1000 = 0, 9223372036854775807 = 1}";
-        assertThat(histogram.toString(), is(expectedResults));
-    }
-
-    @Test
     public void shouldClearCounts()
     {
         histogram.addObservation(1L);
@@ -76,5 +64,28 @@ public final class HistogramTest
         {
             assertThat(Long.valueOf(histogram.getObservationCount(i)), is(Long.valueOf(0)));
         }
+    }
+
+    @Test
+    public void shouldCountTotalObservations()
+    {
+        histogram.addObservation(1L);
+        histogram.addObservation(7L);
+        histogram.addObservation(10L);
+        histogram.addObservation(3000);
+
+        assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(4L)));
+    }
+
+    @Test
+    public void shouldToString()
+    {
+        histogram.addObservation(1L);
+        histogram.addObservation(7L);
+        histogram.addObservation(10L);
+        histogram.addObservation(3000);
+
+        String expectedResults = "Histogram{1 = 1, 10 = 2, 100 = 0, 1000 = 0, 9223372036854775807 = 1}";
+        assertThat(histogram.toString(), is(expectedResults));
     }
 }

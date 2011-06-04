@@ -97,6 +97,23 @@ public final class Histogram
         }
     }
 
+    /**
+     * Count total number of recorded observations.
+     *
+     * @return the total number of recorded observations.
+     */
+    public long countTotalRecordedObservations()
+    {
+        long count = 0L;
+
+        for (int i = 0, size = counts.length; i < size; i++)
+        {
+            count += counts[i];
+        }
+
+        return count;
+    }
+
     @Override
     public String toString()
     {
