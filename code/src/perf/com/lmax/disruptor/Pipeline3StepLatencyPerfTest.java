@@ -70,11 +70,12 @@ public final class Pipeline3StepLatencyPerfTest
     private static final int NUM_CONSUMERS = 3;
     private static final int SIZE = 1024 * 32;
     private static final long ITERATIONS = 1000 * 1000 * 50;
+    private static final long PAUSE_NANOS = 1000;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
 
     private final Histogram histogram;
     {
-        long[] intervals = new long[61];
+        long[] intervals = new long[31];
         long intervalUpperBound = 1L;
         for (int i = 0, size = intervals.length - 1; i < size; i++)
         {
@@ -178,6 +179,12 @@ public final class Pipeline3StepLatencyPerfTest
             ValueEntry entry = producerBarrier.nextEntry();
             entry.setValue(System.nanoTime());
             producerBarrier.commit(entry);
+
+            long pauseStart = System.nanoTime();
+            while (PAUSE_NANOS > System.nanoTime() -  pauseStart)
+            {
+                // busy spin
+            }
         }
 
         final long expectedSequence = ringBuffer.getCursor();
@@ -203,6 +210,12 @@ public final class Pipeline3StepLatencyPerfTest
         for (long i = 0; i < ITERATIONS; i++)
         {
             stepOneQueue.put(Long.valueOf(System.nanoTime()));
+
+            long pauseStart = System.nanoTime();
+            while (PAUSE_NANOS > System.nanoTime() -  pauseStart)
+            {
+                // busy spin
+            }
         }
 
         final long expectedSequence = ITERATIONS - 1;

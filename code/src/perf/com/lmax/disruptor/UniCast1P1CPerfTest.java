@@ -79,7 +79,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     private final RingBuffer<ValueEntry> ringBuffer =
         new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.BUSY_SPIN);
+                                   WaitStrategy.Option.YIELDING);
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
