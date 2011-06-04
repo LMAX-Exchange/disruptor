@@ -63,7 +63,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_CONSUMERS = 3;
     private static final int SIZE = 1024 * 32;
@@ -78,10 +78,10 @@ public final class Pipeline3StagePerfTest extends AbstractPerfTestQueueVsDisrupt
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long stageOneResult = i + operandTwo--;
-            long stageTwoResult = stageOneResult + 3;
+            long stepOneResult = i + operandTwo--;
+            long stepTwoResult = stepOneResult + 3;
 
-            if ((stageTwoResult & 4L) == 4L)
+            if ((stepTwoResult & 4L) == 4L)
             {
                 ++temp;
             }
