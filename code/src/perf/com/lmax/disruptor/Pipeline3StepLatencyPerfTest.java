@@ -181,7 +181,7 @@ public final class Pipeline3StepLatencyPerfTest
             producerBarrier.commit(entry);
 
             long pauseStart = System.nanoTime();
-            while (PAUSE_NANOS > System.nanoTime() -  pauseStart)
+            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
             {
                 // busy spin
             }
@@ -212,7 +212,7 @@ public final class Pipeline3StepLatencyPerfTest
             stepOneQueue.put(Long.valueOf(System.nanoTime()));
 
             long pauseStart = System.nanoTime();
-            while (PAUSE_NANOS > System.nanoTime() -  pauseStart)
+            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
             {
                 // busy spin
             }
