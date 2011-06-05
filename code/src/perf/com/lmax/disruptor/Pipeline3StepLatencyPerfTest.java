@@ -4,6 +4,7 @@ import com.lmax.disruptor.collections.Histogram;
 import com.lmax.disruptor.support.*;
 import org.junit.Test;
 
+import java.io.PrintStream;
 import java.util.concurrent.*;
 
 import static org.hamcrest.core.Is.is;
@@ -159,12 +160,25 @@ public final class Pipeline3StepLatencyPerfTest
             histogram.clear();
             runDisruptorPass();
             assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
-            System.out.format("%s run %d Disruptor %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
+            System.out.format("%s run %d Disruptor\n", getClass().getSimpleName(), Long.valueOf(i));
+            dumpHistogram(System.out);
 
             histogram.clear();
             runQueuePass();
             assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
-            System.out.format("%s run %d Queues %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
+            System.out.format("%s run %d Queues\n", getClass().getSimpleName(), Long.valueOf(i));
+            dumpHistogram(System.out);
+        }
+    }
+
+    private void dumpHistogram(final PrintStream out)
+    {
+        for (int i = 0, size = histogram.getSize(); i < size; i++)
+        {
+            out.print(histogram.getIntervalUpperBound(i));
+            out.print('\t');
+            out.print(histogram.getObservationCount(i));
+            out.println();
         }
     }
 
