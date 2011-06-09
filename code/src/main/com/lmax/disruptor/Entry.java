@@ -6,7 +6,7 @@ package com.lmax.disruptor;
 public interface Entry
 {
     /**
-     * Get the sequence numbers assigned to this item in the series.
+     * Get the sequence number assigned to this item in the series.
      *
      * @return the sequence number
      */
