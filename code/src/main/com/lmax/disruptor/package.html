@@ -113,5 +113,45 @@
                                                   waitFor   +----+
         </pre>
     </p>
+    <h2>Code Example</h2>
+    <pre>
+    // Callback handler which can be implemented by consumers
+    final BatchHandler&lt;ValueEntry&gt; batchHandler = new BatchHandler&lt;ValueEntry&gt;()
+    {
+        public void onAvailable(final ValueEntry entry) throws Exception
+        {
+            // process a new entry as it becomes available.
+        }
+
+        public void onEndOfBatch() throws Exception
+        {
+            // useful for flushing results to an IO device if necessary.
+        }
+
+        public void onCompletion()
+        {
+            // do any clean up before shutdown.
+        }
+    };
+
+    RingBuffer&lt;ValueEntry&gt; ringBuffer =
+        new RingBuffer&lt;ValueEntry&gt;(ValueEntry.ENTRY_FACTORY, SIZE,
+                                   ClaimStrategy.Option.SINGLE_THREADED,
+                                   WaitStrategy.Option.YIELDING);
+    ConsumerBarrier&lt;ValueEntry&gt; consumerBarrier = ringBuffer.createConsumerBarrier();
+    BatchConsumer&lt;ValueEntry&gt; batchConsumer = new BatchConsumer&lt;ValueEntry&gt;(consumerBarrier, batchHandler);
+    ProducerBarrier&lt;ValueEntry&gt; producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+
+    // Each consumer runs on a separate thread
+    EXECUTOR.submit(batchConsumer);
+
+    // Producers claim entries in sequence
+    ValueEntry entry = producerBarrier.nextEntry();
+
+    // copy data into the entry
+
+    // make the entry available to consumers
+    producerBarrier.commit(entry);
+    </pre>
 </body>
 </html>
