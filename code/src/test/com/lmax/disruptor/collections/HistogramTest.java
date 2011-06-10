@@ -2,6 +2,8 @@ package com.lmax.disruptor.collections;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -53,11 +55,7 @@ public final class HistogramTest
     @Test
     public void shouldClearCounts()
     {
-        histogram.addObservation(1L);
-        histogram.addObservation(7L);
-        histogram.addObservation(10L);
-        histogram.addObservation(3000);
-
+        addObservations(histogram, 1L, 7L, 10L, 3000L);
         histogram.clear();
 
         for (int i = 0, size = histogram.getSize(); i < size; i++)
@@ -69,23 +67,36 @@ public final class HistogramTest
     @Test
     public void shouldCountTotalObservations()
     {
-        histogram.addObservation(1L);
-        histogram.addObservation(7L);
-        histogram.addObservation(10L);
-        histogram.addObservation(3000);
+        addObservations(histogram, 1L, 7L, 10L, 3000L);
 
         assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(4L)));
     }
 
     @Test
+    public void shouldGetMeanObservation()
+    {
+        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(INTERVALS);
+
+        addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
+
+        assertThat(histogram.getMeanObservation(), is(new BigDecimal("94.17")));
+    }
+
+    @Test
     public void shouldToString()
     {
-        histogram.addObservation(1L);
-        histogram.addObservation(7L);
-        histogram.addObservation(10L);
-        histogram.addObservation(3000);
+        addObservations(histogram, 1L, 7L, 10L, 3000L);
 
         String expectedResults = "Histogram{1 = 1, 10 = 2, 100 = 0, 1000 = 0, 9223372036854775807 = 1}";
         assertThat(histogram.toString(), is(expectedResults));
+    }
+
+    private void addObservations(final Histogram histogram, final long... observations)
+    {
+        for (int i = 0, size = observations.length; i < size; i++)
+        {
+            histogram.addObservation(observations[i]);
+        }
     }
 }

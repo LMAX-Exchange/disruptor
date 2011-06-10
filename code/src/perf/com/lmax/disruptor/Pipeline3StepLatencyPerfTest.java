@@ -5,10 +5,12 @@ import com.lmax.disruptor.support.*;
 import org.junit.Test;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.concurrent.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <pre>
@@ -160,14 +162,18 @@ public final class Pipeline3StepLatencyPerfTest
             histogram.clear();
             runDisruptorPass();
             assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
-            System.out.format("%s run %d Disruptor\n", getClass().getSimpleName(), Long.valueOf(i));
+            final BigDecimal disruptorMeanLatency = histogram.getMeanObservation();
+            System.out.format("%s run %d Disruptor mean latency = %s\n", getClass().getSimpleName(), Long.valueOf(i), disruptorMeanLatency);
             dumpHistogram(System.out);
 
             histogram.clear();
             runQueuePass();
             assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
-            System.out.format("%s run %d Queues\n", getClass().getSimpleName(), Long.valueOf(i));
+            final BigDecimal queueMeanLatency = histogram.getMeanObservation();
+            System.out.format("%s run %d Queues mean latency = %s\n", getClass().getSimpleName(), Long.valueOf(i), queueMeanLatency);
             dumpHistogram(System.out);
+
+            assertTrue(queueMeanLatency.compareTo(disruptorMeanLatency) > 0);
         }
     }
 

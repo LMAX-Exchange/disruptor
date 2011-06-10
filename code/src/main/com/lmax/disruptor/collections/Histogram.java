@@ -1,5 +1,7 @@
 package com.lmax.disruptor.collections;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
@@ -19,6 +21,26 @@ public final class Histogram
     {
         this.intervalUpperBounds = Arrays.copyOf(intervalUpperBounds, intervalUpperBounds.length);
         this.counts = new long[intervalUpperBounds.length];
+        validateBounds();
+    }
+
+    private void validateBounds()
+    {
+        long lastBound = -1;
+        for (final long bound : intervalUpperBounds)
+        {
+            if (bound <= 0)
+            {
+                throw new IllegalArgumentException("Bounds must be positive values");
+            }
+
+            if (bound <= lastBound)
+            {
+                throw new IllegalArgumentException("bound " + bound + " is not greater than " + lastBound);
+            }
+
+            lastBound = bound;
+        }
     }
 
     /**
@@ -112,6 +134,29 @@ public final class Histogram
         }
 
         return count;
+    }
+
+    /**
+     * Calculate the mean of all recorded observations.
+     *
+     * @return the mean of all recorded observations.
+     */
+    public BigDecimal getMeanObservation()
+    {
+        long lowerBound = 0L;
+        BigDecimal total = BigDecimal.ZERO;
+
+
+        for (int i = 0, size = intervalUpperBounds.length; i < size; i++)
+        {
+            long upperBound = intervalUpperBounds[i];
+            long midPoint = lowerBound + ((upperBound - lowerBound) / 2);
+
+            BigDecimal intervalTotal = new BigDecimal(midPoint).multiply(new BigDecimal(counts[i]));
+            total = total.add(intervalTotal);
+        }
+
+        return total.divide(new BigDecimal(countTotalRecordedObservations()), 2, RoundingMode.HALF_UP);
     }
 
     @Override
