@@ -12,7 +12,7 @@ public class AlertException extends Exception
     public static final AlertException ALERT_EXCEPTION = new AlertException();
 
     /**
-     * Prevent constructor so only a single instance exists.
+     * Private constructor so only a single instance exists.
      */
     private AlertException()
     {

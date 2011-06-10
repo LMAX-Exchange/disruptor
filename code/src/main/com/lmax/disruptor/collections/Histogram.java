@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * Class for tracking observations of values below interval upper bounds.
+ * Histogram for tracking the frequency of observations of values below interval upper bounds.
  */
 public final class Histogram
 {
@@ -109,6 +109,32 @@ public final class Histogram
     }
 
     /**
+     * Add observations from another Histogram into this one.
+     * Histograms must have the same intervals.
+     *
+     * @param fromHistogram from which to add the observation counts.
+     */
+    public void addObservations(final Histogram fromHistogram)
+    {
+        if (intervalUpperBounds.length != fromHistogram.intervalUpperBounds.length)
+        {
+            throw new IllegalArgumentException("Histograms must have matching intervals");
+        }
+
+        for (int i = 0, size = intervalUpperBounds.length; i < size; i++)
+        {
+            if (intervalUpperBounds[i] != fromHistogram.intervalUpperBounds[i])
+            {
+                throw new IllegalArgumentException("Histograms must have matching intervals");
+            }
+        }
+
+        for (int i = 0, size = counts.length; i < size; i++)
+        {
+            counts[i] += fromHistogram.counts[i];
+        }
+    }
+    /**
      * Clear the list of interval counters.
      */
     public void clear()
@@ -124,7 +150,7 @@ public final class Histogram
      *
      * @return the total number of recorded observations.
      */
-    public long countTotalRecordedObservations()
+    public long getTotalObservationCount()
     {
         long count = 0L;
 
@@ -156,7 +182,7 @@ public final class Histogram
             total = total.add(intervalTotal);
         }
 
-        return total.divide(new BigDecimal(countTotalRecordedObservations()), 2, RoundingMode.HALF_UP);
+        return total.divide(new BigDecimal(getTotalObservationCount()), 2, RoundingMode.HALF_UP);
     }
 
     @Override

@@ -38,6 +38,18 @@ public final class HistogramTest
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenIntervalLessThanOrEqualToZero()
+    {
+        new Histogram(new long[]{-1, 10, 20});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenIntervalDoNotIncrease()
+    {
+        new Histogram(new long[]{1, 10, 10, 20});
+    }
+
     @Test
     public void shouldAddObservation()
     {
@@ -50,6 +62,26 @@ public final class HistogramTest
     {
         Histogram histogram = new Histogram(new long[]{ 10, 20, 30 });
         assertFalse(histogram.addObservation(31));
+    }
+
+    @Test
+    public void shouldAddObservations()
+    {
+        addObservations(histogram, 10L, 30L, 50L);
+
+        Histogram histogram2 = new Histogram(INTERVALS);
+        addObservations(histogram2, 10L, 20L, 25L);
+
+        histogram.addObservations(histogram2);
+
+        assertThat(Long.valueOf(6L), is(Long.valueOf(histogram.getTotalObservationCount())));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenIntervalsDoNotMatch()
+    {
+        Histogram histogram2 = new Histogram(new long[]{ 1L, 2L, 3L});
+        histogram.addObservations(histogram2);
     }
 
     @Test
@@ -69,7 +101,7 @@ public final class HistogramTest
     {
         addObservations(histogram, 1L, 7L, 10L, 3000L);
 
-        assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(4L)));
+        assertThat(Long.valueOf(histogram.getTotalObservationCount()), is(Long.valueOf(4L)));
     }
 
     @Test

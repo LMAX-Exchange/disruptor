@@ -161,14 +161,14 @@ public final class Pipeline3StepLatencyPerfTest
 
             histogram.clear();
             runDisruptorPass();
-            assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
+            assertThat(Long.valueOf(histogram.getTotalObservationCount()), is(Long.valueOf(ITERATIONS)));
             final BigDecimal disruptorMeanLatency = histogram.getMeanObservation();
             System.out.format("%s run %d Disruptor mean latency = %s\n", getClass().getSimpleName(), Long.valueOf(i), disruptorMeanLatency);
             dumpHistogram(System.out);
 
             histogram.clear();
             runQueuePass();
-            assertThat(Long.valueOf(histogram.countTotalRecordedObservations()), is(Long.valueOf(ITERATIONS)));
+            assertThat(Long.valueOf(histogram.getTotalObservationCount()), is(Long.valueOf(ITERATIONS)));
             final BigDecimal queueMeanLatency = histogram.getMeanObservation();
             System.out.format("%s run %d Queues mean latency = %s\n", getClass().getSimpleName(), Long.valueOf(i), queueMeanLatency);
             dumpHistogram(System.out);
