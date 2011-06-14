@@ -198,7 +198,7 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
+     * {@link ProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
      * a {@link Entry} in the {@link RingBuffer}.
      */
     final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
@@ -253,7 +253,7 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * ProducerBarrier that tracks multiple {@link Consumer}s when trying to claim
+     * {@link ForceFillProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
      * a {@link Entry} in the {@link RingBuffer}.
      */
     final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
