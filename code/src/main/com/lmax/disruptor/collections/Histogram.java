@@ -59,7 +59,7 @@ public final class Histogram
      * @param index of the upper bound.
      * @return the interval upper bound for the index.
      */
-    public long getIntervalUpperBound(final int index)
+    public long getIntervalUpperBoundAt(final int index)
     {
         return intervalUpperBounds[index];
     }
@@ -70,7 +70,7 @@ public final class Histogram
      * @param index of the observations counter.
      * @return the count of observations at a given index.
      */
-    public long getObservationCount(final int index)
+    public long getObservationCountAt(final int index)
     {
         return counts[index];
     }
@@ -150,7 +150,7 @@ public final class Histogram
      *
      * @return the total number of recorded observations.
      */
-    public long getTotalObservationCount()
+    public long getObservationCount()
     {
         long count = 0L;
 
@@ -167,11 +167,10 @@ public final class Histogram
      *
      * @return the mean of all recorded observations.
      */
-    public BigDecimal getMeanObservation()
+    public BigDecimal getObservationMean()
     {
         long lowerBound = 0L;
         BigDecimal total = BigDecimal.ZERO;
-
 
         for (int i = 0, size = intervalUpperBounds.length; i < size; i++)
         {
@@ -182,7 +181,7 @@ public final class Histogram
             total = total.add(intervalTotal);
         }
 
-        return total.divide(new BigDecimal(getTotalObservationCount()), 2, RoundingMode.HALF_UP);
+        return total.divide(new BigDecimal(getObservationCount()), 2, RoundingMode.HALF_UP);
     }
 
     @Override

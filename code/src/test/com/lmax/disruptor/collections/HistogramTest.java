@@ -25,7 +25,7 @@ public final class HistogramTest
     {
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getIntervalUpperBound(i)), is(Long.valueOf(INTERVALS[i])));
+            assertThat(Long.valueOf(histogram.getIntervalUpperBoundAt(i)), is(Long.valueOf(INTERVALS[i])));
         }
     }
 
@@ -34,7 +34,7 @@ public final class HistogramTest
     {
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getObservationCount(i)), is(Long.valueOf(0L)));
+            assertThat(Long.valueOf(histogram.getObservationCountAt(i)), is(Long.valueOf(0L)));
         }
     }
 
@@ -54,7 +54,7 @@ public final class HistogramTest
     public void shouldAddObservation()
     {
         assertTrue(histogram.addObservation(10L));
-        assertThat(Long.valueOf(histogram.getObservationCount(1)), is(Long.valueOf(1L)));
+        assertThat(Long.valueOf(histogram.getObservationCountAt(1)), is(Long.valueOf(1L)));
     }
 
     @Test
@@ -74,7 +74,7 @@ public final class HistogramTest
 
         histogram.addObservations(histogram2);
 
-        assertThat(Long.valueOf(6L), is(Long.valueOf(histogram.getTotalObservationCount())));
+        assertThat(Long.valueOf(6L), is(Long.valueOf(histogram.getObservationCount())));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -92,7 +92,7 @@ public final class HistogramTest
 
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getObservationCount(i)), is(Long.valueOf(0)));
+            assertThat(Long.valueOf(histogram.getObservationCountAt(i)), is(Long.valueOf(0)));
         }
     }
 
@@ -101,7 +101,7 @@ public final class HistogramTest
     {
         addObservations(histogram, 1L, 7L, 10L, 3000L);
 
-        assertThat(Long.valueOf(histogram.getTotalObservationCount()), is(Long.valueOf(4L)));
+        assertThat(Long.valueOf(histogram.getObservationCount()), is(Long.valueOf(4L)));
     }
 
     @Test
@@ -112,7 +112,7 @@ public final class HistogramTest
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
 
-        assertThat(histogram.getMeanObservation(), is(new BigDecimal("94.17")));
+        assertThat(histogram.getObservationMean(), is(new BigDecimal("94.17")));
     }
 
     @Test
