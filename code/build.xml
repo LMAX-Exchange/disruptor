@@ -125,6 +125,7 @@
         <jar destfile="${dir.dist}/disruptor.jar" basedir="${dir.main.build}"/>
         <zip destfile="${dir.dist}/disruptor-src.zip" basedir="${dir.main.src}"/>
         <zip destfile="${dir.dist}/disruptor-api.zip" basedir="${dir.docs}"/>
+        <zip destfile="${dir.dist}/disruptor-perf-tests.zip" basedir="${dir.perf.src}"/>
     </target>
 
     <target name="all" depends="clean, build, test, javadoc, dist"/>
