@@ -25,7 +25,7 @@ public final class HistogramTest
     {
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getIntervalUpperBoundAt(i)), is(Long.valueOf(INTERVALS[i])));
+            assertThat(Long.valueOf(histogram.getUpperBoundAt(i)), is(Long.valueOf(INTERVALS[i])));
         }
     }
 
@@ -34,7 +34,7 @@ public final class HistogramTest
     {
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getObservationCountAt(i)), is(Long.valueOf(0L)));
+            assertThat(Long.valueOf(histogram.getCountAt(i)), is(Long.valueOf(0L)));
         }
     }
 
@@ -54,7 +54,7 @@ public final class HistogramTest
     public void shouldAddObservation()
     {
         assertTrue(histogram.addObservation(10L));
-        assertThat(Long.valueOf(histogram.getObservationCountAt(1)), is(Long.valueOf(1L)));
+        assertThat(Long.valueOf(histogram.getCountAt(1)), is(Long.valueOf(1L)));
     }
 
     @Test
@@ -74,7 +74,7 @@ public final class HistogramTest
 
         histogram.addObservations(histogram2);
 
-        assertThat(Long.valueOf(6L), is(Long.valueOf(histogram.getObservationCount())));
+        assertThat(Long.valueOf(6L), is(Long.valueOf(histogram.getCount())));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -92,7 +92,7 @@ public final class HistogramTest
 
         for (int i = 0, size = histogram.getSize(); i < size; i++)
         {
-            assertThat(Long.valueOf(histogram.getObservationCountAt(i)), is(Long.valueOf(0)));
+            assertThat(Long.valueOf(histogram.getCountAt(i)), is(Long.valueOf(0)));
         }
     }
 
@@ -101,7 +101,7 @@ public final class HistogramTest
     {
         addObservations(histogram, 1L, 7L, 10L, 3000L);
 
-        assertThat(Long.valueOf(histogram.getObservationCount()), is(Long.valueOf(4L)));
+        assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(4L)));
     }
 
     @Test
@@ -112,15 +112,60 @@ public final class HistogramTest
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
 
-        assertThat(histogram.getObservationMean(), is(new BigDecimal("94.17")));
+        assertThat(histogram.getMean(), is(new BigDecimal("94.17")));
+    }
+
+    @Test
+    public void shouldGetMaxObservation()
+    {
+        addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
+
+        assertThat(Long.valueOf(histogram.getMax()), is(Long.valueOf(144L)));
+    }
+
+    @Test
+    public void shouldGetMinObservation()
+    {
+        addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
+
+        assertThat(Long.valueOf(histogram.getMin()), is(Long.valueOf(1L)));
+    }
+
+    @Test
+    public void shouldGetTwoNinesUpperBound()
+    {
+        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(INTERVALS);
+
+        for (long i = 1; i < 101; i++)
+        {
+            histogram.addObservation(i);
+        }
+
+        assertThat(Long.valueOf(histogram.getTwoNinesUpperBound()), is(Long.valueOf(100L)));
+    }
+
+    @Test
+    public void shouldGetFourNinesUpperBound()
+    {
+        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(INTERVALS);
+
+        for (long i = 1; i < 102; i++)
+        {
+            histogram.addObservation(i);
+        }
+
+        assertThat(Long.valueOf(histogram.getFourNinesUpperBound()), is(Long.valueOf(1000L)));
     }
 
     @Test
     public void shouldToString()
     {
-        addObservations(histogram, 1L, 7L, 10L, 3000L);
+        addObservations(histogram, 1L, 7L, 10L, 300L);
 
-        String expectedResults = "Histogram{1 = 1, 10 = 2, 100 = 0, 1000 = 0, 9223372036854775807 = 1}";
+        String expectedResults =
+            "Histogram{min = 1, max = 300, mean = 127.50, 99% = 1000, 99.99% = 1000, [1 = 1, 10 = 2, 100 = 0, 1000 = 1, 9223372036854775807 = 0]}";
         assertThat(histogram.toString(), is(expectedResults));
     }
 
