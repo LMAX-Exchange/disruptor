@@ -31,10 +31,10 @@ public final class Histogram
 
     private void validateBounds()
     {
-        long lastBound = -1;
+        long lastBound = -1L;
         for (final long bound : upperBounds)
         {
-            if (bound <= 0)
+            if (bound <= 0L)
             {
                 throw new IllegalArgumentException("Bounds must be positive values");
             }
@@ -224,7 +224,7 @@ public final class Histogram
         for (int i = 0, size = upperBounds.length; i < size; i++)
         {
             long upperBound = upperBounds[i];
-            long midPoint = lowerBound + ((upperBound - lowerBound) / 2);
+            long midPoint = lowerBound + ((upperBound - lowerBound) / 2L);
 
             BigDecimal intervalTotal = new BigDecimal(midPoint).multiply(new BigDecimal(counts[i]));
             total = total.add(intervalTotal);
@@ -240,7 +240,7 @@ public final class Histogram
      */
     public long getTwoNinesUpperBound()
     {
-        return getUpperBoundForFactor(0.99);
+        return getUpperBoundForFactor(0.99d);
     }
 
     /**
@@ -250,7 +250,7 @@ public final class Histogram
      */
     public long getFourNinesUpperBound()
     {
-        return getUpperBoundForFactor(0.9999);
+        return getUpperBoundForFactor(0.9999d);
     }
 
     /**
@@ -261,7 +261,7 @@ public final class Histogram
      */
     public long getUpperBoundForFactor(final double factor)
     {
-        if (0.0 >= factor || factor >= 1.0)
+        if (0.0d >= factor || factor >= 1.0d)
         {
             throw new IllegalArgumentException("factor must be >= 0.0 and <= 1.0");
         }
@@ -292,16 +292,16 @@ public final class Histogram
 
         sb.append("Histogram{");
 
-        sb.append("min = ").append(getMin()).append(", ");
-        sb.append("max = ").append(getMax()).append(", ");
-        sb.append("mean = ").append(getMean()).append(", ");
-        sb.append("99% = ").append(getTwoNinesUpperBound()).append(", ");
-        sb.append("99.99% = ").append(getFourNinesUpperBound()).append(", ");
+        sb.append("min=").append(getMin()).append(", ");
+        sb.append("max=").append(getMax()).append(", ");
+        sb.append("mean=").append(getMean()).append(", ");
+        sb.append("99%=").append(getTwoNinesUpperBound()).append(", ");
+        sb.append("99.99%=").append(getFourNinesUpperBound()).append(", ");
 
         sb.append('[');
         for (int i = 0, size = counts.length; i < size; i++)
         {
-            sb.append(upperBounds[i]).append(" = ").append(counts[i]).append(", ");
+            sb.append(upperBounds[i]).append('=').append(counts[i]).append(", ");
         }
 
         if (counts.length > 0)
