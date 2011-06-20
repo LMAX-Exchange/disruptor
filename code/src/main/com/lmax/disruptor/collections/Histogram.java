@@ -24,12 +24,13 @@ public final class Histogram
      */
     public Histogram(final long[] upperBounds)
     {
+        validateBounds(upperBounds);
+
         this.upperBounds = Arrays.copyOf(upperBounds, upperBounds.length);
         this.counts = new long[upperBounds.length];
-        validateBounds();
     }
 
-    private void validateBounds()
+    private void validateBounds(final long[] upperBounds)
     {
         long lastBound = -1L;
         for (final long bound : upperBounds)
