@@ -272,7 +272,7 @@ public final class Histogram
         final long tailTotal = totalCount - Math.round(totalCount * factor);
         long tailCount = 0L;
 
-        for (int i = counts.length - 1; i >=0; i--)
+        for (int i = counts.length - 1; i >= 0; i--)
         {
             if (0L != counts[i])
             {
