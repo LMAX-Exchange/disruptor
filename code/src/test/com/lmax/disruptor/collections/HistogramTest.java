@@ -112,7 +112,20 @@ public final class HistogramTest
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
 
-        assertThat(histogram.getMean(), is(new BigDecimal("103.83")));
+        assertThat(histogram.getMean(), is(new BigDecimal("32.67")));
+    }
+
+    @Test
+    public void shouldCorrectMeanForSkewInTopAndBottomPopulatedIntervals()
+    {
+        final long[] INTERVALS = new long[]{ 100, 110, 120, 130, 140, 150, 1000, 10000 };
+        final Histogram histogram = new Histogram(INTERVALS);
+
+        for (long i = 100; i < 152; i++)
+        {
+            histogram.addObservation(i);
+        }
+        assertThat(histogram.getMean().intValue(), is(125));
     }
 
     @Test
@@ -165,7 +178,7 @@ public final class HistogramTest
         addObservations(histogram, 1L, 7L, 10L, 300L);
 
         String expectedResults =
-            "Histogram{min=1, max=300, mean=140.50, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
+            "Histogram{min=1, max=300, mean=53.25, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
         assertThat(histogram.toString(), is(expectedResults));
     }
 
