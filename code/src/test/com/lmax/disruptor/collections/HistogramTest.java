@@ -125,7 +125,8 @@ public final class HistogramTest
         {
             histogram.addObservation(i);
         }
-        assertThat(histogram.getMean().intValue(), is(125));
+
+        assertThat(histogram.getMean(), is(new BigDecimal("125.02")));
     }
 
     @Test

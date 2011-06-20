@@ -218,7 +218,7 @@ public final class Histogram
      */
     public BigDecimal getMean()
     {
-        long lowerBound = counts[0] > 0 ? minValue : 0L;
+        long lowerBound = counts[0] > 0L ? minValue : 0L;
         BigDecimal total = BigDecimal.ZERO;
 
         for (int i = 0, size = upperBounds.length; i < size; i++)
@@ -228,7 +228,7 @@ public final class Histogram
 
             BigDecimal intervalTotal = new BigDecimal(midPoint).multiply(new BigDecimal(counts[i]));
             total = total.add(intervalTotal);
-            lowerBound = Math.max(upperBounds[i] + 1, minValue);
+            lowerBound = Math.max(upperBounds[i] + 1L, minValue);
         }
 
         return total.divide(new BigDecimal(getCount()), 2, RoundingMode.HALF_UP);
