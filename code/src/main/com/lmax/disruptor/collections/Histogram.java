@@ -228,6 +228,8 @@ public final class Histogram
 
             BigDecimal intervalTotal = new BigDecimal(midPoint).multiply(new BigDecimal(counts[i]));
             total = total.add(intervalTotal);
+
+            lowerBound = upperBound + 1;
         }
 
         return total.divide(new BigDecimal(getCount()), 2, RoundingMode.HALF_UP);

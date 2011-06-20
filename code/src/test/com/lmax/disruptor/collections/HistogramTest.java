@@ -112,7 +112,7 @@ public final class HistogramTest
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
 
-        assertThat(histogram.getMean(), is(new BigDecimal("94.17")));
+        assertThat(histogram.getMean(), is(new BigDecimal("103.83")));
     }
 
     @Test
@@ -165,7 +165,7 @@ public final class HistogramTest
         addObservations(histogram, 1L, 7L, 10L, 300L);
 
         String expectedResults =
-            "Histogram{min=1, max=300, mean=127.50, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
+            "Histogram{min=1, max=300, mean=140.50, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
         assertThat(histogram.toString(), is(expectedResults));
     }
 
