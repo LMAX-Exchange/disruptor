@@ -212,7 +212,8 @@ public final class Histogram
      * Calculate the mean of all recorded observations.
      *
      * The mean is calculated by the summing the mid points of each interval multiplied by the count
-     * for that interval, then dividing by the total count of observations.
+     * for that interval, then dividing by the total count of observations.  The max and min are
+     * considered for adjusting the top and bottom bin when calculating the mid point.
      *
      * @return the mean of all recorded observations.
      */
