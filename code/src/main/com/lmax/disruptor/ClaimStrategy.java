@@ -46,7 +46,7 @@ public interface ClaimStrategy
             }
         },
 
-         /** Optimised {@link RingBuffer} from use by single thread claiming {@link Entry}s as a  producer. */
+         /** Optimised {@link RingBuffer} for use by single thread claiming {@link Entry}s as a producer. */
         SINGLE_THREADED
         {
             @Override
@@ -117,7 +117,7 @@ public interface ClaimStrategy
         @Override
         public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
         {
-            // no op for this class
+            // no op when on a single producer.
         }
     }
 }

@@ -138,6 +138,7 @@
         new RingBuffer&lt;ValueEntry&gt;(ValueEntry.ENTRY_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
+
     ConsumerBarrier&lt;ValueEntry&gt; consumerBarrier = ringBuffer.createConsumerBarrier();
     BatchConsumer&lt;ValueEntry&gt; batchConsumer = new BatchConsumer&lt;ValueEntry&gt;(consumerBarrier, batchHandler);
     ProducerBarrier&lt;ValueEntry&gt; producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
