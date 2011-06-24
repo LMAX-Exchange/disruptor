@@ -90,8 +90,9 @@
             <src path="${dir.perf.src}"/>
         </javac>
         <junit printsummary="on"
-               fork="false"
-               haltonfailure="true">
+               fork="true"
+               forkmode="perTest"
+               haltonfailure="false">
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
             <batchtest fork="false" todir="${dir.reports}/perf">
@@ -104,7 +105,7 @@
           <fileset dir="${dir.reports}/perf">
             <include name="TEST-*.xml" />
           </fileset>
-          <report todir="${dir.reports}/perf" />
+          <report todir="${dir.reports}/perf"/>
         </junitreport>
     </target>
 
