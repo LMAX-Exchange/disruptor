@@ -201,10 +201,10 @@ public final class RingBuffer<T extends AbstractEntry>
      * {@link ProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
      * a {@link AbstractEntry} in the {@link RingBuffer}.
      */
-    final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
+    private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
-        private volatile long lastConsumerMinimum = 0L;
         private final Consumer[] consumers;
+        private long lastConsumerMinimum = 0L;
 
         public ConsumerTrackingProducerBarrier(final Consumer... consumers)
         {
@@ -263,10 +263,10 @@ public final class RingBuffer<T extends AbstractEntry>
      * {@link ForceFillProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
      * a {@link AbstractEntry} in the {@link RingBuffer}.
      */
-    final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
+    private final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
     {
-        private long lastConsumerMinimum = 0L;
         private final Consumer[] consumers;
+        private long lastConsumerMinimum = 0L;
 
         public ForceFillConsumerTrackingProducerBarrier(final Consumer... consumers)
         {
