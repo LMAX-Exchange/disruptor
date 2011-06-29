@@ -115,6 +115,30 @@
     </p>
     <h2>Code Example</h2>
     <pre>
+    // Entry holder for data to be exchange that must extend AbstractEntry
+    public final class ValueEntry extends AbstractEntry
+    {
+        private long value;
+
+        public long getValue()
+        {
+            return value;
+        }
+
+        public void setValue(final long value)
+        {
+            this.value = value;
+        }
+
+        public final static EntryFactory&lt;ValueEntry&gt; ENTRY_FACTORY = new EntryFactory&lt;ValueEntry&gt;()
+        {
+            public ValueEntry create()
+            {
+                return new ValueEntry();
+            }
+        };
+    }
+
     // Callback handler which can be implemented by consumers
     final BatchHandler&lt;ValueEntry&gt; batchHandler = new BatchHandler&lt;ValueEntry&gt;()
     {
@@ -149,7 +173,7 @@
     // Producers claim entries in sequence
     ValueEntry entry = producerBarrier.nextEntry();
 
-    // copy data into the entry
+    entry.setValue(1234);
 
     // make the entry available to consumers
     producerBarrier.commit(entry);
