@@ -2,7 +2,7 @@ package com.lmax.disruptor;
 
 /**
  * Used by the {@link BatchConsumer} to set a callback allowing the {@link BatchHandler} to notify
- * when it has finished consuming an {@link Entry} if this happens after the {@link BatchHandler#onAvailable(AbstractEntry)} call.
+ * when it has finished consuming an {@link AbstractEntry} if this happens after the {@link BatchHandler#onAvailable(AbstractEntry)} call.
  * <p>
  * Typically this would be used when the handler is performing some sort of batching operation such are writing to an IO device.
  * </p>

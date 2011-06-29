@@ -1,12 +1,12 @@
 package com.lmax.disruptor;
 
 /**
- * Callback handler for uncaught exceptions in the {@link Entry} processing cycle of the {@link BatchConsumer}
+ * Callback handler for uncaught exceptions in the {@link AbstractEntry} processing cycle of the {@link BatchConsumer}
  */
 public interface ExceptionHandler
 {
     /**
-     * Strategy for handling uncaught exceptions when processing an {@link Entry}.
+     * Strategy for handling uncaught exceptions when processing an {@link AbstractEntry}.
      *
      * If the strategy wishes to suspend further processing by the {@link BatchConsumer}
      * then is should throw a {@link RuntimeException}.

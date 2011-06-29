@@ -95,7 +95,7 @@ public interface ClaimStrategy
     }
 
     /**
-     * Optimised strategy can be used when there is a single producer thread claiming {@link Entry}s.
+     * Optimised strategy can be used when there is a single producer thread claiming {@link AbstractEntry}s.
      */
     static final class SingleThreadedStrategy
         implements ClaimStrategy

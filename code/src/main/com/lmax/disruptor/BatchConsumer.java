@@ -2,7 +2,7 @@ package com.lmax.disruptor;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available {@link Entry}s to a {@link BatchHandler}.
+ * and delegating the available {@link AbstractEntry}s to a {@link BatchHandler}.
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -26,7 +26,7 @@ public final class BatchConsumer<T extends AbstractEntry>
      * the {@link BatchHandler#onAvailable(AbstractEntry)} method returns.
      *
      * @param consumerBarrier on which it is waiting.
-     * @param handler is the delegate to which {@link Entry}s are dispatched.
+     * @param handler is the delegate to which {@link AbstractEntry}s are dispatched.
      */
     public BatchConsumer(final ConsumerBarrier<T> consumerBarrier,
                          final BatchHandler<T> handler)
@@ -41,7 +41,7 @@ public final class BatchConsumer<T extends AbstractEntry>
      * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has completed with a sequence.
      *
      * @param consumerBarrier on which it is waiting.
-     * @param entryHandler is the delegate to which {@link Entry}s are dispatched.
+     * @param entryHandler is the delegate to which {@link AbstractEntry}s are dispatched.
      */
     public BatchConsumer(final ConsumerBarrier<T> consumerBarrier,
                          final SequenceTrackingHandler<T> entryHandler)

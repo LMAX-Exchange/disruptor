@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
 public interface ConsumerBarrier<T extends AbstractEntry>
 {
     /**
-     * Get the {@link Entry} for a given sequence from the underlying {@link RingBuffer}.
+     * Get the {@link AbstractEntry} for a given sequence from the underlying {@link RingBuffer}.
      *
-     * @param sequence of the {@link Entry} to get.
-     * @return the {@link Entry} for the sequence.
+     * @param sequence of the {@link AbstractEntry} to get.
+     * @return the {@link AbstractEntry} for the sequence.
      */
     T getEntry(long sequence);
 
