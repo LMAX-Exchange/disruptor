@@ -1,16 +1,16 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming {@link Entry}s in a {@link RingBuffer} while tracking dependent {@link Consumer}s
+ * Abstraction for claiming {@link AbstractEntry}s in a {@link RingBuffer} while tracking dependent {@link Consumer}s
  *
- * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
+ * @param <T> {@link AbstractEntry} implementation stored in the {@link RingBuffer}
  */
-public interface ProducerBarrier<T extends Entry>
+public interface ProducerBarrier<T extends AbstractEntry>
 {
     /**
-     * Claim the next {@link Entry} in sequence for a producer on the {@link RingBuffer}
+     * Claim the next {@link AbstractEntry} in sequence for a producer on the {@link RingBuffer}
      *
-     * @return the claimed {@link Entry}
+     * @return the claimed {@link AbstractEntry}
      */
     T nextEntry();
 

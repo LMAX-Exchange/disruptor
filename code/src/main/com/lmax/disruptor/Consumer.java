@@ -1,14 +1,14 @@
 package com.lmax.disruptor;
 
 /**
- * EntryConsumers waitFor {@link Entry}s to become available for consumption from the {@link RingBuffer}
+ * EntryConsumers waitFor {@link AbstractEntry}s to become available for consumption from the {@link RingBuffer}
  */
 public interface Consumer extends Runnable
 {
     /**
-     * Get the sequence up to which this Consumer has consumed {@link Entry}s
+     * Get the sequence up to which this Consumer has consumed {@link AbstractEntry}s
      *
-     * @return the sequence of the last consumed {@link Entry}
+     * @return the sequence of the last consumed {@link AbstractEntry}
      */
     long getSequence();
 

@@ -6,11 +6,11 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Ring based store of reusable entries containing the data representing an {@link Entry} being exchanged between producers and consumers.
+ * Ring based store of reusable entries containing the data representing an {@link AbstractEntry} being exchanged between producers and consumers.
  *
- * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
+ * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<T extends Entry>
+public final class RingBuffer<T extends AbstractEntry>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -28,10 +28,10 @@ public final class RingBuffer<T extends Entry>
     /**
      * Construct a RingBuffer with the full option set.
      *
-     * @param entryFactory to create {@link Entry}s for filling the RingBuffer
+     * @param entryFactory to create {@link AbstractEntry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for producers claiming {@link Entry}s in the ring.
-     * @param waitStrategyOption waiting strategy employed by consumers waiting on {@link Entry}s becoming available.
+     * @param claimStrategyOption threading strategy for producers claiming {@link AbstractEntry}s in the ring.
+     * @param waitStrategyOption waiting strategy employed by consumers waiting on {@link AbstractEntry}s becoming available.
      */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
@@ -51,7 +51,7 @@ public final class RingBuffer<T extends Entry>
      * Construct a RingBuffer with default strategies of:
      * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#BLOCKING}
      *
-     * @param entryFactory to create {@link Entry}s for filling the RingBuffer
+     * @param entryFactory to create {@link AbstractEntry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size)
@@ -116,10 +116,10 @@ public final class RingBuffer<T extends Entry>
     }
 
     /**
-     * Get the {@link Entry} for a given sequence in the RingBuffer.
+     * Get the {@link AbstractEntry} for a given sequence in the RingBuffer.
      *
-     * @param sequence for the {@link Entry}
-     * @return {@link Entry} for the sequence
+     * @param sequence for the {@link AbstractEntry}
+     * @return {@link AbstractEntry} for the sequence
      */
     @SuppressWarnings("unchecked")
     public T getEntry(final long sequence)
@@ -138,7 +138,7 @@ public final class RingBuffer<T extends Entry>
     /**
      * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
-    final class ConsumerTrackingConsumerBarrier<T extends Entry> implements ConsumerBarrier<T>
+    final class ConsumerTrackingConsumerBarrier<T extends AbstractEntry> implements ConsumerBarrier<T>
     {
         public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
         private final Consumer[] consumers;
@@ -199,7 +199,7 @@ public final class RingBuffer<T extends Entry>
 
     /**
      * {@link ProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
-     * a {@link Entry} in the {@link RingBuffer}.
+     * a {@link AbstractEntry} in the {@link RingBuffer}.
      */
     final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
@@ -254,7 +254,7 @@ public final class RingBuffer<T extends Entry>
 
     /**
      * {@link ForceFillProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
-     * a {@link Entry} in the {@link RingBuffer}.
+     * a {@link AbstractEntry} in the {@link RingBuffer}.
      */
     final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
     {

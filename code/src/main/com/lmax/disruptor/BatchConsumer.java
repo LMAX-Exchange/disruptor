@@ -6,7 +6,7 @@ package com.lmax.disruptor;
  *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class BatchConsumer<T extends Entry>
+public final class BatchConsumer<T extends AbstractEntry>
     implements Consumer
 {
     public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
@@ -23,7 +23,7 @@ public final class BatchConsumer<T extends Entry>
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
-     * the {@link BatchHandler#onAvailable(Entry)} method returns.
+     * the {@link BatchHandler#onAvailable(AbstractEntry)} method returns.
      *
      * @param consumerBarrier on which it is waiting.
      * @param handler is the delegate to which {@link Entry}s are dispatched.

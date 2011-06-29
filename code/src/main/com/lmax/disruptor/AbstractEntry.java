@@ -3,24 +3,27 @@ package com.lmax.disruptor;
 /**
  * Base implementation provided for ease of use
  */
-public abstract class AbstractEntry implements Entry
+public abstract class AbstractEntry
 {
     private long sequence;
 
     /**
-     * {@inheritDoc}
+     * Get the sequence number assigned to this item in the series.
+     *
+     * @return the sequence number
      */
-    @Override
-    public long getSequence()
+    public final long getSequence()
     {
         return sequence;
     }
 
     /**
-     * {@inheritDoc}
+     * Explicitly set the sequence number for this Entry and a CommitCallback for indicating when the producer is
+     * finished with assigning data for exchange.
+     *
+     * @param sequence to be assigned to this Entry
      */
-    @Override
-    public void setSequence(final long sequence)
+    final void setSequence(final long sequence)
     {
         this.sequence = sequence;
     }

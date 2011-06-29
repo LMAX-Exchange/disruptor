@@ -23,7 +23,7 @@ public final class FatalExceptionHandler implements ExceptionHandler
     }
 
     @Override
-    public void handle(final Exception ex, final Entry currentEntry)
+    public void handle(final Exception ex, final AbstractEntry currentEntry)
     {
         logger.log(Level.SEVERE, "Exception processing: " + currentEntry, ex);
 

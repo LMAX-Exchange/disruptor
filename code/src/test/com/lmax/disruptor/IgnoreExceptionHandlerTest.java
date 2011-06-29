@@ -25,7 +25,7 @@ public final class IgnoreExceptionHandlerTest
     public void shouldHandleAndIgnoreException()
     {
         final Exception ex = new Exception();
-        final Entry entry = new TestEntry();
+        final AbstractEntry entry = new TestEntry();
 
         final Logger logger = context.mock(Logger.class);
 

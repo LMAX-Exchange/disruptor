@@ -14,5 +14,5 @@ public interface ExceptionHandler
      * @param ex the exception that propagated from the {@link BatchHandler}
      * @param currentEntry being processed when the exception occurred.
      */
-    void handle(Exception ex, Entry currentEntry);
+    void handle(Exception ex, AbstractEntry currentEntry);
 }

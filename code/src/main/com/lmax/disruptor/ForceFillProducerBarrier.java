@@ -1,19 +1,19 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming {@link Entry}s in a {@link RingBuffer} while tracking dependent {@link Consumer}s.
+ * Abstraction for claiming {@link AbstractEntry}s in a {@link RingBuffer} while tracking dependent {@link Consumer}s.
  *
  * This barrier can be used to pre-fill a {@link RingBuffer} but only when no other producers are active.
  *
- * @param <T> {@link Entry} implementation stored in the {@link RingBuffer}
+ * @param <T> {@link AbstractEntry} implementation stored in the {@link RingBuffer}
  */
-public interface ForceFillProducerBarrier<T extends Entry>
+public interface ForceFillProducerBarrier<T extends AbstractEntry>
 {
     /**
      * Claim a specific sequence in the {@link RingBuffer} when only one producer is involved.
      *
      * @param sequence to be claimed.
-     * @return the claimed {@link Entry}
+     * @return the claimed {@link AbstractEntry}
      */
     T claimEntry(long sequence);
 

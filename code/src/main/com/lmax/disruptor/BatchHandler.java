@@ -3,9 +3,9 @@ package com.lmax.disruptor;
 /**
  * Callback interface to be implemented for processing {@link Entry}s as they become available in the {@link RingBuffer}
  *
- * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
+ * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface BatchHandler<T extends Entry>
+public interface BatchHandler<T extends AbstractEntry>
 {
     /**
      * Called when a publisher has committed an {@link Entry} to the {@link RingBuffer}
