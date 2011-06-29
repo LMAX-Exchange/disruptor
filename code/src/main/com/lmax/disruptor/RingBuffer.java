@@ -203,6 +203,7 @@ public final class RingBuffer<T extends AbstractEntry>
      */
     final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
+        private volatile long lastConsumerMinimum = 0L;
         private final Consumer[] consumers;
 
         public ConsumerTrackingProducerBarrier(final Consumer... consumers)
@@ -245,9 +246,15 @@ public final class RingBuffer<T extends AbstractEntry>
 
         private void ensureConsumersAreInRange(final long sequence)
         {
-            while ((sequence - getMinimumSequence(consumers)) >= entries.length)
+            final long wrapPoint = sequence - entries.length;
+            if (lastConsumerMinimum <= wrapPoint)
             {
-                Thread.yield();
+                lastConsumerMinimum = getMinimumSequence(consumers);
+                while (lastConsumerMinimum <= wrapPoint)
+                {
+                    Thread.yield();
+                    lastConsumerMinimum = getMinimumSequence(consumers);
+                }
             }
         }
     }
@@ -258,6 +265,7 @@ public final class RingBuffer<T extends AbstractEntry>
      */
     final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
     {
+        private long lastConsumerMinimum = 0L;
         private final Consumer[] consumers;
 
         public ForceFillConsumerTrackingProducerBarrier(final Consumer... consumers)
@@ -299,9 +307,15 @@ public final class RingBuffer<T extends AbstractEntry>
 
         private void ensureConsumersAreInRange(final long sequence)
         {
-            while ((sequence - getMinimumSequence(consumers)) >= entries.length)
+            final long wrapPoint = sequence - entries.length;
+            if (lastConsumerMinimum <= wrapPoint)
             {
-                Thread.yield();
+                lastConsumerMinimum = getMinimumSequence(consumers);
+                while (lastConsumerMinimum <= wrapPoint)
+                {
+                    Thread.yield();
+                    lastConsumerMinimum = getMinimumSequence(consumers);
+                }
             }
         }
     }
