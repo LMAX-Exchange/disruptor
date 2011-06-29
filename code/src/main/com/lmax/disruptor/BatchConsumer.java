@@ -9,17 +9,16 @@ package com.lmax.disruptor;
 public final class BatchConsumer<T extends AbstractEntry>
     implements Consumer
 {
-    public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
-    private volatile boolean running = true;
-    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
-    private volatile long sequence = -1L;
-    public long p15, p16, p17, p18, p19; // cache line padding
-
     private final ConsumerBarrier<T> consumerBarrier;
     private final BatchHandler<T> handler;
     private final boolean noSequenceTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
+    public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
+    private volatile boolean running = true;
+    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
+    private volatile long sequence = -1L;
+    public long p15, p16, p17, p18, p19, p20; // cache line padding
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
@@ -53,6 +52,19 @@ public final class BatchConsumer<T extends AbstractEntry>
         entryHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
     }
 
+    @Override
+    public long getSequence()
+    {
+        return sequence;
+    }
+
+    @Override
+    public void halt()
+    {
+        running = false;
+        consumerBarrier.alert();
+    }
+
     /**
      * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchConsumer}
      *
@@ -78,20 +90,6 @@ public final class BatchConsumer<T extends AbstractEntry>
         return consumerBarrier;
     }
 
-    @Override
-    public long getSequence()
-    {
-        return sequence;
-    }
-
-
-    @Override
-    public void halt()
-    {
-        running = false;
-        consumerBarrier.alert();
-    }
-
     /**
      * It is ok to have another thread rerun this method after a halt().
      */
@@ -112,14 +110,14 @@ public final class BatchConsumer<T extends AbstractEntry>
                 {
                     entry = consumerBarrier.getEntry(i);
                     handler.onAvailable(entry);
-
-                    if (noSequenceTracker)
-                    {
-                        sequence = entry.getSequence();
-                    }
                 }
 
                 handler.onEndOfBatch();
+
+                if (noSequenceTracker)
+                {
+                    sequence = entry.getSequence();
+                }
             }
             catch (final AlertException ex)
             {
@@ -128,6 +126,7 @@ public final class BatchConsumer<T extends AbstractEntry>
             catch (final Exception ex)
             {
                 exceptionHandler.handle(ex, entry);
+
                 if (noSequenceTracker)
                 {
                     sequence = entry.getSequence();
