@@ -3,6 +3,8 @@ package com.lmax.disruptor;
 /**
  * Callback interface to be implemented for processing {@link AbstractEntry}s as they become available in the {@link RingBuffer}
  *
+ * @see BatchConsumer#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propigated out of the handler.
+ *
  * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public interface BatchHandler<T extends AbstractEntry>
@@ -24,9 +26,4 @@ public interface BatchHandler<T extends AbstractEntry>
      * @throws Exception if the BatchHandler would like the exception handled further up the chain.
      */
     void onEndOfBatch() throws Exception;
-
-    /**
-     * Called when processing of {@link AbstractEntry}s is complete for clean up.
-     */
-    void onCompletion();
 }

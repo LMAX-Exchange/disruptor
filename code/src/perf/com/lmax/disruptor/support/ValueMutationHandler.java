@@ -32,9 +32,4 @@ public final class ValueMutationHandler implements BatchHandler<ValueEntry>
     public void onEndOfBatch() throws Exception
     {
     }
-
-    @Override
-    public void onCompletion()
-    {
-    }
 }

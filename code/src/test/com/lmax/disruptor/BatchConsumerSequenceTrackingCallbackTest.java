@@ -67,10 +67,5 @@ public class BatchConsumerSequenceTrackingCallbackTest
         public void onEndOfBatch() throws Exception
         {
         }
-
-        @Override
-        public void onCompletion()
-        {
-        }
     }
 }

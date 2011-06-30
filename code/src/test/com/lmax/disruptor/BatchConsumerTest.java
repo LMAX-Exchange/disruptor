@@ -54,9 +54,6 @@ public final class BatchConsumerTest
                 oneOf(batchHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
-
-                oneOf(batchHandler).onCompletion();
-                inSequence(lifecycleSequence);
             }
         });
 
@@ -90,9 +87,6 @@ public final class BatchConsumerTest
                 oneOf(batchHandler).onEndOfBatch();
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
-
-                oneOf(batchHandler).onCompletion();
-                inSequence(lifecycleSequence);
             }
         });
 
@@ -140,9 +134,6 @@ public final class BatchConsumerTest
                 oneOf(exceptionHandler).handle(ex, ringBuffer.getEntry(0));
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
-
-                oneOf(batchHandler).onCompletion();
-                inSequence(lifecycleSequence);
             }
         });
 

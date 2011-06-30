@@ -48,9 +48,4 @@ public final class FizzBuzzHandler implements BatchHandler<FizzBuzzEntry>
     public void onEndOfBatch() throws Exception
     {
     }
-
-    @Override
-    public void onCompletion()
-    {
-    }
 }

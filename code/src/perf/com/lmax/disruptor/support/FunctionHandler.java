@@ -48,9 +48,4 @@ public final class FunctionHandler implements BatchHandler<FunctionEntry>
     public void onEndOfBatch() throws Exception
     {
     }
-
-    @Override
-    public void onCompletion()
-    {
-    }
 }

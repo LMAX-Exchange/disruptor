@@ -26,9 +26,4 @@ public final class ValueAdditionHandler implements BatchHandler<ValueEntry>
     public void onEndOfBatch() throws Exception
     {
     }
-
-    @Override
-    public void onCompletion()
-    {
-    }
 }

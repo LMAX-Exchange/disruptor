@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
 /**
- * Base implementation provided for ease of use
+ * Base implementation that must be extended for {@link RingBuffer} entries.
  */
 public abstract class AbstractEntry
 {

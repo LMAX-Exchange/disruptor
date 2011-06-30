@@ -4,6 +4,9 @@ package com.lmax.disruptor;
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available {@link AbstractEntry}s to a {@link BatchHandler}.
  *
+ * If the {@link BatchHandler} also implements {@link LifecycleAware} it will be notified just after the thread
+ * is started and just before the thread is shutdown.
+ *
  * @param <T> Entry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class BatchConsumer<T extends AbstractEntry>
@@ -99,6 +102,11 @@ public final class BatchConsumer<T extends AbstractEntry>
         running = true;
         T entry = null;
 
+        if (LifecycleAware.class.isAssignableFrom(handler.getClass()))
+        {
+            ((LifecycleAware)handler).onStart();
+        }
+
         while (running)
         {
             try
@@ -134,7 +142,10 @@ public final class BatchConsumer<T extends AbstractEntry>
             }
         }
 
-        handler.onCompletion();
+        if (LifecycleAware.class.isAssignableFrom(handler.getClass()))
+        {
+            ((LifecycleAware)handler).onShutdown();
+        }
     }
 
     /**
