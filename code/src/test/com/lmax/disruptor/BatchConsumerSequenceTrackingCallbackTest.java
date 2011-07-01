@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 public class BatchConsumerSequenceTrackingCallbackTest
 {
-    private final CountDownLatch onAvailableLatch = new CountDownLatch(2);
-    private final CountDownLatch readyToCallbackLatch = new CountDownLatch(1);
+    private final CountDownLatch callbackLatch = new CountDownLatch(1);
+    private final CountDownLatch onEndOfBatchLatch = new CountDownLatch(1);
 
     @Test
     public void shouldReportProgressByUpdatingSequenceViaCallback()
@@ -23,17 +23,17 @@ public class BatchConsumerSequenceTrackingCallbackTest
         final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
 
         Thread thread = new Thread(batchConsumer);
+        thread.setDaemon(true);
         thread.start();
 
         assertEquals(-1L, batchConsumer.getSequence());
         producerBarrier.commit(producerBarrier.nextEntry());
-        producerBarrier.commit(producerBarrier.nextEntry());
-        onAvailableLatch.await();
-        assertEquals(-1L, batchConsumer.getSequence());
 
-        producerBarrier.commit(producerBarrier.nextEntry());
-        readyToCallbackLatch.await();
-        assertEquals(2L, batchConsumer.getSequence());
+        callbackLatch.await();
+        assertEquals(0L, batchConsumer.getSequence());
+
+        onEndOfBatchLatch.countDown();
+        assertEquals(0L, batchConsumer.getSequence());
 
         batchConsumer.halt();
         thread.join();
@@ -52,20 +52,14 @@ public class BatchConsumerSequenceTrackingCallbackTest
         @Override
         public void onAvailable(final StubEntry entry) throws Exception
         {
-            if (entry.getSequence() == 2L)
-            {
-                sequenceTrackerCallback.onCompleted(entry.getSequence());
-                readyToCallbackLatch.countDown();
-            }
-            else
-            {
-                onAvailableLatch.countDown();
-            }
+            sequenceTrackerCallback.onCompleted(entry.getSequence());
+            callbackLatch.countDown();
         }
 
         @Override
         public void onEndOfBatch() throws Exception
         {
+            onEndOfBatchLatch.await();
         }
     }
 }
