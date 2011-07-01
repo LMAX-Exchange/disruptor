@@ -14,7 +14,6 @@ public final class BatchConsumer<T extends AbstractEntry>
 {
     private final ConsumerBarrier<T> consumerBarrier;
     private final BatchHandler<T> handler;
-    private final boolean noSequenceTracker;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
 
     public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
@@ -35,12 +34,13 @@ public final class BatchConsumer<T extends AbstractEntry>
     {
         this.consumerBarrier = consumerBarrier;
         this.handler = handler;
-        this.noSequenceTracker = true;
     }
 
     /**
      * Construct a batch consumer that will rely on the {@link SequenceTrackingHandler}
-     * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has completed with a sequence.
+     * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has 
+     * completed with a sequence within a batch.  Sequence will be updated at the end of
+     * a batch regardless.
      *
      * @param consumerBarrier on which it is waiting.
      * @param entryHandler is the delegate to which {@link AbstractEntry}s are dispatched.
@@ -51,7 +51,6 @@ public final class BatchConsumer<T extends AbstractEntry>
         this.consumerBarrier = consumerBarrier;
         this.handler = entryHandler;
 
-        this.noSequenceTracker = false;
         entryHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
     }
 
@@ -121,11 +120,7 @@ public final class BatchConsumer<T extends AbstractEntry>
                 }
 
                 handler.onEndOfBatch();
-
-                if (noSequenceTracker)
-                {
-                    sequence = entry.getSequence();
-                }
+                sequence = entry.getSequence();
             }
             catch (final AlertException ex)
             {
@@ -134,11 +129,7 @@ public final class BatchConsumer<T extends AbstractEntry>
             catch (final Exception ex)
             {
                 exceptionHandler.handle(ex, entry);
-
-                if (noSequenceTracker)
-                {
-                    sequence = entry.getSequence();
-                }
+                sequence = entry.getSequence();
             }
         }
 
