@@ -132,7 +132,6 @@ public interface WaitStrategy
                         {
                             throw ALERT_EXCEPTION;
                         }
-
                         consumerNotifyCondition.await();
                     }
                 }
@@ -236,7 +235,6 @@ public interface WaitStrategy
                     {
                         throw ALERT_EXCEPTION;
                     }
-
                     Thread.yield();
                 }
             }
@@ -248,7 +246,6 @@ public interface WaitStrategy
                     {
                         throw ALERT_EXCEPTION;
                     }
-
                     Thread.yield();
                 }
             }
