@@ -227,7 +227,6 @@ public final class RingBuffer<T extends AbstractEntry>
             {
                 throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
             }
-
             this.consumers = consumers;
         }
 
@@ -247,8 +246,16 @@ public final class RingBuffer<T extends AbstractEntry>
         @Override
         public void commit(final T entry)
         {
-            long sequence = entry.getSequence();
-            claimStrategy.waitForCursor(sequence - 1L, RingBuffer.this);
+            final long sequence = entry.getSequence();
+            if (ClaimStrategy.Option.MULTI_THREADED == claimStrategy)
+            {
+                final long sequenceMinusOne = sequence - 1;
+                while (sequenceMinusOne != cursor)
+                {
+                    // busy spin
+                }
+            }
+
             cursor = sequence;
             waitStrategy.signalAll();
         }
@@ -262,14 +269,10 @@ public final class RingBuffer<T extends AbstractEntry>
         private void ensureConsumersAreInRange(final long sequence)
         {
             final long wrapPoint = sequence - entries.length;
-            if (lastConsumerMinimum <= wrapPoint)
+            while (wrapPoint >= lastConsumerMinimum &&
+                   wrapPoint >= (lastConsumerMinimum = getMinimumSequence(consumers)))
             {
-                lastConsumerMinimum = getMinimumSequence(consumers);
-                while (lastConsumerMinimum <= wrapPoint)
-                {
-                    Thread.yield();
-                    lastConsumerMinimum = getMinimumSequence(consumers);
-                }
+                Thread.yield();
             }
         }
     }
@@ -289,7 +292,6 @@ public final class RingBuffer<T extends AbstractEntry>
             {
                 throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
             }
-
             this.consumers = consumers;
         }
 
@@ -323,14 +325,10 @@ public final class RingBuffer<T extends AbstractEntry>
         private void ensureConsumersAreInRange(final long sequence)
         {
             final long wrapPoint = sequence - entries.length;
-            if (lastConsumerMinimum <= wrapPoint)
+            while (wrapPoint >= lastConsumerMinimum &&
+                   wrapPoint >= (lastConsumerMinimum = getMinimumSequence(consumers)))
             {
-                lastConsumerMinimum = getMinimumSequence(consumers);
-                while (lastConsumerMinimum <= wrapPoint)
-                {
-                    Thread.yield();
-                    lastConsumerMinimum = getMinimumSequence(consumers);
-                }
+                Thread.yield();
             }
         }
     }

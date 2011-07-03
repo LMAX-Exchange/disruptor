@@ -53,7 +53,7 @@ public final class BatchConsumer<T extends AbstractEntry>
 
     /**
      * Construct a batch consumer that will rely on the {@link SequenceTrackingHandler}
-     * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has 
+     * to callback via the {@link BatchConsumer.SequenceTrackerCallback} when it has
      * completed with a sequence within a batch.  Sequence will be updated at the end of
      * a batch regardless.
      *
@@ -114,23 +114,21 @@ public final class BatchConsumer<T extends AbstractEntry>
     public void run()
     {
         running = true;
-        T entry = null;
-
         if (LifecycleAware.class.isAssignableFrom(handler.getClass()))
         {
             ((LifecycleAware)handler).onStart();
         }
 
+        T entry = null;
+        long nextSequence = sequence + 1 ;
         while (running)
         {
             try
             {
-                final long nextSequence = sequence + 1;
-                final long availableSeq = consumerBarrier.waitFor(nextSequence);
-
-                for (long i = nextSequence; i <= availableSeq; i++)
+                final long availableSequence = consumerBarrier.waitFor(nextSequence);
+                for (; nextSequence <= availableSequence; nextSequence++)
                 {
-                    entry = consumerBarrier.getEntry(i);
+                    entry = consumerBarrier.getEntry(nextSequence);
                     handler.onAvailable(entry);
                 }
 
@@ -145,6 +143,7 @@ public final class BatchConsumer<T extends AbstractEntry>
             {
                 exceptionHandler.handle(ex, entry);
                 sequence = entry.getSequence();
+                nextSequence = entry.getSequence() + 1;
             }
         }
 

@@ -39,14 +39,6 @@ public interface ClaimStrategy
     void setSequence(long sequence);
 
     /**
-     * Wait for the current commit to reach a given sequence.
-     *
-     * @param sequence to wait for.
-     * @param ringBuffer on which to wait forCursor
-     */
-    void waitForCursor(long sequence, RingBuffer ringBuffer);
-
-    /**
      * Indicates the threading policy to be applied for claiming {@link AbstractEntry}s by producers to the {@link RingBuffer}
      */
     enum Option
@@ -98,15 +90,6 @@ public interface ClaimStrategy
         {
             this.sequence.set(sequence);
         }
-
-        @Override
-        public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
-        {
-            while (ringBuffer.getCursor() != sequence)
-            {
-                // busy spin
-            }
-        }
     }
 
     /**
@@ -127,12 +110,6 @@ public interface ClaimStrategy
         public void setSequence(final long sequence)
         {
             this.sequence = sequence;
-        }
-
-        @Override
-        public void waitForCursor(final long sequence, final RingBuffer ringBuffer)
-        {
-            // no op when on a single producer.
         }
     }
 }
