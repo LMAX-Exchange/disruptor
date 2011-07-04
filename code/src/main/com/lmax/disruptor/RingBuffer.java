@@ -142,11 +142,11 @@ public final class RingBuffer<T extends AbstractEntry>
         return (T)entries[(int)sequence & ringModMask];
     }
 
-    private void fill(final EntryFactory<T> entryEntryFactory)
+    private void fill(final EntryFactory<T> entryFactory)
     {
         for (int i = 0; i < entries.length; i++)
         {
-            entries[i] = entryEntryFactory.create();
+            entries[i] = entryFactory.create();
         }
     }
 
