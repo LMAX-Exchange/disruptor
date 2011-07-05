@@ -269,8 +269,8 @@ public final class RingBuffer<T extends AbstractEntry>
         private void ensureConsumersAreInRange(final long sequence)
         {
             final long wrapPoint = sequence - entries.length;
-            while (wrapPoint >= lastConsumerMinimum &&
-                   wrapPoint >= (lastConsumerMinimum = getMinimumSequence(consumers)))
+            while (wrapPoint > lastConsumerMinimum &&
+                   wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
             {
                 Thread.yield();
             }
@@ -325,8 +325,8 @@ public final class RingBuffer<T extends AbstractEntry>
         private void ensureConsumersAreInRange(final long sequence)
         {
             final long wrapPoint = sequence - entries.length;
-            while (wrapPoint >= lastConsumerMinimum &&
-                   wrapPoint >= (lastConsumerMinimum = getMinimumSequence(consumers)))
+            while (wrapPoint > lastConsumerMinimum &&
+                   wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
             {
                 Thread.yield();
             }
