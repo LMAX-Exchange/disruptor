@@ -219,7 +219,7 @@ public final class RingBuffer<T extends AbstractEntry>
     private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
         private final Consumer[] consumers;
-        private long lastConsumerMinimum = 0L;
+        private long lastConsumerMinimum = RingBuffer.INITIAL_CURSOR_VALUE;
 
         public ConsumerTrackingProducerBarrier(final Consumer... consumers)
         {
@@ -234,7 +234,7 @@ public final class RingBuffer<T extends AbstractEntry>
         @SuppressWarnings("unchecked")
         public T nextEntry()
         {
-            long sequence = claimStrategy.getAndIncrement();
+            long sequence = claimStrategy.incrementAndGet();
             ensureConsumersAreInRange(sequence);
 
             T entry = (T)entries[(int)sequence & ringModMask];
@@ -284,7 +284,7 @@ public final class RingBuffer<T extends AbstractEntry>
     private final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
     {
         private final Consumer[] consumers;
-        private long lastConsumerMinimum = 0L;
+        private long lastConsumerMinimum = RingBuffer.INITIAL_CURSOR_VALUE;
 
         public ForceFillConsumerTrackingProducerBarrier(final Consumer... consumers)
         {

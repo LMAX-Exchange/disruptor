@@ -29,7 +29,7 @@ public interface ClaimStrategy
      *
      * @return the {@link AbstractEntry} index to be used for the producer.
      */
-    long getAndIncrement();
+    long incrementAndGet();
 
     /**
      * Set the current sequence value for claiming {@link AbstractEntry} in the {@link RingBuffer}
@@ -77,12 +77,12 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
-        private final AtomicLong sequence = new AtomicLong(0);
+        private final AtomicLong sequence = new AtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
 
         @Override
-        public long getAndIncrement()
+        public long incrementAndGet()
         {
-            return sequence.getAndIncrement();
+            return sequence.incrementAndGet();
         }
 
         @Override
@@ -98,12 +98,12 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
-        private long sequence;
+        private long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
 
         @Override
-        public long getAndIncrement()
+        public long incrementAndGet()
         {
-            return sequence++;
+            return ++sequence;
         }
 
         @Override

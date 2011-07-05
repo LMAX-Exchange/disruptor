@@ -16,35 +16,26 @@
 package com.lmax.disruptor;
 
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.lmax.disruptor.support.DaemonThreadFactory;
 import com.lmax.disruptor.support.TestWaiter;
 import com.lmax.disruptor.support.StubEntry;
-import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 public class RingBufferTest
 {
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
-    private RingBuffer<StubEntry> ringBuffer;
-    private ConsumerBarrier<StubEntry> consumerBarrier;
-    private ProducerBarrier<StubEntry> producerBarrier;
-
-    @Before
-    public void setUp()
-    {
-        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-        consumerBarrier = ringBuffer.createConsumerBarrier();
-        producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
-    }
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+    private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
+    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
 
     @Test
     public void shouldClaimAndGet() throws Exception
@@ -170,6 +161,44 @@ public class RingBufferTest
         assertEquals(expectedSequence, ringBuffer.getCursor());
     }
 
+    @Test
+    public void shouldPreventProducersOvertakingConsumerWrapPoint() throws InterruptedException
+    {
+        final int ringBufferSize = 4;
+        final CountDownLatch latch = new CountDownLatch(ringBufferSize);
+        final AtomicBoolean producerComplete = new AtomicBoolean(false);
+        final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, ringBufferSize);
+        final TestConsumer consumer = new TestConsumer(ringBuffer.createConsumerBarrier());
+        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(consumer);
+
+        Thread thread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                for (int i = 0; i <= ringBufferSize; i++)
+                {
+                    StubEntry entry = producerBarrier.nextEntry();
+                    entry.setValue(i);
+                    producerBarrier.commit(entry);
+                    latch.countDown();
+                }
+
+                producerComplete.set(true);
+            }
+        });
+        thread.start();
+
+        latch.await();
+        assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
+        assertFalse(producerComplete.get());
+
+        consumer.run();
+        thread.join();
+
+        assertTrue(producerComplete.get());
+    }
+
     private Future<List<StubEntry>> getMessages(final long initial, final long toWaitFor)
         throws InterruptedException, BrokenBarrierException
     {
@@ -181,5 +210,41 @@ public class RingBufferTest
         cyclicBarrier.await();
 
         return f;
+    }
+
+    private static final class TestConsumer implements Consumer
+    {
+        private final ConsumerBarrier<StubEntry> consumerBarrier;
+        private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
+
+        public TestConsumer(final ConsumerBarrier<StubEntry> consumerBarrier)
+        {
+            this.consumerBarrier = consumerBarrier;
+        }
+
+        @Override
+        public long getSequence()
+        {
+            return sequence;
+        }
+
+        @Override
+        public void halt()
+        {
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                consumerBarrier.waitFor(0L);
+            }
+            catch (Exception ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            ++sequence;
+        }
     }
 }
