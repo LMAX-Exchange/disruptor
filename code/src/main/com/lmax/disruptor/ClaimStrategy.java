@@ -32,6 +32,14 @@ public interface ClaimStrategy
     long incrementAndGet();
 
     /**
+     * Increment by a delta and get the result.
+     *
+     * @param delta to increment by.
+     * @return the result after incrementing.
+     */
+    long incrementAndGet(int delta);
+
+    /**
      * Set the current sequence value for claiming {@link AbstractEntry} in the {@link RingBuffer}
      *
      * @param sequence to be set as the current value.
@@ -86,6 +94,12 @@ public interface ClaimStrategy
         }
 
         @Override
+        public long incrementAndGet(final int delta)
+        {
+            return sequence.addAndGet(delta);
+        }
+
+        @Override
         public void setSequence(final long sequence)
         {
             this.sequence.set(sequence);
@@ -104,6 +118,13 @@ public interface ClaimStrategy
         public long incrementAndGet()
         {
             return ++sequence;
+        }
+
+        @Override
+        public long incrementAndGet(final int delta)
+        {
+            sequence += delta;
+            return sequence;
         }
 
         @Override

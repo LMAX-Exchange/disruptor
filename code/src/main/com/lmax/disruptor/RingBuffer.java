@@ -34,10 +34,11 @@ public final class RingBuffer<T extends AbstractEntry>
     private volatile long cursor = INITIAL_CURSOR_VALUE;
     public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
-    private final Object[] entries;
+    private final AbstractEntry[] entries;
     private final int ringModMask;
 
     private final ClaimStrategy claimStrategy;
+    private final ClaimStrategy.Option claimStrategyOption;
     private final WaitStrategy waitStrategy;
 
     /**
@@ -54,8 +55,9 @@ public final class RingBuffer<T extends AbstractEntry>
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
-        entries = new Object[sizeAsPowerOfTwo];
+        entries = new AbstractEntry[sizeAsPowerOfTwo];
 
+        this.claimStrategyOption = claimStrategyOption;
         claimStrategy = claimStrategyOption.newInstance();
         waitStrategy = waitStrategyOption.newInstance();
 
@@ -234,30 +236,48 @@ public final class RingBuffer<T extends AbstractEntry>
         @SuppressWarnings("unchecked")
         public T nextEntry()
         {
-            long sequence = claimStrategy.incrementAndGet();
+            final long sequence = claimStrategy.incrementAndGet();
             ensureConsumersAreInRange(sequence);
 
-            T entry = (T)entries[(int)sequence & ringModMask];
+            AbstractEntry entry = entries[(int)sequence & ringModMask];
             entry.setSequence(sequence);
 
-            return entry;
+            return (T)entry;
         }
 
         @Override
         public void commit(final T entry)
         {
-            final long sequence = entry.getSequence();
-            if (ClaimStrategy.Option.MULTI_THREADED == claimStrategy)
+            commit(entry.getSequence(), 1);
+        }
+
+        @Override
+        public SequenceBatch nextEntries(final SequenceBatch sequenceBatch)
+        {
+            final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
+            sequenceBatch.setEnd(sequence);
+            ensureConsumersAreInRange(sequence);
+
+            for (long i = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); i <= end; i++)
             {
-                final long sequenceMinusOne = sequence - 1;
-                while (sequenceMinusOne != cursor)
-                {
-                    // busy spin
-                }
+                AbstractEntry entry = entries[(int)i & ringModMask];
+                entry.setSequence(i);
             }
 
-            cursor = sequence;
-            waitStrategy.signalAll();
+            return sequenceBatch;
+        }
+
+        @Override
+        public void commit(final SequenceBatch sequenceBatch)
+        {
+            commit(sequenceBatch.getEnd(), sequenceBatch.getSize());
+        }
+
+        @Override
+        @SuppressWarnings(value="unchecked")
+        public T getEntry(final long sequence)
+        {
+            return (T)entries[(int)sequence & ringModMask];
         }
 
         @Override
@@ -274,6 +294,21 @@ public final class RingBuffer<T extends AbstractEntry>
             {
                 Thread.yield();
             }
+        }
+
+        private void commit(final long sequence, final long batchSize)
+        {
+            if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
+            {
+                final long expectedSequence = sequence - batchSize;
+                while (expectedSequence != cursor)
+                {
+                    // busy spin
+                }
+            }
+
+            cursor = sequence;
+            waitStrategy.signalAll();
         }
     }
 
@@ -301,10 +336,10 @@ public final class RingBuffer<T extends AbstractEntry>
         {
             ensureConsumersAreInRange(sequence);
 
-            T entry = (T)entries[(int)sequence & ringModMask];
+            AbstractEntry entry = entries[(int)sequence & ringModMask];
             entry.setSequence(sequence);
 
-            return entry;
+            return (T)entry;
         }
 
         @Override

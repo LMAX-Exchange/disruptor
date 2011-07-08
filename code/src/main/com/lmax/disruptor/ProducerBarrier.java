@@ -30,10 +30,33 @@ public interface ProducerBarrier<T extends AbstractEntry>
     T nextEntry();
 
     /**
+     * Claim the next batch of {@link AbstractEntry}s in sequence.
+     *
+     * @param sequenceBatch to be updated for the batch range.
+     * @return the updated sequenceBatch.
+     */
+    SequenceBatch nextEntries(SequenceBatch sequenceBatch);
+
+    /**
      * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s
      * @param entry to be committed back to the {@link RingBuffer}
      */
     void commit(T entry);
+
+    /**
+     * Commit the batch of entries back to the {@link RingBuffer}.
+     *
+     * @param sequenceBatch to be committed.
+     */
+    void commit(SequenceBatch sequenceBatch);
+
+    /**
+     * Get the {@link AbstractEntry} for a given sequence from the underlying {@link RingBuffer}.
+     *
+     * @param sequence of the {@link AbstractEntry} to get.
+     * @return the {@link AbstractEntry} for the sequence.
+     */
+    T getEntry(long sequence);
 
     /**
      * Delegate a call to the {@link RingBuffer#getCursor()}
