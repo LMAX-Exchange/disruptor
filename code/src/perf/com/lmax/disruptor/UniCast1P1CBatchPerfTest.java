@@ -70,7 +70,7 @@ import java.util.concurrent.*;
 public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000L * 1000L * 500L;
+    private static final long ITERATIONS = 1000L * 1000L * 50L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final long expectedResult;
@@ -148,17 +148,15 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
 
         long start = System.currentTimeMillis();
 
+        long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
             producerBarrier.nextEntries(sequenceBatch);
-
-            int offset = 0;
             for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
             {
                 ValueEntry entry = producerBarrier.getEntry(c);
-                entry.setValue(i + offset++);
+                entry.setValue(offset++);
             }
-
             producerBarrier.commit(sequenceBatch);
         }
 
