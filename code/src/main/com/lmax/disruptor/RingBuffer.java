@@ -216,7 +216,7 @@ public final class RingBuffer<T extends AbstractEntry>
 
     /**
      * {@link ProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
-     * a {@link AbstractEntry} in the {@link RingBuffer}.
+     * an {@link AbstractEntry} in the {@link RingBuffer}.
      */
     private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
     {
