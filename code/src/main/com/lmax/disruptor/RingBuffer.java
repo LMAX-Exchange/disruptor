@@ -274,7 +274,7 @@ public final class RingBuffer<T extends AbstractEntry>
         }
 
         @Override
-        @SuppressWarnings(value="unchecked")
+        @SuppressWarnings("unchecked")
         public T getEntry(final long sequence)
         {
             return (T)entries[(int)sequence & ringModMask];
