@@ -86,7 +86,7 @@ public final class RingBuffer<T extends AbstractEntry>
      */
     public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumersToTrack)
     {
-        return new ConsumerTrackingConsumerBarrier<T>(consumersToTrack);
+        return new ConsumerTrackingConsumerBarrier(consumersToTrack);
     }
 
     /**
@@ -155,12 +155,10 @@ public final class RingBuffer<T extends AbstractEntry>
     /**
      * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
      */
-    final class ConsumerTrackingConsumerBarrier<T extends AbstractEntry> implements ConsumerBarrier<T>
+    private final class ConsumerTrackingConsumerBarrier implements ConsumerBarrier<T>
     {
-        public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
-        private final Consumer[] consumers;
         private volatile boolean alerted = false;
-        public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
+        private final Consumer[] consumers;
 
         public ConsumerTrackingConsumerBarrier(final Consumer... consumers)
         {
