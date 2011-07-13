@@ -26,6 +26,8 @@ import java.util.concurrent.*;
 /**
  * <pre>
  * UniCast a series of items between 1 producer and 1 consumer.
+ * This test illustrates the benefits of writing batches of 10 entries
+ * for exchange at a time.
  *
  * +----+    +----+
  * | P0 |--->| C0 |
