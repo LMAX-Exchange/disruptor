@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 
 /**
  * <pre>
- * Produce an event replicated to two consumer and fold back to a single third consumer.
+ * Produce an event replicated to two consumers and fold back to a single third consumer.
  *
  *           +----+
  *    +----->| C0 |-----+
