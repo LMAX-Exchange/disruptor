@@ -81,7 +81,7 @@ import static org.junit.Assert.assertTrue;
  *
  * </pre>
  *
- * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime call.</b>
+ * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
 public final class Pipeline3StepLatencyPerfTest
 {
