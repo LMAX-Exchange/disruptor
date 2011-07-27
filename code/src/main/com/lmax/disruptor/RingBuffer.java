@@ -299,9 +299,14 @@ public final class RingBuffer<T extends AbstractEntry>
             if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
             {
                 final long expectedSequence = sequence - batchSize;
+                int counter = 1000;
                 while (expectedSequence != cursor)
                 {
-                    // busy spin
+                    if (0 == --counter)
+                    {
+                        counter = 1000;
+                        Thread.yield();
+                    }
                 }
             }
 

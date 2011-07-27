@@ -30,12 +30,11 @@ public final class BatchConsumer<T extends AbstractEntry>
     private final ConsumerBarrier<T> consumerBarrier;
     private final BatchHandler<T> handler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
+    private volatile boolean running = true;
 
     public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
-    private volatile boolean running = true;
-    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
     private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
-    public long p15, p16, p17, p18, p19, p20; // cache line padding
+    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
     /**
      * Construct a batch consumer that will automatically track the progress by updating its sequence when
@@ -126,10 +125,11 @@ public final class BatchConsumer<T extends AbstractEntry>
             try
             {
                 final long availableSequence = consumerBarrier.waitFor(nextSequence);
-                for (; nextSequence <= availableSequence; nextSequence++)
+                while (nextSequence <= availableSequence)
                 {
                     entry = consumerBarrier.getEntry(nextSequence);
                     handler.onAvailable(entry);
+                    nextSequence++;
                 }
 
                 handler.onEndOfBatch();

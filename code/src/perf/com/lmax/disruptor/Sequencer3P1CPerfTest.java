@@ -92,7 +92,7 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
 {
     private static final int NUM_PRODUCERS = 3;
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000L * 1000L * 500L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PRODUCERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PRODUCERS + 1);
 
