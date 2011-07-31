@@ -23,6 +23,21 @@ package com.lmax.disruptor;
 public interface ProducerBarrier<T extends AbstractEntry>
 {
     /**
+     * Get the {@link AbstractEntry} for a given sequence from the underlying {@link RingBuffer}.
+     *
+     * @param sequence of the {@link AbstractEntry} to get.
+     * @return the {@link AbstractEntry} for the sequence.
+     */
+    T getEntry(long sequence);
+
+    /**
+     * Delegate a call to the {@link RingBuffer#getCursor()}
+     *
+     * @return value of the cursor for entries that have been published.
+     */
+    long getCursor();
+
+    /**
      * Claim the next {@link AbstractEntry} in sequence for a producer on the {@link RingBuffer}
      *
      * @return the claimed {@link AbstractEntry}
@@ -49,19 +64,4 @@ public interface ProducerBarrier<T extends AbstractEntry>
      * @param sequenceBatch to be committed.
      */
     void commit(SequenceBatch sequenceBatch);
-
-    /**
-     * Get the {@link AbstractEntry} for a given sequence from the underlying {@link RingBuffer}.
-     *
-     * @param sequence of the {@link AbstractEntry} to get.
-     * @return the {@link AbstractEntry} for the sequence.
-     */
-    T getEntry(long sequence);
-
-    /**
-     * Delegate a call to the {@link RingBuffer#getCursor()}
-     *
-     * @return value of the cursor for entries that have been published.
-     */
-    long getCursor();
 }

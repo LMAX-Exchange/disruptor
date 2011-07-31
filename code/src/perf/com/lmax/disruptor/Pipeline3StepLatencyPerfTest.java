@@ -57,20 +57,19 @@ import static org.junit.Assert.assertTrue;
  *
  * Disruptor:
  * ==========
- *                   track to prevent wrap
- *             +------------------------------------------------------------------------+
- *             |                                                                        |
- *             |                                                                        v
- * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- * | P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
- * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *                claim   ^  get    |  waitFor           |  waitFor           |  waitFor
- *                        |         |                    |                    |
- *                        +---------+--------------------+--------------------+
+ *                           track to prevent wrap
+ *              +-------------------------------------------------------------+
+ *              |                                                             |
+ *              |                                                             v
+ * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+ * | P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
+ * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+ *      claim   ^  get    |  waitFor           |  waitFor           |  waitFor
+ *              |         |                    |                    |
+ *              +---------+--------------------+--------------------+
  *
  *
  * P0  - Producer 0
- * PB  - ProducerBarrier
  * RB  - RingBuffer
  * CB0 - ConsumerBarrier 0
  * C0  - Consumer 0
@@ -159,8 +158,9 @@ public final class Pipeline3StepLatencyPerfTest
     private final LatencyStepHandler stepThreeFunctionHandler = new LatencyStepHandler(FunctionStep.THREE, histogram, nanoTimeCost);
     private final BatchConsumer<ValueEntry> stepThreeBatchConsumer =
         new BatchConsumer<ValueEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
-
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(stepThreeBatchConsumer);
+    {
+        ringBuffer.setTrackedConsumers(stepThreeBatchConsumer);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -211,9 +211,9 @@ public final class Pipeline3StepLatencyPerfTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.nextEntry();
+            ValueEntry entry = ringBuffer.nextEntry();
             entry.setValue(System.nanoTime());
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
 
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))

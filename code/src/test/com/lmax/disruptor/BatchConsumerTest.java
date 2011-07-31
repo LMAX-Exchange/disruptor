@@ -42,7 +42,9 @@ public final class BatchConsumerTest
     private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     @SuppressWarnings("unchecked") private final BatchHandler<StubEntry> batchHandler = context.mock(BatchHandler.class);
     private final BatchConsumer batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, batchHandler);
-    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+    {
+        ringBuffer.setTrackedConsumers(batchConsumer);
+    }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
@@ -77,7 +79,7 @@ public final class BatchConsumerTest
 
         assertEquals(-1L, batchConsumer.getSequence());
 
-        producerBarrier.commit(producerBarrier.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
 
         latch.await();
 
@@ -105,9 +107,9 @@ public final class BatchConsumerTest
             }
         });
 
-        producerBarrier.commit(producerBarrier.nextEntry());
-        producerBarrier.commit(producerBarrier.nextEntry());
-        producerBarrier.commit(producerBarrier.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
 
         Thread thread = new Thread(batchConsumer);
         thread.start();
@@ -155,7 +157,7 @@ public final class BatchConsumerTest
         Thread thread = new Thread(batchConsumer);
         thread.start();
 
-        producerBarrier.commit(producerBarrier.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
 
         latch.await();
 

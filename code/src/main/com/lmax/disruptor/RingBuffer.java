@@ -26,6 +26,7 @@ import static com.lmax.disruptor.Util.getMinimumSequence;
  * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class RingBuffer<T extends AbstractEntry>
+    implements ProducerBarrier<T>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -34,11 +35,14 @@ public final class RingBuffer<T extends AbstractEntry>
     private volatile long cursor = INITIAL_CURSOR_VALUE;
     public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
-    private final AbstractEntry[] entries;
     private final int ringModMask;
+    private final AbstractEntry[] entries;
 
-    private final ClaimStrategy claimStrategy;
+    private long lastConsumerMinimum = INITIAL_CURSOR_VALUE;
+    private Consumer[] consumers;
+
     private final ClaimStrategy.Option claimStrategyOption;
+    private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
 
     /**
@@ -79,6 +83,19 @@ public final class RingBuffer<T extends AbstractEntry>
     }
 
     /**
+     * Set the consumers that will be tracked to prevent the ring wrapping.
+     *
+     * This method must be called prior to claiming entries in the RingBuffer otherwise
+     * a NullPointerException will be thrown.
+     *
+     * @param consumers to be tracked.
+     */
+    public void setTrackedConsumers(final Consumer... consumers)
+    {
+        this.consumers = consumers;
+    }
+
+    /**
      * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link Consumer}s
      *
      * @param consumersToTrack this barrier will track
@@ -87,29 +104,6 @@ public final class RingBuffer<T extends AbstractEntry>
     public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumersToTrack)
     {
         return new ConsumerTrackingConsumerBarrier(consumersToTrack);
-    }
-
-    /**
-     * Create a {@link ProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
-     *
-     * @param consumersToTrack to be tracked to prevent wrapping.
-     * @return a {@link ProducerBarrier} with the above configuration.
-     */
-    public ProducerBarrier<T> createProducerBarrier(final Consumer... consumersToTrack)
-    {
-        return new ConsumerTrackingProducerBarrier(consumersToTrack);
-    }
-
-    /**
-     * Create a {@link ForceFillProducerBarrier} on this RingBuffer that tracks dependent {@link Consumer}s.
-     * This barrier is to be used for filling a RingBuffer when no other producers exist.
-     *
-     * @param consumersToTrack to be tracked to prevent wrapping.
-     * @return a {@link ForceFillProducerBarrier} with the above configuration.
-     */
-    public ForceFillProducerBarrier<T> createForceFillProducerBarrier(final Consumer... consumersToTrack)
-    {
-        return new ForceFillConsumerTrackingProducerBarrier(consumersToTrack);
     }
 
     /**
@@ -144,6 +138,109 @@ public final class RingBuffer<T extends AbstractEntry>
         return (T)entries[(int)sequence & ringModMask];
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public T nextEntry()
+    {
+        final long sequence = claimStrategy.incrementAndGet();
+        ensureConsumersAreInRange(sequence);
+
+        AbstractEntry entry = entries[(int)sequence & ringModMask];
+        entry.setSequence(sequence);
+
+        return (T)entry;
+    }
+
+    @Override
+    public void commit(final T entry)
+    {
+        commit(entry.getSequence(), 1);
+    }
+
+    @Override
+    public SequenceBatch nextEntries(final SequenceBatch sequenceBatch)
+    {
+        final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
+        sequenceBatch.setEnd(sequence);
+        ensureConsumersAreInRange(sequence);
+
+        for (long i = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); i <= end; i++)
+        {
+            AbstractEntry entry = entries[(int)i & ringModMask];
+            entry.setSequence(i);
+        }
+
+        return sequenceBatch;
+    }
+
+    @Override
+    public void commit(final SequenceBatch sequenceBatch)
+    {
+        commit(sequenceBatch.getEnd(), sequenceBatch.getSize());
+    }
+
+    /**
+     * Claim a specific sequence in the {@link RingBuffer} when only one producer is involved.
+     *
+     * @param sequence to be claimed.
+     * @return the claimed {@link AbstractEntry}
+     */
+    @SuppressWarnings("unchecked")
+    public T claimEntryAtSequence(final long sequence)
+    {
+        ensureConsumersAreInRange(sequence);
+
+        AbstractEntry entry = entries[(int)sequence & ringModMask];
+        entry.setSequence(sequence);
+
+        return (T)entry;
+    }
+
+    /**
+     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s.
+     * Only use this method when forcing a sequence and you are sure only one producer exists.
+     * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
+     *
+     * @param entry to be committed back to the {@link RingBuffer}
+     */
+    public void commitWithForce(final T entry)
+    {
+        long sequence = entry.getSequence();
+        claimStrategy.setSequence(sequence);
+        cursor = sequence;
+        waitStrategy.signalAll();
+    }
+
+    private void ensureConsumersAreInRange(final long sequence)
+    {
+        final long wrapPoint = sequence - entries.length;
+        while (wrapPoint > lastConsumerMinimum &&
+               wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
+        {
+            Thread.yield();
+        }
+    }
+
+    private void commit(final long sequence, final long batchSize)
+    {
+        if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
+        {
+            final long expectedSequence = sequence - batchSize;
+            int counter = 1000;
+            while (expectedSequence != cursor)
+            {
+                if (0 == --counter)
+                {
+                    counter = 1000;
+                    Thread.yield();
+                }
+            }
+        }
+
+        cursor = sequence;
+        waitStrategy.signalAll();
+    }
+
     private void fill(final EntryFactory<T> entryFactory)
     {
         for (int i = 0; i < entries.length; i++)
@@ -157,8 +254,8 @@ public final class RingBuffer<T extends AbstractEntry>
      */
     private final class ConsumerTrackingConsumerBarrier implements ConsumerBarrier<T>
     {
-        private volatile boolean alerted = false;
         private final Consumer[] consumers;
+        private volatile boolean alerted = false;
 
         public ConsumerTrackingConsumerBarrier(final Consumer... consumers)
         {
@@ -209,165 +306,6 @@ public final class RingBuffer<T extends AbstractEntry>
         public void clearAlert()
         {
             alerted = false;
-        }
-    }
-
-    /**
-     * {@link ProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
-     * an {@link AbstractEntry} in the {@link RingBuffer}.
-     */
-    private final class ConsumerTrackingProducerBarrier implements ProducerBarrier<T>
-    {
-        private final Consumer[] consumers;
-        private long lastConsumerMinimum = RingBuffer.INITIAL_CURSOR_VALUE;
-
-        public ConsumerTrackingProducerBarrier(final Consumer... consumers)
-        {
-            if (0 == consumers.length)
-            {
-                throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
-            }
-            this.consumers = consumers;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public T nextEntry()
-        {
-            final long sequence = claimStrategy.incrementAndGet();
-            ensureConsumersAreInRange(sequence);
-
-            AbstractEntry entry = entries[(int)sequence & ringModMask];
-            entry.setSequence(sequence);
-
-            return (T)entry;
-        }
-
-        @Override
-        public void commit(final T entry)
-        {
-            commit(entry.getSequence(), 1);
-        }
-
-        @Override
-        public SequenceBatch nextEntries(final SequenceBatch sequenceBatch)
-        {
-            final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
-            sequenceBatch.setEnd(sequence);
-            ensureConsumersAreInRange(sequence);
-
-            for (long i = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); i <= end; i++)
-            {
-                AbstractEntry entry = entries[(int)i & ringModMask];
-                entry.setSequence(i);
-            }
-
-            return sequenceBatch;
-        }
-
-        @Override
-        public void commit(final SequenceBatch sequenceBatch)
-        {
-            commit(sequenceBatch.getEnd(), sequenceBatch.getSize());
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public T getEntry(final long sequence)
-        {
-            return (T)entries[(int)sequence & ringModMask];
-        }
-
-        @Override
-        public long getCursor()
-        {
-            return cursor;
-        }
-
-        private void ensureConsumersAreInRange(final long sequence)
-        {
-            final long wrapPoint = sequence - entries.length;
-            while (wrapPoint > lastConsumerMinimum &&
-                   wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
-            {
-                Thread.yield();
-            }
-        }
-
-        private void commit(final long sequence, final long batchSize)
-        {
-            if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
-            {
-                final long expectedSequence = sequence - batchSize;
-                int counter = 1000;
-                while (expectedSequence != cursor)
-                {
-                    if (0 == --counter)
-                    {
-                        counter = 1000;
-                        Thread.yield();
-                    }
-                }
-            }
-
-            cursor = sequence;
-            waitStrategy.signalAll();
-        }
-    }
-
-    /**
-     * {@link ForceFillProducerBarrier} that tracks multiple {@link Consumer}s when trying to claim
-     * a {@link AbstractEntry} in the {@link RingBuffer}.
-     */
-    private final class ForceFillConsumerTrackingProducerBarrier implements ForceFillProducerBarrier<T>
-    {
-        private final Consumer[] consumers;
-        private long lastConsumerMinimum = RingBuffer.INITIAL_CURSOR_VALUE;
-
-        public ForceFillConsumerTrackingProducerBarrier(final Consumer... consumers)
-        {
-            if (0 == consumers.length)
-            {
-                throw new IllegalArgumentException("There must be at least one Consumer to track for preventing ring wrap");
-            }
-            this.consumers = consumers;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public T claimEntry(final long sequence)
-        {
-            ensureConsumersAreInRange(sequence);
-
-            AbstractEntry entry = entries[(int)sequence & ringModMask];
-            entry.setSequence(sequence);
-
-            return (T)entry;
-        }
-
-        @Override
-        public void commit(final T entry)
-        {
-            long sequence = entry.getSequence();
-            claimStrategy.setSequence(sequence);
-            cursor = sequence;
-            waitStrategy.signalAll();
-        }
-
-        @Override
-        public long getCursor()
-        {
-            return cursor;
-        }
-
-        private void ensureConsumersAreInRange(final long sequence)
-        {
-            final long wrapPoint = sequence - entries.length;
-            while (wrapPoint > lastConsumerMinimum &&
-                   wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
-            {
-                Thread.yield();
-            }
         }
     }
 }

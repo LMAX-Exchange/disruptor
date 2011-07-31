@@ -47,20 +47,19 @@ import java.util.concurrent.*;
  *
  * Disruptor:
  * ==========
- *                   track to prevent wrap
- *             +-----------------------------+
- *             |                             |
- *             |                             v
- * +----+    +====+    +====+    +====+    +----+
- * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
- * +----+    +====+    +====+    +====+    +----+
- *                claim      get    ^        |
- *                                  |        |
- *                                  +--------+
- *                                    waitFor
+ *              track to prevent wrap
+ *              +-------------------+
+ *              |                   |
+ *              |                   v
+ * +----+    +====+    +====+    +----+
+ * | P0 |--->| RB |<---| CB |    | C0 |
+ * +----+    +====+    +====+    +----+
+ *      claim      get    ^        |
+ *                        |        |
+ *                        +--------+
+ *                          waitFor
  *
  * P0 - Producer 0
- * PB - ProducerBarrier
  * RB - RingBuffer
  * CB - ConsumerBarrier
  * C0 - Consumer 0
@@ -98,7 +97,9 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+    {
+        ringBuffer.setTrackedConsumers(batchConsumer);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -146,9 +147,9 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.nextEntry();
+            ValueEntry entry = ringBuffer.nextEntry();
             entry.setValue(i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

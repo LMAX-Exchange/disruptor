@@ -69,19 +69,18 @@ import java.util.concurrent.*;
  * Disruptor:
  * ==========
  *                            track to prevent wrap
- *             +-----------------------------+---------+---------+
- *             |                             |         |         |
- *             |                             v         v         v
- * +----+    +====+    +====+    +====+    +----+    +----+    +----+
- * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
- * +----+    +====+    +====+    +====+    +----+    +----+    +----+
- *                claim      get    ^        |         |         |
- *                                  |        |         |         |
- *                                  +--------+---------+---------+
- *                                               waitFor
+ *             +-------------------+---------+---------+
+ *             |                   |         |         |
+ *             |                   v         v         v
+ * +----+    +====+    +====+    +----+    +----+    +----+
+ * | P0 |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
+ * +----+    +====+    +====+    +----+    +----+    +----+
+ *      claim      get    ^        |         |         |
+ *                        |        |         |         |
+ *                        +--------+---------+---------+
+ *                                     waitFor
  *
  * P0 - Producer 0
- * PB - ProducerBarrier
  * RB - RingBuffer
  * CB - ConsumerBarrier
  * C0 - Consumer 0
@@ -145,9 +144,8 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         batchConsumers[0] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[0]);
         batchConsumers[1] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[1]);
         batchConsumers[2] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[2]);
+        ringBuffer.setTrackedConsumers(batchConsumers);
     }
-
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumers);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -222,9 +220,9 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = producerBarrier.nextEntry();
+            ValueEntry entry = ringBuffer.nextEntry();
             entry.setValue(i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

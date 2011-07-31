@@ -35,7 +35,9 @@ public class RingBufferTest
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
     private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    private final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
+    {
+        ringBuffer.setTrackedConsumers(new NoOpConsumer(ringBuffer));
+    }
 
     @Test
     public void shouldClaimAndGet() throws Exception
@@ -44,9 +46,9 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.nextEntry();
+        StubEntry oldEntry = ringBuffer.nextEntry();
         oldEntry.copy(expectedEntry);
-        producerBarrier.commit(oldEntry);
+        ringBuffer.commit(oldEntry);
 
         long sequence = consumerBarrier.waitFor(0);
         assertEquals(0, sequence);
@@ -64,9 +66,9 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.nextEntry();
+        StubEntry oldEntry = ringBuffer.nextEntry();
         oldEntry.copy(expectedEntry);
-        producerBarrier.commit(oldEntry);
+        ringBuffer.commit(oldEntry);
 
         long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
@@ -92,9 +94,9 @@ public class RingBufferTest
 
         StubEntry expectedEntry = new StubEntry(2701);
 
-        StubEntry oldEntry = producerBarrier.nextEntry();
+        StubEntry oldEntry = ringBuffer.nextEntry();
         oldEntry.copy(expectedEntry);
-        producerBarrier.commit(oldEntry);
+        ringBuffer.commit(oldEntry);
 
         assertEquals(expectedEntry, messages.get().get(0));
     }
@@ -105,9 +107,9 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = producerBarrier.nextEntry();
+            StubEntry entry = ringBuffer.nextEntry();
             entry.setValue(i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         int expectedSequence = numMessages - 1;
@@ -127,9 +129,9 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset ; i++)
         {
-            StubEntry entry = producerBarrier.nextEntry();
+            StubEntry entry = ringBuffer.nextEntry();
             entry.setValue(i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         int expectedSequence = numMessages + offset - 1;
@@ -146,11 +148,10 @@ public class RingBufferTest
     public void shouldSetAtSpecificSequence() throws Exception
     {
         long expectedSequence = 5;
-        ForceFillProducerBarrier<StubEntry> forceFillProducerBarrier = ringBuffer.createForceFillProducerBarrier(new NoOpConsumer(ringBuffer));
 
-        StubEntry expectedEntry = forceFillProducerBarrier.claimEntry(expectedSequence);
+        StubEntry expectedEntry = ringBuffer.claimEntryAtSequence(expectedSequence);
         expectedEntry.setValue((int) expectedSequence);
-        forceFillProducerBarrier.commit(expectedEntry);
+        ringBuffer.commitWithForce(expectedEntry);
 
         long sequence = consumerBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
@@ -169,7 +170,7 @@ public class RingBufferTest
         final AtomicBoolean producerComplete = new AtomicBoolean(false);
         final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, ringBufferSize);
         final TestConsumer consumer = new TestConsumer(ringBuffer.createConsumerBarrier());
-        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(consumer);
+        ringBuffer.setTrackedConsumers(consumer);
 
         Thread thread = new Thread(new Runnable()
         {
@@ -178,9 +179,9 @@ public class RingBufferTest
             {
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
-                    StubEntry entry = producerBarrier.nextEntry();
+                    StubEntry entry = ringBuffer.nextEntry();
                     entry.setValue(i);
-                    producerBarrier.commit(entry);
+                    ringBuffer.commit(entry);
                     latch.countDown();
                 }
 

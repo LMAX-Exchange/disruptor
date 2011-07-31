@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Strategies employed for claiming the sequence of {@link AbstractEntry}s in the {@link RingBuffer} by producers.
- *
- * The {@link AbstractEntry} index is a the sequence value mod the {@link RingBuffer} capacity.
  */
 public interface ClaimStrategy
 {

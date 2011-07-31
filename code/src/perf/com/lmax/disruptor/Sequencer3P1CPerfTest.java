@@ -62,17 +62,17 @@ import java.util.concurrent.*;
  *
  * Disruptor:
  * ==========
- *                   track to prevent wrap
- *             +-----------------------------+
- *             |                             |
- *             |                             v
- * +----+    +====+    +====+    +====+    +----+
- * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
- * +----+    +====+    +====+    +====+    +----+
- *             ^  claim      get    ^        |
- * +----+      |                    |        |
- * | P1 |------+                    +--------+
- * +----+      |                      waitFor
+ *             track to prevent wrap
+ *             +--------------------+
+ *             |                    |
+ *             |                    v
+ * +----+    +====+    +====+    +----+
+ * | P0 |--->| RB |<---| CB |    | C0 |
+ * +----+    +====+    +====+    +----+
+ *             ^   get    ^         |
+ * +----+      |          |         |
+ * | P1 |------+          +---------+
+ * +----+      |            waitFor
  *             |
  * +----+      |
  * | P2 |------+
@@ -81,7 +81,6 @@ import java.util.concurrent.*;
  * P0 - Producer 0
  * P1 - Producer 1
  * P2 - Producer 2
- * PB - ProducerBarrier
  * RB - RingBuffer
  * CB - ConsumerBarrier
  * C0 - Consumer 0
@@ -117,12 +116,13 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
     private final ValueProducer[] valueProducers = new ValueProducer[NUM_PRODUCERS];
     {
-        valueProducers[0] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
-        valueProducers[1] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
-        valueProducers[2] = new ValueProducer(cyclicBarrier, producerBarrier, ITERATIONS);
+        valueProducers[0] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
+        valueProducers[1] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
+        valueProducers[2] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
+
+        ringBuffer.setTrackedConsumers(batchConsumer);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

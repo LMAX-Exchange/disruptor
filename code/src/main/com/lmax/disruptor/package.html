@@ -22,33 +22,33 @@
     <p>
         <b>UniCast a series of items between 1 producer and 1 consumer.</b>
         <pre>
-                                               track to prevent wrap
-                                         +-----------------------------+
-                                         |                             |
-                                         |                             v
-+----+    +----+             +----+    +====+    +====+    +====+    +----+
-| P0 |--->| C0 |             | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
-+----+    +----+             +----+    +====+    +====+    +====+    +----+
-                                            claim      get    ^        |
-                                                              |        |
-                                                              +--------+
-                                                                waitFor
+                                          track to prevent wrap
+                                          +-------------------+
+                                          |                   |
+                                          |                   v
++----+    +----+             +----+    +====+    +====+    +----+
+| P0 |--->| C0 |             | P0 |--->| RB |<---| CB |    | C0 |
++----+    +----+             +----+    +====+    +====+    +----+
+                                  claim      get    ^        |
+                                                    |        |
+                                                    +--------+
+                                                      waitFor
         </pre>
     </p>
     <p>
         <b>Sequence a series of messages from multiple producers</b>
         <pre>
-                                               track to prevent wrap
-                                         +-----------------------------+
-                                         |                             |
-                                         |                             v
-+----+                       +----+    +====+    +====+    +====+    +----+
-| P0 |------+                | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
-+----+      |                +----+    +====+    +====+    +====+    +----+
-            v                            ^  claim      get    ^        |
-+----+    +----+             +----+      |                    |        |
-| P1 |--->| C1 |             | P1 |------+                    +--------+
-+----+    +----+             +----+      |                      waitFor
+                                         track to prevent wrap
+                                         +--------------------+
+                                         |                    |
+                                         |                    v
++----+                       +----+    +====+    +====+    +----+
+| P0 |------+                | P0 |--->| RB |<---| CB |    | C0 |
++----+      |                +----+    +====+    +====+    +----+
+            v                            ^   get    ^         |
++----+    +----+             +----+      |          |         |
+| P1 |--->| C1 |             | P1 |------+          +---------+
++----+    +----+             +----+      |            waitFor
             ^                            |
 +----+      |                +----+      |
 | P2 |------+                | P2 |------+
@@ -64,53 +64,53 @@
 
 
 
-                  track to prevent wrap
-            +------------------------------------------------------------------------+
-            |                                                                        |
-            |                                                                        v
-+----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
-| P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
-+----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
-               claim   ^  get    |   waitFor          |  waitFor           |  waitFor
-                       |         |                    |                    |
-                       +---------+--------------------+--------------------+
+                          track to prevent wrap
+             +-------------------------------------------------------------+
+             |                                                             |
+             |                                                             v
++----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+| P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
++----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+     claim   ^  get    |  waitFor           |  waitFor           |  waitFor
+             |         |                    |                    |
+             +---------+--------------------+--------------------+
         </pre>
     </p>
     <p>
         <b>Multicast a series of messages to multiple consumers</b>
         <pre>
           +----+                                        track to prevent wrap
-   +----->| C0 |                         +-----------------------------+---------+---------+
-   |      +----+                         |                             |         |         |
-   |                                     |                             v         v         v
-+----+    +----+             +----+    +====+    +====+    +====+    +----+    +----+    +----+
-| P0 |--->| C1 |             | P0 |--->| PB |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
-+----+    +----+             +----+    +====+    +====+    +====+    +----+    +----+    +----+
-   |                                        claim      get    ^        |         |         |
-   |      +----+                                              |        |         |         |
-   +----->| C2 |                                              +--------+---------+---------+
-          +----+                                                           waitFor
+   +----->| C0 |                         +-------------------+---------+---------+
+   |      +----+                         |                   |         |         |
+   |                                     |                   v         v         v
++----+    +----+             +----+    +====+    +====+    +----+    +----+    +----+
+| P0 |--->| C1 |             | P0 |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
++----+    +----+             +----+    +====+    +====+    +----+    +----+    +----+
+   |                              claim      get    ^        |         |         |
+   |      +----+                                    |        |         |         |
+   +----->| C2 |                                    +--------+---------+---------+
+          +----+                                                 waitFor
         </pre>
     </p>
     <p>
         <b>Replicate a message then fold back the results</b>
         <pre>
-          +----+                                  track to prevent wrap
-   +----->| C0 |-----+                   +--------------------------------------+
-   |      +----+     |                   |                                      |
-   |                 v                   |                                      v
-+----+             +----+    +----+    +====+    +====+            +=====+    +----+
-| P0 |             | C2 |    | P0 |--->| PB |--->| RB |<-----------| CB1 |<---| C2 |
-+----+             +----+    +----+    +====+    +====+            +=====+    +----+
-   |                 ^                      claim   ^  get            |   waitFor
-   |      +----+     |                              |                 |
-   +----->| C1 |-----+                           +=====+    +----+    |
-          +----+                                 | CB0 |<---| C0 |<---+
-                                                 +=====+    +----+    |
-                                                    ^                 |
-                                                    |       +----+    |
-                                                    +-------| C1 |<---+
-                                                  waitFor   +----+
+          +----+                           track to prevent wrap
+   +----->| C0 |-----+                    +---------------------+
+   |      +----+     |                    |                     |
+   |                 v                    |                     v
++----+             +----+    +----+    +====+     +=====+    +----+
+| P0 |             | C2 |    | P0 |--->| RB |<----| CB1 |<---| C2 |
++----+             +----+    +----+    +====+     +=====+    +----+
+   |                 ^            claim   ^  get               |   waitFor
+   |      +----+     |                    |                    |
+   +----->| C1 |-----+                 +=====+    +----+       |
+          +----+                       | CB0 |<---| C0 |<------+
+                                       +=====+    +----+       |
+                                          ^                    |
+                                          |       +----+       |
+                                          +-------| C1 |<------+
+                                        waitFor   +----+
         </pre>
     </p>
     <h2>Code Example</h2>
@@ -151,11 +151,6 @@
         {
             // useful for flushing results to an IO device if necessary.
         }
-
-        public void onCompletion()
-        {
-            // do any clean up before shutdown.
-        }
     };
 
     RingBuffer&lt;ValueEntry&gt; ringBuffer =
@@ -165,18 +160,18 @@
 
     ConsumerBarrier&lt;ValueEntry&gt; consumerBarrier = ringBuffer.createConsumerBarrier();
     BatchConsumer&lt;ValueEntry&gt; batchConsumer = new BatchConsumer&lt;ValueEntry&gt;(consumerBarrier, batchHandler);
-    ProducerBarrier&lt;ValueEntry&gt; producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+    ringBuffer.setTrackedConsumers(batchConsumer);
 
     // Each consumer runs on a separate thread
     EXECUTOR.submit(batchConsumer);
 
     // Producers claim entries in sequence
-    ValueEntry entry = producerBarrier.nextEntry();
+    ValueEntry entry = ringBuffer.nextEntry();
 
     entry.setValue(1234);
 
     // make the entry available to consumers
-    producerBarrier.commit(entry);
+    ringBuffer.commit(entry);
     </pre>
 </body>
 </html>

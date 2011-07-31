@@ -35,14 +35,14 @@ public class BatchConsumerSequenceTrackingCallbackTest
         final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
         final SequenceTrackingHandler<StubEntry> handler = new TestSequenceTrackingHandler();
         final BatchConsumer<StubEntry> batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, handler);
-        final ProducerBarrier<StubEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+        ringBuffer.setTrackedConsumers(batchConsumer);
 
         Thread thread = new Thread(batchConsumer);
         thread.setDaemon(true);
         thread.start();
 
         assertEquals(-1L, batchConsumer.getSequence());
-        producerBarrier.commit(producerBarrier.nextEntry());
+        ringBuffer.commit(ringBuffer.nextEntry());
 
         callbackLatch.await();
         assertEquals(0L, batchConsumer.getSequence());

@@ -64,25 +64,24 @@ import java.util.concurrent.*;
  *
  * Disruptor:
  * ==========
- *                      track to prevent wrap
- *             +--------------------------------------+
- *             |                                      |
- *             |                                      v
- * +----+    +====+    +====+            +=====+    +----+
- * | P0 |--->| PB |--->| RB |<-----------| CB1 |<---| C2 |
- * +----+    +====+    +====+            +=====+    +----+
- *                claim   ^  get            |   waitFor
- *                        |                 |
- *                     +=====+    +----+    |
- *                     | CB0 |<---| C0 |<---+
- *                     +=====+    +----+    |
- *                        ^                 |
- *                        |       +----+    |
- *                        +-------| C1 |<---+
- *                      waitFor   +----+
+ *               track to prevent wrap
+ *              +---------------------+
+ *              |                     |
+ *              |                     v
+ * +----+    +====+     +=====+    +----+
+ * | P0 |--->| RB |<----| CB1 |<---| C2 |
+ * +----+    +====+     +=====+    +----+
+ *      claim   ^  get               |   waitFor
+ *              |                    |
+ *           +=====+    +----+       |
+ *           | CB0 |<---| C0 |<------+
+ *           +=====+    +----+       |
+ *              ^                    |
+ *              |       +----+       |
+ *              +-------| C1 |<------+
+ *            waitFor   +----+
  *
  * P0  - Producer 0
- * PB  - ProducerBarrier
  * RB  - RingBuffer
  * CB0 - ConsumerBarrier 0
  * C0  - Consumer 0
@@ -156,8 +155,9 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
     private final FizzBuzzHandler fizzBuzzHandler = new FizzBuzzHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchConsumer<FizzBuzzEntry> batchConsumerFizzBuzz =
             new BatchConsumer<FizzBuzzEntry>(consumerBarrierFizzBuzz, fizzBuzzHandler);
-
-    private final ProducerBarrier<FizzBuzzEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumerFizzBuzz);
+    {
+        ringBuffer.setTrackedConsumers(batchConsumerFizzBuzz);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,9 +182,9 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FizzBuzzEntry entry = producerBarrier.nextEntry();
+            FizzBuzzEntry entry = ringBuffer.nextEntry();
             entry.setValue(i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

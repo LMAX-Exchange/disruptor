@@ -16,19 +16,20 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.ProducerBarrier;
+import com.lmax.disruptor.RingBuffer;
 
 import java.util.concurrent.CyclicBarrier;
 
 public final class ValueProducer implements Runnable
 {
     private final CyclicBarrier cyclicBarrier;
-    private final ProducerBarrier<ValueEntry> producerBarrier;
+    private final ProducerBarrier<ValueEntry> ringBuffer;
     private final long iterations;
 
-    public ValueProducer(final CyclicBarrier cyclicBarrier, final ProducerBarrier<ValueEntry> producerBarrier, final long iterations)
+    public ValueProducer(final CyclicBarrier cyclicBarrier, final RingBuffer<ValueEntry> ringBuffer, final long iterations)
     {
         this.cyclicBarrier = cyclicBarrier;
-        this.producerBarrier = producerBarrier;
+        this.ringBuffer = ringBuffer;
         this.iterations = iterations;
     }
 
@@ -41,9 +42,9 @@ public final class ValueProducer implements Runnable
 
             for (long i = 0; i < iterations; i++)
             {
-                ValueEntry entry = producerBarrier.nextEntry();
+                ValueEntry entry = ringBuffer.nextEntry();
                 entry.setValue(i);
-                producerBarrier.commit(entry);
+                ringBuffer.commit(entry);
             }
         }
         catch (Exception ex)

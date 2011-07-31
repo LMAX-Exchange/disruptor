@@ -54,20 +54,19 @@ import java.util.concurrent.*;
  *
  * Disruptor:
  * ==========
- *                   track to prevent wrap
- *             +------------------------------------------------------------------------+
- *             |                                                                        |
- *             |                                                                        v
- * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- * | P0 |--->| PB |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
- * +----+    +====+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *                claim   ^  get    |  waitFor           |  waitFor           |  waitFor
- *                        |         |                    |                    |
- *                        +---------+--------------------+--------------------+
+ *                           track to prevent wrap
+ *              +-------------------------------------------------------------+
+ *              |                                                             |
+ *              |                                                             v
+ * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+ * | P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
+ * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
+ *      claim   ^  get    |  waitFor           |  waitFor           |  waitFor
+ *              |         |                    |                    |
+ *              +---------+--------------------+--------------------+
  *
  *
  * P0  - Producer 0
- * PB  - ProducerBarrier
  * RB  - RingBuffer
  * CB0 - ConsumerBarrier 0
  * C0  - Consumer 0
@@ -139,8 +138,9 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     private final FunctionHandler stepThreeFunctionHandler = new FunctionHandler(FunctionStep.THREE);
     private final BatchConsumer<FunctionEntry> stepThreeBatchConsumer =
         new BatchConsumer<FunctionEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
-
-    private final ProducerBarrier<FunctionEntry> producerBarrier = ringBuffer.createProducerBarrier(stepThreeBatchConsumer);
+    {
+        ringBuffer.setTrackedConsumers(stepThreeBatchConsumer);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -166,10 +166,10 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FunctionEntry entry = producerBarrier.nextEntry();
+            FunctionEntry entry = ringBuffer.nextEntry();
             entry.setOperandOne(i);
             entry.setOperandTwo(operandTwo--);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

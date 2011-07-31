@@ -27,7 +27,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.lib.action.DoAllAction;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,27 +34,15 @@ import org.junit.runner.RunWith;
 @RunWith(JMock.class)
 public final class ConsumerBarrierTest
 {
-    private Mockery context;
-    private RingBuffer<StubEntry> ringBuffer;
-    private Consumer consumer1;
-    private Consumer consumer2;
-    private Consumer consumer3;
-    private ConsumerBarrier<StubEntry> consumerBarrier;
-    private ProducerBarrier<StubEntry> producerBarrier;
+    private Mockery context = new Mockery();
+    private RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 64);
+    private Consumer consumer1 = context.mock(Consumer.class, "consumer1");
+    private Consumer consumer2 = context.mock(Consumer.class, "consumer2");
+    private Consumer consumer3 = context.mock(Consumer.class, "consumer3");
+    private ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier(consumer1, consumer2, consumer3);
 
-    @Before
-    public void setUp()
     {
-        context = new Mockery();
-
-        ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 64);
-
-        consumer1 = context.mock(Consumer.class, "consumer1");
-        consumer2 = context.mock(Consumer.class, "consumer2");
-        consumer3 = context.mock(Consumer.class, "consumer3");
-
-        consumerBarrier = ringBuffer.createConsumerBarrier(consumer1, consumer2, consumer3);
-        producerBarrier = ringBuffer.createProducerBarrier(new NoOpConsumer(ringBuffer));
+        ringBuffer.setTrackedConsumers(new NoOpConsumer(ringBuffer));
     }
 
     @Test
@@ -102,9 +89,9 @@ public final class ConsumerBarrierTest
         {
             public void run()
             {
-                StubEntry entry = producerBarrier.nextEntry();
+                StubEntry entry = ringBuffer.nextEntry();
                 entry.setValue((int) entry.getSequence());
-                producerBarrier.commit(entry);
+                ringBuffer.commit(entry);
 
                 for (StubConsumer stubWorker : workers)
                 {
@@ -218,9 +205,9 @@ public final class ConsumerBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            StubEntry entry = producerBarrier.nextEntry();
+            StubEntry entry = ringBuffer.nextEntry();
             entry.setValue((int)i);
-            producerBarrier.commit(entry);
+            ringBuffer.commit(entry);
         }
     }
 

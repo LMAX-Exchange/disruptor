@@ -49,20 +49,19 @@ import java.util.concurrent.*;
  *
  * Disruptor:
  * ==========
- *                   track to prevent wrap
- *             +-----------------------------+
- *             |                             |
- *             |                             v
- * +----+    +====+    +====+    +====+    +----+
- * | P0 |--->| PB |--->| RB |<---| CB |    | C0 |
- * +----+    +====+    +====+    +====+    +----+
- *                claim      get    ^        |
- *                                  |        |
- *                                  +--------+
- *                                    waitFor
+ *              track to prevent wrap
+ *              +-------------------+
+ *              |                   |
+ *              |                   v
+ * +----+    +====+    +====+    +----+
+ * | P0 |--->| RB |<---| CB |    | C0 |
+ * +----+    +====+    +====+    +----+
+ *      claim      get    ^        |
+ *                        |        |
+ *                        +--------+
+ *                          waitFor
  *
  * P0 - Producer 0
- * PB - ProducerBarrier
  * RB - RingBuffer
  * CB - ConsumerBarrier
  * C0 - Consumer 0
@@ -100,7 +99,9 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
     private final ValueAdditionHandler handler = new ValueAdditionHandler();
     private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ProducerBarrier<ValueEntry> producerBarrier = ringBuffer.createProducerBarrier(batchConsumer);
+    {
+        ringBuffer.setTrackedConsumers(batchConsumer);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,13 +154,13 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            producerBarrier.nextEntries(sequenceBatch);
+            ringBuffer.nextEntries(sequenceBatch);
             for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
             {
-                ValueEntry entry = producerBarrier.getEntry(c);
+                ValueEntry entry = ringBuffer.getEntry(c);
                 entry.setValue(offset++);
             }
-            producerBarrier.commit(sequenceBatch);
+            ringBuffer.commit(sequenceBatch);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
