@@ -21,7 +21,7 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Ring based store of reusable entries containing the data representing an {@link AbstractEntry} being exchanged between producers and consumers.
+ * Ring based store of reusable entries containing the data representing an {@link AbstractEntry} being exchanged between producers and consumersToTrack.
  *
  * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -38,8 +38,8 @@ public final class RingBuffer<T extends AbstractEntry>
     private final int ringModMask;
     private final AbstractEntry[] entries;
 
-    private long lastConsumerMinimum = INITIAL_CURSOR_VALUE;
-    private Consumer[] consumers;
+    private long lastTrackedConsumerMin = INITIAL_CURSOR_VALUE;
+    private Consumer[] consumersToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
     private final ClaimStrategy claimStrategy;
@@ -51,7 +51,7 @@ public final class RingBuffer<T extends AbstractEntry>
      * @param entryFactory to create {@link AbstractEntry}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      * @param claimStrategyOption threading strategy for producers claiming {@link AbstractEntry}s in the ring.
-     * @param waitStrategyOption waiting strategy employed by consumers waiting on {@link AbstractEntry}s becoming available.
+     * @param waitStrategyOption waiting strategy employed by consumersToTrack waiting on {@link AbstractEntry}s becoming available.
      */
     public RingBuffer(final EntryFactory<T> entryFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
@@ -83,7 +83,7 @@ public final class RingBuffer<T extends AbstractEntry>
     }
 
     /**
-     * Set the consumers that will be tracked to prevent the ring wrapping.
+     * Set the consumersToTrack that will be tracked to prevent the ring wrapping.
      *
      * This method must be called prior to claiming entries in the RingBuffer otherwise
      * a NullPointerException will be thrown.
@@ -92,7 +92,7 @@ public final class RingBuffer<T extends AbstractEntry>
      */
     public void setTrackedConsumers(final Consumer... consumers)
     {
-        this.consumers = consumers;
+        this.consumersToTrack = consumers;
     }
 
     /**
@@ -189,7 +189,6 @@ public final class RingBuffer<T extends AbstractEntry>
     public T claimEntryAtSequence(final long sequence)
     {
         ensureConsumersAreInRange(sequence);
-
         AbstractEntry entry = entries[(int)sequence & ringModMask];
         entry.setSequence(sequence);
 
@@ -214,8 +213,8 @@ public final class RingBuffer<T extends AbstractEntry>
     private void ensureConsumersAreInRange(final long sequence)
     {
         final long wrapPoint = sequence - entries.length;
-        while (wrapPoint > lastConsumerMinimum &&
-               wrapPoint > (lastConsumerMinimum = getMinimumSequence(consumers)))
+        while (wrapPoint > lastTrackedConsumerMin &&
+               wrapPoint > (lastTrackedConsumerMin = getMinimumSequence(consumersToTrack)))
         {
             Thread.yield();
         }
@@ -250,7 +249,7 @@ public final class RingBuffer<T extends AbstractEntry>
     }
 
     /**
-     * ConsumerBarrier handed out for gating consumers of the RingBuffer and dependent {@link Consumer}(s)
+     * ConsumerBarrier handed out for gating consumersToTrack of the RingBuffer and dependent {@link Consumer}(s)
      */
     private final class ConsumerTrackingConsumerBarrier implements ConsumerBarrier<T>
     {
