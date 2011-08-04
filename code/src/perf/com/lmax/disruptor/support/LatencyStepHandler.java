@@ -41,8 +41,12 @@ public final class LatencyStepHandler implements BatchHandler<ValueEntry>
                 break;
 
             case THREE:
+                // each value is a timestamp of when it was put on the ring
+                // calculate how long it took for the value to get to the end
                 long duration = System.nanoTime() - entry.getValue();
+                // approximate time for a single consumer
                 duration /= 3;
+                // adjust for nanoTime() calls
                 duration -= nanoTimeCost;
                 histogram.addObservation(duration);
                 break;

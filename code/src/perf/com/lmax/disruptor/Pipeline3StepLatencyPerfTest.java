@@ -104,6 +104,7 @@ public final class Pipeline3StepLatencyPerfTest
         histogram = new Histogram(intervals);
     }
 
+    // determine how long it takes to call System.nanoTime() (on average)
     private final long nanoTimeCost;
     {
         final long iterations = 10000000;
