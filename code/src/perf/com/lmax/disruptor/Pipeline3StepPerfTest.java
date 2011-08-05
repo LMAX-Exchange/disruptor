@@ -68,11 +68,11 @@ import java.util.concurrent.*;
  *
  * P1   - Publisher 1
  * RB   - RingBuffer
- * EPB1 - Barrier 1
+ * EPB1 - DependencyBarrier 1
  * EP1  - EventProcessor 1
- * EPB2 - Barrier 2
+ * EPB2 - DependencyBarrier 2
  * EP2  - EventProcessor 2
- * EPB3 - Barrier 3
+ * EPB3 - DependencyBarrier 3
  * EP3  - EventProcessor 3
  *
  * </pre>
@@ -124,20 +124,20 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final Barrier<FunctionEvent> stepOneBarrier = ringBuffer.createBarrier();
+    private final DependencyBarrier<FunctionEvent> stepOneDependencyBarrier = ringBuffer.createDependencyBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
     private final BatchEventProcessor<FunctionEvent> stepOneBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(stepOneBarrier, stepOneFunctionHandler);
+        new BatchEventProcessor<FunctionEvent>(stepOneDependencyBarrier, stepOneFunctionHandler);
 
-    private final Barrier<FunctionEvent> stepTwoBarrier = ringBuffer.createBarrier(stepOneBatchProcessor);
+    private final DependencyBarrier<FunctionEvent> stepTwoDependencyBarrier = ringBuffer.createDependencyBarrier(stepOneBatchProcessor);
     private final FunctionEventHandler stepTwoFunctionHandler = new FunctionEventHandler(FunctionStep.TWO);
     private final BatchEventProcessor<FunctionEvent> stepTwoBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(stepTwoBarrier, stepTwoFunctionHandler);
+        new BatchEventProcessor<FunctionEvent>(stepTwoDependencyBarrier, stepTwoFunctionHandler);
 
-    private final Barrier<FunctionEvent> stepThreeBarrier = ringBuffer.createBarrier(stepTwoBatchProcessor);
+    private final DependencyBarrier<FunctionEvent> stepThreeDependencyBarrier = ringBuffer.createDependencyBarrier(stepTwoBatchProcessor);
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(stepThreeBarrier, stepThreeFunctionHandler);
+        new BatchEventProcessor<FunctionEvent>(stepThreeDependencyBarrier, stepThreeFunctionHandler);
     {
         ringBuffer.setTrackedProcessors(stepThreeBatchProcessor);
     }

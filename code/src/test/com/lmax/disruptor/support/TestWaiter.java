@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.Barrier;
+import com.lmax.disruptor.DependencyBarrier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,29 +27,29 @@ public final class TestWaiter implements Callable<List<StubEvent>>
     private final long toWaitForSequence;
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
-    private final Barrier<StubEvent> barrier;
+    private final DependencyBarrier<StubEvent> dependencyBarrier;
 
     public TestWaiter(final CyclicBarrier cyclicBarrier,
-                      final Barrier<StubEvent> barrier,
+                      final DependencyBarrier<StubEvent> dependencyBarrier,
                       final long initialSequence,
                       final long toWaitForSequence)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.initialSequence = initialSequence;
         this.toWaitForSequence = toWaitForSequence;
-        this.barrier = barrier;
+        this.dependencyBarrier = dependencyBarrier;
     }
 
     @Override
     public List<StubEvent> call() throws Exception
     {
         cyclicBarrier.await();
-        barrier.waitFor(toWaitForSequence);
+        dependencyBarrier.waitFor(toWaitForSequence);
 
         final List<StubEvent> messages = new ArrayList<StubEvent>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)
         {
-            messages.add(barrier.getEvent(l));
+            messages.add(dependencyBarrier.getEvent(l));
         }
 
         return messages;

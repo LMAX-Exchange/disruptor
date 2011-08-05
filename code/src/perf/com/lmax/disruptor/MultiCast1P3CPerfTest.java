@@ -82,7 +82,7 @@ import java.util.concurrent.*;
  *
  * P1  - Publisher 1
  * RB  - RingBuffer
- * EPB - Barrier
+ * EPB - DependencyBarrier
  * EP1 - EventProcessor 1
  * EP2 - EventProcessor 2
  * EP3 - EventProcessor 3
@@ -130,7 +130,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final Barrier<ValueEvent> barrier = ringBuffer.createBarrier();
+    private final DependencyBarrier<ValueEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
 
     private final ValueMutationEventHandler[] handlers = new ValueMutationEventHandler[NUM_EVENT_PROCESSORS];
     {
@@ -141,9 +141,9 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
     private final BatchEventProcessor[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
     {
-        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(barrier, handlers[0]);
-        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(barrier, handlers[1]);
-        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(barrier, handlers[2]);
+        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[2]);
         ringBuffer.setTrackedProcessors(batchEventProcessors);
     }
 

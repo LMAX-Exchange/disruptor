@@ -96,14 +96,14 @@ public final class RingBuffer<T extends AbstractEvent>
     }
 
     /**
-     * Create a {@link Barrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
+     * Create a {@link DependencyBarrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
      *
      * @param processorsToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public Barrier<T> createBarrier(final EventProcessor... processorsToTrack)
+    public DependencyBarrier<T> createDependencyBarrier(final EventProcessor... processorsToTrack)
     {
-        return new EventProcessorTrackingBarrier(processorsToTrack);
+        return new EventProcessorTrackingDependencyBarrier(processorsToTrack);
     }
 
     /**
@@ -249,14 +249,14 @@ public final class RingBuffer<T extends AbstractEvent>
     }
 
     /**
-     * Barrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
+     * DependencyBarrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
      */
-    private final class EventProcessorTrackingBarrier implements Barrier<T>
+    private final class EventProcessorTrackingDependencyBarrier implements DependencyBarrier<T>
     {
         private final EventProcessor[] eventProcessors;
         private volatile boolean alerted = false;
 
-        public EventProcessorTrackingBarrier(final EventProcessor... eventProcessors)
+        public EventProcessorTrackingDependencyBarrier(final EventProcessor... eventProcessors)
         {
             this.eventProcessors = eventProcessors;
         }

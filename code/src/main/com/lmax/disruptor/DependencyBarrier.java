@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> {@link AbstractEvent} implementation stored in the {@link RingBuffer}
  */
-public interface Barrier<T extends AbstractEvent>
+public interface DependencyBarrier<T extends AbstractEvent>
 {
     /**
      * Get the {@link AbstractEvent} for a given sequence from the underlying {@link RingBuffer}.

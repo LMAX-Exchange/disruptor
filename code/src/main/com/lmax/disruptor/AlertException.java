@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Used to alert {@link EventProcessor}s waiting at a {@link Barrier} of status changes.
+ * Used to alert {@link EventProcessor}s waiting at a {@link DependencyBarrier} of status changes.
  * <P>
  * It does not fill in a stack trace for performance reasons.
  */

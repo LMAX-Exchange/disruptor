@@ -30,9 +30,9 @@ public final class LifecycleAwareTest
 
 
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
-    private final Barrier<StubEvent> barrier = ringBuffer.createBarrier();
+    private final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
     private final LifecycleAwareBatchEventHandler handler = new LifecycleAwareBatchEventHandler();
-    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(barrier, handler);
+    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(dependencyBarrier, handler);
 
     @Test
     public void shouldNotifyOfBatchProcessorLifecycle() throws Exception

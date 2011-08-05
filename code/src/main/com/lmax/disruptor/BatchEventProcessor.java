@@ -31,7 +31,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
     public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
-    private final Barrier<T> barrier;
+    private final DependencyBarrier<T> dependencyBarrier;
     private final BatchEventHandler<T> eventHandler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private volatile boolean running = true;
@@ -40,13 +40,13 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      * Construct a batch processor that will automatically track the progress by updating its sequence when
      * the {@link BatchEventHandler#onAvailable(AbstractEvent)} method returns.
      *
-     * @param barrier on which it is waiting.
+     * @param dependencyBarrier on which it is waiting.
      * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
      */
-    public BatchEventProcessor(final Barrier<T> barrier,
+    public BatchEventProcessor(final DependencyBarrier<T> dependencyBarrier,
                                final BatchEventHandler<T> eventHandler)
     {
-        this.barrier = barrier;
+        this.dependencyBarrier = dependencyBarrier;
         this.eventHandler = eventHandler;
     }
 
@@ -56,13 +56,13 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      * completed with a sequence within a batch.  Sequence will be updated at the end of
      * a batch regardless.
      *
-     * @param barrier on which it is waiting.
+     * @param dependencyBarrier on which it is waiting.
      * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
      */
-    public BatchEventProcessor(final Barrier<T> barrier,
+    public BatchEventProcessor(final DependencyBarrier<T> dependencyBarrier,
                                final SequenceTrackingEventHandler<T> eventHandler)
     {
-        this.barrier = barrier;
+        this.dependencyBarrier = dependencyBarrier;
         this.eventHandler = eventHandler;
 
         eventHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
@@ -78,7 +78,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     public void halt()
     {
         running = false;
-        barrier.alert();
+        dependencyBarrier.alert();
     }
 
     /**
@@ -97,13 +97,13 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     }
 
     /**
-     * Get the {@link Barrier} the {@link EventProcessor} is waiting on.
+     * Get the {@link DependencyBarrier} the {@link EventProcessor} is waiting on.
      *
-      * @return the barrier this {@link EventProcessor} is using.
+      * @return the dependencyBarrier this {@link EventProcessor} is using.
      */
-    public Barrier<? extends T> getBarrier()
+    public DependencyBarrier<? extends T> getDependencyBarrier()
     {
-        return barrier;
+        return dependencyBarrier;
     }
 
     /**
@@ -124,10 +124,10 @@ public final class BatchEventProcessor<T extends AbstractEvent>
         {
             try
             {
-                final long availableSequence = barrier.waitFor(nextSequence);
+                final long availableSequence = dependencyBarrier.waitFor(nextSequence);
                 while (nextSequence <= availableSequence)
                 {
-                    event = barrier.getEvent(nextSequence);
+                    event = dependencyBarrier.getEvent(nextSequence);
                     eventHandler.onAvailable(event);
                     nextSequence++;
                 }

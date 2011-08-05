@@ -31,7 +31,7 @@ public interface EventProcessor extends Runnable
 
     /**
      * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.
-     * It will call {@link Barrier#alert()} to notify the thread to check status.
+     * It will call {@link DependencyBarrier#alert()} to notify the thread to check status.
      */
     void halt();
 }

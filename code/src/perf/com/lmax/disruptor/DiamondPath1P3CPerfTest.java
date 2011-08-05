@@ -83,10 +83,10 @@ import java.util.concurrent.*;
  *
  * P1   - Publisher 1
  * RB   - RingBuffer
- * EPB1 - Barrier 1
+ * EPB1 - DependencyBarrier 1
  * EP1  - EventProcessor 1
  * EP2  - EventProcessor 2
- * EPB2 - Barrier 2
+ * EPB2 - DependencyBarrier 2
  * EP3  - EventProcessor 3
  *
  * </pre>
@@ -139,22 +139,22 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final Barrier<FizzBuzzEvent> barrier = ringBuffer.createBarrier();
+    private final DependencyBarrier<FizzBuzzEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
 
     private final FizzBuzzEventHandler fizzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizz =
-        new BatchEventProcessor<FizzBuzzEvent>(barrier, fizzHandler);
+        new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrier, fizzHandler);
 
     private final FizzBuzzEventHandler buzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorBuzz =
-        new BatchEventProcessor<FizzBuzzEvent>(barrier, buzzHandler);
+        new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrier, buzzHandler);
 
-    private final Barrier<FizzBuzzEvent> barrierFizzBuzz =
-        ringBuffer.createBarrier(batchProcessorFizz, batchProcessorBuzz);
+    private final DependencyBarrier<FizzBuzzEvent> dependencyBarrierFizzBuzz =
+        ringBuffer.createDependencyBarrier(batchProcessorFizz, batchProcessorBuzz);
 
     private final FizzBuzzEventHandler fizzBuzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
-            new BatchEventProcessor<FizzBuzzEvent>(barrierFizzBuzz, fizzBuzzHandler);
+            new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrierFizzBuzz, fizzBuzzHandler);
     {
         ringBuffer.setTrackedProcessors(batchProcessorFizzBuzz);
     }
