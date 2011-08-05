@@ -26,7 +26,7 @@ import static com.lmax.disruptor.Util.getMinimumSequence;
  * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class RingBuffer<T extends AbstractEvent>
-    implements Publisher<T>
+    implements PublishPort<T>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;

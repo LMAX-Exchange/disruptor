@@ -20,7 +20,7 @@ package com.lmax.disruptor;
  *
  * @param <T> {@link AbstractEvent} implementation stored in the {@link RingBuffer}
  */
-public interface Publisher<T extends AbstractEvent>
+public interface PublishPort<T extends AbstractEvent>
 {
     /**
      * Get the {@link AbstractEvent} for a given sequence from the underlying {@link RingBuffer}.

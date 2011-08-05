@@ -43,7 +43,7 @@ public final class SequenceBatch
     }
 
     /**
-     * Set the end of the batch sequence.  To be used by the {@link Publisher}.
+     * Set the end of the batch sequence.  To be used by the {@link PublishPort}.
      *
      * @param end sequence in the batch.
      */
