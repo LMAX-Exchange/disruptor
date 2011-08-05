@@ -34,7 +34,7 @@ public class RingBufferTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final EventProcessorBarrier<StubEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final Barrier<StubEvent> barrier = ringBuffer.createBarrier();
     {
         ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
     }
@@ -50,7 +50,7 @@ public class RingBufferTest
         oldEvent.copy(expectedEvent);
         ringBuffer.publish(oldEvent);
 
-        long sequence = eventProcessorBarrier.waitFor(0);
+        long sequence = barrier.waitFor(0);
         assertEquals(0, sequence);
 
         StubEvent event = ringBuffer.getEvent(sequence);
@@ -70,7 +70,7 @@ public class RingBufferTest
         oldEvent.copy(expectedEvent);
         ringBuffer.publish(oldEvent);
 
-        long sequence = eventProcessorBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
         StubEvent event = ringBuffer.getEvent(sequence);
@@ -82,7 +82,7 @@ public class RingBufferTest
     @Test
     public void shouldGetWithTimeout() throws Exception
     {
-        long sequence = eventProcessorBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = barrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequence);
     }
 
@@ -112,7 +112,7 @@ public class RingBufferTest
         }
 
         int expectedSequence = numMessages - 1;
-        long available = eventProcessorBarrier.waitFor(expectedSequence);
+        long available = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = 0; i < numMessages; i++)
@@ -134,7 +134,7 @@ public class RingBufferTest
         }
 
         int expectedSequence = numMessages + offset - 1;
-        long available = eventProcessorBarrier.waitFor(expectedSequence);
+        long available = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = offset; i < numMessages + offset; i++)
@@ -152,7 +152,7 @@ public class RingBufferTest
         expectedEvent.setValue((int) expectedSequence);
         ringBuffer.publishWithForce(expectedEvent);
 
-        long sequence = eventProcessorBarrier.waitFor(expectedSequence);
+        long sequence = barrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
         StubEvent event = ringBuffer.getEvent(sequence);
@@ -168,7 +168,7 @@ public class RingBufferTest
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, ringBufferSize);
-        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.createEventProcessorBarrier());
+        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.createBarrier());
         ringBuffer.setTrackedProcessors(processor);
 
         Thread thread = new Thread(new Runnable()
@@ -203,9 +203,9 @@ public class RingBufferTest
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final EventProcessorBarrier<StubEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+        final Barrier<StubEvent> barrier = ringBuffer.createBarrier();
 
-        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, eventProcessorBarrier, initial, toWaitFor));
+        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, barrier, initial, toWaitFor));
 
         cyclicBarrier.await();
 
@@ -214,12 +214,12 @@ public class RingBufferTest
 
     private static final class TestEventProcessor implements EventProcessor
     {
-        private final EventProcessorBarrier<StubEvent> eventProcessorBarrier;
+        private final Barrier<StubEvent> barrier;
         private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
 
-        public TestEventProcessor(final EventProcessorBarrier<StubEvent> eventProcessorBarrier)
+        public TestEventProcessor(final Barrier<StubEvent> barrier)
         {
-            this.eventProcessorBarrier = eventProcessorBarrier;
+            this.barrier = barrier;
         }
 
         @Override
@@ -238,7 +238,7 @@ public class RingBufferTest
         {
             try
             {
-                eventProcessorBarrier.waitFor(0L);
+                barrier.waitFor(0L);
             }
             catch (Exception ex)
             {

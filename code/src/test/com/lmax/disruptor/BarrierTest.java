@@ -32,15 +32,15 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(JMock.class)
-public final class EventProcessorBarrierTest
+public final class BarrierTest
 {
     private Mockery context = new Mockery();
     private RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 64);
     private EventProcessor eventProcessor1 = context.mock(EventProcessor.class, "ep1");
     private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
     private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
-    private EventProcessorBarrier<StubEvent> eventProcessorBarrier =
-        ringBuffer.createEventProcessorBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
+    private Barrier<StubEvent> barrier =
+        ringBuffer.createBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
 
     {
         ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
@@ -67,7 +67,7 @@ public final class EventProcessorBarrierTest
             }
         });
 
-        long completedWorkSequence = eventProcessorBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -84,7 +84,7 @@ public final class EventProcessorBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final EventProcessorBarrier eventProcessorBarrier = ringBuffer.createEventProcessorBarrier(workers);
+        final Barrier barrier = ringBuffer.createBarrier(workers);
 
         Runnable runnable = new Runnable()
         {
@@ -104,7 +104,7 @@ public final class EventProcessorBarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages;
-        long completedWorkSequence = eventProcessorBarrier.waitFor(expectedNumberMessages);
+        long completedWorkSequence = barrier.waitFor(expectedNumberMessages);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -136,7 +136,7 @@ public final class EventProcessorBarrierTest
             {
                 try
                 {
-                    eventProcessorBarrier.waitFor(expectedNumberMessages - 1);
+                    barrier.waitFor(expectedNumberMessages - 1);
                 }
                 catch (AlertException e)
                 {
@@ -151,7 +151,7 @@ public final class EventProcessorBarrierTest
 
         t.start();
         assertTrue(latch.await(1, TimeUnit.SECONDS));
-        eventProcessorBarrier.alert();
+        barrier.alert();
         t.join();
 
         assertTrue("Thread was not interrupted", alerted[0]);
@@ -170,7 +170,7 @@ public final class EventProcessorBarrierTest
             eventProcessors[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final EventProcessorBarrier eventProcessorBarrier = ringBuffer.createEventProcessorBarrier(eventProcessors);
+        final Barrier barrier = ringBuffer.createBarrier(eventProcessors);
 
         Runnable runnable = new Runnable()
         {
@@ -186,20 +186,20 @@ public final class EventProcessorBarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages - 1;
-        long completedWorkSequence = eventProcessorBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = barrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
     @Test
     public void shouldSetAndClearAlertStatus()
     {
-        assertFalse(eventProcessorBarrier.isAlerted());
+        assertFalse(barrier.isAlerted());
 
-        eventProcessorBarrier.alert();
-        assertTrue(eventProcessorBarrier.isAlerted());
+        barrier.alert();
+        assertTrue(barrier.isAlerted());
 
-        eventProcessorBarrier.clearAlert();
-        assertFalse(eventProcessorBarrier.isAlerted());
+        barrier.clearAlert();
+        assertFalse(barrier.isAlerted());
     }
 
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException

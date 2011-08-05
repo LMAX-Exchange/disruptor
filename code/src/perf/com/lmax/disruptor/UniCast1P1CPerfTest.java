@@ -61,7 +61,7 @@ import java.util.concurrent.*;
  *
  * P1  - Publisher 1
  * RB  - RingBuffer
- * EPB - EventProcessorBarrier
+ * EPB - Barrier
  * EP1 - EventProcessor 1
  *
  * </pre>
@@ -94,9 +94,9 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
         new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
-    private final EventProcessorBarrier<ValueEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final Barrier<ValueEvent> barrier = ringBuffer.createBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(barrier, handler);
     {
         ringBuffer.setTrackedProcessors(batchEventProcessor);
     }

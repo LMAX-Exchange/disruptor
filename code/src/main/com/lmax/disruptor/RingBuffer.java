@@ -26,7 +26,7 @@ import static com.lmax.disruptor.Util.getMinimumSequence;
  * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class RingBuffer<T extends AbstractEvent>
-    implements PublisherBarrier<T>
+    implements Publisher<T>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -96,14 +96,14 @@ public final class RingBuffer<T extends AbstractEvent>
     }
 
     /**
-     * Create a {@link EventProcessorBarrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
+     * Create a {@link Barrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
      *
      * @param processorsToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public EventProcessorBarrier<T> createEventProcessorBarrier(final EventProcessor... processorsToTrack)
+    public Barrier<T> createBarrier(final EventProcessor... processorsToTrack)
     {
-        return new ProcessorTrackingEventProcessorBarrier(processorsToTrack);
+        return new EventProcessorTrackingBarrier(processorsToTrack);
     }
 
     /**
@@ -249,14 +249,14 @@ public final class RingBuffer<T extends AbstractEvent>
     }
 
     /**
-     * EventProcessorBarrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
+     * Barrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
      */
-    private final class ProcessorTrackingEventProcessorBarrier implements EventProcessorBarrier<T>
+    private final class EventProcessorTrackingBarrier implements Barrier<T>
     {
         private final EventProcessor[] eventProcessors;
         private volatile boolean alerted = false;
 
-        public ProcessorTrackingEventProcessorBarrier(final EventProcessor... eventProcessors)
+        public EventProcessorTrackingBarrier(final EventProcessor... eventProcessors)
         {
             this.eventProcessors = eventProcessors;
         }

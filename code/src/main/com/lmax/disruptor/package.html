@@ -158,8 +158,8 @@
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    EventProcessorBarrier&lt;ValueEvent&gt; eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
-    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(eventProcessorBarrier, batchHandler);
+    Barrier&lt;ValueEvent&gt; barrier = ringBuffer.createBarrier();
+    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(barrier, batchHandler);
     ringBuffer.setTrackedProcessors(batchProcessor);
 
     // Each processor runs on a separate thread

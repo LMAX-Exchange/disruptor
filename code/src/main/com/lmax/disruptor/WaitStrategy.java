@@ -39,7 +39,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, EventProcessorBarrier barrier,  long sequence)
+    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, Barrier barrier,  long sequence)
         throws AlertException, InterruptedException;
 
     /**
@@ -55,7 +55,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, EventProcessorBarrier barrier, long sequence, long timeout, TimeUnit units)
+    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, Barrier barrier, long sequence, long timeout, TimeUnit units)
         throws AlertException, InterruptedException;
 
     /**
@@ -118,7 +118,7 @@ public interface WaitStrategy
         private final Condition processorNotifyCondition = lock.newCondition();
 
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -157,7 +157,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -223,7 +223,7 @@ public interface WaitStrategy
     static final class YieldingStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -255,7 +255,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -314,7 +314,7 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -344,7 +344,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final Barrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {

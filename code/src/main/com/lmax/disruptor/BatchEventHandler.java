@@ -33,9 +33,9 @@ public interface BatchEventHandler<T extends AbstractEvent>
     void onAvailable(T event) throws Exception;
 
     /**
-     * Called after each batch of events has been have been processed before the next waitFor call on a {@link EventProcessorBarrier}.
+     * Called after each batch of events has been have been processed before the next waitFor call on a {@link Barrier}.
      * <p>
-     * This can be taken as a hint to do flush type operations before waiting once again on the {@link EventProcessorBarrier}.
+     * This can be taken as a hint to do flush type operations before waiting once again on the {@link Barrier}.
      * The user should not expect any pattern or frequency to the batch size.
      *
      * @throws Exception if the BatchEventHandler would like the exception handled further up the chain.
