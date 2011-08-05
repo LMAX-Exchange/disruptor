@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.StubEntry;
+import com.lmax.disruptor.support.StubEvent;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,18 +29,18 @@ public final class LifecycleAwareTest
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 
-    private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 16);
-    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    private final LifecycleAwareBatchHandler handler = new LifecycleAwareBatchHandler();
-    private final BatchConsumer batchConsumer = new BatchConsumer<StubEntry>(consumerBarrier, handler);
+    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
+    private final EventProcessorBarrier<StubEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final LifecycleAwareBatchEventHandler handler = new LifecycleAwareBatchEventHandler();
+    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(eventProcessorBarrier, handler);
 
     @Test
-    public void shouldNotifyOfBatchConsumerLifecycle() throws Exception
+    public void shouldNotifyOfBatchProcessorLifecycle() throws Exception
     {
-        new Thread(batchConsumer).start();
+        new Thread(batchEventProcessor).start();
 
         startLatch.await();
-        batchConsumer.halt();
+        batchEventProcessor.halt();
 
         shutdownLatch.await();
 
@@ -48,13 +48,13 @@ public final class LifecycleAwareTest
         assertThat(Integer.valueOf(handler.shutdownCounter), is(Integer.valueOf(1)));
     }
 
-    private final class LifecycleAwareBatchHandler implements BatchHandler<StubEntry>, LifecycleAware
+    private final class LifecycleAwareBatchEventHandler implements BatchEventHandler<StubEvent>, LifecycleAware
     {
         private int startCounter = 0;
         private int shutdownCounter = 0;
 
         @Override
-        public void onAvailable(final StubEntry entry) throws Exception
+        public void onAvailable(final StubEvent event) throws Exception
         {
         }
 

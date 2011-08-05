@@ -21,12 +21,12 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Ring based store of reusable entries containing the data representing an {@link AbstractEntry} being exchanged between producers and consumersToTrack.
+ * Ring based store of reusable events containing the data representing an {@link AbstractEvent} being exchanged between publisher and processorsToTrack.
  *
- * @param <T> AbstractEntry implementation storing the data for sharing during exchange or parallel coordination of an event.
+ * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<T extends AbstractEntry>
-    implements ProducerBarrier<T>
+public final class RingBuffer<T extends AbstractEvent>
+    implements PublisherBarrier<T>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -36,10 +36,10 @@ public final class RingBuffer<T extends AbstractEntry>
     public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
 
     private final int ringModMask;
-    private final AbstractEntry[] entries;
+    private final AbstractEvent[] events;
 
-    private long lastTrackedConsumerMin = INITIAL_CURSOR_VALUE;
-    private Consumer[] consumersToTrack;
+    private long minProcessorSequence = INITIAL_CURSOR_VALUE;
+    private EventProcessor[] processorsToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
     private final ClaimStrategy claimStrategy;
@@ -48,78 +48,78 @@ public final class RingBuffer<T extends AbstractEntry>
     /**
      * Construct a RingBuffer with the full option set.
      *
-     * @param entryFactory to create {@link AbstractEntry}s for filling the RingBuffer
+     * @param eventFactory to create {@link AbstractEvent}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for producers claiming {@link AbstractEntry}s in the ring.
-     * @param waitStrategyOption waiting strategy employed by consumersToTrack waiting on {@link AbstractEntry}s becoming available.
+     * @param claimStrategyOption threading strategy for publisher claiming {@link AbstractEvent}s in the ring.
+     * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on {@link AbstractEvent}s becoming available.
      */
-    public RingBuffer(final EntryFactory<T> entryFactory, final int size,
+    public RingBuffer(final EventFactory<T> eventFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
-        entries = new AbstractEntry[sizeAsPowerOfTwo];
+        events = new AbstractEvent[sizeAsPowerOfTwo];
 
         this.claimStrategyOption = claimStrategyOption;
         claimStrategy = claimStrategyOption.newInstance();
         waitStrategy = waitStrategyOption.newInstance();
 
-        fill(entryFactory);
+        fill(eventFactory);
     }
 
     /**
      * Construct a RingBuffer with default strategies of:
      * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#BLOCKING}
      *
-     * @param entryFactory to create {@link AbstractEntry}s for filling the RingBuffer
+     * @param eventFactory to create {@link AbstractEvent}s for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      */
-    public RingBuffer(final EntryFactory<T> entryFactory, final int size)
+    public RingBuffer(final EventFactory<T> eventFactory, final int size)
     {
-        this(entryFactory, size,
+        this(eventFactory, size,
              ClaimStrategy.Option.MULTI_THREADED,
              WaitStrategy.Option.BLOCKING);
     }
 
     /**
-     * Set the consumersToTrack that will be tracked to prevent the ring wrapping.
+     * Set the processorsToTrack that will be tracked to prevent the ring wrapping.
      *
-     * This method must be called prior to claiming entries in the RingBuffer otherwise
+     * This method must be called prior to claiming events in the RingBuffer otherwise
      * a NullPointerException will be thrown.
      *
-     * @param consumers to be tracked.
+     * @param eventProcessors to be tracked.
      */
-    public void setTrackedConsumers(final Consumer... consumers)
+    public void setTrackedProcessors(final EventProcessor... eventProcessors)
     {
-        this.consumersToTrack = consumers;
+        this.processorsToTrack = eventProcessors;
     }
 
     /**
-     * Create a {@link ConsumerBarrier} that gates on the RingBuffer and a list of {@link Consumer}s
+     * Create a {@link EventProcessorBarrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
      *
-     * @param consumersToTrack this barrier will track
+     * @param processorsToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public ConsumerBarrier<T> createConsumerBarrier(final Consumer... consumersToTrack)
+    public EventProcessorBarrier<T> createEventProcessorBarrier(final EventProcessor... processorsToTrack)
     {
-        return new ConsumerTrackingConsumerBarrier(consumersToTrack);
+        return new ProcessorTrackingEventProcessorBarrier(processorsToTrack);
     }
 
     /**
-     * The capacity of the RingBuffer to hold entries.
+     * The capacity of the RingBuffer to hold events.
      *
      * @return the size of the RingBuffer.
      */
     public int getCapacity()
     {
-        return entries.length;
+        return events.length;
     }
 
     /**
-     * Get the current sequence that producers have committed to the RingBuffer.
+     * Get the current sequence that is published to the RingBuffer.
      *
-     * @return the current committed sequence.
+     * @return the current published sequence.
      */
     public long getCursor()
     {
@@ -127,100 +127,100 @@ public final class RingBuffer<T extends AbstractEntry>
     }
 
     /**
-     * Get the {@link AbstractEntry} for a given sequence in the RingBuffer.
+     * Get the {@link AbstractEvent} for a given sequence in the RingBuffer.
      *
-     * @param sequence for the {@link AbstractEntry}
-     * @return {@link AbstractEntry} for the sequence
+     * @param sequence for the {@link AbstractEvent}
+     * @return {@link AbstractEvent} for the sequence
      */
     @SuppressWarnings("unchecked")
-    public T getEntry(final long sequence)
+    public T getEvent(final long sequence)
     {
-        return (T)entries[(int)sequence & ringModMask];
+        return (T) events[(int)sequence & ringModMask];
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public T nextEntry()
+    public T nextEvent()
     {
         final long sequence = claimStrategy.incrementAndGet();
-        ensureConsumersAreInRange(sequence);
+        ensureProcessorsAreInRange(sequence);
 
-        AbstractEntry entry = entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence);
+        AbstractEvent event = events[(int)sequence & ringModMask];
+        event.setSequence(sequence);
 
-        return (T)entry;
+        return (T) event;
     }
 
     @Override
-    public void commit(final T entry)
+    public void publish(final T event)
     {
-        commit(entry.getSequence(), 1);
+        publish(event.getSequence(), 1);
     }
 
     @Override
-    public SequenceBatch nextEntries(final SequenceBatch sequenceBatch)
+    public SequenceBatch nextEvents(final SequenceBatch sequenceBatch)
     {
         final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
         sequenceBatch.setEnd(sequence);
-        ensureConsumersAreInRange(sequence);
+        ensureProcessorsAreInRange(sequence);
 
         for (long i = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); i <= end; i++)
         {
-            AbstractEntry entry = entries[(int)i & ringModMask];
-            entry.setSequence(i);
+            AbstractEvent event = events[(int)i & ringModMask];
+            event.setSequence(i);
         }
 
         return sequenceBatch;
     }
 
     @Override
-    public void commit(final SequenceBatch sequenceBatch)
+    public void publish(final SequenceBatch sequenceBatch)
     {
-        commit(sequenceBatch.getEnd(), sequenceBatch.getSize());
+        publish(sequenceBatch.getEnd(), sequenceBatch.getSize());
     }
 
     /**
-     * Claim a specific sequence in the {@link RingBuffer} when only one producer is involved.
+     * Claim a specific sequence in the {@link RingBuffer} when only one publisher is involved.
      *
      * @param sequence to be claimed.
-     * @return the claimed {@link AbstractEntry}
+     * @return the claimed {@link AbstractEvent}
      */
     @SuppressWarnings("unchecked")
-    public T claimEntryAtSequence(final long sequence)
+    public T publishEventAtSequence(final long sequence)
     {
-        ensureConsumersAreInRange(sequence);
-        AbstractEntry entry = entries[(int)sequence & ringModMask];
-        entry.setSequence(sequence);
+        ensureProcessorsAreInRange(sequence);
+        AbstractEvent event = events[(int)sequence & ringModMask];
+        event.setSequence(sequence);
 
-        return (T)entry;
+        return (T)event;
     }
 
     /**
-     * Commit an entry back to the {@link RingBuffer} to make it visible to {@link Consumer}s.
-     * Only use this method when forcing a sequence and you are sure only one producer exists.
+     * Publish an event back to the {@link RingBuffer} to make it visible to {@link EventProcessor}s.
+     * Only use this method when forcing a sequence and you are sure only one publisher exists.
      * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
      *
-     * @param entry to be committed back to the {@link RingBuffer}
+     * @param event to be published from to the {@link RingBuffer}
      */
-    public void commitWithForce(final T entry)
+    public void publishWithForce(final T event)
     {
-        long sequence = entry.getSequence();
+        long sequence = event.getSequence();
         claimStrategy.setSequence(sequence);
         cursor = sequence;
         waitStrategy.signalAll();
     }
 
-    private void ensureConsumersAreInRange(final long sequence)
+    private void ensureProcessorsAreInRange(final long sequence)
     {
-        final long wrapPoint = sequence - entries.length;
-        while (wrapPoint > lastTrackedConsumerMin &&
-               wrapPoint > (lastTrackedConsumerMin = getMinimumSequence(consumersToTrack)))
+        final long wrapPoint = sequence - events.length;
+        while (wrapPoint > minProcessorSequence &&
+               wrapPoint > (minProcessorSequence = getMinimumSequence(processorsToTrack)))
         {
             Thread.yield();
         }
     }
 
-    private void commit(final long sequence, final long batchSize)
+    private void publish(final long sequence, final long batchSize)
     {
         if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
         {
@@ -240,46 +240,46 @@ public final class RingBuffer<T extends AbstractEntry>
         waitStrategy.signalAll();
     }
 
-    private void fill(final EntryFactory<T> entryFactory)
+    private void fill(final EventFactory<T> eventFactory)
     {
-        for (int i = 0; i < entries.length; i++)
+        for (int i = 0; i < events.length; i++)
         {
-            entries[i] = entryFactory.create();
+            events[i] = eventFactory.create();
         }
     }
 
     /**
-     * ConsumerBarrier handed out for gating consumersToTrack of the RingBuffer and dependent {@link Consumer}(s)
+     * EventProcessorBarrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
      */
-    private final class ConsumerTrackingConsumerBarrier implements ConsumerBarrier<T>
+    private final class ProcessorTrackingEventProcessorBarrier implements EventProcessorBarrier<T>
     {
-        private final Consumer[] consumers;
+        private final EventProcessor[] eventProcessors;
         private volatile boolean alerted = false;
 
-        public ConsumerTrackingConsumerBarrier(final Consumer... consumers)
+        public ProcessorTrackingEventProcessorBarrier(final EventProcessor... eventProcessors)
         {
-            this.consumers = consumers;
+            this.eventProcessors = eventProcessors;
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public T getEntry(final long sequence)
+        public T getEvent(final long sequence)
         {
-            return (T)entries[(int)sequence & ringModMask];
+            return (T) events[(int)sequence & ringModMask];
         }
 
         @Override
         public long waitFor(final long sequence)
             throws AlertException, InterruptedException
         {
-            return waitStrategy.waitFor(consumers, RingBuffer.this, this, sequence);
+            return waitStrategy.waitFor(eventProcessors, RingBuffer.this, this, sequence);
         }
 
         @Override
         public long waitFor(final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            return waitStrategy.waitFor(consumers, RingBuffer.this, this, sequence, timeout, units);
+            return waitStrategy.waitFor(eventProcessors, RingBuffer.this, this, sequence, timeout, units);
         }
 
         @Override

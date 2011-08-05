@@ -6,7 +6,7 @@
 </head>
 <body>
     <p>
-        The Disruptor is a concurrent programming framework for exchanging and coordinating work on a continuous series of items.
+        The Disruptor is a concurrent programming framework for exchanging and coordinating work on a continuous series of events.
         It can be used as an alternative to wiring processing stages together via queues.  The Disruptor design has the
         characteristics of generating significantly less garbage than queues and separates the concurrency concerns so
         non-locking algorithms can be employed resulting in greater scalability and performance.
@@ -20,103 +20,103 @@
     </p>
 
     <p>
-        <b>UniCast a series of items between 1 producer and 1 consumer.</b>
+        <b>UniCast a series of items between 1 publisher and 1 EventProcessor.</b>
         <pre>
                                           track to prevent wrap
                                           +-------------------+
                                           |                   |
                                           |                   v
-+----+    +----+             +----+    +====+    +====+    +----+
-| P0 |--->| C0 |             | P0 |--->| RB |<---| CB |    | C0 |
-+----+    +----+             +----+    +====+    +====+    +----+
-                                  claim      get    ^        |
-                                                    |        |
-                                                    +--------+
++----+    +-----+            +----+    +====+    +=====+   +-----+
+| P1 |--->| EP1 |            | P1 |--->| RB |<---| EPB |   | EP1 |
++----+    +-----+            +----+    +====+    +=====+   +-----+
+                                  claim      get    ^         |
+                                                    |         |
+                                                    +---------+
                                                       waitFor
         </pre>
     </p>
     <p>
-        <b>Sequence a series of messages from multiple producers</b>
+        <b>Sequence a series of messages from multiple publishers</b>
         <pre>
                                          track to prevent wrap
-                                         +--------------------+
-                                         |                    |
-                                         |                    v
-+----+                       +----+    +====+    +====+    +----+
-| P0 |------+                | P0 |--->| RB |<---| CB |    | C0 |
-+----+      |                +----+    +====+    +====+    +----+
-            v                            ^   get    ^         |
-+----+    +----+             +----+      |          |         |
-| P1 |--->| C1 |             | P1 |------+          +---------+
-+----+    +----+             +----+      |            waitFor
-            ^                            |
-+----+      |                +----+      |
-| P2 |------+                | P2 |------+
+                                         +---------------------+
+                                         |                     |
+                                         |                     v
++----+                       +----+    +====+    +=====+    +-----+
+| P1 |-------+               | P1 |--->| RB |<---| EPB |    | EP1 |
++----+       |               +----+    +====+    +=====+    +-----+
+             v                           ^   get    ^          |
++----+    +-----+            +----+      |          |          |
+| P2 |--->| EP1 |            | P2 |------+          +----------+
++----+    +-----+            +----+      |            waitFor
+             ^                           |
++----+       |               +----+      |
+| P3 |-------+               | P3 |------+
 +----+                       +----+
         </pre>
     </p>
     <p>
         <b>Pipeline a series of messages</b>
         <pre>
-                          +----+    +----+    +----+    +----+
-                          | P0 |--->| C0 |--->| C1 |--->| C2 |
-                          +----+    +----+    +----+    +----+
+                          +----+    +-----+    +-----+    +-----+
+                          | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
+                          +----+    +-----+    +-----+    +-----+
 
 
 
                           track to prevent wrap
-             +-------------------------------------------------------------+
-             |                                                             |
-             |                                                             v
-+----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
-| P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
-+----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
-     claim   ^  get    |  waitFor           |  waitFor           |  waitFor
-             |         |                    |                    |
-             +---------+--------------------+--------------------+
+             +-------------------------------------------------------------------+
+             |                                                                   |
+             |                                                                   v
++----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+| P1 |--->| RB |    | EPB1 |<---| EP1 |<---| EPB2 |<---| EP2 |<---| EPB3 |<---| EP3 |
++----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+     claim   ^  get    |   waitFor            |   waitFor            |  waitFor
+             |         |                      |                      |
+             +---------+----------------------+----------------------+
         </pre>
     </p>
     <p>
-        <b>Multicast a series of messages to multiple consumers</b>
+        <b>Multicast a series of messages to multiple EventProcessors</b>
         <pre>
-          +----+                                        track to prevent wrap
-   +----->| C0 |                         +-------------------+---------+---------+
-   |      +----+                         |                   |         |         |
-   |                                     |                   v         v         v
-+----+    +----+             +----+    +====+    +====+    +----+    +----+    +----+
-| P0 |--->| C1 |             | P0 |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
-+----+    +----+             +----+    +====+    +====+    +----+    +----+    +----+
-   |                              claim      get    ^        |         |         |
-   |      +----+                                    |        |         |         |
-   +----->| C2 |                                    +--------+---------+---------+
-          +----+                                                 waitFor
+          +-----+                                        track to prevent wrap
+   +----->| EP1 |                        +---------------------+----------+----------+
+   |      +-----+                        |                     |          |          |
+   |                                     |                     v          v          v
++----+    +-----+            +----+    +====+    +=====+    +-----+    +-----+    +-----+
+| P1 |--->| EP2 |            | P1 |--->| RB |<---| EPB |    | EP1 |    | EP2 |    | EP3 |
++----+    +-----+            +----+    +====+    +=====+    +-----+    +-----+    +-----+
+   |                              claim      get    ^          |          |          |
+   |      +-----+                                   |          |          |          |
+   +----->| EP3 |                                   +----------+----------+----------+
+          +-----+                                                 waitFor
         </pre>
     </p>
     <p>
         <b>Replicate a message then fold back the results</b>
         <pre>
-          +----+                           track to prevent wrap
-   +----->| C0 |-----+                    +---------------------+
-   |      +----+     |                    |                     |
-   |                 v                    |                     v
-+----+             +----+    +----+    +====+     +=====+    +----+
-| P0 |             | C2 |    | P0 |--->| RB |<----| CB1 |<---| C2 |
-+----+             +----+    +----+    +====+     +=====+    +----+
-   |                 ^            claim   ^  get               |   waitFor
-   |      +----+     |                    |                    |
-   +----->| C1 |-----+                 +=====+    +----+       |
-          +----+                       | CB0 |<---| C0 |<------+
-                                       +=====+    +----+       |
-                                          ^                    |
-                                          |       +----+       |
-                                          +-------| C1 |<------+
-                                        waitFor   +----+
+          +-----+                               track to prevent wrap
+   +----->| EP1 |-----+                   +--------------------------------+
+   |      +-----+     |                   |                                |
+   |                  v                   |                                v
++----+             +-----+   +----+    +====+               +======+    +-----+
+| P1 |             | EP3 |   | P1 |--->| RB |<--------------| EPB2 |<---| EP3 |
++----+             +-----+   +----+    +====+               +======+    +-----+
+   |                  ^           claim   ^  get                |   waitFor
+   |      +-----+     |                   |                     |
+   +----->| EP2 |-----+                +======+    +-----+      |
+          +-----+                      | EPB1 |<---| EP1 |<-----+
+                                       +======+    +-----+      |
+                                          ^                     |
+                                          |        +-----+      |
+                                          +--------| EP2 |<-----+
+                                         waitFor   +-----+
         </pre>
     </p>
     <h2>Code Example</h2>
     <pre>
-    // Entry holder for data to be exchange that must extend AbstractEntry
-    public final class ValueEntry extends AbstractEntry
+    // Event holder for data to be exchange that must extend AbstractEvent
+    public final class ValueEvent extends AbstractEvent
     {
         private long value;
 
@@ -130,21 +130,21 @@
             this.value = value;
         }
 
-        public final static EntryFactory&lt;ValueEntry&gt; ENTRY_FACTORY = new EntryFactory&lt;ValueEntry&gt;()
+        public final static EventFactory&lt;ValueEvent&gt; EVENT_FACTORY = new EventFactory&lt;ValueEvent&gt;()
         {
-            public ValueEntry create()
+            public ValueEvent create()
             {
-                return new ValueEntry();
+                return new ValueEvent();
             }
         };
     }
 
-    // Callback handler which can be implemented by consumers
-    final BatchHandler&lt;ValueEntry&gt; batchHandler = new BatchHandler&lt;ValueEntry&gt;()
+    // Callback handler which can be implemented by EventProcessors
+    final BatchHandler&lt;ValueEvent&gt; batchHandler = new BatchHandler&lt;ValueEvent&gt;()
     {
-        public void onAvailable(final ValueEntry entry) throws Exception
+        public void onAvailable(final ValueEvent event) throws Exception
         {
-            // process a new entry as it becomes available.
+            // process a new event as it becomes available.
         }
 
         public void onEndOfBatch() throws Exception
@@ -153,25 +153,25 @@
         }
     };
 
-    RingBuffer&lt;ValueEntry&gt; ringBuffer =
-        new RingBuffer&lt;ValueEntry&gt;(ValueEntry.ENTRY_FACTORY, SIZE,
+    RingBuffer&lt;ValueEvent&gt; ringBuffer =
+        new RingBuffer&lt;ValueEvent&gt;(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    ConsumerBarrier&lt;ValueEntry&gt; consumerBarrier = ringBuffer.createConsumerBarrier();
-    BatchConsumer&lt;ValueEntry&gt; batchConsumer = new BatchConsumer&lt;ValueEntry&gt;(consumerBarrier, batchHandler);
-    ringBuffer.setTrackedConsumers(batchConsumer);
+    EventProcessorBarrier&lt;ValueEvent&gt; eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(eventProcessorBarrier, batchHandler);
+    ringBuffer.setTrackedProcessors(batchProcessor);
 
-    // Each consumer runs on a separate thread
-    EXECUTOR.submit(batchConsumer);
+    // Each processor runs on a separate thread
+    EXECUTOR.submit(batchProcessor);
 
-    // Producers claim entries in sequence
-    ValueEntry entry = ringBuffer.nextEntry();
+    // Publishers claim events in sequence
+    ValueEvent event = ringBuffer.nextEvent();
 
-    entry.setValue(1234);
+    event.setValue(1234);
 
-    // make the entry available to consumers
-    ringBuffer.commit(entry);
+    // make the event available to EventProcessors
+    ringBuffer.publish(event);
     </pre>
 </body>
 </html>

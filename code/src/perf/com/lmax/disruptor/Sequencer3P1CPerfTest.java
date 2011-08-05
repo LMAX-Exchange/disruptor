@@ -23,18 +23,18 @@ import java.util.concurrent.*;
 /**
  * <pre>
  *
- * Sequence a series of events from multiple producers going to one consumer.
+ * Sequence a series of events from multiple publishers going to one event processor.
  *
  * +----+
- * | P0 |------+
+ * | P1 |------+
  * +----+      |
  *             v
- * +----+    +----+
- * | P1 |--->| C1 |
- * +----+    +----+
+ * +----+    +-----+
+ * | P1 |--->| EP1 |
+ * +----+    +-----+
  *             ^
  * +----+      |
- * | P2 |------+
+ * | P3 |------+
  * +----+
  *
  *
@@ -42,87 +42,87 @@ import java.util.concurrent.*;
  * ============
  *
  * +----+  put
- * | P0 |------+
+ * | P1 |------+
  * +----+      |
  *             v   take
- * +----+    +====+    +----+
- * | P1 |--->| Q0 |<---| C0 |
- * +----+    +====+    +----+
+ * +----+    +====+    +-----+
+ * | P2 |--->| Q1 |<---| EP1 |
+ * +----+    +====+    +-----+
  *             ^
  * +----+      |
- * | P2 |------+
+ * | P3 |------+
  * +----+
  *
- * P0 - Producer 0
- * P1 - Producer 1
- * P2 - Producer 2
- * Q0 - Queue 0
- * C0 - Consumer 0
+ * P1  - Publisher 1
+ * P2  - Publisher 2
+ * P3  - Publisher 3
+ * Q1  - Queue 1
+ * EP1 - EventProcessor 1
  *
  *
  * Disruptor:
  * ==========
  *             track to prevent wrap
- *             +--------------------+
- *             |                    |
- *             |                    v
- * +----+    +====+    +====+    +----+
- * | P0 |--->| RB |<---| CB |    | C0 |
- * +----+    +====+    +====+    +----+
- *             ^   get    ^         |
- * +----+      |          |         |
- * | P1 |------+          +---------+
+ *             +---------------------+
+ *             |                     |
+ *             |                     v
+ * +----+    +====+    +=====+    +-----+
+ * | P1 |--->| RB |<---| EPB |    | EP1 |
+ * +----+    +====+    +=====+    +-----+
+ *             ^   get    ^          |
+ * +----+      |          |          |
+ * | P2 |------+          +----------+
  * +----+      |            waitFor
  *             |
  * +----+      |
- * | P2 |------+
+ * | P3 |------+
  * +----+
  *
- * P0 - Producer 0
- * P1 - Producer 1
- * P2 - Producer 2
- * RB - RingBuffer
- * CB - ConsumerBarrier
- * C0 - Consumer 0
+ * P1  - Publisher 1
+ * P2  - Publisher 2
+ * P3  - Publisher 3
+ * RB  - RingBuffer
+ * EPB - EventProcessorBarrier
+ * EP1 - EventProcessor 1
  *
  * </pre>
  */
 public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int NUM_PRODUCERS = 3;
+    private static final int NUM_PUBLISHERS = 3;
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PRODUCERS + 1);
-    private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PRODUCERS + 1);
+    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
+    private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final ValueAdditionQueueConsumer queueConsumer = new ValueAdditionQueueConsumer(blockingQueue);
-    private final ValueQueueProducer[] valueQueueProducers = new ValueQueueProducer[NUM_PRODUCERS];
+    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
+    private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
     {
-        valueQueueProducers[0] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
-        valueQueueProducers[1] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
-        valueQueueProducers[2] = new ValueQueueProducer(cyclicBarrier, blockingQueue, ITERATIONS);
+        valueQueuePublishers[0] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
+        valueQueuePublishers[1] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
+        valueQueuePublishers[2] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
+    private final RingBuffer<ValueEvent> ringBuffer =
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.MULTI_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    private final ValueAdditionHandler handler = new ValueAdditionHandler();
-    private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
-    private final ValueProducer[] valueProducers = new ValueProducer[NUM_PRODUCERS];
+    private final EventProcessorBarrier<ValueEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handler);
+    private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
     {
-        valueProducers[0] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
-        valueProducers[1] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
-        valueProducers[2] = new ValueProducer(cyclicBarrier, ringBuffer, ITERATIONS);
+        valuePublishers[0] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
+        valuePublishers[1] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
+        valuePublishers[2] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
 
-        ringBuffer.setTrackedConsumers(batchConsumer);
+        ringBuffer.setTrackedProcessors(batchEventProcessor);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,30 +138,30 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runQueuePass(final int passNumber) throws Exception
     {
-        Future[] futures = new Future[NUM_PRODUCERS];
-        for (int i = 0; i < NUM_PRODUCERS; i++)
+        Future[] futures = new Future[NUM_PUBLISHERS];
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = EXECUTOR.submit(valueQueueProducers[i]);
+            futures[i] = EXECUTOR.submit(valueQueuePublishers[i]);
         }
-        Future consumerFuture = EXECUTOR.submit(queueConsumer);
+        Future processorFuture = EXECUTOR.submit(queueProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
 
-        for (int i = 0; i < NUM_PRODUCERS; i++)
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
             futures[i].get();
         }
 
-        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS) - 1L;
-        while (expectedSequence > queueConsumer.getSequence())
+        final long expectedSequence = (ITERATIONS * NUM_PUBLISHERS) - 1L;
+        while (expectedSequence > queueProcessor.getSequence())
         {
             // busy spin
         }
 
-        long opsPerSecond = (NUM_PRODUCERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        batchConsumer.halt();
-        consumerFuture.cancel(true);
+        long opsPerSecond = (NUM_PUBLISHERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        batchEventProcessor.halt();
+        processorFuture.cancel(true);
 
         return opsPerSecond;
     }
@@ -169,29 +169,29 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber) throws Exception
     {
-        Future[] futures = new Future[NUM_PRODUCERS];
-        for (int i = 0; i < NUM_PRODUCERS; i++)
+        Future[] futures = new Future[NUM_PUBLISHERS];
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = EXECUTOR.submit(valueProducers[i]);
+            futures[i] = EXECUTOR.submit(valuePublishers[i]);
         }
-        EXECUTOR.submit(batchConsumer);
+        EXECUTOR.submit(batchEventProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
 
-        for (int i = 0; i < NUM_PRODUCERS; i++)
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
             futures[i].get();
         }
 
-        final long expectedSequence = (ITERATIONS * NUM_PRODUCERS * (passNumber + 1L)) - 1L;
-        while (expectedSequence > batchConsumer.getSequence())
+        final long expectedSequence = (ITERATIONS * NUM_PUBLISHERS * (passNumber + 1L)) - 1L;
+        while (expectedSequence > batchEventProcessor.getSequence())
         {
             // busy spin
         }
 
-        long opsPerSecond = (NUM_PRODUCERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        batchConsumer.halt();
+        long opsPerSecond = (NUM_PUBLISHERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        batchEventProcessor.halt();
 
         return opsPerSecond;
     }

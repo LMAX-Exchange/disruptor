@@ -30,53 +30,53 @@ import static org.junit.Assert.assertTrue;
 /**
  * <pre>
  *
- * Pipeline a series of stages from a producer to ultimate consumer.
- * Each consumer depends on the output of the previous consumer.
+ * Pipeline a series of stages from a publisher to ultimate event processor.
+ * Each event processor depends on the output of the event processor.
  *
- * +----+    +----+    +----+    +----+
- * | P0 |--->| C0 |--->| C1 |--->| C2 |
- * +----+    +----+    +----+    +----+
+ * +----+    +-----+    +-----+    +-----+
+ * | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
+ * +----+    +-----+    +-----+    +-----+
  *
  *
  * Queue Based:
  * ============
  *
- *        put      take       put      take       put      take
- * +----+    +====+    +----+    +====+    +----+    +====+    +----+
- * | P0 |--->| Q0 |<---| C0 |--->| Q1 |<---| C1 |--->| Q2 |<---| C2 |
- * +----+    +====+    +----+    +====+    +----+    +====+    +----+
+ *        put      take        put      take        put      take
+ * +----+    +====+    +-----+    +====+    +-----+    +====+    +-----+
+ * | P1 |--->| Q1 |<---| EP1 |--->| Q2 |<---| EP2 |--->| Q3 |<---| EP3 |
+ * +----+    +====+    +-----+    +====+    +-----+    +====+    +-----+
  *
- * P0 - Producer 0
- * Q0 - Queue 0
- * C0 - Consumer 0
- * Q1 - Queue 1
- * C1 - Consumer 1
- * Q2 - Queue 2
- * C2 - Consumer 1
+ * P1  - Publisher 1
+ * Q1  - Queue 1
+ * EP1 - EventProcessor 1
+ * Q2  - Queue 2
+ * EP2 - EventProcessor 2
+ * Q3  - Queue 3
+ * EP3 - EventProcessor 3
  *
  *
  * Disruptor:
  * ==========
  *                           track to prevent wrap
- *              +-------------------------------------------------------------+
- *              |                                                             |
- *              |                                                             v
- * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- * | P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
- * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *      claim   ^  get    |  waitFor           |  waitFor           |  waitFor
- *              |         |                    |                    |
- *              +---------+--------------------+--------------------+
+ *              +-------------------------------------------------------------------+
+ *              |                                                                   |
+ *              |                                                                   v
+ * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+ * | P1 |--->| RB |    | EPB1 |<---| EP1 |<---| EPB2 |<---| EP2 |<---| EPB3 |<---| EP3 |
+ * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+ *      claim   ^  get    |   waitFor            |   waitFor            |  waitFor
+ *              |         |                      |                      |
+ *              +---------+----------------------+----------------------+
+ *        </pre>
  *
- *
- * P0  - Producer 0
- * RB  - RingBuffer
- * CB0 - ConsumerBarrier 0
- * C0  - Consumer 0
- * CB1 - ConsumerBarrier 1
- * C1  - Consumer 1
- * CB2 - ConsumerBarrier 2
- * C2  - Consumer 2
+ * P1   - Publisher 1
+ * RB   - RingBuffer
+ * EPB1 - EventProcessorBarrier 1
+ * EP1  - EventProcessor 1
+ * EPB2 - EventProcessorBarrier 2
+ * EP2  - EventProcessor 2
+ * EPB3 - EventProcessorBarrier 3
+ * EP3  - EventProcessor 3
  *
  * </pre>
  *
@@ -84,11 +84,11 @@ import static org.junit.Assert.assertTrue;
  */
 public final class Pipeline3StepLatencyPerfTest
 {
-    private static final int NUM_CONSUMERS = 3;
+    private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 32;
     private static final long ITERATIONS = 1000 * 1000 * 50;
     private static final long PAUSE_NANOS = 1000;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final Histogram histogram;
     {
@@ -131,36 +131,36 @@ public final class Pipeline3StepLatencyPerfTest
     private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(SIZE);
     private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
 
-    private final LatencyStepQueueConsumer stepOneQueueConsumer =
-        new LatencyStepQueueConsumer(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost);
-    private final LatencyStepQueueConsumer stepTwoQueueConsumer =
-        new LatencyStepQueueConsumer(FunctionStep.TWO, stepTwoQueue, stepThreeQueue, histogram, nanoTimeCost);
-    private final LatencyStepQueueConsumer stepThreeQueueConsumer =
-        new LatencyStepQueueConsumer(FunctionStep.THREE, stepThreeQueue, null, histogram, nanoTimeCost);
+    private final LatencyStepQueueProcessor stepOneQueueProcessor =
+        new LatencyStepQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost);
+    private final LatencyStepQueueProcessor stepTwoQueueProcessor =
+        new LatencyStepQueueProcessor(FunctionStep.TWO, stepTwoQueue, stepThreeQueue, histogram, nanoTimeCost);
+    private final LatencyStepQueueProcessor stepThreeQueueProcessor =
+        new LatencyStepQueueProcessor(FunctionStep.THREE, stepThreeQueue, null, histogram, nanoTimeCost);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
+    private final RingBuffer<ValueEvent> ringBuffer =
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.BUSY_SPIN);
 
-    private final ConsumerBarrier<ValueEntry> stepOneConsumerBarrier = ringBuffer.createConsumerBarrier();
-    private final LatencyStepHandler stepOneFunctionHandler = new LatencyStepHandler(FunctionStep.ONE, histogram, nanoTimeCost);
-    private final BatchConsumer<ValueEntry> stepOneBatchConsumer =
-        new BatchConsumer<ValueEntry>(stepOneConsumerBarrier, stepOneFunctionHandler);
+    private final EventProcessorBarrier<ValueEvent> stepOneEventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
+    private final BatchEventProcessor<ValueEvent> stepOneBatchProcessor =
+        new BatchEventProcessor<ValueEvent>(stepOneEventProcessorBarrier, stepOneFunctionHandler);
 
-    private final ConsumerBarrier<ValueEntry> stepTwoConsumerBarrier = ringBuffer.createConsumerBarrier(stepOneBatchConsumer);
-    private final LatencyStepHandler stepTwoFunctionHandler = new LatencyStepHandler(FunctionStep.TWO, histogram, nanoTimeCost);
-    private final BatchConsumer<ValueEntry> stepTwoBatchConsumer =
-        new BatchConsumer<ValueEntry>(stepTwoConsumerBarrier, stepTwoFunctionHandler);
+    private final EventProcessorBarrier<ValueEvent> stepTwoEventProcessorBarrier = ringBuffer.createEventProcessorBarrier(stepOneBatchProcessor);
+    private final LatencyStepEventHandler stepTwoFunctionHandler = new LatencyStepEventHandler(FunctionStep.TWO, histogram, nanoTimeCost);
+    private final BatchEventProcessor<ValueEvent> stepTwoBatchProcessor =
+        new BatchEventProcessor<ValueEvent>(stepTwoEventProcessorBarrier, stepTwoFunctionHandler);
 
-    private final ConsumerBarrier<ValueEntry> stepThreeConsumerBarrier = ringBuffer.createConsumerBarrier(stepTwoBatchConsumer);
-    private final LatencyStepHandler stepThreeFunctionHandler = new LatencyStepHandler(FunctionStep.THREE, histogram, nanoTimeCost);
-    private final BatchConsumer<ValueEntry> stepThreeBatchConsumer =
-        new BatchConsumer<ValueEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
+    private final EventProcessorBarrier<ValueEvent> stepThreeEventProcessorBarrier = ringBuffer.createEventProcessorBarrier(stepTwoBatchProcessor);
+    private final LatencyStepEventHandler stepThreeFunctionHandler = new LatencyStepEventHandler(FunctionStep.THREE, histogram, nanoTimeCost);
+    private final BatchEventProcessor<ValueEvent> stepThreeBatchProcessor =
+        new BatchEventProcessor<ValueEvent>(stepThreeEventProcessorBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedConsumers(stepThreeBatchConsumer);
+        ringBuffer.setTrackedProcessors(stepThreeBatchProcessor);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,15 +206,15 @@ public final class Pipeline3StepLatencyPerfTest
 
     private void runDisruptorPass()
     {
-        EXECUTOR.submit(stepOneBatchConsumer);
-        EXECUTOR.submit(stepTwoBatchConsumer);
-        EXECUTOR.submit(stepThreeBatchConsumer);
+        EXECUTOR.submit(stepOneBatchProcessor);
+        EXECUTOR.submit(stepTwoBatchProcessor);
+        EXECUTOR.submit(stepThreeBatchProcessor);
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = ringBuffer.nextEntry();
-            entry.setValue(System.nanoTime());
-            ringBuffer.commit(entry);
+            ValueEvent event = ringBuffer.nextEvent();
+            event.setValue(System.nanoTime());
+            ringBuffer.publish(event);
 
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
@@ -224,24 +224,24 @@ public final class Pipeline3StepLatencyPerfTest
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchConsumer.getSequence() < expectedSequence)
+        while (stepThreeBatchProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
-        stepOneBatchConsumer.halt();
-        stepTwoBatchConsumer.halt();
-        stepThreeBatchConsumer.halt();
+        stepOneBatchProcessor.halt();
+        stepTwoBatchProcessor.halt();
+        stepThreeBatchProcessor.halt();
     }
 
     private void runQueuePass() throws Exception
     {
-        stepThreeQueueConsumer.reset();
+        stepThreeQueueProcessor.reset();
 
-        Future[] futures = new Future[NUM_CONSUMERS];
-        futures[0] = EXECUTOR.submit(stepOneQueueConsumer);
-        futures[1] = EXECUTOR.submit(stepTwoQueueConsumer);
-        futures[2] = EXECUTOR.submit(stepThreeQueueConsumer);
+        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
+        futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
+        futures[2] = EXECUTOR.submit(stepThreeQueueProcessor);
 
         for (long i = 0; i < ITERATIONS; i++)
         {
@@ -255,14 +255,14 @@ public final class Pipeline3StepLatencyPerfTest
         }
 
         final long expectedSequence = ITERATIONS - 1;
-        while (stepThreeQueueConsumer.getSequence() < expectedSequence)
+        while (stepThreeQueueProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
-        stepOneQueueConsumer.halt();
-        stepTwoQueueConsumer.halt();
-        stepThreeQueueConsumer.halt();
+        stepOneQueueProcessor.halt();
+        stepTwoQueueProcessor.halt();
+        stepThreeQueueProcessor.halt();
 
         for (Future future : futures)
         {

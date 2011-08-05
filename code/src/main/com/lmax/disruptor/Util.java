@@ -33,18 +33,18 @@ public final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link Consumer}s.
+     * Get the minimum sequence from an array of {@link EventProcessor}s.
      *
-     * @param consumers to compare.
+     * @param eventProcessors to compare.
      * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
      */
-    public static long getMinimumSequence(final Consumer[] consumers)
+    public static long getMinimumSequence(final EventProcessor[] eventProcessors)
     {
         long minimum = Long.MAX_VALUE;
 
-        for (Consumer consumer : consumers)
+        for (EventProcessor eventProcessor : eventProcessors)
         {
-            long sequence = consumer.getSequence();
+            long sequence = eventProcessor.getSequence();
             minimum = minimum < sequence ? minimum : sequence;
         }
 

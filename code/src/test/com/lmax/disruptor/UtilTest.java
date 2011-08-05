@@ -46,33 +46,33 @@ public final class UtilTest
     @Test
     public void shouldReturnMinimumSequence()
     {
-        final Consumer[] consumers = new Consumer[3];
-        consumers[0] = context.mock(Consumer.class, "c0");
-        consumers[1] = context.mock(Consumer.class, "c1");
-        consumers[2] = context.mock(Consumer.class, "c2");
+        final EventProcessor[] eventProcessors = new EventProcessor[3];
+        eventProcessors[0] = context.mock(EventProcessor.class, "c0");
+        eventProcessors[1] = context.mock(EventProcessor.class, "c1");
+        eventProcessors[2] = context.mock(EventProcessor.class, "c2");
 
         context.checking(new Expectations()
         {
             {
-                oneOf(consumers[0]).getSequence();
+                oneOf(eventProcessors[0]).getSequence();
                 will(returnValue(Long.valueOf(7L)));
 
-                oneOf(consumers[1]).getSequence();
+                oneOf(eventProcessors[1]).getSequence();
                 will(returnValue(Long.valueOf(3L)));
 
-                oneOf(consumers[2]).getSequence();
+                oneOf(eventProcessors[2]).getSequence();
                 will(returnValue(Long.valueOf(12L)));
             }
         });
 
-        Assert.assertEquals(3L, Util.getMinimumSequence(consumers));
+        Assert.assertEquals(3L, Util.getMinimumSequence(eventProcessors));
     }
 
     @Test
-    public void shouldReturnLongMaxWhenNoConsumers()
+    public void shouldReturnLongMaxWhenNoEventProcessors()
     {
-        final Consumer[] consumers = new Consumer[0];
+        final EventProcessor[] eventProcessors = new EventProcessor[0];
 
-        Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(consumers));
+        Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(eventProcessors));
     }
 }

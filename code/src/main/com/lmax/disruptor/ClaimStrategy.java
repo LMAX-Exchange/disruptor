@@ -18,14 +18,14 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Strategies employed for claiming the sequence of {@link AbstractEntry}s in the {@link RingBuffer} by producers.
+ * Strategies employed for claiming the sequence of {@link AbstractEvent}s in the {@link RingBuffer} by publishers.
  */
 public interface ClaimStrategy
 {
     /**
      * Claim the next sequence index in the {@link RingBuffer} and increment.
      *
-     * @return the {@link AbstractEntry} index to be used for the producer.
+     * @return the {@link AbstractEvent} index to be used for the publisher.
      */
     long incrementAndGet();
 
@@ -38,18 +38,18 @@ public interface ClaimStrategy
     long incrementAndGet(int delta);
 
     /**
-     * Set the current sequence value for claiming {@link AbstractEntry} in the {@link RingBuffer}
+     * Set the current sequence value for claiming {@link AbstractEvent} in the {@link RingBuffer}
      *
      * @param sequence to be set as the current value.
      */
     void setSequence(long sequence);
 
     /**
-     * Indicates the threading policy to be applied for claiming {@link AbstractEntry}s by producers to the {@link RingBuffer}
+     * Indicates the threading policy to be applied for claiming {@link AbstractEvent}s by publisher to the {@link RingBuffer}
      */
     enum Option
     {
-        /** Makes the {@link RingBuffer} thread safe for claiming {@link AbstractEntry}s by multiple producing threads. */
+        /** Makes the {@link RingBuffer} thread safe for claiming {@link AbstractEvent}s by multiple producing threads. */
         MULTI_THREADED
         {
             @Override
@@ -59,7 +59,7 @@ public interface ClaimStrategy
             }
         },
 
-         /** Optimised {@link RingBuffer} for use by single thread claiming {@link AbstractEntry}s as a producer. */
+         /** Optimised {@link RingBuffer} for use by single thread claiming {@link AbstractEvent}s as a publisher. */
         SINGLE_THREADED
         {
             @Override
@@ -78,7 +78,7 @@ public interface ClaimStrategy
     }
 
     /**
-     * Strategy to be used when there are multiple producer threads claiming {@link AbstractEntry}s.
+     * Strategy to be used when there are multiple publisher threads claiming {@link AbstractEvent}s.
      */
     static final class MultiThreadedStrategy
         implements ClaimStrategy
@@ -105,7 +105,7 @@ public interface ClaimStrategy
     }
 
     /**
-     * Optimised strategy can be used when there is a single producer thread claiming {@link AbstractEntry}s.
+     * Optimised strategy can be used when there is a single publisher thread claiming {@link AbstractEvent}s.
      */
     static final class SingleThreadedStrategy
         implements ClaimStrategy

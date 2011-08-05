@@ -24,30 +24,30 @@ import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Strategy employed for making {@link Consumer}s wait on a {@link RingBuffer}.
+ * Strategy employed for making {@link EventProcessor}s wait on a {@link RingBuffer}.
  */
 public interface WaitStrategy
 {
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer}
      *
-     * @param consumers further back the chain that must advance first
+     * @param eventProcessors further back the chain that must advance first
      * @param ringBuffer on which to wait.
-     * @param barrier the consumer is waiting on.
+     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Consumer[] consumers, RingBuffer ringBuffer, ConsumerBarrier barrier,  long sequence)
+    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, EventProcessorBarrier barrier,  long sequence)
         throws AlertException, InterruptedException;
 
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer} with a timeout specified.
      *
-     * @param consumers further back the chain that must advance first
+     * @param eventProcessors further back the chain that must advance first
      * @param ringBuffer on which to wait.
-     * @param barrier the consumer is waiting on.
+     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
      * @param timeout value to abort after.
      * @param units of the timeout value.
@@ -55,7 +55,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Consumer[] consumers, RingBuffer ringBuffer, ConsumerBarrier barrier, long sequence, long timeout, TimeUnit units)
+    long waitFor(EventProcessor[] eventProcessors, RingBuffer ringBuffer, EventProcessorBarrier barrier, long sequence, long timeout, TimeUnit units)
         throws AlertException, InterruptedException;
 
     /**
@@ -68,7 +68,8 @@ public interface WaitStrategy
      */
     enum Option
     {
-        /** This strategy uses a condition variable inside a lock to block the consumer which saves CPU resource as the expense of lock contention. */
+        /** This strategy uses a condition variable inside a lock to block the event processor
+         * which saves CPU resource as the expense of lock contention. */
         BLOCKING
         {
             @Override
@@ -107,17 +108,17 @@ public interface WaitStrategy
     }
 
     /**
-     * Blocking strategy that uses a lock and condition variable for {@link Consumer}s waiting on a barrier.
+     * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
      *
      * This strategy should be used when performance and low-latency are not as important as CPU resource.
      */
     static final class BlockingStrategy implements WaitStrategy
     {
         private final Lock lock = new ReentrantLock();
-        private final Condition consumerNotifyCondition = lock.newCondition();
+        private final Condition processorNotifyCondition = lock.newCondition();
 
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -132,7 +133,7 @@ public interface WaitStrategy
                         {
                             throw ALERT_EXCEPTION;
                         }
-                        consumerNotifyCondition.await();
+                        processorNotifyCondition.await();
                     }
                 }
                 finally
@@ -141,9 +142,9 @@ public interface WaitStrategy
                 }
             }
 
-            if (0 != consumers.length)
+            if (0 != eventProcessors.length)
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {
@@ -156,7 +157,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -173,7 +174,7 @@ public interface WaitStrategy
                             throw ALERT_EXCEPTION;
                         }
 
-                        if (!consumerNotifyCondition.await(timeout, units))
+                        if (!processorNotifyCondition.await(timeout, units))
                         {
                             break;
                         }
@@ -185,9 +186,9 @@ public interface WaitStrategy
                 }
             }
 
-            if (0 != consumers.length)
+            if (0 != eventProcessors.length)
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {
@@ -205,7 +206,7 @@ public interface WaitStrategy
             lock.lock();
             try
             {
-                consumerNotifyCondition.signalAll();
+                processorNotifyCondition.signalAll();
             }
             finally
             {
@@ -215,19 +216,19 @@ public interface WaitStrategy
     }
 
     /**
-     * Yielding strategy that uses a Thread.yield() for {@link Consumer}s waiting on a barrier.
+     * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier.
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
     static final class YieldingStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
 
-            if (0 == consumers.length)
+            if (0 == eventProcessors.length)
             {
                 while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
@@ -240,7 +241,7 @@ public interface WaitStrategy
             }
             else
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {
@@ -254,7 +255,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -262,7 +263,7 @@ public interface WaitStrategy
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
 
-            if (0 == consumers.length)
+            if (0 == eventProcessors.length)
             {
                 while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
@@ -280,7 +281,7 @@ public interface WaitStrategy
             }
             else
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {
@@ -305,7 +306,7 @@ public interface WaitStrategy
     }
 
     /**
-     * Busy Spin strategy that uses a busy spin loop for {@link Consumer}s waiting on a barrier.
+     * Busy Spin strategy that uses a busy spin loop for {@link EventProcessor}s waiting on a barrier.
      *
      * This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best
      * used when threads can be bound to specific CPU cores.
@@ -313,12 +314,12 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier, final long sequence)
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
 
-            if (0 == consumers.length)
+            if (0 == eventProcessors.length)
             {
                 while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
@@ -330,7 +331,7 @@ public interface WaitStrategy
             }
             else
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {
@@ -343,7 +344,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Consumer[] consumers, final RingBuffer ringBuffer, final ConsumerBarrier barrier,
+        public long waitFor(final EventProcessor[] eventProcessors, final RingBuffer ringBuffer, final EventProcessorBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -351,7 +352,7 @@ public interface WaitStrategy
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
 
-            if (0 == consumers.length)
+            if (0 == eventProcessors.length)
             {
                 while ((availableSequence = ringBuffer.getCursor()) < sequence)
                 {
@@ -368,7 +369,7 @@ public interface WaitStrategy
             }
             else
             {
-                while ((availableSequence = getMinimumSequence(consumers)) < sequence)
+                while ((availableSequence = getMinimumSequence(eventProcessors)) < sequence)
                 {
                     if (barrier.isAlerted())
                     {

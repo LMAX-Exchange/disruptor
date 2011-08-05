@@ -16,9 +16,9 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.Operation;
-import com.lmax.disruptor.support.ValueEntry;
-import com.lmax.disruptor.support.ValueMutationHandler;
-import com.lmax.disruptor.support.ValueMutationQueueConsumer;
+import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.support.ValueMutationEventHandler;
+import com.lmax.disruptor.support.ValueMutationQueueProcessor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,77 +27,77 @@ import java.util.concurrent.*;
 /**
  * <pre>
  *
- * MultiCast a series of items between 1 producer and 3 consumers.
+ * MultiCast a series of items between 1 publisher and 3 event processors.
  *
- *           +----+
- *    +----->| C0 |
- *    |      +----+
+ *           +-----+
+ *    +----->| EP1 |
+ *    |      +-----+
  *    |
- * +----+    +----+
- * | P0 |--->| C1 |
- * +----+    +----+
+ * +----+    +-----+
+ * | P1 |--->| EP2 |
+ * +----+    +-----+
  *    |
- *    |      +----+
- *    +----->| C2 |
- *           +----+
+ *    |      +-----+
+ *    +----->| EP3 |
+ *           +-----+
  *
  *
  * Queue Based:
  * ============
  *                 take
- *   put     +====+    +----+
- *    +----->| Q0 |<---| C0 |
- *    |      +====+    +----+
+ *   put     +====+    +-----+
+ *    +----->| Q1 |<---| EP1 |
+ *    |      +====+    +-----+
  *    |
- * +----+    +====+    +----+
- * | P0 |--->| Q1 |<---| C1 |
- * +----+    +====+    +----+
+ * +----+    +====+    +-----+
+ * | P1 |--->| Q2 |<---| EP2 |
+ * +----+    +====+    +-----+
  *    |
- *    |      +====+    +----+
- *    +----->| Q2 |<---| C2 |
- *           +====+    +----+
+ *    |      +====+    +-----+
+ *    +----->| Q3 |<---| EP3 |
+ *           +====+    +-----+
  *
- * P0 - Producer 0
- * Q0 - Queue 0
- * Q1 - Queue 1
- * Q2 - Queue 2
- * C0 - Consumer 0
- * C1 - Consumer 1
- * C2 - Consumer 2
+ * P1  - Publisher 1
+ * Q1  - Queue 1
+ * Q2  - Queue 2
+ * Q3  - Queue 3
+ * EP1 - EventProcessor 1
+ * EP2 - EventProcessor 2
+ * EP3 - EventProcessor 3
  *
  *
  * Disruptor:
  * ==========
- *                            track to prevent wrap
- *             +-------------------+---------+---------+
- *             |                   |         |         |
- *             |                   v         v         v
- * +----+    +====+    +====+    +----+    +----+    +----+
- * | P0 |--->| RB |<---| CB |    | C0 |    | C1 |    | C2 |
- * +----+    +====+    +====+    +----+    +----+    +----+
- *      claim      get    ^        |         |         |
- *                        |        |         |         |
- *                        +--------+---------+---------+
- *                                     waitFor
+ *                             track to prevent wrap
+ *             +---------------------+----------+----------+
+ *             |                     |          |          |
+ *             |                     v          v          v
+ * +----+    +====+    +=====+    +-----+    +-----+    +-----+
+ * | P1 |--->| RB |<---| EPB |    | EP1 |    | EP2 |    | EP3 |
+ * +----+    +====+    +=====+    +-----+    +-----+    +-----+
+ *      claim      get    ^          |          |          |
+ *                        |          |          |          |
+ *                        +----------+----------+----------+
+ *                                      waitFor
  *
- * P0 - Producer 0
- * RB - RingBuffer
- * CB - ConsumerBarrier
- * C0 - Consumer 0
- * C1 - Consumer 1
- * C2 - Consumer 2
+ * P1  - Publisher 1
+ * RB  - RingBuffer
+ * EPB - EventProcessorBarrier
+ * EP1 - EventProcessor 1
+ * EP2 - EventProcessor 2
+ * EP3 - EventProcessor 3
  *
  * </pre>
  */
 @SuppressWarnings("unchecked")
 public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int NUM_CONSUMERS = 3;
+    private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 32;
     private static final long ITERATIONS = 1000 * 1000 * 500;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
-    private final long[] results = new long[NUM_CONSUMERS];
+    private final long[] results = new long[NUM_EVENT_PROCESSORS];
     {
         for (long i = 0; i < ITERATIONS; i++)
         {
@@ -109,42 +109,42 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_CONSUMERS];
+    private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_EVENT_PROCESSORS];
     {
         blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE);
         blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE);
         blockingQueues[2] = new ArrayBlockingQueue<Long>(SIZE);
     }
 
-    private final ValueMutationQueueConsumer[] queueConsumers = new ValueMutationQueueConsumer[NUM_CONSUMERS];
+    private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
     {
-        queueConsumers[0] = new ValueMutationQueueConsumer(blockingQueues[0], Operation.ADDITION);
-        queueConsumers[1] = new ValueMutationQueueConsumer(blockingQueues[1], Operation.SUBTRACTION);
-        queueConsumers[2] = new ValueMutationQueueConsumer(blockingQueues[2], Operation.AND);
+        queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION);
+        queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION);
+        queueProcessors[2] = new ValueMutationQueueProcessor(blockingQueues[2], Operation.AND);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
+    private final RingBuffer<ValueEvent> ringBuffer =
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+    private final EventProcessorBarrier<ValueEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
 
-    private final ValueMutationHandler[] handlers = new ValueMutationHandler[NUM_CONSUMERS];
+    private final ValueMutationEventHandler[] handlers = new ValueMutationEventHandler[NUM_EVENT_PROCESSORS];
     {
-        handlers[0] = new ValueMutationHandler(Operation.ADDITION);
-        handlers[1] = new ValueMutationHandler(Operation.SUBTRACTION);
-        handlers[2] = new ValueMutationHandler(Operation.AND);
+        handlers[0] = new ValueMutationEventHandler(Operation.ADDITION);
+        handlers[1] = new ValueMutationEventHandler(Operation.SUBTRACTION);
+        handlers[2] = new ValueMutationEventHandler(Operation.AND);
     }
 
-    private final BatchConsumer[] batchConsumers = new BatchConsumer[NUM_CONSUMERS];
+    private final BatchEventProcessor[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
     {
-        batchConsumers[0] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[0]);
-        batchConsumers[1] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[1]);
-        batchConsumers[2] = new BatchConsumer<ValueEntry>(consumerBarrier, handlers[2]);
-        ringBuffer.setTrackedConsumers(batchConsumers);
+        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handlers[2]);
+        ringBuffer.setTrackedProcessors(batchEventProcessors);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,11 +160,11 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runQueuePass(final int passNumber) throws InterruptedException
     {
-        Future[] futures = new Future[NUM_CONSUMERS];
-        for (int i = 0; i < NUM_CONSUMERS; i++)
+        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
-            queueConsumers[i].reset();
-            futures[i] = EXECUTOR.submit(queueConsumers[i]);
+            queueProcessors[i].reset();
+            futures[i] = EXECUTOR.submit(queueProcessors[i]);
         }
 
         long start = System.currentTimeMillis();
@@ -178,29 +178,29 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         }
 
         final long expectedSequence = ITERATIONS - 1;
-        while (getMinimumSequence(queueConsumers) < expectedSequence)
+        while (getMinimumSequence(queueProcessors) < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        for (int i = 0; i < NUM_CONSUMERS; i++)
+        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
-            queueConsumers[i].halt();
+            queueProcessors[i].halt();
             futures[i].cancel(true);
-            Assert.assertEquals(results[i], queueConsumers[i].getValue());
+            Assert.assertEquals(results[i], queueProcessors[i].getValue());
         }
 
         return opsPerSecond;
     }
 
-    private long getMinimumSequence(final ValueMutationQueueConsumer[] queueConsumers)
+    private long getMinimumSequence(final ValueMutationQueueProcessor[] queueProcessors)
     {
         long minimum = Long.MAX_VALUE;
 
-        for (ValueMutationQueueConsumer consumer : queueConsumers)
+        for (ValueMutationQueueProcessor processor : queueProcessors)
         {
-            long sequence = consumer.getSequence();
+            long sequence = processor.getSequence();
             minimum = minimum < sequence ? minimum : sequence;
         }
 
@@ -210,31 +210,31 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber)
     {
-        for (int i = 0; i < NUM_CONSUMERS; i++)
+        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             handlers[i].reset();
-            EXECUTOR.submit(batchConsumers[i]);
+            EXECUTOR.submit(batchEventProcessors[i]);
         }
 
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEntry entry = ringBuffer.nextEntry();
-            entry.setValue(i);
-            ringBuffer.commit(entry);
+            ValueEvent event = ringBuffer.nextEvent();
+            event.setValue(i);
+            ringBuffer.publish(event);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (Util.getMinimumSequence(batchConsumers) < expectedSequence)
+        while (Util.getMinimumSequence(batchEventProcessors) < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        for (int i = 0; i < NUM_CONSUMERS; i++)
+        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
-            batchConsumers[i].halt();
+            batchEventProcessors[i].halt();
             Assert.assertEquals(results[i], handlers[i].getValue());
         }
 

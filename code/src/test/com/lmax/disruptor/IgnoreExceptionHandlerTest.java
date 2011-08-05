@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.TestEntry;
+import com.lmax.disruptor.support.TestEvent;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -40,18 +40,18 @@ public final class IgnoreExceptionHandlerTest
     public void shouldHandleAndIgnoreException()
     {
         final Exception ex = new Exception();
-        final AbstractEntry entry = new TestEntry();
+        final AbstractEvent event = new TestEvent();
 
         final Logger logger = context.mock(Logger.class);
 
         context.checking(new Expectations()
         {
             {
-                oneOf(logger).log(Level.INFO, "Exception processing: " + entry, ex);
+                oneOf(logger).log(Level.INFO, "Exception processing: " + event, ex);
             }
         });
 
         ExceptionHandler exceptionHandler = new IgnoreExceptionHandler(logger);
-        exceptionHandler.handle(ex, entry);
+        exceptionHandler.handle(ex, event);
     }
 }

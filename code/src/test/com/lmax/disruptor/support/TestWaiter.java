@@ -15,41 +15,41 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.ConsumerBarrier;
+import com.lmax.disruptor.EventProcessorBarrier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 
-public final class TestWaiter implements Callable<List<StubEntry>>
+public final class TestWaiter implements Callable<List<StubEvent>>
 {
     private final long toWaitForSequence;
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
-    private final ConsumerBarrier<StubEntry> consumerBarrier;
+    private final EventProcessorBarrier<StubEvent> eventProcessorBarrier;
 
     public TestWaiter(final CyclicBarrier cyclicBarrier,
-                      final ConsumerBarrier<StubEntry> consumerBarrier,
+                      final EventProcessorBarrier<StubEvent> eventProcessorBarrier,
                       final long initialSequence,
                       final long toWaitForSequence)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.initialSequence = initialSequence;
         this.toWaitForSequence = toWaitForSequence;
-        this.consumerBarrier = consumerBarrier;
+        this.eventProcessorBarrier = eventProcessorBarrier;
     }
 
     @Override
-    public List<StubEntry> call() throws Exception
+    public List<StubEvent> call() throws Exception
     {
         cyclicBarrier.await();
-        consumerBarrier.waitFor(toWaitForSequence);
+        eventProcessorBarrier.waitFor(toWaitForSequence);
 
-        final List<StubEntry> messages = new ArrayList<StubEntry>();
+        final List<StubEvent> messages = new ArrayList<StubEvent>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)
         {
-            messages.add(consumerBarrier.getEntry(l));
+            messages.add(eventProcessorBarrier.getEvent(l));
         }
 
         return messages;

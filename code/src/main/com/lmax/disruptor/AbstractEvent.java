@@ -16,31 +16,29 @@
 package com.lmax.disruptor;
 
 /**
- * Used to alert {@link EventProcessor}s waiting at a {@link EventProcessorBarrier} of status changes.
- * <P>
- * It does not fill in a stack trace for performance reasons.
+ * Base implementation that must be extended for {@link RingBuffer} events.
  */
-@SuppressWarnings("serial")
-public class AlertException extends Exception
+public abstract class AbstractEvent
 {
-    /** Pre-allocated exception to avoid garbage generation */
-    public static final AlertException ALERT_EXCEPTION = new AlertException();
+    private long sequence;
 
     /**
-     * Private constructor so only a single instance exists.
+     * Get the sequence number assigned to this event in series.
+     *
+     * @return the sequence number
      */
-    private AlertException()
+    public final long getSequence()
     {
+        return sequence;
     }
 
     /**
-     * Overridden so the stack trace is not filled in for this exception for performance reasons.
+     * Explicitly set the sequence number for this event.
      *
-     * @return this instance.
+     * @param sequence to be assigned to this Event
      */
-    @Override
-    public Throwable fillInStackTrace()
+    final void setSequence(final long sequence)
     {
-        return this;
+        this.sequence = sequence;
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.TestEntry;
+import com.lmax.disruptor.support.TestEvent;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -41,14 +41,14 @@ public final class FatalExceptionHandlerTest
     public void shouldHandleFatalException()
     {
         final Exception causeException = new Exception();
-        final AbstractEntry entry = new TestEntry();
+        final AbstractEvent event = new TestEvent();
 
         final Logger logger = context.mock(Logger.class);
 
         context.checking(new Expectations()
         {
             {
-                oneOf(logger).log(Level.SEVERE, "Exception processing: " + entry, causeException);
+                oneOf(logger).log(Level.SEVERE, "Exception processing: " + event, causeException);
             }
         });
 
@@ -56,7 +56,7 @@ public final class FatalExceptionHandlerTest
 
         try
         {
-            exceptionHandler.handle(causeException, entry);
+            exceptionHandler.handle(causeException, event);
         }
         catch (RuntimeException ex)
         {

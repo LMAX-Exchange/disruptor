@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.ValueAdditionHandler;
-import com.lmax.disruptor.support.ValueAdditionQueueConsumer;
-import com.lmax.disruptor.support.ValueEntry;
+import com.lmax.disruptor.support.ValueAdditionEventHandler;
+import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
+import com.lmax.disruptor.support.ValueEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,26 +25,26 @@ import java.util.concurrent.*;
 
 /**
  * <pre>
- * UniCast a series of items between 1 producer and 1 consumer.
- * This test illustrates the benefits of writing batches of 10 entries
+ * UniCast a series of items between 1 publisher and 1 event processor.
+ * This test illustrates the benefits of writing batches of 10 events
  * for exchange at a time.
  *
- * +----+    +----+
- * | P0 |--->| C0 |
- * +----+    +----+
+ * +----+    +-----+
+ * | P1 |--->| EP1 |
+ * +----+    +-----+
  *
  *
  * Queue Based:
  * ============
  *
  *        put      take
- * +----+    +====+    +----+
- * | P0 |--->| Q0 |<---| C0 |
- * +----+    +====+    +----+
+ * +----+    +====+    +-----+
+ * | P1 |--->| Q1 |<---| EP1 |
+ * +----+    +====+    +-----+
  *
- * P0 - Producer 0
- * Q0 - Queue 0
- * C0 - Consumer 0
+ * P1  - Publisher 1
+ * Q1  - Queue 1
+ * EP1 - EventProcessor 1
  *
  *
  * Disruptor:
@@ -53,25 +53,24 @@ import java.util.concurrent.*;
  *              +-------------------+
  *              |                   |
  *              |                   v
- * +----+    +====+    +====+    +----+
- * | P0 |--->| RB |<---| CB |    | C0 |
- * +----+    +====+    +====+    +----+
- *      claim      get    ^        |
- *                        |        |
- *                        +--------+
+ * +----+    +====+    +=====+   +-----+
+ * | P1 |--->| RB |<---| EPB |   | EP1 |
+ * +----+    +====+    +=====+   +-----+
+ *      claim      get    ^         |
+ *                        |         |
+ *                        +---------+
  *                          waitFor
  *
- * P0 - Producer 0
- * RB - RingBuffer
- * CB - ConsumerBarrier
- * C0 - Consumer 0
- *
+ * P1  - Publisher 1
+ * RB  - RingBuffer
+ * EPB - EventProcessorBarrier
+ * EP1 - EventProcessor 1
  * </pre>
  */
 public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000L * 1000L * 500L;
+    private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final long expectedResult;
@@ -88,19 +87,19 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final ValueAdditionQueueConsumer queueConsumer = new ValueAdditionQueueConsumer(blockingQueue);
+    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEntry> ringBuffer =
-        new RingBuffer<ValueEntry>(ValueEntry.ENTRY_FACTORY, SIZE,
+    private final RingBuffer<ValueEvent> ringBuffer =
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
-    private final ConsumerBarrier<ValueEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
-    private final ValueAdditionHandler handler = new ValueAdditionHandler();
-    private final BatchConsumer<ValueEntry> batchConsumer = new BatchConsumer<ValueEntry>(consumerBarrier, handler);
+    private final EventProcessorBarrier<ValueEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(eventProcessorBarrier, handler);
     {
-        ringBuffer.setTrackedConsumers(batchConsumer);
+        ringBuffer.setTrackedProcessors(batchEventProcessor);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +115,8 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     @Override
     protected long runQueuePass(final int passNumber) throws InterruptedException
     {
-        queueConsumer.reset();
-        Future future = EXECUTOR.submit(queueConsumer);
+        queueProcessor.reset();
+        Future future = EXECUTOR.submit(queueProcessor);
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -126,16 +125,16 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         }
 
         final long expectedSequence = ITERATIONS - 1L;
-        while (queueConsumer.getSequence() < expectedSequence)
+        while (queueProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        queueConsumer.halt();
+        queueProcessor.halt();
         future.cancel(true);
 
-        Assert.assertEquals(expectedResult, queueConsumer.getValue());
+        Assert.assertEquals(expectedResult, queueProcessor.getValue());
 
         return opsPerSecond;
     }
@@ -144,7 +143,7 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         handler.reset();
-        EXECUTOR.submit(batchConsumer);
+        EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
         final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
@@ -154,23 +153,23 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            ringBuffer.nextEntries(sequenceBatch);
+            ringBuffer.nextEvents(sequenceBatch);
             for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
             {
-                ValueEntry entry = ringBuffer.getEntry(c);
-                entry.setValue(offset++);
+                ValueEvent event = ringBuffer.getEvent(c);
+                event.setValue(offset++);
             }
-            ringBuffer.commit(sequenceBatch);
+            ringBuffer.publish(sequenceBatch);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (batchConsumer.getSequence() < expectedSequence)
+        while (batchEventProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        batchConsumer.halt();
+        batchEventProcessor.halt();
 
         Assert.assertEquals(expectedResult, handler.getValue());
 

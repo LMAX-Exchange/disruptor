@@ -16,18 +16,17 @@
 package com.lmax.disruptor;
 
 /**
- * Callback handler for uncaught exceptions in the {@link AbstractEvent} processing cycle of the {@link BatchEventProcessor}
+ * Implementations translate another data representations into {@link AbstractEvent}s claimed from the {@link RingBuffer}
+ *
+ * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface ExceptionHandler
+public interface EventTranslator<T extends AbstractEvent>
 {
     /**
-     * Strategy for handling uncaught exceptions when processing an {@link AbstractEvent}.
+     * Translate a data representation into fields set in given {@link AbstractEvent}
      *
-     * If the strategy wishes to suspend further processing by the {@link BatchEventProcessor}
-     * then is should throw a {@link RuntimeException}.
-     *
-     * @param ex the exception that propagated from the {@link BatchEventHandler}
-     * @param currentEvent being processed when the exception occurred.
+     * @param event into which the data should be translated.
+     * @return the resulting event after it has been updated.
      */
-    void handle(Exception ex, AbstractEvent currentEvent);
+    T translateTo(final T event);
 }

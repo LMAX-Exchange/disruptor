@@ -20,8 +20,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.lmax.disruptor.support.DaemonThreadFactory;
+import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
-import com.lmax.disruptor.support.StubEntry;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -33,10 +33,10 @@ import static org.junit.Assert.assertThat;
 public class RingBufferTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
-    private final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, 20);
-    private final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
+    private final EventProcessorBarrier<StubEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
     {
-        ringBuffer.setTrackedConsumers(new NoOpConsumer(ringBuffer));
+        ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
     }
 
     @Test
@@ -44,17 +44,17 @@ public class RingBufferTest
     {
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
 
-        StubEntry expectedEntry = new StubEntry(2701);
+        StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEntry oldEntry = ringBuffer.nextEntry();
-        oldEntry.copy(expectedEntry);
-        ringBuffer.commit(oldEntry);
+        StubEvent oldEvent = ringBuffer.nextEvent();
+        oldEvent.copy(expectedEvent);
+        ringBuffer.publish(oldEvent);
 
-        long sequence = consumerBarrier.waitFor(0);
+        long sequence = eventProcessorBarrier.waitFor(0);
         assertEquals(0, sequence);
 
-        StubEntry entry = ringBuffer.getEntry(sequence);
-        assertEquals(expectedEntry, entry);
+        StubEvent event = ringBuffer.getEvent(sequence);
+        assertEquals(expectedEvent , event);
 
         assertEquals(0L, ringBuffer.getCursor());
     }
@@ -64,41 +64,40 @@ public class RingBufferTest
     {
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
 
-        StubEntry expectedEntry = new StubEntry(2701);
+        StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEntry oldEntry = ringBuffer.nextEntry();
-        oldEntry.copy(expectedEntry);
-        ringBuffer.commit(oldEntry);
+        StubEvent oldEvent = ringBuffer.nextEvent();
+        oldEvent.copy(expectedEvent);
+        ringBuffer.publish(oldEvent);
 
-        long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = eventProcessorBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
-        StubEntry entry = ringBuffer.getEntry(sequence);
-        assertEquals(expectedEntry, entry);
+        StubEvent event = ringBuffer.getEvent(sequence);
+        assertEquals(expectedEvent, event);
 
         assertEquals(0L, ringBuffer.getCursor());
     }
 
-
     @Test
     public void shouldGetWithTimeout() throws Exception
     {
-        long sequence = consumerBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
+        long sequence = eventProcessorBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequence);
     }
 
     @Test
     public void shouldClaimAndGetInSeparateThread() throws Exception
     {
-        Future<List<StubEntry>> messages = getMessages(0, 0);
+        Future<List<StubEvent>> messages = getMessages(0, 0);
 
-        StubEntry expectedEntry = new StubEntry(2701);
+        StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEntry oldEntry = ringBuffer.nextEntry();
-        oldEntry.copy(expectedEntry);
-        ringBuffer.commit(oldEntry);
+        StubEvent oldEvent = ringBuffer.nextEvent();
+        oldEvent.copy(expectedEvent);
+        ringBuffer.publish(oldEvent);
 
-        assertEquals(expectedEntry, messages.get().get(0));
+        assertEquals(expectedEvent, messages.get().get(0));
     }
 
     @Test
@@ -107,18 +106,18 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEntry entry = ringBuffer.nextEntry();
-            entry.setValue(i);
-            ringBuffer.commit(entry);
+            StubEvent event = ringBuffer.nextEvent();
+            event.setValue(i);
+            ringBuffer.publish(event);
         }
 
         int expectedSequence = numMessages - 1;
-        long available = consumerBarrier.waitFor(expectedSequence);
+        long available = eventProcessorBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = 0; i < numMessages; i++)
         {
-            assertEquals(i, ringBuffer.getEntry(i).getValue());
+            assertEquals(i, ringBuffer.getEvent(i).getValue());
         }
     }
 
@@ -127,20 +126,20 @@ public class RingBufferTest
     {
         int numMessages = ringBuffer.getCapacity();
         int offset = 1000;
-        for (int i = 0; i < numMessages + offset ; i++)
+        for (int i = 0; i < numMessages + offset; i++)
         {
-            StubEntry entry = ringBuffer.nextEntry();
-            entry.setValue(i);
-            ringBuffer.commit(entry);
+            StubEvent event = ringBuffer.nextEvent();
+            event.setValue(i);
+            ringBuffer.publish(event);
         }
 
         int expectedSequence = numMessages + offset - 1;
-        long available = consumerBarrier.waitFor(expectedSequence);
+        long available = eventProcessorBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = offset; i < numMessages + offset; i++)
         {
-            assertEquals(i, ringBuffer.getEntry(i).getValue());
+            assertEquals(i, ringBuffer.getEvent(i).getValue());
         }
     }
 
@@ -149,28 +148,28 @@ public class RingBufferTest
     {
         long expectedSequence = 5;
 
-        StubEntry expectedEntry = ringBuffer.claimEntryAtSequence(expectedSequence);
-        expectedEntry.setValue((int) expectedSequence);
-        ringBuffer.commitWithForce(expectedEntry);
+        StubEvent expectedEvent = ringBuffer.publishEventAtSequence(expectedSequence);
+        expectedEvent.setValue((int) expectedSequence);
+        ringBuffer.publishWithForce(expectedEvent);
 
-        long sequence = consumerBarrier.waitFor(expectedSequence);
+        long sequence = eventProcessorBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
-        StubEntry entry = ringBuffer.getEntry(sequence);
-        assertEquals(expectedEntry, entry);
+        StubEvent event = ringBuffer.getEvent(sequence);
+        assertEquals(expectedEvent, event);
 
         assertEquals(expectedSequence, ringBuffer.getCursor());
     }
 
     @Test
-    public void shouldPreventProducersOvertakingConsumerWrapPoint() throws InterruptedException
+    public void shouldPreventPublishersOvertakingEventProcessorWrapPoint() throws InterruptedException
     {
         final int ringBufferSize = 4;
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
-        final AtomicBoolean producerComplete = new AtomicBoolean(false);
-        final RingBuffer<StubEntry> ringBuffer = new RingBuffer<StubEntry>(StubEntry.ENTRY_FACTORY, ringBufferSize);
-        final TestConsumer consumer = new TestConsumer(ringBuffer.createConsumerBarrier());
-        ringBuffer.setTrackedConsumers(consumer);
+        final AtomicBoolean publisherComplete = new AtomicBoolean(false);
+        final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, ringBufferSize);
+        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.createEventProcessorBarrier());
+        ringBuffer.setTrackedProcessors(processor);
 
         Thread thread = new Thread(new Runnable()
         {
@@ -179,48 +178,48 @@ public class RingBufferTest
             {
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
-                    StubEntry entry = ringBuffer.nextEntry();
-                    entry.setValue(i);
-                    ringBuffer.commit(entry);
+                    StubEvent event = ringBuffer.nextEvent();
+                    event.setValue(i);
+                    ringBuffer.publish(event);
                     latch.countDown();
                 }
 
-                producerComplete.set(true);
+                publisherComplete.set(true);
             }
         });
         thread.start();
 
         latch.await();
         assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
-        assertFalse(producerComplete.get());
+        assertFalse(publisherComplete.get());
 
-        consumer.run();
+        processor.run();
         thread.join();
 
-        assertTrue(producerComplete.get());
+        assertTrue(publisherComplete.get());
     }
 
-    private Future<List<StubEntry>> getMessages(final long initial, final long toWaitFor)
+    private Future<List<StubEvent>> getMessages(final long initial, final long toWaitFor)
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final ConsumerBarrier<StubEntry> consumerBarrier = ringBuffer.createConsumerBarrier();
+        final EventProcessorBarrier<StubEvent> eventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
 
-        final Future<List<StubEntry>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, consumerBarrier, initial, toWaitFor));
+        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, eventProcessorBarrier, initial, toWaitFor));
 
         cyclicBarrier.await();
 
         return f;
     }
 
-    private static final class TestConsumer implements Consumer
+    private static final class TestEventProcessor implements EventProcessor
     {
-        private final ConsumerBarrier<StubEntry> consumerBarrier;
+        private final EventProcessorBarrier<StubEvent> eventProcessorBarrier;
         private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
 
-        public TestConsumer(final ConsumerBarrier<StubEntry> consumerBarrier)
+        public TestEventProcessor(final EventProcessorBarrier<StubEvent> eventProcessorBarrier)
         {
-            this.consumerBarrier = consumerBarrier;
+            this.eventProcessorBarrier = eventProcessorBarrier;
         }
 
         @Override
@@ -239,12 +238,13 @@ public class RingBufferTest
         {
             try
             {
-                consumerBarrier.waitFor(0L);
+                eventProcessorBarrier.waitFor(0L);
             }
             catch (Exception ex)
             {
                 throw new RuntimeException(ex);
             }
+
             ++sequence;
         }
     }

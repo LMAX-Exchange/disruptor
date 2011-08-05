@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.FunctionEvent;
+import com.lmax.disruptor.support.FunctionEventHandler;
+import com.lmax.disruptor.support.FunctionQueueProcessor;
 import com.lmax.disruptor.support.FunctionStep;
-import com.lmax.disruptor.support.FunctionEntry;
-import com.lmax.disruptor.support.FunctionHandler;
-import com.lmax.disruptor.support.FunctionQueueConsumer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,62 +27,62 @@ import java.util.concurrent.*;
 /**
  * <pre>
  *
- * Pipeline a series of stages from a producer to ultimate consumer.
- * Each consumer depends on the output of the previous consumer.
+ * Pipeline a series of stages from a publisher to ultimate event processor.
+ * Each event processor depends on the output of the event processor.
  *
- * +----+    +----+    +----+    +----+
- * | P0 |--->| C0 |--->| C1 |--->| C2 |
- * +----+    +----+    +----+    +----+
+ * +----+    +-----+    +-----+    +-----+
+ * | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
+ * +----+    +-----+    +-----+    +-----+
  *
  *
  * Queue Based:
  * ============
  *
- *        put      take       put      take       put      take
- * +----+    +====+    +----+    +====+    +----+    +====+    +----+
- * | P0 |--->| Q0 |<---| C0 |--->| Q1 |<---| C1 |--->| Q2 |<---| C2 |
- * +----+    +====+    +----+    +====+    +----+    +====+    +----+
+ *        put      take        put      take        put      take
+ * +----+    +====+    +-----+    +====+    +-----+    +====+    +-----+
+ * | P1 |--->| Q1 |<---| EP1 |--->| Q2 |<---| EP2 |--->| Q3 |<---| EP3 |
+ * +----+    +====+    +-----+    +====+    +-----+    +====+    +-----+
  *
- * P0 - Producer 0
- * Q0 - Queue 0
- * C0 - Consumer 0
- * Q1 - Queue 1
- * C1 - Consumer 1
- * Q2 - Queue 2
- * C2 - Consumer 1
+ * P1  - Publisher 1
+ * Q1  - Queue 1
+ * EP1 - EventProcessor 1
+ * Q2  - Queue 2
+ * EP2 - EventProcessor 2
+ * Q3  - Queue 3
+ * EP3 - EventProcessor 3
  *
  *
  * Disruptor:
  * ==========
  *                           track to prevent wrap
- *              +-------------------------------------------------------------+
- *              |                                                             |
- *              |                                                             v
- * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- * | P0 |--->| RB |    | CB0 |<---| C0 |<---| CB1 |<---| C1 |<---| CB2 |<---| C2 |
- * +----+    +====+    +=====+    +----+    +=====+    +----+    +=====+    +----+
- *      claim   ^  get    |  waitFor           |  waitFor           |  waitFor
- *              |         |                    |                    |
- *              +---------+--------------------+--------------------+
+ *              +-------------------------------------------------------------------+
+ *              |                                                                   |
+ *              |                                                                   v
+ * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+ * | P1 |--->| RB |    | EPB1 |<---| EP1 |<---| EPB2 |<---| EP2 |<---| EPB3 |<---| EP3 |
+ * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
+ *      claim   ^  get    |   waitFor            |   waitFor            |  waitFor
+ *              |         |                      |                      |
+ *              +---------+----------------------+----------------------+
+ *        </pre>
  *
- *
- * P0  - Producer 0
- * RB  - RingBuffer
- * CB0 - ConsumerBarrier 0
- * C0  - Consumer 0
- * CB1 - ConsumerBarrier 1
- * C1  - Consumer 1
- * CB2 - ConsumerBarrier 2
- * C2  - Consumer 2
+ * P1   - Publisher 1
+ * RB   - RingBuffer
+ * EPB1 - EventProcessorBarrier 1
+ * EP1  - EventProcessor 1
+ * EPB2 - EventProcessorBarrier 2
+ * EP2  - EventProcessor 2
+ * EPB3 - EventProcessorBarrier 3
+ * EP3  - EventProcessor 3
  *
  * </pre>
  */
 public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int NUM_CONSUMERS = 3;
+    private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 32;
     private static final long ITERATIONS = 1000 * 1000 * 500;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_CONSUMERS);
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
     private final long expectedResult;
@@ -110,36 +110,36 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(SIZE);
     private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
 
-    private final FunctionQueueConsumer stepOneQueueConsumer =
-        new FunctionQueueConsumer(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
-    private final FunctionQueueConsumer stepTwoQueueConsumer =
-        new FunctionQueueConsumer(FunctionStep.TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
-    private final FunctionQueueConsumer stepThreeQueueConsumer =
-        new FunctionQueueConsumer(FunctionStep.THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+    private final FunctionQueueProcessor stepOneQueueProcessor =
+        new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+    private final FunctionQueueProcessor stepTwoQueueProcessor =
+        new FunctionQueueProcessor(FunctionStep.TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
+    private final FunctionQueueProcessor stepThreeQueueProcessor =
+        new FunctionQueueProcessor(FunctionStep.THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<FunctionEntry> ringBuffer =
-        new RingBuffer<FunctionEntry>(FunctionEntry.ENTRY_FACTORY, SIZE,
+    private final RingBuffer<FunctionEvent> ringBuffer =
+        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY, SIZE,
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final ConsumerBarrier<FunctionEntry> stepOneConsumerBarrier = ringBuffer.createConsumerBarrier();
-    private final FunctionHandler stepOneFunctionHandler = new FunctionHandler(FunctionStep.ONE);
-    private final BatchConsumer<FunctionEntry> stepOneBatchConsumer =
-        new BatchConsumer<FunctionEntry>(stepOneConsumerBarrier, stepOneFunctionHandler);
+    private final EventProcessorBarrier<FunctionEvent> stepOneEventProcessorBarrier = ringBuffer.createEventProcessorBarrier();
+    private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
+    private final BatchEventProcessor<FunctionEvent> stepOneBatchProcessor =
+        new BatchEventProcessor<FunctionEvent>(stepOneEventProcessorBarrier, stepOneFunctionHandler);
 
-    private final ConsumerBarrier<FunctionEntry> stepTwoConsumerBarrier = ringBuffer.createConsumerBarrier(stepOneBatchConsumer);
-    private final FunctionHandler stepTwoFunctionHandler = new FunctionHandler(FunctionStep.TWO);
-    private final BatchConsumer<FunctionEntry> stepTwoBatchConsumer =
-        new BatchConsumer<FunctionEntry>(stepTwoConsumerBarrier, stepTwoFunctionHandler);
+    private final EventProcessorBarrier<FunctionEvent> stepTwoEventProcessorBarrier = ringBuffer.createEventProcessorBarrier(stepOneBatchProcessor);
+    private final FunctionEventHandler stepTwoFunctionHandler = new FunctionEventHandler(FunctionStep.TWO);
+    private final BatchEventProcessor<FunctionEvent> stepTwoBatchProcessor =
+        new BatchEventProcessor<FunctionEvent>(stepTwoEventProcessorBarrier, stepTwoFunctionHandler);
 
-    private final ConsumerBarrier<FunctionEntry> stepThreeConsumerBarrier = ringBuffer.createConsumerBarrier(stepTwoBatchConsumer);
-    private final FunctionHandler stepThreeFunctionHandler = new FunctionHandler(FunctionStep.THREE);
-    private final BatchConsumer<FunctionEntry> stepThreeBatchConsumer =
-        new BatchConsumer<FunctionEntry>(stepThreeConsumerBarrier, stepThreeFunctionHandler);
+    private final EventProcessorBarrier<FunctionEvent> stepThreeEventProcessorBarrier = ringBuffer.createEventProcessorBarrier(stepTwoBatchProcessor);
+    private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
+    private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
+        new BatchEventProcessor<FunctionEvent>(stepThreeEventProcessorBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedConsumers(stepThreeBatchConsumer);
+        ringBuffer.setTrackedProcessors(stepThreeBatchProcessor);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,32 +157,32 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     {
         stepThreeFunctionHandler.reset();
 
-        EXECUTOR.submit(stepOneBatchConsumer);
-        EXECUTOR.submit(stepTwoBatchConsumer);
-        EXECUTOR.submit(stepThreeBatchConsumer);
+        EXECUTOR.submit(stepOneBatchProcessor);
+        EXECUTOR.submit(stepTwoBatchProcessor);
+        EXECUTOR.submit(stepThreeBatchProcessor);
 
         long start = System.currentTimeMillis();
 
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FunctionEntry entry = ringBuffer.nextEntry();
-            entry.setOperandOne(i);
-            entry.setOperandTwo(operandTwo--);
-            ringBuffer.commit(entry);
+            FunctionEvent event = ringBuffer.nextEvent();
+            event.setOperandOne(i);
+            event.setOperandTwo(operandTwo--);
+            ringBuffer.publish(event);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchConsumer.getSequence() < expectedSequence)
+        while (stepThreeBatchProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
-        stepOneBatchConsumer.halt();
-        stepTwoBatchConsumer.halt();
-        stepThreeBatchConsumer.halt();
+        stepOneBatchProcessor.halt();
+        stepTwoBatchProcessor.halt();
+        stepThreeBatchProcessor.halt();
 
         Assert.assertEquals(expectedResult, stepThreeFunctionHandler.getStepThreeCounter());
 
@@ -192,12 +192,12 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runQueuePass(final int passNumber) throws Exception
     {
-        stepThreeQueueConsumer.reset();
+        stepThreeQueueProcessor.reset();
 
-        Future[] futures = new Future[NUM_CONSUMERS];
-        futures[0] = EXECUTOR.submit(stepOneQueueConsumer);
-        futures[1] = EXECUTOR.submit(stepTwoQueueConsumer);
-        futures[2] = EXECUTOR.submit(stepThreeQueueConsumer);
+        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
+        futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
+        futures[2] = EXECUTOR.submit(stepThreeQueueProcessor);
 
         long start = System.currentTimeMillis();
 
@@ -211,23 +211,23 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
         }
 
         final long expectedSequence = ITERATIONS - 1;
-        while (stepThreeQueueConsumer.getSequence() < expectedSequence)
+        while (stepThreeQueueProcessor.getSequence() < expectedSequence)
         {
             // busy spin
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
-        stepOneQueueConsumer.halt();
-        stepTwoQueueConsumer.halt();
-        stepThreeQueueConsumer.halt();
+        stepOneQueueProcessor.halt();
+        stepTwoQueueProcessor.halt();
+        stepThreeQueueProcessor.halt();
 
         for (Future future : futures)
         {
             future.cancel(true);
         }
 
-        Assert.assertEquals(expectedResult, stepThreeQueueConsumer.getStepThreeCounter());
+        Assert.assertEquals(expectedResult, stepThreeQueueProcessor.getStepThreeCounter());
 
         return opsPerSecond;
     }

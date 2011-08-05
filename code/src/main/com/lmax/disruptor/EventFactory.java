@@ -16,17 +16,11 @@
 package com.lmax.disruptor;
 
 /**
- * Implement this interface to be notified when a thread for the {@link BatchEventProcessor} starts and shuts down.
+ * Called by the {@link RingBuffer} to pre-populate all the {@link AbstractEvent}s to fill the RingBuffer.
+ * 
+ * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface LifecycleAware
+public interface EventFactory<T extends AbstractEvent>
 {
-    /**
-     * Called once on thread start before first event is available.
-     */
-    void onStart();
-
-    /**
-     * Called once just before the thread is shutdown.
-     */
-    void onShutdown();
+    T create();
 }

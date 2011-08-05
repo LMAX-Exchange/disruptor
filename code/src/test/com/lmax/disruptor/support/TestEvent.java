@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.support;
 
-/**
- * Implement this interface to be notified when a thread for the {@link BatchEventProcessor} starts and shuts down.
- */
-public interface LifecycleAware
+import com.lmax.disruptor.AbstractEvent;
+import com.lmax.disruptor.EventFactory;
+
+public final class TestEvent
+    extends AbstractEvent
 {
-    /**
-     * Called once on thread start before first event is available.
-     */
-    void onStart();
+    @Override
+    public String toString()
+    {
+        return "Test Event";
+    }
 
-    /**
-     * Called once just before the thread is shutdown.
-     */
-    void onShutdown();
+    public final static EventFactory<TestEvent> EVENT_FACTORY = new EventFactory<TestEvent>()
+    {
+        public TestEvent create()
+        {
+            return new TestEvent();
+        }
+    };
 }

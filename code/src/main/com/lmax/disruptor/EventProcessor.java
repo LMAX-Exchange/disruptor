@@ -16,17 +16,22 @@
 package com.lmax.disruptor;
 
 /**
- * Implement this interface to be notified when a thread for the {@link BatchEventProcessor} starts and shuts down.
+ * EventProcessors waitFor {@link AbstractEvent}s to become available for consumption from the {@link RingBuffer}
+ *
+ * An EventProcessor will be associated with a Thread for execution.
  */
-public interface LifecycleAware
+public interface EventProcessor extends Runnable
 {
     /**
-     * Called once on thread start before first event is available.
+     * Get the sequence up to which this EventProcessor has consumed {@link AbstractEvent}s
+     *
+     * @return the sequence of the last consumed {@link AbstractEvent}
      */
-    void onStart();
+    long getSequence();
 
     /**
-     * Called once just before the thread is shutdown.
+     * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.
+     * It will call {@link EventProcessorBarrier#alert()} to notify the thread to check status.
      */
-    void onShutdown();
+    void halt();
 }
