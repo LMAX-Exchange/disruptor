@@ -27,10 +27,7 @@ package com.lmax.disruptor;
 public final class BatchEventProcessor<T extends AbstractEvent>
     implements EventProcessor
 {
-    public long p1, p2, p3, p4, p5, p6, p7;  // cache line padding
-    private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
-    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
-
+    private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
     private final DependencyBarrier<T> dependencyBarrier;
     private final BatchEventHandler<T> eventHandler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
@@ -51,27 +48,25 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     }
 
     /**
-     * Construct a batch processor that will rely on the {@link SequenceTrackingEventHandler}
-     * to callback via the {@link BatchEventProcessor.SequenceTrackerCallback} when it has
-     * completed with a sequence within a batch.  Sequence will be updated at the end of
+     * Construct a batch event processor that will allow a {@link SequenceNotifyingEventHandler}
+     * to callback and update its sequence within a batch.  The Sequence will be updated at the end of
      * a batch regardless.
      *
      * @param dependencyBarrier on which it is waiting.
      * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
      */
     public BatchEventProcessor(final DependencyBarrier<T> dependencyBarrier,
-                               final SequenceTrackingEventHandler<T> eventHandler)
+                               final SequenceNotifyingEventHandler<T> eventHandler)
     {
         this.dependencyBarrier = dependencyBarrier;
         this.eventHandler = eventHandler;
-
-        eventHandler.setSequenceTrackerCallback(new SequenceTrackerCallback());
+        eventHandler.setSequenceCallback(sequence);
     }
 
     @Override
     public long getSequence()
     {
-        return sequence;
+        return sequence.get();
     }
 
     @Override
@@ -119,7 +114,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
         }
 
         T event = null;
-        long nextSequence = sequence + 1 ;
+        long nextSequence = sequence.get() + 1 ;
         while (running)
         {
             try
@@ -133,7 +128,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
                 }
 
                 eventHandler.onEndOfBatch();
-                sequence = event.getSequence();
+                sequence.set(event.getSequence());
             }
             catch (final AlertException ex)
             {
@@ -142,7 +137,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
             catch (final Exception ex)
             {
                 exceptionHandler.handle(ex, event);
-                sequence = event.getSequence();
+                sequence.set(event.getSequence());
                 nextSequence = event.getSequence() + 1;
             }
         }
@@ -150,22 +145,6 @@ public final class BatchEventProcessor<T extends AbstractEvent>
         if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
         {
             ((LifecycleAware) eventHandler).onShutdown();
-        }
-    }
-
-    /**
-     * Used by the {@link BatchEventHandler} to signal when it has completed consuming a given sequence.
-     */
-    public final class SequenceTrackerCallback
-    {
-        /**
-         * Notify that the eventHandler has consumed up to a given sequence.
-         *
-         * @param sequence that has been consumed.
-         */
-        public void onCompleted(final long sequence)
-        {
-            BatchEventProcessor.this.sequence = sequence;
         }
     }
 }

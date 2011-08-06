@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 
-public class BatchEventProcessorSequenceTrackingCallbackTest
+public class BatchEventProcessorSequenceNotifyingCallbackTest
 {
     private final CountDownLatch callbackLatch = new CountDownLatch(1);
     private final CountDownLatch onEndOfBatchLatch = new CountDownLatch(1);
@@ -33,7 +33,7 @@ public class BatchEventProcessorSequenceTrackingCallbackTest
     {
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
         final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
-        final SequenceTrackingEventHandler<StubEvent> handler = new TestSequenceTrackingEventHandler();
+        final SequenceNotifyingEventHandler<StubEvent> handler = new TestSequenceNotifyingEventHandler();
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(dependencyBarrier, handler);
         ringBuffer.setTrackedProcessors(batchEventProcessor);
 
@@ -54,20 +54,20 @@ public class BatchEventProcessorSequenceTrackingCallbackTest
         thread.join();
     }
 
-    private class TestSequenceTrackingEventHandler implements SequenceTrackingEventHandler<StubEvent>
+    private class TestSequenceNotifyingEventHandler implements SequenceNotifyingEventHandler<StubEvent>
     {
-        private BatchEventProcessor.SequenceTrackerCallback sequenceTrackerCallback;
+        private Sequence sequenceCallback;
 
         @Override
-        public void setSequenceTrackerCallback(final BatchEventProcessor.SequenceTrackerCallback sequenceTrackerCallback)
+        public void setSequenceCallback(final Sequence sequenceTrackerCallback)
         {
-            this.sequenceTrackerCallback = sequenceTrackerCallback;
+            this.sequenceCallback = sequenceTrackerCallback;
         }
 
         @Override
         public void onAvailable(final StubEvent event) throws Exception
         {
-            sequenceTrackerCallback.onCompleted(event.getSequence());
+            sequenceCallback.set(event.getSequence());
             callbackLatch.countDown();
         }
 

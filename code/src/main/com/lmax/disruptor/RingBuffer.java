@@ -31,10 +31,7 @@ public final class RingBuffer<T extends AbstractEvent>
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
 
-    public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
-    private volatile long cursor = INITIAL_CURSOR_VALUE;
-    public long p8, p9, p10, p11, p12, p13, p14; // cache line padding
-
+    private final Sequence cursor = new Sequence(INITIAL_CURSOR_VALUE);
     private final int ringModMask;
     private final AbstractEvent[] events;
 
@@ -123,7 +120,7 @@ public final class RingBuffer<T extends AbstractEvent>
      */
     public long getCursor()
     {
-        return cursor;
+        return cursor.get();
     }
 
     /**
@@ -206,7 +203,7 @@ public final class RingBuffer<T extends AbstractEvent>
     {
         long sequence = event.getSequence();
         claimStrategy.setSequence(sequence);
-        cursor = sequence;
+        cursor.set(sequence);
         waitStrategy.signalAll();
     }
 
@@ -226,7 +223,7 @@ public final class RingBuffer<T extends AbstractEvent>
         {
             final long expectedSequence = sequence - batchSize;
             int counter = 1000;
-            while (expectedSequence != cursor)
+            while (expectedSequence != cursor.get())
             {
                 if (0 == --counter)
                 {
@@ -236,7 +233,7 @@ public final class RingBuffer<T extends AbstractEvent>
             }
         }
 
-        cursor = sequence;
+        cursor.set(sequence);
         waitStrategy.signalAll();
     }
 
@@ -285,7 +282,7 @@ public final class RingBuffer<T extends AbstractEvent>
         @Override
         public long getCursor()
         {
-            return cursor;
+            return cursor.get();
         }
 
         @Override

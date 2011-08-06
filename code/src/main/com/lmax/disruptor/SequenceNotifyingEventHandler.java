@@ -23,13 +23,13 @@ package com.lmax.disruptor;
  * </p>
  * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface SequenceTrackingEventHandler<T extends AbstractEvent>
+public interface SequenceNotifyingEventHandler<T extends AbstractEvent>
     extends BatchEventHandler<T>
 {
     /**
      * Call by the {@link BatchEventProcessor} to setup the callback.
      *
-     * @param sequenceTrackerCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
+     * @param sequenceCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
      */
-    void setSequenceTrackerCallback(final BatchEventProcessor.SequenceTrackerCallback sequenceTrackerCallback);
+    void setSequenceCallback(final Sequence sequenceCallback);
 }
