@@ -114,7 +114,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
         }
 
         T event = null;
-        long nextSequence = sequence.get() + 1 ;
+        long nextSequence = sequence.get() + 1L;
         while (running)
         {
             try
@@ -138,7 +138,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
             {
                 exceptionHandler.handle(ex, event);
                 sequence.set(event.getSequence());
-                nextSequence = event.getSequence() + 1;
+                nextSequence = event.getSequence() + 1L;
             }
         }
 
