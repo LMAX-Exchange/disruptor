@@ -39,9 +39,9 @@ public final class BatchEventProcessorTest
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
-    private final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     @SuppressWarnings("unchecked") private final BatchEventHandler<StubEvent> batchEventHandler = context.mock(BatchEventHandler.class);
-    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(dependencyBarrier, batchEventHandler);
+    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, batchEventHandler);
     {
         ringBuffer.setTrackedProcessors(batchEventProcessor);
     }

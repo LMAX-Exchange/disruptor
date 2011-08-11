@@ -113,9 +113,9 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.MULTI_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final DependencyBarrier<ValueEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
     {
         valuePublishers[0] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);

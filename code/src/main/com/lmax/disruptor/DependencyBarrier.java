@@ -20,19 +20,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Coordination barrier for tracking the cursor for publishers and sequence of
  * dependent {@link EventProcessor}s for a {@link RingBuffer}
- *
- * @param <T> {@link AbstractEvent} implementation stored in the {@link RingBuffer}
  */
-public interface DependencyBarrier<T extends AbstractEvent>
+public interface DependencyBarrier
 {
-    /**
-     * Get the {@link AbstractEvent} for a given sequence from the underlying {@link RingBuffer}.
-     *
-     * @param sequence of the {@link AbstractEvent} to get.
-     * @return the {@link AbstractEvent} for the sequence.
-     */
-    T getEvent(long sequence);
-
     /**
      * Wait for the given sequence to be available for consumption.
      *

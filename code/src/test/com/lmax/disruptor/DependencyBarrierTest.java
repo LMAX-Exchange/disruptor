@@ -15,18 +15,13 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.support.Actions.countDown;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import com.lmax.disruptor.support.StubEvent;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.action.DoAllAction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,9 +34,8 @@ public final class DependencyBarrierTest
     private EventProcessor eventProcessor1 = context.mock(EventProcessor.class, "ep1");
     private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
     private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
-    private DependencyBarrier<StubEvent> dependencyBarrier =
-        ringBuffer.createDependencyBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
 
+    public DependencyBarrierTest()
     {
         ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
     }
@@ -53,19 +47,26 @@ public final class DependencyBarrierTest
         final long expectedWorkSequence = 9;
         fillRingBuffer(expectedNumberMessages);
 
+        final Sequence sequence1 = new Sequence(expectedNumberMessages);
+        final Sequence sequence2 = new Sequence(expectedWorkSequence);
+        final Sequence sequence3 = new Sequence(expectedNumberMessages);
+
         context.checking(new Expectations()
         {
             {
-                one(eventProcessor1).getSequence();
-                will(returnValue(Long.valueOf(expectedNumberMessages)));
+                one(eventProcessor1).getSequenceReference();
+                will(returnValue(sequence1));
 
-                one(eventProcessor2).getSequence();
-                will(returnValue(Long.valueOf(expectedWorkSequence)));
+                one(eventProcessor2).getSequenceReference();
+                will(returnValue(sequence2));
 
-                one(eventProcessor3).getSequence();
-                will(returnValue(Long.valueOf(expectedWorkSequence)));
+                one(eventProcessor3).getSequenceReference();
+                will(returnValue(sequence3));
             }
         });
+
+        DependencyBarrier dependencyBarrier =
+            ringBuffer.newDependencyBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
 
         long completedWorkSequence = dependencyBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
@@ -84,7 +85,7 @@ public final class DependencyBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final DependencyBarrier dependencyBarrier = ringBuffer.createDependencyBarrier(workers);
+        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier(workers);
 
         Runnable runnable = new Runnable()
         {
@@ -113,21 +114,27 @@ public final class DependencyBarrierTest
     {
         final long expectedNumberMessages = 10;
         fillRingBuffer(expectedNumberMessages);
-        final CountDownLatch latch = new CountDownLatch(9);
+
+        final Sequence sequence1 = new Sequence(8L);
+        final Sequence sequence2 = new Sequence(8L);
+        final Sequence sequence3 = new Sequence(8L);
 
         context.checking(new Expectations()
         {
             {
-                allowing(eventProcessor1).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
+                one(eventProcessor1).getSequenceReference();
+                will(returnValue(sequence1));
 
-                allowing(eventProcessor2).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
+                one(eventProcessor2).getSequenceReference();
+                will(returnValue(sequence2));
 
-                allowing(eventProcessor3).getSequence();
-                will(new DoAllAction(countDown(latch), returnValue(Long.valueOf(8L))));
+                one(eventProcessor3).getSequenceReference();
+                will(returnValue(sequence3));
             }
         });
+
+        final DependencyBarrier dependencyBarrier =
+            ringBuffer.newDependencyBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
 
         final boolean[] alerted = { false };
         Thread t = new Thread(new Runnable()
@@ -150,7 +157,7 @@ public final class DependencyBarrierTest
         });
 
         t.start();
-        assertTrue(latch.await(1, TimeUnit.SECONDS));
+        Thread.sleep(1000L);
         dependencyBarrier.alert();
         t.join();
 
@@ -170,7 +177,7 @@ public final class DependencyBarrierTest
             eventProcessors[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final DependencyBarrier dependencyBarrier = ringBuffer.createDependencyBarrier(eventProcessors);
+        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier(eventProcessors);
 
         Runnable runnable = new Runnable()
         {
@@ -193,6 +200,8 @@ public final class DependencyBarrierTest
     @Test
     public void shouldSetAndClearAlertStatus()
     {
+        DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
+
         assertFalse(dependencyBarrier.isAlerted());
 
         dependencyBarrier.alert();
@@ -214,15 +223,21 @@ public final class DependencyBarrierTest
 
     private static final class StubEventProcessor implements EventProcessor
     {
-        private volatile long sequence;
+        private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
         public void setSequence(long sequence)
         {
-            this.sequence = sequence;
+            this.sequence.set(sequence);
         }
 
         @Override
         public long getSequence()
+        {
+            return sequence.get();
+        }
+
+        @Override
+        public Sequence getSequenceReference()
         {
             return sequence;
         }

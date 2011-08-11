@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 public final class BatchPublisherTest
 {
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     {
         ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
     }

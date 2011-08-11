@@ -21,7 +21,7 @@ package com.lmax.disruptor;
  */
 public final class NoOpEventProcessor implements EventProcessor
 {
-    private final RingBuffer ringBuffer;
+    private final RingBufferTrackingSequence sequence;
 
     /**
      * Construct a {@link EventProcessor} that simply tracks a {@link RingBuffer}.
@@ -30,13 +30,19 @@ public final class NoOpEventProcessor implements EventProcessor
      */
     public NoOpEventProcessor(final RingBuffer ringBuffer)
     {
-        this.ringBuffer = ringBuffer;
+        sequence = new RingBufferTrackingSequence(ringBuffer);
     }
 
     @Override
     public long getSequence()
     {
-        return ringBuffer.getCursor();
+        return sequence.get();
+    }
+
+    @Override
+    public Sequence getSequenceReference()
+    {
+        return sequence;
     }
 
     @Override
@@ -47,5 +53,22 @@ public final class NoOpEventProcessor implements EventProcessor
     @Override
     public void run()
     {
+    }
+
+    private static final class RingBufferTrackingSequence extends Sequence
+    {
+        private final RingBuffer ringBuffer;
+
+        private RingBufferTrackingSequence(final RingBuffer ringBuffer)
+        {
+            super(-1L);
+            this.ringBuffer = ringBuffer;
+        }
+
+        @Override
+        public long get()
+        {
+            return ringBuffer.getCursor();
+        }
     }
 }

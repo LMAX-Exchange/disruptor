@@ -28,7 +28,8 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     implements EventProcessor
 {
     private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
-    private final DependencyBarrier<T> dependencyBarrier;
+    private final RingBuffer<T> ringBuffer;
+    private final DependencyBarrier dependencyBarrier;
     private final BatchEventHandler<T> eventHandler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private volatile boolean running = true;
@@ -37,12 +38,15 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      * Construct a batch processor that will automatically track the progress by updating its sequence when
      * the {@link BatchEventHandler#onAvailable(AbstractEvent)} method returns.
      *
+     * @param ringBuffer to which events are published.
      * @param dependencyBarrier on which it is waiting.
      * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
      */
-    public BatchEventProcessor(final DependencyBarrier<T> dependencyBarrier,
+    public BatchEventProcessor(final RingBuffer<T> ringBuffer,
+                               final DependencyBarrier dependencyBarrier,
                                final BatchEventHandler<T> eventHandler)
     {
+        this.ringBuffer = ringBuffer;
         this.dependencyBarrier = dependencyBarrier;
         this.eventHandler = eventHandler;
     }
@@ -52,12 +56,15 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      * to callback and update its sequence within a batch.  The Sequence will be updated at the end of
      * a batch regardless.
      *
+     * @param ringBuffer to which events are published.
      * @param dependencyBarrier on which it is waiting.
      * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
      */
-    public BatchEventProcessor(final DependencyBarrier<T> dependencyBarrier,
+    public BatchEventProcessor(final RingBuffer<T> ringBuffer,
+                               final DependencyBarrier dependencyBarrier,
                                final SequenceNotifyingEventHandler<T> eventHandler)
     {
+        this.ringBuffer = ringBuffer;
         this.dependencyBarrier = dependencyBarrier;
         this.eventHandler = eventHandler;
         eventHandler.setSequenceCallback(sequence);
@@ -67,6 +74,12 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     public long getSequence()
     {
         return sequence.get();
+    }
+
+    @Override
+    public Sequence getSequenceReference()
+    {
+        return sequence;
     }
 
     @Override
@@ -96,7 +109,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      *
       * @return the dependencyBarrier this {@link EventProcessor} is using.
      */
-    public DependencyBarrier<? extends T> getDependencyBarrier()
+    public DependencyBarrier getDependencyBarrier()
     {
         return dependencyBarrier;
     }
@@ -122,7 +135,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
                 final long availableSequence = dependencyBarrier.waitFor(nextSequence);
                 while (nextSequence <= availableSequence)
                 {
-                    event = dependencyBarrier.getEvent(nextSequence);
+                    event = ringBuffer.getEvent(nextSequence);
                     eventHandler.onAvailable(event);
                     nextSequence++;
                 }

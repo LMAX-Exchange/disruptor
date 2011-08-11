@@ -94,7 +94,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000 * 1000 * 300;
+    private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
@@ -130,7 +130,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final DependencyBarrier<ValueEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
 
     private final ValueMutationEventHandler[] handlers = new ValueMutationEventHandler[NUM_EVENT_PROCESSORS];
     {
@@ -141,9 +141,9 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
     private final BatchEventProcessor[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
     {
-        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[0]);
-        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[1]);
-        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handlers[2]);
+        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[2]);
         ringBuffer.setTrackedProcessors(batchEventProcessors);
     }
 

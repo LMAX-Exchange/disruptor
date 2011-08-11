@@ -139,22 +139,22 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final DependencyBarrier<FizzBuzzEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
 
     private final FizzBuzzEventHandler fizzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizz =
-        new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrier, fizzHandler);
+        new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, dependencyBarrier, fizzHandler);
 
     private final FizzBuzzEventHandler buzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorBuzz =
-        new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrier, buzzHandler);
+        new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, dependencyBarrier, buzzHandler);
 
-    private final DependencyBarrier<FizzBuzzEvent> dependencyBarrierFizzBuzz =
-        ringBuffer.createDependencyBarrier(batchProcessorFizz, batchProcessorBuzz);
+    private final DependencyBarrier dependencyBarrierFizzBuzz =
+        ringBuffer.newDependencyBarrier(batchProcessorFizz, batchProcessorBuzz);
 
     private final FizzBuzzEventHandler fizzBuzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
-            new BatchEventProcessor<FizzBuzzEvent>(dependencyBarrierFizzBuzz, fizzBuzzHandler);
+            new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, dependencyBarrierFizzBuzz, fizzBuzzHandler);
     {
         ringBuffer.setTrackedProcessors(batchProcessorFizzBuzz);
     }

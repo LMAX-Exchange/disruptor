@@ -95,9 +95,9 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
-    private final DependencyBarrier<ValueEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(dependencyBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handler);
     {
         ringBuffer.setTrackedProcessors(batchEventProcessor);
     }

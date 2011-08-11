@@ -34,7 +34,7 @@ public class RingBufferTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     {
         ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
     }
@@ -168,7 +168,7 @@ public class RingBufferTest
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, ringBufferSize);
-        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.createDependencyBarrier());
+        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newDependencyBarrier());
         ringBuffer.setTrackedProcessors(processor);
 
         Thread thread = new Thread(new Runnable()
@@ -203,9 +203,9 @@ public class RingBufferTest
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
 
-        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, dependencyBarrier, initial, toWaitFor));
+        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, dependencyBarrier, ringBuffer, initial, toWaitFor));
 
         cyclicBarrier.await();
 
@@ -214,16 +214,22 @@ public class RingBufferTest
 
     private static final class TestEventProcessor implements EventProcessor
     {
-        private final DependencyBarrier<StubEvent> dependencyBarrier;
-        private volatile long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
+        private final DependencyBarrier dependencyBarrier;
+        private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
-        public TestEventProcessor(final DependencyBarrier<StubEvent> dependencyBarrier)
+        public TestEventProcessor(final DependencyBarrier dependencyBarrier)
         {
             this.dependencyBarrier = dependencyBarrier;
         }
 
         @Override
         public long getSequence()
+        {
+            return sequence.get();
+        }
+
+        @Override
+        public Sequence getSequenceReference()
         {
             return sequence;
         }
@@ -245,7 +251,7 @@ public class RingBufferTest
                 throw new RuntimeException(ex);
             }
 
-            ++sequence;
+            sequence.set(sequence.get() + 1L);
         }
     }
 }

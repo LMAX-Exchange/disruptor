@@ -3,10 +3,10 @@ package com.lmax.disruptor;
 /**
  * Volatile sequence counter that is cache line padded.
  */
-public final class Sequence
+public class Sequence
 {
     private volatile long value;
-    public long p1, p2, p3, p4, p5, p6, p7; // cache line padding
+    public long p1, p2, p3, p4, p5, p6; // cache line padding
 
     public Sequence(final long initialValue)
     {

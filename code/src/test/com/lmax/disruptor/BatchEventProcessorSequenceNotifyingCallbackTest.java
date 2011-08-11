@@ -32,9 +32,9 @@ public class BatchEventProcessorSequenceNotifyingCallbackTest
         throws Exception
     {
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
-        final DependencyBarrier<StubEvent> dependencyBarrier = ringBuffer.createDependencyBarrier();
+        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
         final SequenceNotifyingEventHandler<StubEvent> handler = new TestSequenceNotifyingEventHandler();
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(dependencyBarrier, handler);
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, handler);
         ringBuffer.setTrackedProcessors(batchEventProcessor);
 
         Thread thread = new Thread(batchEventProcessor);

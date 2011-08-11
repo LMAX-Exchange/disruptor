@@ -50,4 +50,23 @@ public final class Util
 
         return minimum;
     }
+
+    /**
+     * Get the minimum sequence from an array of {@link Sequence}s.
+     *
+     * @param sequences to compare.
+     * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
+     */
+    public static long getMinimumSequence(final Sequence[] sequences)
+    {
+        long minimum = Long.MAX_VALUE;
+
+        for (Sequence sequence : sequences)
+        {
+            long value = sequence.get();
+            minimum = minimum < value ? minimum : value;
+        }
+
+        return minimum;
+    }
 }

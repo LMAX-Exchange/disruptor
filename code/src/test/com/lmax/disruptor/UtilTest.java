@@ -18,6 +18,7 @@ package com.lmax.disruptor;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,33 +47,36 @@ public final class UtilTest
     @Test
     public void shouldReturnMinimumSequence()
     {
-        final EventProcessor[] eventProcessors = new EventProcessor[3];
-        eventProcessors[0] = context.mock(EventProcessor.class, "c0");
-        eventProcessors[1] = context.mock(EventProcessor.class, "c1");
-        eventProcessors[2] = context.mock(EventProcessor.class, "c2");
+        final Sequence[] sequences = new Sequence[3];
+
+        context.setImposteriser(ClassImposteriser.INSTANCE);
+
+        sequences[0] = context.mock(Sequence.class, "s0");
+        sequences[1] = context.mock(Sequence.class, "s1");
+        sequences[2] = context.mock(Sequence.class, "s2");
 
         context.checking(new Expectations()
         {
             {
-                oneOf(eventProcessors[0]).getSequence();
+                oneOf(sequences[0]).get();
                 will(returnValue(Long.valueOf(7L)));
 
-                oneOf(eventProcessors[1]).getSequence();
+                oneOf(sequences[1]).get();
                 will(returnValue(Long.valueOf(3L)));
 
-                oneOf(eventProcessors[2]).getSequence();
+                oneOf(sequences[2]).get();
                 will(returnValue(Long.valueOf(12L)));
             }
         });
 
-        Assert.assertEquals(3L, Util.getMinimumSequence(eventProcessors));
+        Assert.assertEquals(3L, Util.getMinimumSequence(sequences));
     }
 
     @Test
     public void shouldReturnLongMaxWhenNoEventProcessors()
     {
-        final EventProcessor[] eventProcessors = new EventProcessor[0];
+        final Sequence[] sequences = new Sequence[0];
 
-        Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(eventProcessors));
+        Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
     }
 }

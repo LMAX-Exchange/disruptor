@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
-
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
@@ -35,8 +33,8 @@ public final class RingBuffer<T extends AbstractEvent>
     private final int ringModMask;
     private final AbstractEvent[] events;
 
-    private long minProcessorSequence = INITIAL_CURSOR_VALUE;
-    private EventProcessor[] processorsToTrack;
+    private long[] minProcessorSequence = new long[6]; // padded to prevent false sharing.
+    private Sequence[] processorSequencesToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
     private final ClaimStrategy claimStrategy;
@@ -54,6 +52,7 @@ public final class RingBuffer<T extends AbstractEvent>
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
+        minProcessorSequence[0] = INITIAL_CURSOR_VALUE;
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         events = new AbstractEvent[sizeAsPowerOfTwo];
@@ -89,7 +88,14 @@ public final class RingBuffer<T extends AbstractEvent>
      */
     public void setTrackedProcessors(final EventProcessor... eventProcessors)
     {
-        this.processorsToTrack = eventProcessors;
+        Sequence[] temp = new Sequence[eventProcessors.length];
+
+        for (int i = 0; i < eventProcessors.length; i++)
+        {
+            temp[i] = eventProcessors[i].getSequenceReference();
+        }
+
+        this.processorSequencesToTrack = temp;
     }
 
     /**
@@ -98,9 +104,16 @@ public final class RingBuffer<T extends AbstractEvent>
      * @param processorsToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public DependencyBarrier<T> createDependencyBarrier(final EventProcessor... processorsToTrack)
+    public DependencyBarrier newDependencyBarrier(final EventProcessor... processorsToTrack)
     {
-        return new EventProcessorTrackingDependencyBarrier(processorsToTrack);
+        Sequence[] dependentProcessorSequences = new Sequence[processorsToTrack.length];
+
+        for (int i = 0; i < processorsToTrack.length; i++)
+        {
+            dependentProcessorSequences[i] = processorsToTrack[i].getSequenceReference();
+        }
+
+        return new EventProcessorTrackingDependencyBarrier(waitStrategy, cursor, dependentProcessorSequences);
     }
 
     /**
@@ -132,7 +145,7 @@ public final class RingBuffer<T extends AbstractEvent>
     @SuppressWarnings("unchecked")
     public T getEvent(final long sequence)
     {
-        return (T) events[(int)sequence & ringModMask];
+        return (T)events[(int)sequence & ringModMask];
     }
 
     @Override
@@ -145,7 +158,7 @@ public final class RingBuffer<T extends AbstractEvent>
         AbstractEvent event = events[(int)sequence & ringModMask];
         event.setSequence(sequence);
 
-        return (T) event;
+        return (T)event;
     }
 
     @Override
@@ -210,8 +223,8 @@ public final class RingBuffer<T extends AbstractEvent>
     private void ensureProcessorsAreInRange(final long sequence)
     {
         final long wrapPoint = sequence - events.length;
-        while (wrapPoint > minProcessorSequence &&
-               wrapPoint > (minProcessorSequence = getMinimumSequence(processorsToTrack)))
+        while (wrapPoint > minProcessorSequence[0] &&
+               wrapPoint > (minProcessorSequence[0] = getMinimumSequence(processorSequencesToTrack)))
         {
             Thread.yield();
         }
@@ -242,66 +255,6 @@ public final class RingBuffer<T extends AbstractEvent>
         for (int i = 0; i < events.length; i++)
         {
             events[i] = eventFactory.create();
-        }
-    }
-
-    /**
-     * DependencyBarrier handed out for gating processorsToTrack of the RingBuffer and dependent {@link EventProcessor}(s)
-     */
-    private final class EventProcessorTrackingDependencyBarrier implements DependencyBarrier<T>
-    {
-        private final EventProcessor[] eventProcessors;
-        private volatile boolean alerted = false;
-
-        public EventProcessorTrackingDependencyBarrier(final EventProcessor... eventProcessors)
-        {
-            this.eventProcessors = eventProcessors;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public T getEvent(final long sequence)
-        {
-            return (T) events[(int)sequence & ringModMask];
-        }
-
-        @Override
-        public long waitFor(final long sequence)
-            throws AlertException, InterruptedException
-        {
-            return waitStrategy.waitFor(eventProcessors, RingBuffer.this, this, sequence);
-        }
-
-        @Override
-        public long waitFor(final long sequence, final long timeout, final TimeUnit units)
-            throws AlertException, InterruptedException
-        {
-            return waitStrategy.waitFor(eventProcessors, RingBuffer.this, this, sequence, timeout, units);
-        }
-
-        @Override
-        public long getCursor()
-        {
-            return cursor.get();
-        }
-
-        @Override
-        public boolean isAlerted()
-        {
-            return alerted;
-        }
-
-        @Override
-        public void alert()
-        {
-            alerted = true;
-            waitStrategy.signalAll();
-        }
-
-        @Override
-        public void clearAlert()
-        {
-            alerted = false;
         }
     }
 }

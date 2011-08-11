@@ -30,6 +30,13 @@ public interface EventProcessor extends Runnable
     long getSequence();
 
     /**
+     * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
+     *
+     * @return reference to the {@link Sequence} for this {@link EventProcessor}
+     */
+    Sequence getSequenceReference();
+
+    /**
      * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.
      * It will call {@link DependencyBarrier#alert()} to notify the thread to check status.
      */
