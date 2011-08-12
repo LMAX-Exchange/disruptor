@@ -140,16 +140,11 @@
     }
 
     // Callback handler which can be implemented by EventProcessors
-    final BatchEventHandler&lt;ValueEvent&gt; batchEventHandler = new BatchEventHandler&lt;ValueEvent&gt;()
+    final EventHandler&lt;ValueEvent&gt; eventHandler = new EventHandler&lt;ValueEvent&gt;()
     {
-        public void onAvailable(final ValueEvent event) throws Exception
+        public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
         {
             // process a new event as it becomes available.
-        }
-
-        public void onEndOfBatch() throws Exception
-        {
-            // useful for flushing results to an IO device if necessary.
         }
     };
 
@@ -159,7 +154,7 @@
                                    WaitStrategy.Option.YIELDING);
 
     DependencyBarrier&lt;ValueEvent&gt; dependencyBarrier = ringBuffer.createDependencyBarrier();
-    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(dependencyBarrier, batchEventHandler);
+    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(dependencyBarrier, eventHandler);
     ringBuffer.setTrackedProcessors(batchProcessor);
 
     // Each processor runs on a separate thread
