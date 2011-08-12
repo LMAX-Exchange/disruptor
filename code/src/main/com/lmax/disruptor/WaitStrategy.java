@@ -32,22 +32,22 @@ public interface WaitStrategy
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer}
      *
      * @param dependents further back the chain that must advance first
-     * @param ringBufferCursor on which to wait.
-     * @param dependencyBarrier the processor is waiting on.
+     * @param cursor on which to wait.
+     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence ringBufferCursor, DependencyBarrier dependencyBarrier,  long sequence)
+    long waitFor(Sequence[] dependents, Sequence cursor, DependencyBarrier barrier,  long sequence)
         throws AlertException, InterruptedException;
 
     /**
      * Wait for the given sequence to be available for consumption in a {@link RingBuffer} with a timeout specified.
      *
      * @param dependents further back the chain that must advance first
-     * @param ringBufferCursor on which to wait.
-     * @param dependencyBarrier the processor is waiting on.
+     * @param cursor on which to wait.
+     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
      * @param timeout value to abort after.
      * @param units of the timeout value.
@@ -55,7 +55,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence ringBufferCursor, DependencyBarrier dependencyBarrier, long sequence, long timeout, TimeUnit units)
+    long waitFor(Sequence[] dependents, Sequence cursor, DependencyBarrier barrier, long sequence, long timeout, TimeUnit units)
         throws AlertException, InterruptedException;
 
     /**
@@ -118,18 +118,18 @@ public interface WaitStrategy
         private final Condition processorNotifyCondition = lock.newCondition();
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
-            if ((availableSequence = ringBufferCursor.get()) < sequence)
+            if ((availableSequence = cursor.get()) < sequence)
             {
                 lock.lock();
                 try
                 {
-                    while ((availableSequence = ringBufferCursor.get()) < sequence)
+                    while ((availableSequence = cursor.get()) < sequence)
                     {
-                        if (dependencyBarrier.isAlerted())
+                        if (barrier.isAlerted())
                         {
                             throw ALERT_EXCEPTION;
                         }
@@ -146,7 +146,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -157,19 +157,19 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             long availableSequence;
-            if ((availableSequence = ringBufferCursor.get()) < sequence)
+            if ((availableSequence = cursor.get()) < sequence)
             {
                 lock.lock();
                 try
                 {
-                    while ((availableSequence = ringBufferCursor.get()) < sequence)
+                    while ((availableSequence = cursor.get()) < sequence)
                     {
-                        if (dependencyBarrier.isAlerted())
+                        if (barrier.isAlerted())
                         {
                             throw ALERT_EXCEPTION;
                         }
@@ -190,7 +190,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -225,7 +225,7 @@ public interface WaitStrategy
         private static final int SPIN_TRIES = 100;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -233,9 +233,9 @@ public interface WaitStrategy
             int counter = SPIN_TRIES;
             if (0 == dependents.length)
             {
-                while ((availableSequence = ringBufferCursor.get()) < sequence)
+                while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -251,7 +251,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -268,7 +268,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -279,9 +279,9 @@ public interface WaitStrategy
             int counter = SPIN_TRIES;
             if (0 == dependents.length)
             {
-                while ((availableSequence = ringBufferCursor.get()) < sequence)
+                while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -302,7 +302,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -338,16 +338,16 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
 
             if (0 == dependents.length)
             {
-                while ((availableSequence = ringBufferCursor.get()) < sequence)
+                while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -357,7 +357,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -368,7 +368,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence ringBufferCursor, final DependencyBarrier dependencyBarrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -378,9 +378,9 @@ public interface WaitStrategy
 
             if (0 == dependents.length)
             {
-                while ((availableSequence = ringBufferCursor.get()) < sequence)
+                while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
@@ -395,7 +395,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (dependencyBarrier.isAlerted())
+                    if (barrier.isAlerted())
                     {
                         throw ALERT_EXCEPTION;
                     }
