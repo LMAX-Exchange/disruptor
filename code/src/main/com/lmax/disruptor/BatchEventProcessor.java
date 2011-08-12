@@ -35,7 +35,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
     /**
-     * Construct a batch processor that will automatically track the progress by updating its sequence when
+     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(AbstractEvent, boolean)} method returns.
      *
      * @param ringBuffer to which events are published.
@@ -125,6 +125,11 @@ public final class BatchEventProcessor<T extends AbstractEvent>
         {
             ((LifecycleAware) eventHandler).onStart();
         }
+
+        Sequence sequence = this.sequence;
+        RingBuffer<T> ringBuffer = this.ringBuffer;
+        DependencyBarrier dependencyBarrier = this.dependencyBarrier;
+        EventHandler<T> eventHandler = this.eventHandler;
 
         T event = null;
         long nextSequence = sequence.get() + 1L;
