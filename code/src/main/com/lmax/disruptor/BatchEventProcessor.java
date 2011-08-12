@@ -17,9 +17,9 @@ package com.lmax.disruptor;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available {@link AbstractEvent}s to a {@link BatchEventHandler}.
+ * and delegating the available {@link AbstractEvent}s to a {@link EventHandler}.
  *
- * If the {@link BatchEventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
+ * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
  * is started and just before the thread is shutdown.
  *
  * @param <T> {@link AbstractEvent} implementation storing the data for sharing during exchange or parallel coordination of an event.
@@ -30,13 +30,13 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final DependencyBarrier dependencyBarrier;
-    private final BatchEventHandler<T> eventHandler;
+    private final EventHandler<T> eventHandler;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private volatile boolean running = true;
 
     /**
      * Construct a batch processor that will automatically track the progress by updating its sequence when
-     * the {@link BatchEventHandler#onAvailable(AbstractEvent)} method returns.
+     * the {@link EventHandler#onEvent(AbstractEvent, boolean)} method returns.
      *
      * @param ringBuffer to which events are published.
      * @param dependencyBarrier on which it is waiting.
@@ -44,7 +44,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
                                final DependencyBarrier dependencyBarrier,
-                               final BatchEventHandler<T> eventHandler)
+                               final EventHandler<T> eventHandler)
     {
         this.ringBuffer = ringBuffer;
         this.dependencyBarrier = dependencyBarrier;
@@ -52,7 +52,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     }
 
     /**
-     * Construct a batch event processor that will allow a {@link SequenceNotifyingEventHandler}
+     * Construct a batch event processor that will allow a {@link SequenceReportingEventHandler}
      * to callback and update its sequence within a batch.  The Sequence will be updated at the end of
      * a batch regardless.
      *
@@ -62,7 +62,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
                                final DependencyBarrier dependencyBarrier,
-                               final SequenceNotifyingEventHandler<T> eventHandler)
+                               final SequenceReportingEventHandler<T> eventHandler)
     {
         this.ringBuffer = ringBuffer;
         this.dependencyBarrier = dependencyBarrier;
@@ -136,11 +136,10 @@ public final class BatchEventProcessor<T extends AbstractEvent>
                 while (nextSequence <= availableSequence)
                 {
                     event = ringBuffer.getEvent(nextSequence);
-                    eventHandler.onAvailable(event);
+                    eventHandler.onEvent(event, nextSequence == availableSequence);
                     nextSequence++;
                 }
 
-                eventHandler.onEndOfBatch();
                 sequence.set(event.getSequence());
             }
             catch (final AlertException ex)

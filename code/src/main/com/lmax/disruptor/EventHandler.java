@@ -22,23 +22,14 @@ package com.lmax.disruptor;
  *
  * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface BatchEventHandler<T extends AbstractEvent>
+public interface EventHandler<T extends AbstractEvent>
 {
     /**
      * Called when a publisher has published an {@link AbstractEvent} to the {@link RingBuffer}
      *
      * @param event published to the {@link RingBuffer}
-     * @throws Exception if the BatchEventHandler would like the exception handled further up the chain.
+     * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
+     * @throws Exception if the EventHandler would like the exception handled further up the chain.
      */
-    void onAvailable(T event) throws Exception;
-
-    /**
-     * Called after each batch of events has been have been processed before the next waitFor call on a {@link DependencyBarrier}.
-     * <p>
-     * This can be taken as a hint to do flush type operations before waiting once again on the {@link DependencyBarrier}.
-     * The user should not expect any pattern or frequency to the batch size.
-     *
-     * @throws Exception if the BatchEventHandler would like the exception handled further up the chain.
-     */
-    void onEndOfBatch() throws Exception;
+    void onEvent(T event, boolean endOfBatch) throws Exception;
 }

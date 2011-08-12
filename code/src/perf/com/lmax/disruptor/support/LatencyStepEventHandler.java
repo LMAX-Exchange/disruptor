@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchEventHandler;
+import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.collections.Histogram;
 
-public final class LatencyStepEventHandler implements BatchEventHandler<ValueEvent>
+public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
 {
     private final FunctionStep functionStep;
     private final Histogram histogram;
@@ -32,7 +32,7 @@ public final class LatencyStepEventHandler implements BatchEventHandler<ValueEve
     }
 
     @Override
-    public void onAvailable(final ValueEvent event) throws Exception
+    public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
     {
         switch (functionStep)
         {
@@ -51,10 +51,5 @@ public final class LatencyStepEventHandler implements BatchEventHandler<ValueEve
                 histogram.addObservation(duration);
                 break;
         }
-    }
-
-    @Override
-    public void onEndOfBatch() throws Exception
-    {
     }
 }

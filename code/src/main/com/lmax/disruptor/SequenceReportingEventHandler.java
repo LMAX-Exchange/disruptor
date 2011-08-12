@@ -16,15 +16,15 @@
 package com.lmax.disruptor;
 
 /**
- * Used by the {@link BatchEventProcessor} to set a callback allowing the {@link BatchEventHandler} to notify
- * when it has finished consuming an {@link AbstractEvent} if this happens after the {@link BatchEventHandler#onAvailable(AbstractEvent)} call.
+ * Used by the {@link BatchEventProcessor} to set a callback allowing the {@link EventHandler} to notify
+ * when it has finished consuming an {@link AbstractEvent} if this happens after the {@link EventHandler#onEvent(AbstractEvent, boolean)} call.
  * <p>
  * Typically this would be used when the handler is performing some sort of batching operation such are writing to an IO device.
  * </p>
  * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface SequenceNotifyingEventHandler<T extends AbstractEvent>
-    extends BatchEventHandler<T>
+public interface SequenceReportingEventHandler<T extends AbstractEvent>
+    extends EventHandler<T>
 {
     /**
      * Call by the {@link BatchEventProcessor} to setup the callback.

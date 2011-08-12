@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchEventHandler;
+import com.lmax.disruptor.EventHandler;
 
-public final class FizzBuzzEventHandler implements BatchEventHandler<FizzBuzzEvent>
+public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
 {
     private final FizzBuzzStep fizzBuzzStep;
     private long fizzBuzzCounter = 0L;
@@ -38,7 +38,7 @@ public final class FizzBuzzEventHandler implements BatchEventHandler<FizzBuzzEve
     }
 
     @Override
-    public void onAvailable(final FizzBuzzEvent event) throws Exception
+    public void onEvent(final FizzBuzzEvent event, final boolean endOfBatch) throws Exception
     {
         switch (fizzBuzzStep)
         {
@@ -57,10 +57,5 @@ public final class FizzBuzzEventHandler implements BatchEventHandler<FizzBuzzEve
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onEndOfBatch() throws Exception
-    {
     }
 }

@@ -33,7 +33,7 @@ public class BatchEventProcessorSequenceNotifyingCallbackTest
     {
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
         final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
-        final SequenceNotifyingEventHandler<StubEvent> handler = new TestSequenceNotifyingEventHandler();
+        final SequenceReportingEventHandler<StubEvent> handler = new TestSequenceReportingEventHandler();
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, handler);
         ringBuffer.setTrackedProcessors(batchEventProcessor);
 
@@ -54,7 +54,7 @@ public class BatchEventProcessorSequenceNotifyingCallbackTest
         thread.join();
     }
 
-    private class TestSequenceNotifyingEventHandler implements SequenceNotifyingEventHandler<StubEvent>
+    private class TestSequenceReportingEventHandler implements SequenceReportingEventHandler<StubEvent>
     {
         private Sequence sequenceCallback;
 
@@ -65,16 +65,10 @@ public class BatchEventProcessorSequenceNotifyingCallbackTest
         }
 
         @Override
-        public void onAvailable(final StubEvent event) throws Exception
+        public void onEvent(final StubEvent event, final boolean endOfBatch) throws Exception
         {
             sequenceCallback.set(event.getSequence());
             callbackLatch.countDown();
-        }
-
-        @Override
-        public void onEndOfBatch() throws Exception
-        {
-            onEndOfBatchLatch.await();
         }
     }
 }

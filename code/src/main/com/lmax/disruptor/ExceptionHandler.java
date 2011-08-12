@@ -26,7 +26,7 @@ public interface ExceptionHandler
      * If the strategy wishes to suspend further processing by the {@link BatchEventProcessor}
      * then is should throw a {@link RuntimeException}.
      *
-     * @param ex the exception that propagated from the {@link BatchEventHandler}
+     * @param ex the exception that propagated from the {@link EventHandler}
      * @param currentEvent being processed when the exception occurred.
      */
     void handle(Exception ex, AbstractEvent currentEvent);

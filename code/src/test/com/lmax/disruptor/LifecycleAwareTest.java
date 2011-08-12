@@ -31,7 +31,7 @@ public final class LifecycleAwareTest
 
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
     private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
-    private final LifecycleAwareBatchEventHandler handler = new LifecycleAwareBatchEventHandler();
+    private final LifecycleAwareEventHandler handler = new LifecycleAwareEventHandler();
     private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, handler);
 
     @Test
@@ -48,18 +48,13 @@ public final class LifecycleAwareTest
         assertThat(Integer.valueOf(handler.shutdownCounter), is(Integer.valueOf(1)));
     }
 
-    private final class LifecycleAwareBatchEventHandler implements BatchEventHandler<StubEvent>, LifecycleAware
+    private final class LifecycleAwareEventHandler implements EventHandler<StubEvent>, LifecycleAware
     {
         private int startCounter = 0;
         private int shutdownCounter = 0;
 
         @Override
-        public void onAvailable(final StubEvent event) throws Exception
-        {
-        }
-
-        @Override
-        public void onEndOfBatch() throws Exception
+        public void onEvent(final StubEvent event, final boolean endOfBatch) throws Exception
         {
         }
 

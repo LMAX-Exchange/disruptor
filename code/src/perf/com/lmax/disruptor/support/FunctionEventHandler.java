@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchEventHandler;
+import com.lmax.disruptor.EventHandler;
 
-public final class FunctionEventHandler implements BatchEventHandler<FunctionEvent>
+public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 {
     private final FunctionStep functionStep;
     private long stepThreeCounter;
@@ -38,7 +38,7 @@ public final class FunctionEventHandler implements BatchEventHandler<FunctionEve
     }
 
     @Override
-    public void onAvailable(final FunctionEvent event) throws Exception
+    public void onEvent(final FunctionEvent event, final boolean endOfBatch) throws Exception
     {
         switch (functionStep)
         {
@@ -57,10 +57,5 @@ public final class FunctionEventHandler implements BatchEventHandler<FunctionEve
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onEndOfBatch() throws Exception
-    {
     }
 }

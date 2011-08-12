@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchEventHandler;
+import com.lmax.disruptor.EventHandler;
 
-public final class ValueAdditionEventHandler implements BatchEventHandler<ValueEvent>
+public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
 {
     private long value;
 
@@ -32,13 +32,8 @@ public final class ValueAdditionEventHandler implements BatchEventHandler<ValueE
     }
 
     @Override
-    public void onAvailable(final ValueEvent event) throws Exception
+    public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
     {
         value += event.getValue();
-    }
-
-    @Override
-    public void onEndOfBatch() throws Exception
-    {
     }
 }

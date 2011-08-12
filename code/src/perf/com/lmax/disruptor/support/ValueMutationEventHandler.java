@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchEventHandler;
+import com.lmax.disruptor.EventHandler;
 
-public final class ValueMutationEventHandler implements BatchEventHandler<ValueEvent>
+public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
 {
     private final Operation operation;
     private long value;
@@ -38,13 +38,8 @@ public final class ValueMutationEventHandler implements BatchEventHandler<ValueE
     }
 
     @Override
-    public void onAvailable(final ValueEvent event) throws Exception
+    public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
     {
         value = operation.op(value, event.getValue());
-    }
-
-    @Override
-    public void onEndOfBatch() throws Exception
-    {
     }
 }
