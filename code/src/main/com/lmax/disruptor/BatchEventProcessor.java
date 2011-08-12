@@ -126,11 +126,6 @@ public final class BatchEventProcessor<T extends AbstractEvent>
             ((LifecycleAware) eventHandler).onStart();
         }
 
-        Sequence sequence = this.sequence;
-        RingBuffer<T> ringBuffer = this.ringBuffer;
-        DependencyBarrier dependencyBarrier = this.dependencyBarrier;
-        EventHandler<T> eventHandler = this.eventHandler;
-
         T event = null;
         long nextSequence = sequence.get() + 1L;
         while (true)
