@@ -27,12 +27,12 @@ package com.lmax.disruptor;
 public final class BatchEventProcessor<T extends AbstractEvent>
     implements EventProcessor
 {
-    private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
+    private volatile boolean running = true;
+    private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private final RingBuffer<T> ringBuffer;
     private final DependencyBarrier dependencyBarrier;
     private final EventHandler<T> eventHandler;
-    private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
-    private volatile boolean running = true;
+    private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
     /**
      * Construct a batch processor that will automatically track the progress by updating its sequence when
@@ -128,7 +128,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
 
         T event = null;
         long nextSequence = sequence.get() + 1L;
-        while (running)
+        while (true)
         {
             try
             {
@@ -144,7 +144,10 @@ public final class BatchEventProcessor<T extends AbstractEvent>
             }
             catch (final AlertException ex)
             {
-                // Wake up from blocking wait and check if we should continue to run
+               if (!running)
+               {
+                   break;
+               }
             }
             catch (final Exception ex)
             {
