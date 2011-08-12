@@ -25,6 +25,9 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 
 @RunWith(JMock.class)
 public final class DependencyBarrierTest
@@ -115,9 +118,10 @@ public final class DependencyBarrierTest
         final long expectedNumberMessages = 10;
         fillRingBuffer(expectedNumberMessages);
 
-        final Sequence sequence1 = new Sequence(8L);
-        final Sequence sequence2 = new Sequence(8L);
-        final Sequence sequence3 = new Sequence(8L);
+        final CountDownLatch latch = new CountDownLatch(3);
+        final Sequence sequence1 = new CountDownLatchSequence(8L, latch);
+        final Sequence sequence2 = new CountDownLatchSequence(8L, latch);
+        final Sequence sequence3 = new CountDownLatchSequence(8L, latch);
 
         context.checking(new Expectations()
         {
@@ -157,7 +161,7 @@ public final class DependencyBarrierTest
         });
 
         t.start();
-        Thread.sleep(1000L);
+        latch.await(3, TimeUnit.SECONDS);
         dependencyBarrier.alert();
         t.join();
 
@@ -250,6 +254,24 @@ public final class DependencyBarrierTest
         @Override
         public void run()
         {
+        }
+    }
+
+    private final static class CountDownLatchSequence extends Sequence
+    {
+        private final CountDownLatch latch;
+
+        private CountDownLatchSequence(final long initialValue, final CountDownLatch latch)
+        {
+            super(initialValue);
+            this.latch = latch;
+        }
+
+        @Override
+        public long get()
+        {
+            latch.countDown();
+            return super.get();
         }
     }
 }
