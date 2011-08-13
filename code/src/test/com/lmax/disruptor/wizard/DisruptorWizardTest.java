@@ -67,7 +67,7 @@ public class DisruptorWizardTest
         final EventHandler<TestEvent> eventHandler1 = new DoNothingEventHandler();
         EventHandler<TestEvent> eventHandler2 = new DoNothingEventHandler();
 
-        final EventHandlerGroup eventHandlerGroup = disruptorWizard.consumeWith(eventHandler1, eventHandler2);
+        final EventHandlerGroup eventHandlerGroup = disruptorWizard.handleEventsWith(eventHandler1, eventHandler2);
         disruptorWizard.start();
 
         assertNotNull(eventHandlerGroup);
@@ -80,7 +80,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> eventHandler2 = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.consumeWith(createDelayedEventHandler(), eventHandler2);
+        disruptorWizard.handleEventsWith(createDelayedEventHandler(), eventHandler2);
 
         produceEntry();
         produceEntry();
@@ -96,7 +96,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> eventHandler2 = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.consumeWith(eventHandler1).then(eventHandler2);
+        disruptorWizard.handleEventsWith(eventHandler1).then(eventHandler2);
 
         produceEntry();
         produceEntry();
@@ -117,8 +117,8 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.consumeWith(handler1, handler2);
-        disruptorWizard.after(handler1, handler2).consumeWith(handlerWithBarrier);
+        disruptorWizard.handleEventsWith(handler1, handler2);
+        disruptorWizard.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
 
 
         produceEntry();
@@ -142,7 +142,7 @@ public class DisruptorWizardTest
         EvilEqualsEventHandler handler1 = new EvilEqualsEventHandler();
         EvilEqualsEventHandler handler2 = new EvilEqualsEventHandler();
 
-        disruptorWizard.consumeWith(handler1);
+        disruptorWizard.handleEventsWith(handler1);
         disruptorWizard.after(handler2); // handler2.equals(handler1) but it hasn't yet been registered so should throw exception.
     }
 
@@ -156,7 +156,7 @@ public class DisruptorWizardTest
 
 
         disruptorWizard.handleExceptionsWith(exceptionHandler);
-        disruptorWizard.consumeWith(handler);
+        disruptorWizard.handleEventsWith(handler);
 
         produceEntry();
 
@@ -167,14 +167,14 @@ public class DisruptorWizardTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming() throws Exception
     {
-        disruptorWizard.after(createDelayedEventHandler()).consumeWith(createDelayedEventHandler());
+        disruptorWizard.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
     }
 
     @Test
     public void shouldBlockProducerUntilAllEventProcessorsHaveAdvanced() throws Exception
     {
         final DelayedEventHandler handler1 = createDelayedEventHandler();
-        disruptorWizard.consumeWith(handler1);
+        disruptorWizard.handleEventsWith(handler1);
 
         final RingBuffer<TestEvent> producerBarrier = disruptorWizard.start();
 
@@ -206,7 +206,7 @@ public class DisruptorWizardTest
 
         final RuntimeException testException = new RuntimeException();
         final ExceptionThrowingEventHandler eventHandler2 = new ExceptionThrowingEventHandler(testException);
-        disruptorWizard.consumeWith(eventHandler).then(eventHandler2);
+        disruptorWizard.handleEventsWith(eventHandler).then(eventHandler2);
 
         produceEntry();
 
@@ -222,16 +222,16 @@ public class DisruptorWizardTest
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.consumeWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
         disruptorWizard.start();
-        disruptorWizard.consumeWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfStartIsCalledTwice() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.consumeWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
         disruptorWizard.start();
         disruptorWizard.start();
     }

@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <pre><code> DisruptorWizard<MyEvent> dw = new DisruptorWizard<MyEvent>(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
  * EventHandler<MyEvent> handler1 = new EventHandler<MyEvent>() { ... };
  * EventHandler<MyEvent> handler2 = new EventHandler<MyEvent>() { ... };
- * dw.consumeWith(handler1);
- * dw.after(handler1).consumeWith(handler2);
+ * dw.handleEventsWith(handler1);
+ * dw.after(handler1).handleEventsWith(handler2);
  * <p/>
  * ProducerBarrier producerBarrier = dw.getProducerBarrier();</code></pre>
  *
@@ -78,18 +78,18 @@ public class DisruptorWizard<T extends AbstractEvent>
     }
 
     /**
-     * Set up event handlers to consume events from the ring buffer. These handlers will process events
+     * Set up event handlers to handle events from the ring buffer. These handlers will process events
      * as soon as they become available, in parallel.
      * <p/>
      * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
      * process events before handler <code>B</code>:</p>
      * <p/>
-     * <pre><code>dw.consumeWith(A).then(B);</code></pre>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
      * @param handlers the event handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
-    public EventHandlerGroup<T> consumeWith(final EventHandler<T>... handlers)
+    public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
         return createEventProcessors(new EventProcessor[0], handlers);
     }
@@ -118,9 +118,9 @@ public class DisruptorWizard<T extends AbstractEvent>
     /** Create a group of event handlers to be used as a dependency.
      * For example if the handler <code>A</code> must process events before handler <code>B</code>:
      * <p/>
-     * <pre><code>dw.after(A).consumeWith(B);</code></pre>
+     * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
-     * @param handlers the event handlers, previously set up with {@link #consumeWith(com.lmax.disruptor.EventHandler[])},
+     * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
      *                 that will form the barrier for subsequent handlers.
      * @return a {@link EventHandlerGroup} that can be used to setup a handler barrier over the specified eventprocessors.
      */
