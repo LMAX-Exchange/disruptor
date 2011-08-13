@@ -1,25 +1,26 @@
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicLongArray;
+
 /**
  * Volatile sequence counter that is cache line padded.
  */
 public class Sequence
 {
-    private volatile long value;
-    public long p1, p2, p3, p4, p5, p6; // cache line padding
+    private final AtomicLongArray value = new AtomicLongArray(5);
 
     public Sequence(final long initialValue)
     {
-        this.value = initialValue;
+        set(initialValue);
     }
 
     public long get()
     {
-        return value;
+        return value.get(0);
     }
 
     public void set(final long value)
     {
-        this.value = value;
+        this.value.lazySet(0, value);
     }
 }

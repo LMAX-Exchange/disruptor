@@ -33,7 +33,7 @@ public final class RingBuffer<T extends AbstractEvent>
     private final int ringModMask;
     private final AbstractEvent[] events;
 
-    private long[] minProcessorSequence = new long[6]; // padded to prevent false sharing.
+    private long[] minProcessorSequence = new long[5]; // padded to prevent false sharing.
     private Sequence[] processorSequencesToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
