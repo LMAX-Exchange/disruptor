@@ -33,7 +33,7 @@ public final class RingBuffer<T extends AbstractEvent>
     private final int ringModMask;
     private final AbstractEvent[] events;
 
-    private final long[] minProcessorSequence = new long[5]; // padded to prevent false sharing.
+    private final Sequence minProcessorSequence = new Sequence(INITIAL_CURSOR_VALUE);
     private Sequence[] processorSequencesToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
@@ -52,7 +52,6 @@ public final class RingBuffer<T extends AbstractEvent>
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
-        minProcessorSequence[0] = INITIAL_CURSOR_VALUE;
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
         events = new AbstractEvent[sizeAsPowerOfTwo];
@@ -221,10 +220,15 @@ public final class RingBuffer<T extends AbstractEvent>
     private void ensureProcessorsAreInRange(final long sequence)
     {
         final long wrapPoint = sequence - events.length;
-        while (wrapPoint > minProcessorSequence[0] &&
-               wrapPoint > (minProcessorSequence[0] = getMinimumSequence(processorSequencesToTrack)))
+        if (wrapPoint > minProcessorSequence.get())
         {
-            Thread.yield();
+            long minSequence;
+            while (wrapPoint > (minSequence = getMinimumSequence(processorSequencesToTrack)))
+            {
+                Thread.yield();
+            }
+
+            minProcessorSequence.set(minSequence);
         }
     }
 
