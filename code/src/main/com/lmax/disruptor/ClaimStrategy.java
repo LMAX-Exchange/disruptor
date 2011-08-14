@@ -17,6 +17,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import static com.lmax.disruptor.Util.getMinimumSequence;
+
 /**
  * Strategies employed for claiming the sequence of {@link AbstractEvent}s in the {@link RingBuffer} by publishers.
  */
@@ -35,14 +37,22 @@ public interface ClaimStrategy
      * @param delta to increment by.
      * @return the result after incrementing.
      */
-    long incrementAndGet(int delta);
+    long incrementAndGet(final int delta);
 
     /**
      * Set the current sequence value for claiming {@link AbstractEvent} in the {@link RingBuffer}
      *
      * @param sequence to be set as the current value.
      */
-    void setSequence(long sequence);
+    void setSequence(final long sequence);
+
+    /**
+     * Ensure dependent processors are in range without over taking them for the buffer size.
+     *
+     * @param sequence to check is in range
+     * @param dependentSequences to be checked for range.
+     */
+    void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences);
 
     /**
      * Indicates the threading policy to be applied for claiming {@link AbstractEvent}s by publisher to the {@link RingBuffer}
@@ -53,9 +63,9 @@ public interface ClaimStrategy
         MULTI_THREADED
         {
             @Override
-            public ClaimStrategy newInstance()
+            public ClaimStrategy newInstance(final int bufferSize)
             {
-                return new MultiThreadedStrategy();
+                return new MultiThreadedStrategy(bufferSize);
             }
         },
 
@@ -63,9 +73,9 @@ public interface ClaimStrategy
         SINGLE_THREADED
         {
             @Override
-            public ClaimStrategy newInstance()
+            public ClaimStrategy newInstance(final int bufferSize)
             {
-                return new SingleThreadedStrategy();
+                return new SingleThreadedStrategy(bufferSize);
             }
         };
 
@@ -74,7 +84,7 @@ public interface ClaimStrategy
          *
          * @return a new instance of the ClaimStrategy
          */
-        abstract ClaimStrategy newInstance();
+        abstract ClaimStrategy newInstance(final int bufferSize);
     }
 
     /**
@@ -83,10 +93,13 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
+        private final int bufferSize;
         private final AtomicLongArray sequence = new AtomicLongArray(5); // cache line padded
+        private final Sequence minProcessorSequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
-        public MultiThreadedStrategy()
+        public MultiThreadedStrategy(final int bufferSize)
         {
+            this.bufferSize = bufferSize;
             sequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
@@ -107,6 +120,22 @@ public interface ClaimStrategy
         {
             this.sequence.lazySet(0, sequence);
         }
+
+        @Override
+        public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minProcessorSequence.get())
+            {
+                long minSequence;
+                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+                {
+                    Thread.yield();
+                }
+
+                minProcessorSequence.set(minSequence);
+            }
+        }
     }
 
     /**
@@ -115,11 +144,15 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
+        private final int bufferSize;
         private final long[] sequence = new long[5]; // cache line padded
+        private final long[] minProcessorSequence = new long[5]; // cache line padded
 
-        public SingleThreadedStrategy()
+        public SingleThreadedStrategy(final int bufferSize)
         {
+            this.bufferSize = bufferSize;
             sequence[0] = RingBuffer.INITIAL_CURSOR_VALUE;
+            minProcessorSequence[0] = RingBuffer.INITIAL_CURSOR_VALUE;
         }
 
         @Override
@@ -139,6 +172,22 @@ public interface ClaimStrategy
         public void setSequence(final long sequence)
         {
             this.sequence[0] = sequence;
+        }
+
+        @Override
+        public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minProcessorSequence[0])
+            {
+                long minSequence;
+                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+                {
+                    Thread.yield();
+                }
+
+                minProcessorSequence[0] = minSequence;
+            }
         }
     }
 }

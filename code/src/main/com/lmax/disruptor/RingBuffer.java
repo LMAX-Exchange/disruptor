@@ -16,7 +16,6 @@
 package com.lmax.disruptor;
 
 import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
-import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
  * Ring based store of reusable events containing the data representing an {@link AbstractEvent} being exchanged between publisher and processorsToTrack.
@@ -33,7 +32,6 @@ public final class RingBuffer<T extends AbstractEvent>
     private final int ringModMask;
     private final AbstractEvent[] events;
 
-    private final Sequence minProcessorSequence = new Sequence(INITIAL_CURSOR_VALUE);
     private Sequence[] processorSequencesToTrack;
 
     private final ClaimStrategy.Option claimStrategyOption;
@@ -57,7 +55,7 @@ public final class RingBuffer<T extends AbstractEvent>
         events = new AbstractEvent[sizeAsPowerOfTwo];
 
         this.claimStrategyOption = claimStrategyOption;
-        claimStrategy = claimStrategyOption.newInstance();
+        claimStrategy = claimStrategyOption.newInstance(sizeAsPowerOfTwo);
         waitStrategy = waitStrategyOption.newInstance();
 
         fill(eventFactory);
@@ -150,7 +148,7 @@ public final class RingBuffer<T extends AbstractEvent>
     public T nextEvent()
     {
         final long sequence = claimStrategy.incrementAndGet();
-        ensureProcessorsAreInRange(sequence);
+        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
 
         AbstractEvent event = events[(int)sequence & ringModMask];
         event.setSequence(sequence);
@@ -169,7 +167,7 @@ public final class RingBuffer<T extends AbstractEvent>
     {
         final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
         sequenceBatch.setEnd(sequence);
-        ensureProcessorsAreInRange(sequence);
+        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
 
         for (long i = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); i <= end; i++)
         {
@@ -195,7 +193,7 @@ public final class RingBuffer<T extends AbstractEvent>
     @SuppressWarnings("unchecked")
     public T publishEventAtSequence(final long sequence)
     {
-        ensureProcessorsAreInRange(sequence);
+        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
         AbstractEvent event = events[(int)sequence & ringModMask];
         event.setSequence(sequence);
 
@@ -215,21 +213,6 @@ public final class RingBuffer<T extends AbstractEvent>
         claimStrategy.setSequence(sequence);
         cursor.set(sequence);
         waitStrategy.signalAll();
-    }
-
-    private void ensureProcessorsAreInRange(final long sequence)
-    {
-        final long wrapPoint = sequence - events.length;
-        if (wrapPoint > minProcessorSequence.get())
-        {
-            long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(processorSequencesToTrack)))
-            {
-                Thread.yield();
-            }
-
-            minProcessorSequence.set(minSequence);
-        }
     }
 
     private void publish(final long sequence, final long batchSize)
