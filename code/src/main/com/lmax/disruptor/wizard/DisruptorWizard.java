@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * dw.handleEventsWith(handler1);
  * dw.after(handler1).handleEventsWith(handler2);
  * <p/>
- * ProducerBarrier producerBarrier = dw.getProducerBarrier();</code></pre>
+ * RingBuffer ringBuffer = dw.start();</code></pre>
  *
  * @param <T> the type of {@link AbstractEvent} used.
  */
@@ -104,7 +104,8 @@ public class DisruptorWizard<T extends AbstractEvent>
         this.exceptionHandler = exceptionHandler;
     }
 
-    /** Override the default exception handler for a specific handler.
+    /**
+     * Override the default exception handler for a specific handler.
      * <pre>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</pre>
      *
      * @param eventHandler the event handler to set a different exception handler for.
@@ -136,6 +137,7 @@ public class DisruptorWizard<T extends AbstractEvent>
                 throw new IllegalArgumentException("Event handlers must be registered before they can be used as a dependency.");
             }
         }
+
         return new EventHandlerGroup<T>(this, selectedEventProcessors);
     }
 
@@ -147,13 +149,15 @@ public class DisruptorWizard<T extends AbstractEvent>
      */
     public RingBuffer<T> start()
     {
+        ringBuffer.setTrackedProcessors(eventProcessorRepository.getLastEventProcessorsInChain());
         ensureOnlyStartedOnce();
         startEventProcessors();
-        ringBuffer.setTrackedProcessors(eventProcessorRepository.getLastEventProcessorsInChain());
+
         return ringBuffer;
     }
 
-    /** Get the dependency barrier used by a specific handler. Note that the dependency barrier
+    /**
+     * Get the dependency barrier used by a specific handler. Note that the dependency barrier
      * may be shared by multiple event handlers.
      *
      * @param handler the handler to get the barrier for.
@@ -181,6 +185,7 @@ public class DisruptorWizard<T extends AbstractEvent>
         {
             throw new IllegalStateException("All event handlers must be added before calling start.");
         }
+
         final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
         final DependencyBarrier barrier = ringBuffer.newDependencyBarrier(barrierEventProcessors);
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
@@ -202,9 +207,9 @@ public class DisruptorWizard<T extends AbstractEvent>
 
     private void startEventProcessors()
     {
-        for (EventProcessorInfo<T> eventprocessorInfo : eventProcessorRepository)
+        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorRepository)
         {
-            executor.execute(eventprocessorInfo.getEventProcessor());
+            executor.execute(eventProcessorInfo.getEventProcessor());
         }
     }
 
@@ -215,5 +220,4 @@ public class DisruptorWizard<T extends AbstractEvent>
             throw new IllegalStateException("DisruptorWizard.start() must only be called once.");
         }
     }
-
 }

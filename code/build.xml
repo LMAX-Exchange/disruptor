@@ -46,6 +46,7 @@
                includeAntRuntime="false"
                debug="true"
                nowarn="true">
+            <compilerarg value="-Xlint:unchecked"/>
             <src path="${dir.main.src}"/>
         </javac>
     </target>
@@ -57,6 +58,7 @@
                includeAntRuntime="false"
                debug="true"
                nowarn="true">
+            <compilerarg value="-Xlint:unchecked"/>
             <classpath refid="test.classpath"/>
             <src path="${dir.test.src}"/>
         </javac>

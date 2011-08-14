@@ -15,14 +15,38 @@
  */
 package com.lmax.disruptor.wizard.stubs;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.support.TestEvent;
 
-public class DoNothingEventHandler implements EventHandler<TestEvent>
+public class StubPublisher implements Runnable
 {
-    @Override
-    public void onEvent(final TestEvent entry, final boolean endOfBatch) throws Exception
+    private volatile boolean running = true;
+    private volatile int publicationCount = 0;
+
+    private final RingBuffer<TestEvent> ringBuffer;
+
+    public StubPublisher(RingBuffer<TestEvent> ringBuffer)
     {
-        Thread.sleep(1000);
+        this.ringBuffer = ringBuffer;
+    }
+
+    public void run()
+    {
+        while (running)
+        {
+            final TestEvent entry = ringBuffer.nextEvent();
+            ringBuffer.publish(entry);
+            publicationCount++;
+        }
+    }
+
+    public int getPublicationCount()
+    {
+        return publicationCount;
+    }
+
+    public void halt()
+    {
+        running = false;
     }
 }

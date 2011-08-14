@@ -35,14 +35,13 @@ public class StubExecutor implements Executor
         if (!ignoreExecutions)
         {
             Thread t = threadFactory.newThread(command);
-            t.setDaemon(true);
             t.setName(command.toString());
             threads.add(t);
             t.start();
         }
     }
 
-    public void stopAll()
+    public void joinAllThreads()
     {
         for (Thread thread : threads)
         {

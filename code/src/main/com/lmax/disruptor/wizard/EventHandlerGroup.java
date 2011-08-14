@@ -19,23 +19,23 @@ import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 
-/** A group of eventprocessors set up via the {@link DisruptorWizard}.
+/** A group of {@link EventProcessor}s set up via the {@link DisruptorWizard}.
  *
- * @param <T> the type of entry used by the eventprocessors.
+ * @param <T> the type of entry used by the eventProcessors.
  */
 public class EventHandlerGroup<T extends AbstractEvent>
 {
     private final DisruptorWizard<T> disruptorWizard;
-    private final EventProcessor[] eventprocessors;
+    private final EventProcessor[] eventProcessors;
 
-    EventHandlerGroup(final DisruptorWizard<T> disruptorWizard, final EventProcessor[] eventprocessors)
+    EventHandlerGroup(final DisruptorWizard<T> disruptorWizard, final EventProcessor[] eventProcessors)
     {
         this.disruptorWizard = disruptorWizard;
-        this.eventprocessors = eventprocessors;
+        this.eventProcessors = eventProcessors;
     }
 
     /** Set up batch handlers to consume events from the ring buffer. These handlers will only process events
-     *  after every eventprocessor in this group has processed the event.
+     *  after every {@link EventProcessor} in this group has processed the event.
      *
      *  <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
      *  process events before handler <code>B</code>:</p>
@@ -51,7 +51,7 @@ public class EventHandlerGroup<T extends AbstractEvent>
     }
 
     /** Set up batch handlers to handle events from the ring buffer. These handlers will only process events
-     *  after every eventprocessor in this group has processed the event.
+     *  after every {@link EventProcessor} in this group has processed the event.
      *
      *  <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
      *  process events before handler <code>B</code>:</p>
@@ -63,6 +63,6 @@ public class EventHandlerGroup<T extends AbstractEvent>
      */
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
-        return disruptorWizard.createEventProcessors(eventprocessors, handlers);
+        return disruptorWizard.createEventProcessors(eventProcessors, handlers);
     }
 }

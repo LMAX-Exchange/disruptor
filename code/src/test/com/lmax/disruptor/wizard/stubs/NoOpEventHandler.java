@@ -18,35 +18,11 @@ package com.lmax.disruptor.wizard.stubs;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.support.TestEvent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-public class DelayedEventHandler implements EventHandler<TestEvent>
+public class NoOpEventHandler implements EventHandler<TestEvent>
 {
-    private AtomicBoolean readyToProcessEvent = new AtomicBoolean(false);
-    private volatile boolean stopped = false;
-
     @Override
     public void onEvent(final TestEvent entry, final boolean endOfBatch) throws Exception
     {
-        waitForAndSetFlag(false);
-    }
-
-    public void processEvent()
-    {
-        waitForAndSetFlag(true);
-    }
-
-    public void stopWaiting()
-    {
-        stopped = true;
-    }
-
-    private void waitForAndSetFlag(final boolean newValue)
-    {
-        while (!stopped && !Thread.currentThread().isInterrupted() &&
-               !readyToProcessEvent.compareAndSet(!newValue, newValue))
-        {
-            Thread.yield();
-        }
+        Thread.sleep(1000);
     }
 }

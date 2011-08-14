@@ -32,10 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
-@SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
+@SuppressWarnings(value = {"ThrowableResultOfMethodCallIgnored", "unchecked"})
 public class DisruptorWizardTest
 {
-
     private static final int TIMEOUT_IN_SECONDS = 2;
     private DisruptorWizard<TestEvent> disruptorWizard;
     private StubExecutor executor;
@@ -55,35 +54,35 @@ public class DisruptorWizardTest
         {
             delayedEventHandler.stopWaiting();
         }
+
         disruptorWizard.halt();
-        executor.stopAll();
+        executor.joinAllThreads();
     }
 
     @Test
-    @SuppressWarnings({"unchecked"})
     public void shouldCreateEventProcessorGroupForFirstEventProcessors() throws Exception
     {
         executor.ignoreExecutions();
-        final EventHandler<TestEvent> eventHandler1 = new DoNothingEventHandler();
-        EventHandler<TestEvent> eventHandler2 = new DoNothingEventHandler();
+        final EventHandler<TestEvent> eventHandler1 = new NoOpEventHandler();
+        EventHandler<TestEvent> eventHandler2 = new NoOpEventHandler();
 
-        final EventHandlerGroup eventHandlerGroup = disruptorWizard.handleEventsWith(eventHandler1, eventHandler2);
+        final EventHandlerGroup<TestEvent> eventHandlerGroup = disruptorWizard.handleEventsWith(eventHandler1, eventHandler2);
         disruptorWizard.start();
 
         assertNotNull(eventHandlerGroup);
-        assertThat(executor.getExecutionCount(), equalTo(2));
+        assertThat(Integer.valueOf(executor.getExecutionCount()), equalTo(Integer.valueOf(2)));
     }
 
     @Test
     public void shouldMakeEntriesAvailableToFirstHandlersImmediately() throws Exception
     {
         CountDownLatch countDownLatch = new CountDownLatch(2);
-        EventHandler<TestEvent> eventHandler2 = new EventHandlerStub(countDownLatch);
+        EventHandler<TestEvent> eventHandler = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.handleEventsWith(createDelayedEventHandler(), eventHandler2);
+        disruptorWizard.handleEventsWith(createDelayedEventHandler(), eventHandler);
 
-        produceEntry();
-        produceEntry();
+        publishEvent();
+        publishEvent();
 
         assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
@@ -98,10 +97,10 @@ public class DisruptorWizardTest
 
         disruptorWizard.handleEventsWith(eventHandler1).then(eventHandler2);
 
-        produceEntry();
-        produceEntry();
+        publishEvent();
+        publishEvent();
 
-        assertThat(countDownLatch.getCount(), equalTo(2L));
+        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
 
         eventHandler1.processEvent();
         eventHandler1.processEvent();
@@ -120,16 +119,15 @@ public class DisruptorWizardTest
         disruptorWizard.handleEventsWith(handler1, handler2);
         disruptorWizard.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
 
+        publishEvent();
+        publishEvent();
 
-        produceEntry();
-        produceEntry();
-
-        assertThat(countDownLatch.getCount(), equalTo(2L));
+        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
 
         handler1.processEvent();
         handler2.processEvent();
 
-        assertThat(countDownLatch.getCount(), equalTo(2L));
+        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
 
         handler2.processEvent();
         handler1.processEvent();
@@ -154,11 +152,10 @@ public class DisruptorWizardTest
         RuntimeException testException = new RuntimeException();
         ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
 
-
         disruptorWizard.handleExceptionsWith(exceptionHandler);
         disruptorWizard.handleEventsWith(handler);
 
-        produceEntry();
+        publishEvent();
 
         final Exception actualException = waitFor(eventHandled);
         assertSame(testException, actualException);
@@ -173,29 +170,29 @@ public class DisruptorWizardTest
     @Test
     public void shouldBlockProducerUntilAllEventProcessorsHaveAdvanced() throws Exception
     {
-        final DelayedEventHandler handler1 = createDelayedEventHandler();
-        disruptorWizard.handleEventsWith(handler1);
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptorWizard.handleEventsWith(delayedEventHandler);
 
-        final RingBuffer<TestEvent> producerBarrier = disruptorWizard.start();
+        final RingBuffer<TestEvent> ringBuffer = disruptorWizard.start();
 
-        final StubProducer stubProducer = new StubProducer(producerBarrier);
+        final StubPublisher stubPublisher = new StubPublisher(ringBuffer);
         try
         {
-            executor.execute(stubProducer);
+            executor.execute(stubPublisher);
 
-            assertProducerReaches(stubProducer, 4, true);
+            assertProducerReaches(stubPublisher, 4, true);
 
-            handler1.processEvent();
-            handler1.processEvent();
-            handler1.processEvent();
-            handler1.processEvent();
-            handler1.processEvent();
+            delayedEventHandler.processEvent();
+            delayedEventHandler.processEvent();
+            delayedEventHandler.processEvent();
+            delayedEventHandler.processEvent();
+            delayedEventHandler.processEvent();
 
-            assertProducerReaches(stubProducer, 5, false);
+            assertProducerReaches(stubPublisher, 5, false);
         }
         finally
         {
-            stubProducer.halt();
+            stubPublisher.halt();
         }
     }
 
@@ -208,7 +205,7 @@ public class DisruptorWizardTest
         final ExceptionThrowingEventHandler eventHandler2 = new ExceptionThrowingEventHandler(testException);
         disruptorWizard.handleEventsWith(eventHandler).then(eventHandler2);
 
-        produceEntry();
+        publishEvent();
 
         AtomicReference<Exception> reference = new AtomicReference<Exception>();
         StubExceptionHandler exceptionHandler = new StubExceptionHandler(reference);
@@ -222,34 +219,36 @@ public class DisruptorWizardTest
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new NoOpEventHandler());
         disruptorWizard.start();
-        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new NoOpEventHandler());
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfStartIsCalledTwice() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.handleEventsWith(new DoNothingEventHandler());
+        disruptorWizard.handleEventsWith(new NoOpEventHandler());
         disruptorWizard.start();
         disruptorWizard.start();
     }
 
-    private void assertProducerReaches(final StubProducer stubProducer, final int productionCount, boolean strict)
+    private void assertProducerReaches(final StubPublisher stubPublisher, final int expectedPublicationCount, boolean strict)
     {
         long loopStart = System.currentTimeMillis();
-        while (stubProducer.getProductionCount() < productionCount && System.currentTimeMillis() - loopStart < 5000)
+        while (stubPublisher.getPublicationCount() < expectedPublicationCount &&
+               System.currentTimeMillis() - loopStart < 5000)
         {
             yield();
         }
+
         if (strict)
         {
-            assertThat(stubProducer.getProductionCount(), equalTo(productionCount));
+            assertThat(Integer.valueOf(stubPublisher.getPublicationCount()), equalTo(Integer.valueOf(expectedPublicationCount)));
         }
         else
         {
-            assertTrue("Producer reached expected count.", stubProducer.getProductionCount() > productionCount);
+            assertTrue("Producer reached unexpected count", stubPublisher.getPublicationCount() > expectedPublicationCount);
         }
     }
 
@@ -261,15 +260,18 @@ public class DisruptorWizardTest
 
     private void createDisruptor(final Executor executor)
     {
-        disruptorWizard = new DisruptorWizard<TestEvent>(TestEvent.EVENT_FACTORY, 4, executor, ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.BLOCKING);
+        disruptorWizard = new DisruptorWizard<TestEvent>(TestEvent.EVENT_FACTORY, 4, executor,
+                                                         ClaimStrategy.Option.SINGLE_THREADED,
+                                                         WaitStrategy.Option.BLOCKING);
     }
 
-    private TestEvent produceEntry()
+    private TestEvent publishEvent()
     {
         if (ringBuffer == null)
         {
             ringBuffer = disruptorWizard.start();
         }
+
         final TestEvent stubEntry = ringBuffer.nextEvent();
         ringBuffer.publish(stubEntry);
         return stubEntry;
@@ -287,14 +289,6 @@ public class DisruptorWizardTest
     private void yield()
     {
         Thread.yield();
-//        try
-//        {
-//            Thread.sleep(500);
-//        }
-//        catch (InterruptedException e)
-//        {
-//            e.printStackTrace();
-//        }
     }
 
     private DelayedEventHandler createDelayedEventHandler()

@@ -18,7 +18,7 @@ package com.lmax.disruptor.wizard;
 import com.lmax.disruptor.DependencyBarrier;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.support.TestEvent;
-import com.lmax.disruptor.wizard.stubs.DoNothingEventHandler;
+import com.lmax.disruptor.wizard.stubs.NoOpEventHandler;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +33,8 @@ public class EventProcessorRepositoryTest
     private EventProcessorRepository<TestEvent> eventprocessorRepository;
     private EventProcessor eventprocessor1;
     private EventProcessor eventprocessor2;
-    private DoNothingEventHandler handler1;
-    private DoNothingEventHandler handler2;
+    private NoOpEventHandler handler1;
+    private NoOpEventHandler handler2;
     private DependencyBarrier barrier1;
     private DependencyBarrier barrier2;
 
@@ -45,8 +45,8 @@ public class EventProcessorRepositoryTest
         eventprocessorRepository = new EventProcessorRepository<TestEvent>();
         eventprocessor1 = mockery.mock(EventProcessor.class, "eventProcessor1");
         eventprocessor2 = mockery.mock(EventProcessor.class, "eventProcessor2");
-        handler1 = new DoNothingEventHandler();
-        handler2 = new DoNothingEventHandler();
+        handler1 = new NoOpEventHandler();
+        handler2 = new NoOpEventHandler();
 
         barrier1 = mockery.mock(DependencyBarrier.class, "barrier1");
         barrier2 = mockery.mock(DependencyBarrier.class, "barrier2");
@@ -90,7 +90,7 @@ public class EventProcessorRepositoryTest
     @Test
     public void shouldReturnNullWhenHandlerIsNotRegistered() throws Exception
     {
-        assertThat(eventprocessorRepository.getEventProcessorFor(new DoNothingEventHandler()), is(nullValue()));
+        assertThat(eventprocessorRepository.getEventProcessorFor(new NoOpEventHandler()), is(nullValue()));
     }
 
     @Test
