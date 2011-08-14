@@ -248,7 +248,9 @@ public class DisruptorWizardTest
         }
         else
         {
-            assertTrue("Producer reached unexpected count", stubPublisher.getPublicationCount() > expectedPublicationCount);
+            final int actualPublicationCount = stubPublisher.getPublicationCount();
+            assertTrue("Producer reached unexpected count. Expected at least " + expectedPublicationCount + " but only reached " + actualPublicationCount,
+                      actualPublicationCount >= expectedPublicationCount);
         }
     }
 
