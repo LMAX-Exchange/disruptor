@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 
-public class BatchEventProcessorSequenceReportingCallbackTest
+public class SequenceReportingCallbackTest
 {
     private final CountDownLatch callbackLatch = new CountDownLatch(1);
     private final CountDownLatch onEndOfBatchLatch = new CountDownLatch(1);
