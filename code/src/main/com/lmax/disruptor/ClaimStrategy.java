@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * Strategies employed for claiming the sequence of {@link AbstractEvent}s in the {@link RingBuffer} by publishers.
@@ -83,24 +83,29 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
-        private final AtomicLong sequence = new AtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final AtomicLongArray sequence = new AtomicLongArray(5); // cache line padded
+
+        public MultiThreadedStrategy()
+        {
+            sequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
+        }
 
         @Override
         public long incrementAndGet()
         {
-            return sequence.incrementAndGet();
+            return sequence.incrementAndGet(0);
         }
 
         @Override
         public long incrementAndGet(final int delta)
         {
-            return sequence.addAndGet(delta);
+            return sequence.addAndGet(0, delta);
         }
 
         @Override
         public void setSequence(final long sequence)
         {
-            this.sequence.set(sequence);
+            this.sequence.lazySet(0, sequence);
         }
     }
 
@@ -110,25 +115,30 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
-        private long sequence = RingBuffer.INITIAL_CURSOR_VALUE;
+        private final long[] sequence = new long[5]; // cache line padded
+
+        public SingleThreadedStrategy()
+        {
+            sequence[0] = RingBuffer.INITIAL_CURSOR_VALUE;
+        }
 
         @Override
         public long incrementAndGet()
         {
-            return ++sequence;
+            return ++sequence[0];
         }
 
         @Override
         public long incrementAndGet(final int delta)
         {
-            sequence += delta;
-            return sequence;
+            sequence[0] += delta;
+            return sequence[0];
         }
 
         @Override
         public void setSequence(final long sequence)
         {
-            this.sequence = sequence;
+            this.sequence[0] = sequence;
         }
     }
 }
