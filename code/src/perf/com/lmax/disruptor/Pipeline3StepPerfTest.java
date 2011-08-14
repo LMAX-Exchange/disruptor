@@ -81,7 +81,7 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 32;
-    private static final long ITERATIONS = 1000 * 1000 * 50;
+    private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
