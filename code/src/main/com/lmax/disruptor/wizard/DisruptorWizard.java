@@ -89,6 +89,7 @@ public class DisruptorWizard<T extends AbstractEvent>
      * @param handlers the event handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
+    @SuppressWarnings("varargs")
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
         return createEventProcessors(new EventProcessor[0], handlers);
@@ -123,8 +124,9 @@ public class DisruptorWizard<T extends AbstractEvent>
      *
      * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
      *                 that will form the barrier for subsequent handlers.
-     * @return a {@link EventHandlerGroup} that can be used to setup a handler barrier over the specified eventprocessors.
+     * @return an {@link EventHandlerGroup} that can be used to setup a handler barrier over the specified event handlers.
      */
+    @SuppressWarnings("varargs")
     public EventHandlerGroup<T> after(final EventHandler<T>... handlers)
     {
         EventProcessor[] selectedEventProcessors = new EventProcessor[handlers.length];
@@ -181,10 +183,7 @@ public class DisruptorWizard<T extends AbstractEvent>
 
     EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors, final EventHandler<T>[] eventHandlers)
     {
-        if (started.get())
-        {
-            throw new IllegalStateException("All event handlers must be added before calling start.");
-        }
+        ensureNotStarted();
 
         final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
         final DependencyBarrier barrier = ringBuffer.newDependencyBarrier(barrierEventProcessors);
@@ -203,6 +202,14 @@ public class DisruptorWizard<T extends AbstractEvent>
 
         eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(barrierEventProcessors);
         return new EventHandlerGroup<T>(this, createdEventProcessors);
+    }
+
+    private void ensureNotStarted()
+    {
+        if (started.get())
+        {
+            throw new IllegalStateException("All event handlers must be added before calling start.");
+        }
     }
 
     private void startEventProcessors()
