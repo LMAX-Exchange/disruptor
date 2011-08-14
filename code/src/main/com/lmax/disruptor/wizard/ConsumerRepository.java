@@ -24,24 +24,24 @@ import java.util.*;
 
 class EventProcessorRepository<T extends AbstractEvent> implements Iterable<EventProcessorInfo<T>>
 {
-    private final Map<EventHandler, EventProcessorInfo<T>> eventprocessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
-    private final Map<EventProcessor, EventProcessorInfo<T>> eventprocessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();
+    private final Map<EventHandler, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
+    private final Map<EventProcessor, EventProcessorInfo<T>> eventProcessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();
 
     public void add(EventProcessor eventprocessor, EventHandler<T> handler, final DependencyBarrier barrier)
     {
-        final EventProcessorInfo<T> eventprocessorInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
-        eventprocessorInfoByHandler.put(handler, eventprocessorInfo);
-        eventprocessorInfoByEventProcessor.put(eventprocessor, eventprocessorInfo);
+        final EventProcessorInfo<T> eventProcessorInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
+        eventProcessorInfoByHandler.put(handler, eventProcessorInfo);
+        eventProcessorInfoByEventProcessor.put(eventprocessor, eventProcessorInfo);
     }
 
     public EventProcessor[] getLastEventProcessorsInChain()
     {
         List<EventProcessor> lastEventProcessors = new ArrayList<EventProcessor>();
-        for (EventProcessorInfo<T> eventprocessorInfo : eventprocessorInfoByHandler.values())
+        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorInfoByHandler.values())
         {
-            if (eventprocessorInfo.isEndOfChain())
+            if (eventProcessorInfo.isEndOfChain())
             {
-                lastEventProcessors.add(eventprocessorInfo.getEventProcessor());
+                lastEventProcessors.add(eventProcessorInfo.getEventProcessor());
             }
         }
         return lastEventProcessors.toArray(new EventProcessor[lastEventProcessors.size()]);
@@ -63,22 +63,22 @@ class EventProcessorRepository<T extends AbstractEvent> implements Iterable<Even
 
     public Iterator<EventProcessorInfo<T>> iterator()
     {
-        return eventprocessorInfoByHandler.values().iterator();
+        return eventProcessorInfoByHandler.values().iterator();
     }
 
     public DependencyBarrier getBarrierFor(final EventHandler<T> handler)
     {
-        final EventProcessorInfo<T> eventprocessorInfo = getEventProcessorInfo(handler);
-        return eventprocessorInfo != null ? eventprocessorInfo.getBarrier() : null;
+        final EventProcessorInfo<T> eventProcessorInfo = getEventProcessorInfo(handler);
+        return eventProcessorInfo != null ? eventProcessorInfo.getBarrier() : null;
     }
 
     private EventProcessorInfo<T> getEventProcessorInfo(final EventHandler<T> handler)
     {
-        return eventprocessorInfoByHandler.get(handler);
+        return eventProcessorInfoByHandler.get(handler);
     }
 
     private EventProcessorInfo<T> getEventProcessorInfo(final EventProcessor barrierEventProcessor)
     {
-        return eventprocessorInfoByEventProcessor.get(barrierEventProcessor);
+        return eventProcessorInfoByEventProcessor.get(barrierEventProcessor);
     }
 }

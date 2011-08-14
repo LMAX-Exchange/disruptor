@@ -23,17 +23,17 @@ import com.lmax.disruptor.ExceptionHandler;
 public class ExceptionHandlerSetting<T extends AbstractEvent>
 {
     private final EventHandler<T> eventHandler;
-    private final EventProcessorRepository<T> eventprocessorRepository;
+    private final EventProcessorRepository<T> eventProcessorRepository;
 
-    ExceptionHandlerSetting(final EventHandler<T> eventHandler, EventProcessorRepository<T> eventprocessorRepository)
+    ExceptionHandlerSetting(final EventHandler<T> eventHandler, EventProcessorRepository<T> eventProcessorRepository)
     {
         this.eventHandler = eventHandler;
-        this.eventprocessorRepository = eventprocessorRepository;
+        this.eventProcessorRepository = eventProcessorRepository;
     }
 
     public void with(ExceptionHandler exceptionHandler)
     {
-        ((BatchEventProcessor)eventprocessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
-        eventprocessorRepository.getBarrierFor(eventHandler).alert();
+        ((BatchEventProcessor) eventProcessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
+        eventProcessorRepository.getBarrierFor(eventHandler).alert();
     }
 }
