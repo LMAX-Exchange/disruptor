@@ -82,6 +82,7 @@ public interface ClaimStrategy
         /**
          * Used by the {@link RingBuffer} as a polymorphic constructor.
          *
+         * @param bufferSize of the {@link RingBuffer} for events.
          * @return a new instance of the ClaimStrategy
          */
         abstract ClaimStrategy newInstance(final int bufferSize);
@@ -95,12 +96,13 @@ public interface ClaimStrategy
     {
         private final int bufferSize;
         private final AtomicLongArray sequence = new AtomicLongArray(5); // cache line padded
-        private final Sequence minProcessorSequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final AtomicLongArray minProcessorSequence = new AtomicLongArray(5); // cache line padded
 
         public MultiThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
             sequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
+            minProcessorSequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
@@ -125,7 +127,7 @@ public interface ClaimStrategy
         public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence.get())
+            if (wrapPoint > minProcessorSequence.get(0))
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -133,7 +135,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence.set(minSequence);
+                minProcessorSequence.lazySet(0, minSequence);
             }
         }
     }
