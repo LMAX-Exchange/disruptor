@@ -95,8 +95,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final AtomicLongArray sequence = new AtomicLongArray(5); // cache line padded
-        private final AtomicLongArray minProcessorSequence = new AtomicLongArray(5); // cache line padded
+        private final AtomicLongArray sequence = new AtomicLongArray(Sequence.VALUE_PLUS_CACHE_LINE_PADDING);
+        private final AtomicLongArray minProcessorSequence = new AtomicLongArray(Sequence.VALUE_PLUS_CACHE_LINE_PADDING);
 
         public MultiThreadedStrategy(final int bufferSize)
         {
@@ -147,8 +147,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final long[] sequence = new long[5]; // cache line padded
-        private final long[] minProcessorSequence = new long[5]; // cache line padded
+        private final long[] sequence = new long[Sequence.VALUE_PLUS_CACHE_LINE_PADDING];
+        private final long[] minProcessorSequence = new long[Sequence.VALUE_PLUS_CACHE_LINE_PADDING];
 
         public SingleThreadedStrategy(final int bufferSize)
         {
