@@ -75,7 +75,7 @@ public final class BatchEventProcessorTest
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
 
-        assertEquals(-1L, batchEventProcessor.getSequence());
+        assertEquals(-1L, batchEventProcessor.getSequenceValue());
 
         ringBuffer.publish(ringBuffer.nextEvent());
 

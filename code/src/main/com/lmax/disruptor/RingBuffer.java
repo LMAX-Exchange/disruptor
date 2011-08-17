@@ -88,7 +88,7 @@ public final class RingBuffer<T extends AbstractEvent>
         Sequence[] temp = new Sequence[eventProcessors.length];
         for (int i = 0; i < eventProcessors.length; i++)
         {
-            temp[i] = eventProcessors[i].getSequenceReference();
+            temp[i] = eventProcessors[i].getSequence();
         }
 
         this.processorSequencesToTrack = temp;
@@ -105,7 +105,7 @@ public final class RingBuffer<T extends AbstractEvent>
         Sequence[] dependentSequences = new Sequence[processorsToTrack.length];
         for (int i = 0; i < processorsToTrack.length; i++)
         {
-            dependentSequences[i] = processorsToTrack[i].getSequenceReference();
+            dependentSequences[i] = processorsToTrack[i].getSequence();
         }
 
         return new TrackingDependencyBarrier(waitStrategy, cursor, dependentSequences);

@@ -57,13 +57,13 @@ public final class DependencyBarrierTest
         context.checking(new Expectations()
         {
             {
-                one(eventProcessor1).getSequenceReference();
+                one(eventProcessor1).getSequence();
                 will(returnValue(sequence1));
 
-                one(eventProcessor2).getSequenceReference();
+                one(eventProcessor2).getSequence();
                 will(returnValue(sequence2));
 
-                one(eventProcessor3).getSequenceReference();
+                one(eventProcessor3).getSequence();
                 will(returnValue(sequence3));
             }
         });
@@ -126,13 +126,13 @@ public final class DependencyBarrierTest
         context.checking(new Expectations()
         {
             {
-                one(eventProcessor1).getSequenceReference();
+                one(eventProcessor1).getSequence();
                 will(returnValue(sequence1));
 
-                one(eventProcessor2).getSequenceReference();
+                one(eventProcessor2).getSequence();
                 will(returnValue(sequence2));
 
-                one(eventProcessor3).getSequenceReference();
+                one(eventProcessor3).getSequence();
                 will(returnValue(sequence3));
             }
         });
@@ -189,7 +189,7 @@ public final class DependencyBarrierTest
             {
                 for (StubEventProcessor stubWorker : eventProcessors)
                 {
-                    stubWorker.setSequence(stubWorker.getSequence() + 1);
+                    stubWorker.setSequence(stubWorker.getSequenceValue() + 1);
                 }
             }
         };
@@ -235,13 +235,13 @@ public final class DependencyBarrierTest
         }
 
         @Override
-        public long getSequence()
+        public long getSequenceValue()
         {
             return sequence.get();
         }
 
         @Override
-        public Sequence getSequenceReference()
+        public Sequence getSequence()
         {
             return sequence;
         }

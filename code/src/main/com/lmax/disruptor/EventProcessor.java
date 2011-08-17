@@ -27,14 +27,14 @@ public interface EventProcessor extends Runnable
      *
      * @return the sequence of the last consumed {@link AbstractEvent}
      */
-    long getSequence();
+    long getSequenceValue();
 
     /**
      * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
      *
      * @return reference to the {@link Sequence} for this {@link EventProcessor}
      */
-    Sequence getSequenceReference();
+    Sequence getSequence();
 
     /**
      * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.

@@ -71,13 +71,13 @@ public final class BatchEventProcessor<T extends AbstractEvent>
     }
 
     @Override
-    public long getSequence()
+    public long getSequenceValue()
     {
         return sequence.get();
     }
 
     @Override
-    public Sequence getSequenceReference()
+    public Sequence getSequence()
     {
         return sequence;
     }

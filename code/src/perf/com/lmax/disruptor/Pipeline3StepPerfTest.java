@@ -173,7 +173,7 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequence() < expectedSequence)
+        while (stepThreeBatchProcessor.getSequenceValue() < expectedSequence)
         {
             // busy spin
         }

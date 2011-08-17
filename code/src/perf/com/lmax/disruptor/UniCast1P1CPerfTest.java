@@ -153,7 +153,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (batchEventProcessor.getSequence() < expectedSequence)
+        while (batchEventProcessor.getSequenceValue() < expectedSequence)
         {
             // busy spin
         }
