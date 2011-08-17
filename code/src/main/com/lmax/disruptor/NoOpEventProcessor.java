@@ -61,7 +61,7 @@ public final class NoOpEventProcessor implements EventProcessor
 
         private RingBufferTrackingSequence(final RingBuffer ringBuffer)
         {
-            super(-1L);
+            super(RingBuffer.INITIAL_CURSOR_VALUE);
             this.ringBuffer = ringBuffer;
         }
 
