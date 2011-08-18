@@ -223,12 +223,6 @@ public class RingBufferTest
         }
 
         @Override
-        public long getSequenceValue()
-        {
-            return sequence.get();
-        }
-
-        @Override
         public Sequence getSequence()
         {
             return sequence;

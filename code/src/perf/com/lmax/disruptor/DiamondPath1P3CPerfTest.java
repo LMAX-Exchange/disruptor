@@ -188,7 +188,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (batchProcessorFizzBuzz.getSequenceValue() < expectedSequence)
+        while (batchProcessorFizzBuzz.getSequence().get() < expectedSequence)
         {
             // busy spin
         }

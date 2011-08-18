@@ -189,7 +189,7 @@ public final class DependencyBarrierTest
             {
                 for (StubEventProcessor stubWorker : eventProcessors)
                 {
-                    stubWorker.setSequence(stubWorker.getSequenceValue() + 1);
+                    stubWorker.setSequence(stubWorker.getSequence().get() + 1L);
                 }
             }
         };
@@ -232,12 +232,6 @@ public final class DependencyBarrierTest
         public void setSequence(long sequence)
         {
             this.sequence.set(sequence);
-        }
-
-        @Override
-        public long getSequenceValue()
-        {
-            return sequence.get();
         }
 
         @Override

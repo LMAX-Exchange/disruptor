@@ -41,14 +41,14 @@ public class SequenceReportingCallbackTest
         thread.setDaemon(true);
         thread.start();
 
-        assertEquals(-1L, batchEventProcessor.getSequenceValue());
+        assertEquals(-1L, batchEventProcessor.getSequence().get());
         ringBuffer.publish(ringBuffer.nextEvent());
 
         callbackLatch.await();
-        assertEquals(0L, batchEventProcessor.getSequenceValue());
+        assertEquals(0L, batchEventProcessor.getSequence().get());
 
         onEndOfBatchLatch.countDown();
-        assertEquals(0L, batchEventProcessor.getSequenceValue());
+        assertEquals(0L, batchEventProcessor.getSequence().get());
 
         batchEventProcessor.halt();
         thread.join();

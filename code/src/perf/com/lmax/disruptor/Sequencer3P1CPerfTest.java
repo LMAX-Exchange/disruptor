@@ -185,7 +185,7 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
         }
 
         final long expectedSequence = (ITERATIONS * NUM_PUBLISHERS * (passNumber + 1L)) - 1L;
-        while (expectedSequence > batchEventProcessor.getSequenceValue())
+        while (expectedSequence > batchEventProcessor.getSequence().get())
         {
             // busy spin
         }

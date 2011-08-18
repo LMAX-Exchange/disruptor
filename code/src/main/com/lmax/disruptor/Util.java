@@ -44,7 +44,7 @@ public final class Util
 
         for (EventProcessor eventProcessor : eventProcessors)
         {
-            long sequence = eventProcessor.getSequenceValue();
+            long sequence = eventProcessor.getSequence().get();
             minimum = minimum < sequence ? minimum : sequence;
         }
 

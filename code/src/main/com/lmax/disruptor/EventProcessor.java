@@ -23,13 +23,6 @@ package com.lmax.disruptor;
 public interface EventProcessor extends Runnable
 {
     /**
-     * Get the sequence up to which this EventProcessor has consumed {@link AbstractEvent}s
-     *
-     * @return the sequence of the last consumed {@link AbstractEvent}
-     */
-    long getSequenceValue();
-
-    /**
      * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
      *
      * @return reference to the {@link Sequence} for this {@link EventProcessor}

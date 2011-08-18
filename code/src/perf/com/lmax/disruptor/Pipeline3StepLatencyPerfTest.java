@@ -224,7 +224,7 @@ public final class Pipeline3StepLatencyPerfTest
         }
 
         final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequenceValue() < expectedSequence)
+        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
         {
             // busy spin
         }
