@@ -94,7 +94,7 @@ import java.util.concurrent.*;
 public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE = 1024 * 32;
+    private static final int SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 

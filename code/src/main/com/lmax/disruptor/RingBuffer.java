@@ -34,7 +34,6 @@ public final class RingBuffer<T extends AbstractEvent>
 
     private Sequence[] processorSequencesToTrack;
 
-    private final ClaimStrategy.Option claimStrategyOption;
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
 
@@ -54,7 +53,6 @@ public final class RingBuffer<T extends AbstractEvent>
         ringModMask = sizeAsPowerOfTwo - 1;
         events = new AbstractEvent[sizeAsPowerOfTwo];
 
-        this.claimStrategyOption = claimStrategyOption;
         claimStrategy = claimStrategyOption.newInstance(sizeAsPowerOfTwo);
         waitStrategy = waitStrategyOption.newInstance();
 
@@ -217,20 +215,7 @@ public final class RingBuffer<T extends AbstractEvent>
 
     private void publish(final long sequence, final long batchSize)
     {
-        if (ClaimStrategy.Option.MULTI_THREADED == claimStrategyOption)
-        {
-            final long expectedSequence = sequence - batchSize;
-            int counter = 1000;
-            while (expectedSequence != cursor.get())
-            {
-                if (0 == --counter)
-                {
-                    counter = 1000;
-                    Thread.yield();
-                }
-            }
-        }
-
+        claimStrategy.serialisePublishing(cursor, sequence, batchSize);
         cursor.set(sequence);
         waitStrategy.signalAll();
     }

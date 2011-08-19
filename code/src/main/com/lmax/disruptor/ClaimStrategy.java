@@ -55,6 +55,15 @@ public interface ClaimStrategy
     void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences);
 
     /**
+     * Serialise publishing in sequence.
+     *
+     * @param cursor to serialise against.
+     * @param sequence sequence to be applied
+     * @param batchSize of the sequence.
+     */
+    void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize);
+
+    /**
      * Indicates the threading policy to be applied for claiming {@link AbstractEvent}s by publisher to the {@link RingBuffer}
      */
     enum Option
@@ -138,6 +147,21 @@ public interface ClaimStrategy
                 minProcessorSequence.lazySet(0, minSequence);
             }
         }
+
+        @Override
+        public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
+        {
+            final long expectedSequence = sequence - batchSize;
+            int counter = 1000;
+            while (expectedSequence != cursor.get())
+            {
+                if (0 == --counter)
+                {
+                    counter = 1000;
+                    Thread.yield();
+                }
+            }
+        }
     }
 
     /**
@@ -190,6 +214,11 @@ public interface ClaimStrategy
 
                 minProcessorSequence[0] = minSequence;
             }
+        }
+
+        @Override
+        public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
+        {
         }
     }
 }

@@ -90,7 +90,7 @@ import java.util.concurrent.*;
 public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PUBLISHERS = 3;
-    private static final int SIZE = 1024 * 32;
+    private static final int SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
