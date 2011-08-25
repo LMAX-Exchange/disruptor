@@ -86,7 +86,7 @@ public final class Pipeline3StepLatencyPerfTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private static final long ITERATIONS = 1000L * 1000L * 50L;
     private static final long PAUSE_NANOS = 1000L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
