@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.lang.Thread.yield;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
@@ -100,7 +101,7 @@ public class DisruptorWizardTest
         publishEvent();
         publishEvent();
 
-        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
+        assertThatCountDownLatchEquals(countDownLatch, 2L);
 
         eventHandler1.processEvent();
         eventHandler1.processEvent();
@@ -122,16 +123,57 @@ public class DisruptorWizardTest
         publishEvent();
         publishEvent();
 
-        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
+        assertThatCountDownLatchEquals(countDownLatch, 2L);
 
         handler1.processEvent();
         handler2.processEvent();
 
-        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(2L)));
+        assertThatCountDownLatchEquals(countDownLatch, 2L);
 
         handler2.processEvent();
         handler1.processEvent();
         assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void shouldWaitOnAllProducersJoinedByAnd() throws Exception
+    {
+        DelayedEventHandler handler1 = createDelayedEventHandler();
+        DelayedEventHandler handler2 = createDelayedEventHandler();
+
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
+
+        disruptorWizard.handleEventsWith(handler1, handler2);
+        disruptorWizard.after(handler1).and(handler2).handleEventsWith(handlerWithBarrier);
+
+        publishEvent();
+        publishEvent();
+
+        assertThatCountDownLatchEquals(countDownLatch, 2L);
+
+        handler1.processEvent();
+        handler1.processEvent();
+        assertThatCountDownLatchEquals(countDownLatch, 2L);
+
+        handler2.processEvent();
+        handler2.processEvent();
+        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming() throws Exception
+    {
+        disruptorWizard.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfHandlerUsedWithAndIsNotAlreadyConsuming() throws Exception
+    {
+        final DelayedEventHandler handler1 = createDelayedEventHandler();
+        final DelayedEventHandler handler2 = createDelayedEventHandler();
+        disruptorWizard.handleEventsWith(handler1);
+        disruptorWizard.after(handler1).and(handler2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -159,12 +201,6 @@ public class DisruptorWizardTest
 
         final Exception actualException = waitFor(eventHandled);
         assertSame(testException, actualException);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming() throws Exception
-    {
-        disruptorWizard.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
     }
 
     @Test
@@ -288,15 +324,15 @@ public class DisruptorWizardTest
         return reference.get();
     }
 
-    private void yield()
-    {
-        Thread.yield();
-    }
-
     private DelayedEventHandler createDelayedEventHandler()
     {
         final DelayedEventHandler delayedEventHandler = new DelayedEventHandler();
         delayedEventHandlers.add(delayedEventHandler);
         return delayedEventHandler;
+    }
+
+    private void assertThatCountDownLatchEquals(final CountDownLatch countDownLatch, final long expectedCountDownValue)
+    {
+        assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(expectedCountDownValue)));
     }
 }

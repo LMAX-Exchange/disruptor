@@ -50,7 +50,11 @@ class EventProcessorRepository<T extends AbstractEvent> implements Iterable<Even
     public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
     {
         final EventProcessorInfo eventprocessorInfo = getEventProcessorInfo(handler);
-        return eventprocessorInfo != null ? eventprocessorInfo.getEventProcessor() : null;
+        if (eventprocessorInfo == null)
+        {
+            throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
+        }
+        return eventprocessorInfo.getEventProcessor();
     }
 
     public void unmarkEventProcessorsAsEndOfChain(final EventProcessor... barrierEventProcessors)

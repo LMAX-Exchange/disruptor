@@ -87,10 +87,10 @@ public class EventProcessorRepositoryTest
         assertThat(eventprocessorRepository.getEventProcessorFor(handler1), sameInstance(eventprocessor1));
     }
 
-    @Test
-    public void shouldReturnNullWhenHandlerIsNotRegistered() throws Exception
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThowExceptionWhenHandlerIsNotRegistered() throws Exception
     {
-        assertThat(eventprocessorRepository.getEventProcessorFor(new NoOpEventHandler()), is(nullValue()));
+        eventprocessorRepository.getEventProcessorFor(new NoOpEventHandler());
     }
 
     @Test

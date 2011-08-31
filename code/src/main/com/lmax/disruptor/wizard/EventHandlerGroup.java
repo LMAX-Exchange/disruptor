@@ -26,12 +26,33 @@ import com.lmax.disruptor.EventProcessor;
 public class EventHandlerGroup<T extends AbstractEvent>
 {
     private final DisruptorWizard<T> disruptorWizard;
+    private final EventProcessorRepository<T> eventProcessorRepository;
     private final EventProcessor[] eventProcessors;
 
-    EventHandlerGroup(final DisruptorWizard<T> disruptorWizard, final EventProcessor[] eventProcessors)
+    EventHandlerGroup(final DisruptorWizard<T> disruptorWizard, EventProcessorRepository<T> eventProcessorRepository,
+                      final EventProcessor[] eventProcessors)
     {
         this.disruptorWizard = disruptorWizard;
+        this.eventProcessorRepository = eventProcessorRepository;
         this.eventProcessors = eventProcessors;
+    }
+
+    /** Create a new event handler group that combines the handlers in this group with
+     * <tt>handlers</tt>.
+     *
+     * @param handlers the handlers to combine.
+     * @return a new EventHandlerGroup combining the existing and new handlers into a
+     * single dependency group.
+     */
+    public EventHandlerGroup<T> and(final EventHandler<T>... handlers)
+    {
+        EventProcessor[] combinedProcessors = new EventProcessor[eventProcessors.length + handlers.length];
+        for (int i = 0; i < handlers.length; i++)
+        {
+            combinedProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
+        }
+        System.arraycopy(eventProcessors, 0, combinedProcessors, handlers.length, eventProcessors.length);
+        return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
     }
 
     /** Set up batch handlers to consume events from the ring buffer. These handlers will only process events

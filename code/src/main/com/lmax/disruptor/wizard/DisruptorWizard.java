@@ -132,15 +132,10 @@ public class DisruptorWizard<T extends AbstractEvent>
         EventProcessor[] selectedEventProcessors = new EventProcessor[handlers.length];
         for (int i = 0, handlersLength = handlers.length; i < handlersLength; i++)
         {
-            final EventHandler<T> handler = handlers[i];
-            selectedEventProcessors[i] = eventProcessorRepository.getEventProcessorFor(handler);
-            if (selectedEventProcessors[i] == null)
-            {
-                throw new IllegalArgumentException("Event handlers must be registered before they can be used as a dependency.");
-            }
+            selectedEventProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
         }
 
-        return new EventHandlerGroup<T>(this, selectedEventProcessors);
+        return new EventHandlerGroup<T>(this, eventProcessorRepository, selectedEventProcessors);
     }
 
     /**
@@ -201,7 +196,7 @@ public class DisruptorWizard<T extends AbstractEvent>
         }
 
         eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(barrierEventProcessors);
-        return new EventHandlerGroup<T>(this, createdEventProcessors);
+        return new EventHandlerGroup<T>(this, eventProcessorRepository, createdEventProcessors);
     }
 
     private void ensureNotStarted()
