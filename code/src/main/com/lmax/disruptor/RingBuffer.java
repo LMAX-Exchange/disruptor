@@ -189,7 +189,7 @@ public final class RingBuffer<T extends AbstractEvent>
      * @return the claimed {@link AbstractEvent}
      */
     @SuppressWarnings("unchecked")
-    public T publishEventAtSequence(final long sequence)
+    public T claimEventAtSequence(final long sequence)
     {
         claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
         AbstractEvent event = events[(int)sequence & ringModMask];

@@ -148,7 +148,7 @@ public class RingBufferTest
     {
         long expectedSequence = 5;
 
-        StubEvent expectedEvent = ringBuffer.publishEventAtSequence(expectedSequence);
+        StubEvent expectedEvent = ringBuffer.claimEventAtSequence(expectedSequence);
         expectedEvent.setValue((int) expectedSequence);
         ringBuffer.publishWithForce(expectedEvent);
 
