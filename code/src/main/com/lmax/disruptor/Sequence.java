@@ -12,7 +12,7 @@ public class Sequence
     /**
      * Size of a long array so the object header, value, and padding all fit in a 64 byte cache line.
      */
-    public static final int VALUE_PLUS_CACHE_LINE_PADDING = 5;
+    public static final int VALUE_PLUS_CACHE_LINE_PADDING = 6;
 
     private final AtomicLongArray value = new AtomicLongArray(VALUE_PLUS_CACHE_LINE_PADDING);
 
