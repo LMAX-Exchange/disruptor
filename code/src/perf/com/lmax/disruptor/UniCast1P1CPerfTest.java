@@ -15,9 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
-import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.support.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,17 +69,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     private static final int SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-
-    private final long expectedResult;
-    {
-        long temp = 0L;
-        for (long i = 0L; i < ITERATIONS; i++)
-        {
-            temp += i;
-        }
-
-        expectedResult = temp;
-    }
+    private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
