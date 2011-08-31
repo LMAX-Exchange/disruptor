@@ -68,8 +68,10 @@ public interface WaitStrategy
      */
     enum Option
     {
-        /** This strategy uses a condition variable inside a lock to block the event processor
-         * which saves CPU resource as the expense of lock contention. */
+        /**
+         * This strategy uses a condition variable inside a lock to block the event processor
+         * which saves CPU resource as the expense of lock contention.
+         */
         BLOCKING
         {
             @Override
@@ -79,7 +81,23 @@ public interface WaitStrategy
             }
         },
 
-        /** This strategy calls Thread.yield() in a loop as a waiting strategy which reduces contention at the expense of CPU resource. */
+        /**
+         * This strategy uses a progressive back off strategy by first spinning, then yielding, then sleeping for 1ms periods.
+         * This is a good strategy for burst traffic then quiet periods when latency is not critical.
+         */
+        SLEEPING
+        {
+            @Override
+            public SleepingStrategy newInstance()
+            {
+                return new SleepingStrategy();
+            }
+        },
+
+        /**
+         * This strategy calls Thread.yield() in a loop as a waiting strategy which reduces contention
+         * at the expense of CPU resource.
+         */
         YIELDING
         {
             @Override
@@ -89,7 +107,10 @@ public interface WaitStrategy
             }
         },
 
-        /** This strategy call spins in a loop as a waiting strategy which is lowest and most consistent latency but ties up a CPU */
+        /**
+         * This strategy call spins in a loop as a waiting strategy which is lowest
+         * and most consistent latency but ties up a CPU
+         */
         BUSY_SPIN
         {
             @Override
@@ -216,13 +237,14 @@ public interface WaitStrategy
     }
 
     /**
-     * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier.
+     * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier
+     * after an initially spinning.
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
-    static final class YieldingStrategy implements WaitStrategy
+    static final class SleepingStrategy implements WaitStrategy
     {
-        private static final int SPIN_TRIES = 100;
+        private static final int SPIN_TRIES = 200;
 
         @Override
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
@@ -235,32 +257,14 @@ public interface WaitStrategy
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
-
-                    if (0 == --counter)
-                    {
-                        counter = SPIN_TRIES;
-                        Thread.yield();
-                    }
+                    counter = applyWaitMethod(barrier, counter);
                 }
             }
             else
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
-
-                    if (0 == --counter)
-                    {
-                        counter = SPIN_TRIES;
-                        Thread.yield();
-                    }
+                    counter = applyWaitMethod(barrier, counter);
                 }
             }
 
@@ -281,16 +285,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
-
-                    if (0 == --counter)
-                    {
-                        counter = SPIN_TRIES;
-                        Thread.yield();
-                    }
+                    counter = applyWaitMethod(barrier, counter);
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -302,16 +297,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
-
-                    if (0 == --counter)
-                    {
-                        counter = SPIN_TRIES;
-                        Thread.yield();
-                    }
+                    counter = applyWaitMethod(barrier, counter);
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -326,6 +312,137 @@ public interface WaitStrategy
         @Override
         public void signalAll()
         {
+        }
+
+        private int applyWaitMethod(final DependencyBarrier barrier, int counter)
+            throws AlertException
+        {
+            if (barrier.isAlerted())
+            {
+                throw ALERT_EXCEPTION;
+            }
+
+            if (counter > 100)
+            {
+                --counter;
+            }
+            else if (counter > 0)
+            {
+                --counter;
+                Thread.yield();
+            }
+            else
+            {
+                try
+                {
+                    Thread.sleep(1L);
+                }
+                catch (InterruptedException ex)
+                {
+                    // do nothing
+                }
+            }
+
+            return counter;
+        }
+    }
+
+    /**
+     * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier
+     * after an initially spinning.
+     *
+     * This strategy is a good compromise between performance and CPU resource.
+     */
+    static final class YieldingStrategy implements WaitStrategy
+    {
+        private static final int SPIN_TRIES = 100;
+
+        @Override
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
+            throws AlertException, InterruptedException
+        {
+            long availableSequence;
+
+            int counter = SPIN_TRIES;
+            if (0 == dependents.length)
+            {
+                while ((availableSequence = cursor.get()) < sequence)
+                {
+                    counter = applyWaitMethod(barrier, counter);
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(dependents)) < sequence)
+                {
+                    counter = applyWaitMethod(barrier, counter);
+                }
+            }
+
+            return availableSequence;
+        }
+
+        @Override
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
+                            final long sequence, final long timeout, final TimeUnit units)
+            throws AlertException, InterruptedException
+        {
+            final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+            final long currentTime = System.currentTimeMillis();
+            long availableSequence;
+
+            int counter = SPIN_TRIES;
+            if (0 == dependents.length)
+            {
+                while ((availableSequence = cursor.get()) < sequence)
+                {
+                    counter = applyWaitMethod(barrier, counter);
+
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                while ((availableSequence = getMinimumSequence(dependents)) < sequence)
+                {
+                    counter = applyWaitMethod(barrier, counter);
+
+                    if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return availableSequence;
+        }
+
+        @Override
+        public void signalAll()
+        {
+        }
+
+        private int applyWaitMethod(final DependencyBarrier barrier, int counter)
+            throws AlertException
+        {
+            if (barrier.isAlerted())
+            {
+                throw ALERT_EXCEPTION;
+            }
+
+            if (0 == counter)
+            {
+                Thread.yield();
+            }
+            else
+            {
+                --counter;
+            }
+
+            return counter;
         }
     }
 
@@ -347,20 +464,14 @@ public interface WaitStrategy
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
+                    applyWaitMethod(barrier);
                 }
             }
             else
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
+                    applyWaitMethod(barrier);
                 }
             }
 
@@ -380,10 +491,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
+                    applyWaitMethod(barrier);
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -395,10 +503,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    if (barrier.isAlerted())
-                    {
-                        throw ALERT_EXCEPTION;
-                    }
+                    applyWaitMethod(barrier);
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -413,6 +518,15 @@ public interface WaitStrategy
         @Override
         public void signalAll()
         {
+        }
+
+        private void applyWaitMethod(final DependencyBarrier barrier)
+            throws AlertException
+        {
+            if (barrier.isAlerted())
+            {
+                throw ALERT_EXCEPTION;
+            }
         }
     }
 }
