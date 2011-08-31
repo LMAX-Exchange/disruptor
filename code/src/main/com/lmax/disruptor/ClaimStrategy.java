@@ -104,39 +104,39 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final AtomicLongArray sequence = new AtomicLongArray(Sequence.VALUE_PLUS_CACHE_LINE_PADDING);
-        private final AtomicLongArray minProcessorSequence = new AtomicLongArray(Sequence.VALUE_PLUS_CACHE_LINE_PADDING);
+        private final Sequence.PaddedAtomicLong sequence = new Sequence.PaddedAtomicLong();
+        private final Sequence.PaddedAtomicLong minProcessorSequence = new Sequence.PaddedAtomicLong();
 
         public MultiThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
-            sequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
-            minProcessorSequence.set(0, RingBuffer.INITIAL_CURSOR_VALUE);
+            sequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
+            minProcessorSequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
         public long incrementAndGet()
         {
-            return sequence.incrementAndGet(0);
+            return sequence.incrementAndGet();
         }
 
         @Override
         public long incrementAndGet(final int delta)
         {
-            return sequence.addAndGet(0, delta);
+            return sequence.addAndGet(delta);
         }
 
         @Override
         public void setSequence(final long sequence)
         {
-            this.sequence.lazySet(0, sequence);
+            this.sequence.lazySet(sequence);
         }
 
         @Override
         public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence.get(0))
+            if (wrapPoint > minProcessorSequence.get())
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -144,7 +144,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence.lazySet(0, minSequence);
+                minProcessorSequence.lazySet(minSequence);
             }
         }
 
@@ -170,9 +170,10 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
+        public static final int VALUE_PLUS_CACHE_LINE_PADDING = 5;
         private final int bufferSize;
-        private final long[] sequence = new long[Sequence.VALUE_PLUS_CACHE_LINE_PADDING];
-        private final long[] minProcessorSequence = new long[Sequence.VALUE_PLUS_CACHE_LINE_PADDING];
+        private final long[] sequence = new long[VALUE_PLUS_CACHE_LINE_PADDING];
+        private final long[] minProcessorSequence = new long[VALUE_PLUS_CACHE_LINE_PADDING];
 
         public SingleThreadedStrategy(final int bufferSize)
         {

@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Cache line padded sequence counter.
@@ -9,12 +9,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  */
 public class Sequence
 {
-    /**
-     * Size of a long array so the object header, value, and padding all fit in a 64 byte cache line.
-     */
-    public static final int VALUE_PLUS_CACHE_LINE_PADDING = 6;
-
-    private final AtomicLongArray value = new AtomicLongArray(VALUE_PLUS_CACHE_LINE_PADDING);
+    private final PaddedAtomicLong value = new PaddedAtomicLong();
 
     /**
      * Construct a sequence counter that can be tracked across threads.
@@ -28,11 +23,19 @@ public class Sequence
 
     public long get()
     {
-        return value.get(0);
+        return value.get();
     }
 
     public void set(final long value)
     {
-        this.value.lazySet(0, value);
+        this.value.lazySet(value);
+    }
+
+    /**
+     * Version of AtomicLong with cache line padding to prevent false sharing.
+     */
+    static class PaddedAtomicLong extends AtomicLong
+    {
+        public volatile long p1, p2, p3, p4, p5, p6, p7 = 7L;
     }
 }
