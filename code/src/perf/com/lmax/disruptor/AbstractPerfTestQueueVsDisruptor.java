@@ -22,6 +22,7 @@ public abstract class AbstractPerfTestQueueVsDisruptor
     protected void testImplementations()
         throws Exception
     {
+        final boolean runQueueTests = "true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true"));
         final int RUNS = 3;
         long disruptorOps = 0L;
         long queueOps = 0L;
@@ -31,7 +32,11 @@ public abstract class AbstractPerfTestQueueVsDisruptor
             System.gc();
 
             disruptorOps = runDisruptorPass(i);
-            queueOps = runQueuePass(i);
+
+            if (runQueueTests)
+            {
+                queueOps = runQueuePass(i);
+            }
 
             printResults(getClass().getSimpleName(), disruptorOps, queueOps, i);
         }

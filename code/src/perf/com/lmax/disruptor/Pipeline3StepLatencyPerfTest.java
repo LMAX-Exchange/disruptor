@@ -86,7 +86,7 @@ public final class Pipeline3StepLatencyPerfTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 50L;
+    private static final long ITERATIONS = 1000L * 1000L * 30L;
     private static final long PAUSE_NANOS = 1000L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
@@ -170,6 +170,7 @@ public final class Pipeline3StepLatencyPerfTest
         throws Exception
     {
         final int RUNS = 3;
+        final boolean runQueueTests = "true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true"));
 
         for (int i = 0; i < RUNS; i++)
         {
@@ -182,14 +183,17 @@ public final class Pipeline3StepLatencyPerfTest
             System.out.format("%s run %d Disruptor %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
             dumpHistogram(System.out);
 
-            histogram.clear();
-            runQueuePass();
-            assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
-            final BigDecimal queueMeanLatency = histogram.getMean();
-            System.out.format("%s run %d Queues %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
-            dumpHistogram(System.out);
+            if (runQueueTests)
+            {
+                histogram.clear();
+                runQueuePass();
+                assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
+                final BigDecimal queueMeanLatency = histogram.getMean();
+                System.out.format("%s run %d Queues %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
+                dumpHistogram(System.out);
 
-            assertTrue(queueMeanLatency.compareTo(disruptorMeanLatency) > 0);
+                assertTrue(queueMeanLatency.compareTo(disruptorMeanLatency) > 0);
+            }
         }
     }
 
