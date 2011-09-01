@@ -97,7 +97,7 @@
                haltonfailure="false">
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
-            <sysproperty key="com.lmax.runQueueTests" value="false"/>
+            <sysproperty key="com.lmax.runQueueTests" value="true"/>
             <batchtest fork="false" todir="${dir.reports}/perf">
                 <fileset dir="${dir.perf.src}">
                     <include name="**/*PerfTest.java"/>
