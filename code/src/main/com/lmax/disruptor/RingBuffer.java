@@ -61,7 +61,7 @@ public final class RingBuffer<T>
 
     /**
      * Construct a RingBuffer with default strategies of:
-     * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#BLOCKING}
+     * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#SLEEPING}
      *
      * @param eventFactory to create events for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
@@ -70,7 +70,7 @@ public final class RingBuffer<T>
     {
         this(eventFactory, size,
              ClaimStrategy.Option.MULTI_THREADED,
-             WaitStrategy.Option.BLOCKING);
+             WaitStrategy.Option.SLEEPING);
     }
 
     /**
