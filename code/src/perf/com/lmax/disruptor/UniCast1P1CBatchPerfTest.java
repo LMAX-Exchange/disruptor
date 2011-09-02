@@ -144,10 +144,10 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            ringBuffer.nextEvents(sequenceBatch);
+            ringBuffer.nextSequenceBatch(sequenceBatch);
             for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
             {
-                ValueEvent event = ringBuffer.getEvent(c);
+                ValueEvent event = ringBuffer.get(c);
                 event.setValue(offset++);
             }
             ringBuffer.publish(sequenceBatch);

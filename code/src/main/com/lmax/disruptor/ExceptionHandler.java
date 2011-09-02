@@ -16,18 +16,19 @@
 package com.lmax.disruptor;
 
 /**
- * Callback handler for uncaught exceptions in the {@link AbstractEvent} processing cycle of the {@link BatchEventProcessor}
+ * Callback handler for uncaught exceptions in the event processing cycle of the {@link BatchEventProcessor}
  */
 public interface ExceptionHandler
 {
     /**
-     * Strategy for handling uncaught exceptions when processing an {@link AbstractEvent}.
+     * Strategy for handling uncaught exceptions when processing an event.
      *
      * If the strategy wishes to suspend further processing by the {@link BatchEventProcessor}
      * then is should throw a {@link RuntimeException}.
      *
-     * @param ex the exception that propagated from the {@link EventHandler}
-     * @param currentEvent being processed when the exception occurred.
+     * @param ex the exception that propagated from the {@link EventHandler}.
+     * @param sequence of the event which cause the exception.
+     * @param event being processed when the exception occurred.
      */
-    void handle(Exception ex, AbstractEvent currentEvent);
+    void handle(Exception ex, long sequence, Object event);
 }

@@ -15,14 +15,12 @@
  */
 package com.lmax.disruptor.wizard.stubs;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.ExceptionHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StubExceptionHandler implements ExceptionHandler
 {
-
     private final AtomicReference<Exception> exceptionHandled;
 
     public StubExceptionHandler(final AtomicReference<Exception> exceptionHandled)
@@ -30,7 +28,7 @@ public class StubExceptionHandler implements ExceptionHandler
         this.exceptionHandled = exceptionHandled;
     }
 
-    public void handle(final Exception ex, final AbstractEvent currentEntry)
+    public void handle(final Exception ex, final long sequence, final Object event)
     {
         exceptionHandled.set(ex);
     }

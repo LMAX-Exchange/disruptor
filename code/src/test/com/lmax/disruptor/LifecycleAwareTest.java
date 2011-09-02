@@ -54,7 +54,7 @@ public final class LifecycleAwareTest
         private int shutdownCounter = 0;
 
         @Override
-        public void onEvent(final StubEvent event, final boolean endOfBatch) throws Exception
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
         }
 

@@ -182,9 +182,10 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FizzBuzzEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            FizzBuzzEvent event = ringBuffer.get(sequence);
             event.setValue(i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

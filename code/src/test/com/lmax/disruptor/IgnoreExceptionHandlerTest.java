@@ -40,18 +40,18 @@ public final class IgnoreExceptionHandlerTest
     public void shouldHandleAndIgnoreException()
     {
         final Exception ex = new Exception();
-        final AbstractEvent event = new TestEvent();
+        final TestEvent event = new TestEvent();
 
         final Logger logger = context.mock(Logger.class);
 
         context.checking(new Expectations()
         {
             {
-                oneOf(logger).log(Level.INFO, "Exception processing: " + event, ex);
+                oneOf(logger).log(Level.INFO, "Exception processing: 0 " + event, ex);
             }
         });
 
         ExceptionHandler exceptionHandler = new IgnoreExceptionHandler(logger);
-        exceptionHandler.handle(ex, event);
+        exceptionHandler.handle(ex, 0L, event);
     }
 }

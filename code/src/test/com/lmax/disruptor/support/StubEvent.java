@@ -15,10 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventFactory;
 
-public final class StubEvent extends AbstractEvent
+public final class StubEvent
 {
     private int value;
     private String testString;

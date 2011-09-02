@@ -19,21 +19,21 @@ import com.lmax.disruptor.EventHandler;
 
 public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
 {
-    private long value;
+    private final long[] value = new long[15]; // cache line padded
 
     public long getValue()
     {
-        return value;
+        return value[7];
     }
 
     public void reset()
     {
-        value = 0L;
+        value[7] = 0L;
     }
 
     @Override
-    public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
+    public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
-        value += event.getValue();
+        value[7] += event.getValue();
     }
 }

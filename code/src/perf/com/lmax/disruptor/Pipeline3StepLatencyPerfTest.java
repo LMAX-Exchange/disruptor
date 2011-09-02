@@ -216,9 +216,10 @@ public final class Pipeline3StepLatencyPerfTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            ValueEvent event = ringBuffer.get(sequence);
             event.setValue(System.nanoTime());
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
 
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))

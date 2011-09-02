@@ -15,15 +15,14 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 
 /** A group of {@link EventProcessor}s set up via the {@link DisruptorWizard}.
  *
- * @param <T> the type of entry used by the eventProcessors.
+ * @param <T> the type of entry used by the event processors.
  */
-public class EventHandlerGroup<T extends AbstractEvent>
+public class EventHandlerGroup<T>
 {
     private final DisruptorWizard<T> disruptorWizard;
     private final EventProcessorRepository<T> eventProcessorRepository;

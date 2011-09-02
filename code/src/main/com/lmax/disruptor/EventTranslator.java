@@ -16,14 +16,14 @@
 package com.lmax.disruptor;
 
 /**
- * Implementations translate another data representations into {@link AbstractEvent}s claimed from the {@link RingBuffer}
+ * Implementations translate another data representations into events claimed from the {@link RingBuffer}
  *
- * @param <T> AbstractEvent implementation storing the data for sharing during exchange or parallel coordination of an event.
+ * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface EventTranslator<T extends AbstractEvent>
+public interface EventTranslator<T>
 {
     /**
-     * Translate a data representation into fields set in given {@link AbstractEvent}
+     * Translate a data representation into fields set in given event
      *
      * @param event into which the data should be translated.
      * @return the resulting event after it has been updated.

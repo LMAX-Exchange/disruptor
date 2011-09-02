@@ -34,8 +34,9 @@ public class StubPublisher implements Runnable
     {
         while (running)
         {
-            final TestEvent entry = ringBuffer.nextEvent();
-            ringBuffer.publish(entry);
+            final long sequence = ringBuffer.nextSequence();
+            //final TestEvent entry = ringBuffer.get(sequence);
+            ringBuffer.publish(sequence);
             publicationCount++;
         }
     }

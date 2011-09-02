@@ -15,14 +15,13 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.DependencyBarrier;
 
 import java.util.*;
 
-class EventProcessorRepository<T extends AbstractEvent> implements Iterable<EventProcessorInfo<T>>
+class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
 {
     private final Map<EventHandler, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
     private final Map<EventProcessor, EventProcessorInfo<T>> eventProcessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();

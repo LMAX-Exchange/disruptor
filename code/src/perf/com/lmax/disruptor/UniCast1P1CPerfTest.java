@@ -135,9 +135,10 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            ValueEvent event = ringBuffer.get(sequence);
             event.setValue(i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

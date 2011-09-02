@@ -94,13 +94,14 @@ public final class DependencyBarrierTest
         {
             public void run()
             {
-                StubEvent event = ringBuffer.nextEvent();
-                event.setValue((int) event.getSequence());
-                ringBuffer.publish(event);
+                long sequence = ringBuffer.nextSequence();
+                StubEvent event = ringBuffer.get(sequence);
+                event.setValue((int) sequence);
+                ringBuffer.publish(sequence);
 
                 for (StubEventProcessor stubWorker : workers)
                 {
-                    stubWorker.setSequence(event.getSequence());
+                    stubWorker.setSequence(sequence);
                 }
             }
         };
@@ -219,9 +220,10 @@ public final class DependencyBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            StubEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            StubEvent event = ringBuffer.get(sequence);
             event.setValue((int) i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
     }
 

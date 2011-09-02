@@ -20,7 +20,7 @@ import com.lmax.disruptor.EventHandler;
 public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 {
     private final FunctionStep functionStep;
-    private long stepThreeCounter;
+    private final long[] stepThreeCounter = new long[15]; // cache line padded
 
     public FunctionEventHandler(final FunctionStep functionStep)
     {
@@ -29,16 +29,16 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 
     public long getStepThreeCounter()
     {
-        return stepThreeCounter;
+        return stepThreeCounter[7];
     }
 
     public void reset()
     {
-        stepThreeCounter = 0L;
+        stepThreeCounter[7] = 0L;
     }
 
     @Override
-    public void onEvent(final FunctionEvent event, final boolean endOfBatch) throws Exception
+    public void onEvent(final FunctionEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
         switch (functionStep)
         {
@@ -53,7 +53,7 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
             case THREE:
                 if ((event.getStepTwoResult() & 4L) == 4L)
                 {
-                    stepThreeCounter++;
+                    ++stepThreeCounter[7];
                 }
                 break;
         }

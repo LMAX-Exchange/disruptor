@@ -15,30 +15,12 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * Base implementation that must be extended for {@link RingBuffer} events.
+ * Version of AtomicLong with cache line padding to prevent false sharing.
  */
-public abstract class AbstractEvent
+public class PaddedAtomicLong extends AtomicLong
 {
-    private long sequence;
-
-    /**
-     * Get the sequence number assigned to this event in series.
-     *
-     * @return the sequence number
-     */
-    public final long getSequence()
-    {
-        return sequence;
-    }
-
-    /**
-     * Explicitly set the sequence number for this event.
-     *
-     * @param sequence to be assigned to this Event
-     */
-    final void setSequence(final long sequence)
-    {
-        this.sequence = sequence;
-    }
+    public volatile long p1, p2, p3, p4, p5, p6, p7 = 7L;
 }

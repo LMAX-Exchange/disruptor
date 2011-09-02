@@ -38,8 +38,8 @@ public final class IgnoreExceptionHandler implements ExceptionHandler
     }
 
     @Override
-    public void handle(final Exception ex, final AbstractEvent currentEvent)
+    public void handle(final Exception ex, final long sequence, final Object event)
     {
-        logger.log(Level.INFO, "Exception processing: " + currentEvent, ex);
+        logger.log(Level.INFO, "Exception processing: " + sequence + " " + event, ex);
     }
 }

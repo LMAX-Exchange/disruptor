@@ -166,10 +166,11 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            FunctionEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            FunctionEvent event = ringBuffer.get(sequence);
             event.setOperandOne(i);
             event.setOperandTwo(operandTwo--);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

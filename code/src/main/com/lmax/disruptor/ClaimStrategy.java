@@ -15,19 +15,17 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicLongArray;
-
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Strategies employed for claiming the sequence of {@link AbstractEvent}s in the {@link RingBuffer} by publishers.
+ * Strategies employed for claiming the sequence of events in the {@link RingBuffer} by publishers.
  */
 public interface ClaimStrategy
 {
     /**
      * Claim the next sequence index in the {@link RingBuffer} and increment.
      *
-     * @return the {@link AbstractEvent} index to be used for the publisher.
+     * @return the event index to be used for the publisher.
      */
     long incrementAndGet();
 
@@ -40,7 +38,7 @@ public interface ClaimStrategy
     long incrementAndGet(final int delta);
 
     /**
-     * Set the current sequence value for claiming {@link AbstractEvent} in the {@link RingBuffer}
+     * Set the current sequence value for claiming an event in the {@link RingBuffer}
      *
      * @param sequence to be set as the current value.
      */
@@ -64,11 +62,11 @@ public interface ClaimStrategy
     void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize);
 
     /**
-     * Indicates the threading policy to be applied for claiming {@link AbstractEvent}s by publisher to the {@link RingBuffer}
+     * Indicates the threading policy to be applied for claiming events by publisher to the {@link RingBuffer}
      */
     enum Option
     {
-        /** Makes the {@link RingBuffer} thread safe for claiming {@link AbstractEvent}s by multiple producing threads. */
+        /** Makes the {@link RingBuffer} thread safe for claiming events by multiple producing threads. */
         MULTI_THREADED
         {
             @Override
@@ -78,7 +76,7 @@ public interface ClaimStrategy
             }
         },
 
-         /** Optimised {@link RingBuffer} for use by single thread claiming {@link AbstractEvent}s as a publisher. */
+         /** Optimised {@link RingBuffer} for use by single thread claiming events as a publisher. */
         SINGLE_THREADED
         {
             @Override
@@ -98,14 +96,14 @@ public interface ClaimStrategy
     }
 
     /**
-     * Strategy to be used when there are multiple publisher threads claiming {@link AbstractEvent}s.
+     * Strategy to be used when there are multiple publisher threads claiming events.
      */
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final Sequence.PaddedAtomicLong sequence = new Sequence.PaddedAtomicLong();
-        private final Sequence.PaddedAtomicLong minProcessorSequence = new Sequence.PaddedAtomicLong();
+        private final PaddedAtomicLong sequence = new PaddedAtomicLong();
+        private final PaddedAtomicLong minProcessorSequence = new PaddedAtomicLong();
 
         public MultiThreadedStrategy(final int bufferSize)
         {
@@ -165,47 +163,49 @@ public interface ClaimStrategy
     }
 
     /**
-     * Optimised strategy can be used when there is a single publisher thread claiming {@link AbstractEvent}s.
+     * Optimised strategy can be used when there is a single publisher thread claiming events.
      */
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
-        public static final int VALUE_PLUS_CACHE_LINE_PADDING = 5;
+        private final int SEQ_INDEX = 7;
         private final int bufferSize;
-        private final long[] sequence = new long[VALUE_PLUS_CACHE_LINE_PADDING];
-        private final long[] minProcessorSequence = new long[VALUE_PLUS_CACHE_LINE_PADDING];
+        private final long[] sequence = new long[15]; // cache line padded
+        private long minProcessorSequence = RingBuffer.INITIAL_CURSOR_VALUE;
 
         public SingleThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
-            sequence[0] = RingBuffer.INITIAL_CURSOR_VALUE;
-            minProcessorSequence[0] = RingBuffer.INITIAL_CURSOR_VALUE;
+            sequence[SEQ_INDEX] = RingBuffer.INITIAL_CURSOR_VALUE;
         }
 
         @Override
         public long incrementAndGet()
         {
-            return ++sequence[0];
+            long value = sequence[SEQ_INDEX] + 1L;
+            sequence[SEQ_INDEX] = value;
+            return value;
         }
 
         @Override
         public long incrementAndGet(final int delta)
         {
-            sequence[0] += delta;
-            return sequence[0];
+            long value = sequence[SEQ_INDEX] + delta;
+            sequence[SEQ_INDEX] = value;
+            return value;
         }
 
         @Override
         public void setSequence(final long sequence)
         {
-            this.sequence[0] = sequence;
+            this.sequence[SEQ_INDEX] = sequence;
         }
 
         @Override
         public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence[0])
+            if (wrapPoint > minProcessorSequence)
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -213,7 +213,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence[0] = minSequence;
+                minProcessorSequence = minSequence;
             }
         }
 

@@ -46,14 +46,15 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEvent oldEvent = ringBuffer.nextEvent();
+        long claimSequence = ringBuffer.nextSequence();
+        StubEvent oldEvent = ringBuffer.get(claimSequence);
         oldEvent.copy(expectedEvent);
-        ringBuffer.publish(oldEvent);
+        ringBuffer.publish(claimSequence);
 
         long sequence = dependencyBarrier.waitFor(0);
         assertEquals(0, sequence);
 
-        StubEvent event = ringBuffer.getEvent(sequence);
+        StubEvent event = ringBuffer.get(sequence);
         assertEquals(expectedEvent , event);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -66,14 +67,15 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEvent oldEvent = ringBuffer.nextEvent();
+        long claimSequence = ringBuffer.nextSequence();
+        StubEvent oldEvent = ringBuffer.get(claimSequence);
         oldEvent.copy(expectedEvent);
-        ringBuffer.publish(oldEvent);
+        ringBuffer.publish(claimSequence);
 
         long sequence = dependencyBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
         assertEquals(0, sequence);
 
-        StubEvent event = ringBuffer.getEvent(sequence);
+        StubEvent event = ringBuffer.get(sequence);
         assertEquals(expectedEvent, event);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -93,9 +95,10 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        StubEvent oldEvent = ringBuffer.nextEvent();
+        long sequence = ringBuffer.nextSequence();
+        StubEvent oldEvent = ringBuffer.get(sequence);
         oldEvent.copy(expectedEvent);
-        ringBuffer.publish(oldEvent);
+        ringBuffer.publish(sequence);
 
         assertEquals(expectedEvent, messages.get().get(0));
     }
@@ -106,9 +109,10 @@ public class RingBufferTest
         int numMessages = ringBuffer.getCapacity();
         for (int i = 0; i < numMessages; i++)
         {
-            StubEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            StubEvent event = ringBuffer.get(sequence);
             event.setValue(i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         int expectedSequence = numMessages - 1;
@@ -117,7 +121,7 @@ public class RingBufferTest
 
         for (int i = 0; i < numMessages; i++)
         {
-            assertEquals(i, ringBuffer.getEvent(i).getValue());
+            assertEquals(i, ringBuffer.get(i).getValue());
         }
     }
 
@@ -128,9 +132,10 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset; i++)
         {
-            StubEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            StubEvent event = ringBuffer.get(sequence);
             event.setValue(i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         int expectedSequence = numMessages + offset - 1;
@@ -139,7 +144,7 @@ public class RingBufferTest
 
         for (int i = offset; i < numMessages + offset; i++)
         {
-            assertEquals(i, ringBuffer.getEvent(i).getValue());
+            assertEquals(i, ringBuffer.get(i).getValue());
         }
     }
 
@@ -148,14 +153,15 @@ public class RingBufferTest
     {
         long expectedSequence = 5;
 
-        StubEvent expectedEvent = ringBuffer.claimEventAtSequence(expectedSequence);
+        ringBuffer.claimAtSequence(expectedSequence);
+        StubEvent expectedEvent = ringBuffer.get(expectedSequence);
         expectedEvent.setValue((int) expectedSequence);
-        ringBuffer.publishWithForce(expectedEvent);
+        ringBuffer.publishWithForce(expectedSequence);
 
         long sequence = dependencyBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);
 
-        StubEvent event = ringBuffer.getEvent(sequence);
+        StubEvent event = ringBuffer.get(sequence);
         assertEquals(expectedEvent, event);
 
         assertEquals(expectedSequence, ringBuffer.getCursor());
@@ -178,9 +184,10 @@ public class RingBufferTest
             {
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
-                    StubEvent event = ringBuffer.nextEvent();
+                    long sequence = ringBuffer.nextSequence();
+                    StubEvent event = ringBuffer.get(sequence);
                     event.setValue(i);
-                    ringBuffer.publish(event);
+                    ringBuffer.publish(sequence);
                     latch.countDown();
                 }
 

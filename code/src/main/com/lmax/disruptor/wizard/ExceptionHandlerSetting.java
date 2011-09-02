@@ -15,12 +15,11 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 
-public class ExceptionHandlerSetting<T extends AbstractEvent>
+public class ExceptionHandlerSetting<T>
 {
     private final EventHandler<T> eventHandler;
     private final EventProcessorRepository<T> eventProcessorRepository;
@@ -33,7 +32,7 @@ public class ExceptionHandlerSetting<T extends AbstractEvent>
 
     public void with(ExceptionHandler exceptionHandler)
     {
-        ((BatchEventProcessor) eventProcessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
+        ((BatchEventProcessor)eventProcessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
         eventProcessorRepository.getBarrierFor(eventHandler).alert();
     }
 }

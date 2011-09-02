@@ -15,21 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventFactory;
 
-public final class FizzBuzzEvent extends AbstractEvent
+public final class FizzBuzzEvent
 {
-    private long value = 0;
     private boolean fizz = false;
     private boolean buzz = false;
-
-    public void reset()
-    {
-        value = 0L;
-        fizz = false;
-        buzz = false;
-    }
+    private long value = 0;
 
     public long getValue()
     {
@@ -38,6 +30,8 @@ public final class FizzBuzzEvent extends AbstractEvent
 
     public void setValue(final long value)
     {
+        fizz = false;
+        buzz = false;
         this.value = value;
     }
 
@@ -60,7 +54,6 @@ public final class FizzBuzzEvent extends AbstractEvent
     {
         this.buzz = buzz;
     }
-
 
     public final static EventFactory<FizzBuzzEvent> EVENT_FACTORY = new EventFactory<FizzBuzzEvent>()
     {

@@ -32,7 +32,7 @@ public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
     }
 
     @Override
-    public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
+    public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
         switch (functionStep)
         {

@@ -15,11 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventFactory;
 
 public final class TestEvent
-    extends AbstractEvent
 {
     @Override
     public String toString()

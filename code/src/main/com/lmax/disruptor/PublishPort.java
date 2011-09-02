@@ -16,19 +16,19 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming {@link AbstractEvent}s in a {@link RingBuffer} while tracking dependent {@link EventProcessor}s
+ * Abstraction for claiming a sequence in a {@link RingBuffer} while tracking dependent {@link EventProcessor}s
  *
- * @param <T> {@link AbstractEvent} implementation stored in the {@link RingBuffer}
+ * @param <T> implementation stored in the {@link RingBuffer}
  */
-public interface PublishPort<T extends AbstractEvent>
+public interface PublishPort<T>
 {
     /**
-     * Get the {@link AbstractEvent} for a given sequence from the underlying {@link RingBuffer}.
+     * Get the event for a given sequence from the underlying {@link RingBuffer}.
      *
-     * @param sequence of the {@link AbstractEvent} to get.
-     * @return the {@link AbstractEvent} for the sequence.
+     * @param sequence of the event to get.
+     * @return the event for the sequence.
      */
-    T getEvent(long sequence);
+    T get(long sequence);
 
     /**
      * Delegate a call to the {@link RingBuffer#getCursor()}
@@ -38,25 +38,25 @@ public interface PublishPort<T extends AbstractEvent>
     long getCursor();
 
     /**
-     * Claim the next {@link AbstractEvent} in sequence for a publisher on the {@link RingBuffer}
+     * Claim the next event in sequence for a publisher on the {@link RingBuffer}
      *
-     * @return the claimed {@link AbstractEvent}
+     * @return the claimed sequence
      */
-    T nextEvent();
+    long nextSequence();
 
     /**
-     * Claim the next batch of {@link AbstractEvent}s in sequence.
+     * Claim the next batch of events in sequence.
      *
      * @param sequenceBatch to be updated for the batch range.
      * @return the updated sequenceBatch.
      */
-    SequenceBatch nextEvents(SequenceBatch sequenceBatch);
+    SequenceBatch nextSequenceBatch(SequenceBatch sequenceBatch);
 
     /**
      * Publish an event back to the {@link RingBuffer} to make it visible to {@link EventProcessor}s
-     * @param event to be published from the {@link RingBuffer}
+     * @param sequence to be published from the {@link RingBuffer}
      */
-    void publish(T event);
+    void publish(long sequence);
 
     /**
      * Publish the batch of events from to the {@link RingBuffer}.

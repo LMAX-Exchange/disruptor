@@ -17,14 +17,14 @@ package com.lmax.disruptor;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available {@link AbstractEvent}s to a {@link EventHandler}.
+ * and delegating the available events to a {@link EventHandler}.
  *
  * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
  * is started and just before the thread is shutdown.
  *
- * @param <T> {@link AbstractEvent} implementation storing the data for sharing during exchange or parallel coordination of an event.
+ * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class BatchEventProcessor<T extends AbstractEvent>
+public final class BatchEventProcessor<T>
     implements EventProcessor
 {
     private volatile boolean running = true;
@@ -36,11 +36,11 @@ public final class BatchEventProcessor<T extends AbstractEvent>
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
-     * the {@link EventHandler#onEvent(AbstractEvent, boolean)} method returns.
+     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
      * @param ringBuffer to which events are published.
      * @param dependencyBarrier on which it is waiting.
-     * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
+     * @param eventHandler is the delegate to which events are dispatched.
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
                                final DependencyBarrier dependencyBarrier,
@@ -58,7 +58,7 @@ public final class BatchEventProcessor<T extends AbstractEvent>
      *
      * @param ringBuffer to which events are published.
      * @param dependencyBarrier on which it is waiting.
-     * @param eventHandler is the delegate to which {@link AbstractEvent}s are dispatched.
+     * @param eventHandler is the delegate to which events are dispatched.
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
                                final DependencyBarrier dependencyBarrier,
@@ -129,12 +129,12 @@ public final class BatchEventProcessor<T extends AbstractEvent>
                 final long availableSequence = dependencyBarrier.waitFor(nextSequence);
                 while (nextSequence <= availableSequence)
                 {
-                    event = ringBuffer.getEvent(nextSequence);
-                    eventHandler.onEvent(event, nextSequence == availableSequence);
+                    event = ringBuffer.get(nextSequence);
+                    eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     nextSequence++;
                 }
 
-                sequence.set(event.getSequence());
+                sequence.set(nextSequence - 1L);
             }
             catch (final AlertException ex)
             {
@@ -145,9 +145,9 @@ public final class BatchEventProcessor<T extends AbstractEvent>
             }
             catch (final Exception ex)
             {
-                exceptionHandler.handle(ex, event);
-                sequence.set(event.getSequence());
-                nextSequence = event.getSequence() + 1L;
+                exceptionHandler.handle(ex, nextSequence, event);
+                sequence.set(nextSequence);
+                nextSequence++;
             }
         }
 

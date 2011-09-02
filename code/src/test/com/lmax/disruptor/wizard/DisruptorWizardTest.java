@@ -310,8 +310,9 @@ public class DisruptorWizardTest
             ringBuffer = disruptorWizard.start();
         }
 
-        final TestEvent stubEntry = ringBuffer.nextEvent();
-        ringBuffer.publish(stubEntry);
+        final long sequence = ringBuffer.nextSequence();
+        final TestEvent stubEntry = ringBuffer.get(sequence);
+        ringBuffer.publish(sequence);
         return stubEntry;
     }
 

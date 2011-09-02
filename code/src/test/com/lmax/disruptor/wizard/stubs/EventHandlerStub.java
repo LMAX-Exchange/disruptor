@@ -30,7 +30,7 @@ public class EventHandlerStub implements EventHandler<TestEvent>
     }
 
     @Override
-    public void onEvent(final TestEvent entry, final boolean endOfBatch) throws Exception
+    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
     {
         countDownLatch.countDown();
     }

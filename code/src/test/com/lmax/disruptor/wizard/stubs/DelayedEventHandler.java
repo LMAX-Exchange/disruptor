@@ -26,7 +26,7 @@ public class DelayedEventHandler implements EventHandler<TestEvent>
     private volatile boolean stopped = false;
 
     @Override
-    public void onEvent(final TestEvent entry, final boolean endOfBatch) throws Exception
+    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
     {
         waitForAndSetFlag(false);
     }

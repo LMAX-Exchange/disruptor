@@ -38,9 +38,9 @@ public final class FatalExceptionHandler implements ExceptionHandler
     }
 
     @Override
-    public void handle(final Exception ex, final AbstractEvent currentEvent)
+    public void handle(final Exception ex, final long sequence, final Object event)
     {
-        logger.log(Level.SEVERE, "Exception processing: " + currentEvent, ex);
+        logger.log(Level.SEVERE, "Exception processing: " + sequence + " " + event, ex);
 
         throw new RuntimeException(ex);
     }

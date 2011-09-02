@@ -41,7 +41,7 @@ public final class BatchEventProcessorTest
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
     private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     @SuppressWarnings("unchecked") private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
-    private final BatchEventProcessor batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, eventHandler);
+    private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, eventHandler);
     {
         ringBuffer.setTrackedProcessors(batchEventProcessor);
     }
@@ -65,7 +65,7 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getEvent(0), true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, true);
                 inSequence(lifecycleSequence);
 
                 will(countDown(latch));
@@ -77,7 +77,7 @@ public final class BatchEventProcessorTest
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
 
-        ringBuffer.publish(ringBuffer.nextEvent());
+        ringBuffer.publish(ringBuffer.nextSequence());
 
         latch.await();
 
@@ -92,20 +92,20 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getEvent(0), false);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, false);
                 inSequence(lifecycleSequence);
-                oneOf(eventHandler).onEvent(ringBuffer.getEvent(1), false);
+                oneOf(eventHandler).onEvent(ringBuffer.get(1L), 1L, false);
                 inSequence(lifecycleSequence);
-                oneOf(eventHandler).onEvent(ringBuffer.getEvent(2), true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(2L), 2L, true);
                 inSequence(lifecycleSequence);
 
                 will(countDown(latch));
             }
         });
 
-        ringBuffer.publish(ringBuffer.nextEvent());
-        ringBuffer.publish(ringBuffer.nextEvent());
-        ringBuffer.publish(ringBuffer.nextEvent());
+        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.nextSequence());
 
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
@@ -127,7 +127,7 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getEvent(0), true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0), 0L, true);
                 inSequence(lifecycleSequence);
                 will(new Action()
                 {
@@ -144,7 +144,7 @@ public final class BatchEventProcessorTest
                     }
                 });
 
-                oneOf(exceptionHandler).handle(ex, ringBuffer.getEvent(0));
+                oneOf(exceptionHandler).handle(ex, 0L, ringBuffer.get(0));
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
             }
@@ -153,7 +153,7 @@ public final class BatchEventProcessorTest
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
 
-        ringBuffer.publish(ringBuffer.nextEvent());
+        ringBuffer.publish(ringBuffer.nextSequence());
 
         latch.await();
 

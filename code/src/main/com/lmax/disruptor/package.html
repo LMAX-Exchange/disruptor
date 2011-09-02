@@ -115,8 +115,8 @@
     </p>
     <h2>Code Example</h2>
     <pre>
-    // Event holder for data to be exchange that must extend AbstractEvent
-    public final class ValueEvent extends AbstractEvent
+    // Event holder for data to be exchanged
+    public final class ValueEvent
     {
         private long value;
 
@@ -142,7 +142,8 @@
     // Callback handler which can be implemented by EventProcessors
     final EventHandler&lt;ValueEvent&gt; eventHandler = new EventHandler&lt;ValueEvent&gt;()
     {
-        public void onEvent(final ValueEvent event, final boolean endOfBatch) throws Exception
+        public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch)
+            throws Exception
         {
             // process a new event as it becomes available.
         }
@@ -161,12 +162,13 @@
     EXECUTOR.submit(batchProcessor);
 
     // Publishers claim events in sequence
-    ValueEvent event = ringBuffer.nextEvent();
+    long sequence = ringBuffer.nextSequence();
+    ValueEvent event = ringBuffer.get(sequence);
 
     event.setValue(1234);
 
     // make the event available to EventProcessors
-    ringBuffer.publish(event);
+    ringBuffer.publish(sequence);
     </pre>
 </body>
 </html>

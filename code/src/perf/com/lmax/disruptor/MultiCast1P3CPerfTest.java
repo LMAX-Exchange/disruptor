@@ -220,9 +220,10 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            ValueEvent event = ringBuffer.nextEvent();
+            long sequence = ringBuffer.nextSequence();
+            ValueEvent event = ringBuffer.get(sequence);
             event.setValue(i);
-            ringBuffer.publish(event);
+            ringBuffer.publish(sequence);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

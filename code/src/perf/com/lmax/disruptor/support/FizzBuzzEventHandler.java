@@ -20,7 +20,7 @@ import com.lmax.disruptor.EventHandler;
 public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
 {
     private final FizzBuzzStep fizzBuzzStep;
-    private long fizzBuzzCounter = 0L;
+    private final long[] fizzBuzzCounter = new long[15]; // cache line padded
 
     public FizzBuzzEventHandler(final FizzBuzzStep fizzBuzzStep)
     {
@@ -29,31 +29,37 @@ public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
 
     public void reset()
     {
-        fizzBuzzCounter = 0L;
+        fizzBuzzCounter[7] = 0L;
     }
 
     public long getFizzBuzzCounter()
     {
-        return fizzBuzzCounter;
+        return fizzBuzzCounter[7];
     }
 
     @Override
-    public void onEvent(final FizzBuzzEvent event, final boolean endOfBatch) throws Exception
+    public void onEvent(final FizzBuzzEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
         switch (fizzBuzzStep)
         {
             case FIZZ:
-                event.setFizz(0 == (event.getValue() % 3));
+                if (0 == (event.getValue() % 3))
+                {
+                    event.setFizz(true);
+                }
                 break;
 
             case BUZZ:
-                event.setBuzz(0 == (event.getValue() % 5));
+                if (0 == (event.getValue() % 5))
+                {
+                    event.setBuzz(true);
+                }
                 break;
 
             case FIZZ_BUZZ:
                 if (event.isFizz() && event.isBuzz())
                 {
-                    ++fizzBuzzCounter;
+                    ++fizzBuzzCounter[7];
                 }
                 break;
         }

@@ -15,12 +15,11 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.AbstractEvent;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.DependencyBarrier;
 
-class EventProcessorInfo<T extends AbstractEvent>
+class EventProcessorInfo<T>
 {
     private final EventProcessor eventprocessor;
     private final EventHandler<T> handler;

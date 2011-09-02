@@ -35,7 +35,7 @@ public final class BatchPublisherTest
         final int batchSize = 5;
         final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
 
-        ringBuffer.nextEvents(sequenceBatch);
+        ringBuffer.nextSequenceBatch(sequenceBatch);
 
         assertThat(Long.valueOf(sequenceBatch.getStart()), is(Long.valueOf(0L)));
         assertThat(Long.valueOf(sequenceBatch.getEnd()), is(Long.valueOf(4L)));

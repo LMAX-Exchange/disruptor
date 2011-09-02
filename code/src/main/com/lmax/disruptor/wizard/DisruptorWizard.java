@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p/>
  * RingBuffer ringBuffer = dw.start();</code></pre>
  *
- * @param <T> the type of {@link AbstractEvent} used.
+ * @param <T> the type of event used.
  */
-public class DisruptorWizard<T extends AbstractEvent>
+public class DisruptorWizard<T>
 {
     private final RingBuffer<T> ringBuffer;
     private final Executor executor;

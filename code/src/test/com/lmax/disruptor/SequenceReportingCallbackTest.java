@@ -42,7 +42,7 @@ public class SequenceReportingCallbackTest
         thread.start();
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
-        ringBuffer.publish(ringBuffer.nextEvent());
+        ringBuffer.publish(ringBuffer.nextSequence());
 
         callbackLatch.await();
         assertEquals(0L, batchEventProcessor.getSequence().get());
@@ -65,9 +65,9 @@ public class SequenceReportingCallbackTest
         }
 
         @Override
-        public void onEvent(final StubEvent event, final boolean endOfBatch) throws Exception
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            sequenceCallback.set(event.getSequence());
+            sequenceCallback.set(sequence);
             callbackLatch.countDown();
         }
     }

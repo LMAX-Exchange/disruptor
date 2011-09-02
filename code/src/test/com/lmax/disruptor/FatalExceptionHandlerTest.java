@@ -41,14 +41,14 @@ public final class FatalExceptionHandlerTest
     public void shouldHandleFatalException()
     {
         final Exception causeException = new Exception();
-        final AbstractEvent event = new TestEvent();
+        final TestEvent event = new TestEvent();
 
         final Logger logger = context.mock(Logger.class);
 
         context.checking(new Expectations()
         {
             {
-                oneOf(logger).log(Level.SEVERE, "Exception processing: " + event, causeException);
+                oneOf(logger).log(Level.SEVERE, "Exception processing: 0 " + event, causeException);
             }
         });
 
@@ -56,7 +56,7 @@ public final class FatalExceptionHandlerTest
 
         try
         {
-            exceptionHandler.handle(causeException, event);
+            exceptionHandler.handle(causeException, 0L, event);
         }
         catch (RuntimeException ex)
         {
