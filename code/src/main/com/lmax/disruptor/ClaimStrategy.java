@@ -171,12 +171,13 @@ public interface ClaimStrategy
         private final int SEQ_INDEX = 7;
         private final int bufferSize;
         private final long[] sequence = new long[15]; // cache line padded
-        private long minProcessorSequence = RingBuffer.INITIAL_CURSOR_VALUE;
+        private final long[] minProcessorSequence = new long[15]; // cache line padded
 
         public SingleThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
             sequence[SEQ_INDEX] = RingBuffer.INITIAL_CURSOR_VALUE;
+            minProcessorSequence[SEQ_INDEX] = RingBuffer.INITIAL_CURSOR_VALUE;
         }
 
         @Override
@@ -205,7 +206,7 @@ public interface ClaimStrategy
         public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence)
+            if (wrapPoint > minProcessorSequence[SEQ_INDEX])
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -213,7 +214,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence = minSequence;
+                minProcessorSequence[SEQ_INDEX] = minSequence;
             }
         }
 
