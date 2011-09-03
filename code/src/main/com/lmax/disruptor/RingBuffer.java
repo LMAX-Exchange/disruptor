@@ -22,8 +22,7 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<T>
-    implements PublishPort<T>
+public final class RingBuffer<T> implements SequenceManager<T>
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;

@@ -16,14 +16,14 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming a sequence in a {@link RingBuffer} while tracking dependent {@link EventProcessor}s
+ * Abstraction for claiming a sequence in a data structure while tracking dependent {@link EventProcessor}s
  *
  * @param <T> implementation stored in the {@link RingBuffer}
  */
-public interface PublishPort<T>
+public interface SequenceManager<T>
 {
     /**
-     * Get the event for a given sequence from the underlying {@link RingBuffer}.
+     * Get the event for a given sequence from the underlying data structure.
      *
      * @param sequence of the event to get.
      * @return the event for the sequence.
@@ -31,9 +31,9 @@ public interface PublishPort<T>
     T get(long sequence);
 
     /**
-     * Get the value of the {@link RingBuffer} cursor.
+     * Get the value of the cursor indicating the published sequence.
      *
-     * @return value of the cursor for entries that have been published.
+     * @return value of the cursor for events that have been published.
      */
     long getCursor();
 

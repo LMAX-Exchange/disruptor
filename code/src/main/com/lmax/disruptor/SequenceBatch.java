@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Used to record the batch of sequences claimed in a {@link RingBuffer}.
+ * Used to record the batch of sequences claimed in a {@link SequenceManager}.
  */
 public final class SequenceBatch
 {
@@ -24,7 +24,7 @@ public final class SequenceBatch
     private long end = RingBuffer.INITIAL_CURSOR_VALUE;
 
     /**
-     * Create a holder for tracking a batch of claimed sequences in a {@link RingBuffer}
+     * Create a holder for tracking a batch of claimed sequences in a {@link SequenceManager}
      * @param size of the batch to claim.
      */
     public SequenceBatch(final int size)
@@ -43,7 +43,7 @@ public final class SequenceBatch
     }
 
     /**
-     * Set the end of the batch sequence.  To be used by the {@link PublishPort}.
+     * Set the end of the batch sequence.  To be used by the {@link SequenceManager}.
      *
      * @param end sequence in the batch.
      */
