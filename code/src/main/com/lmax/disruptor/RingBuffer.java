@@ -39,7 +39,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
     /**
      * Construct a RingBuffer with the full option set.
      *
-     * @param eventFactory to create events for filling the RingBuffer
+     * @param eventFactory to newInstance events for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      * @param claimStrategyOption threading strategy for publisher claiming events in the ring.
      * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on events becoming available.
@@ -62,7 +62,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
      * Construct a RingBuffer with default strategies of:
      * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#SLEEPING}
      *
-     * @param eventFactory to create events for filling the RingBuffer
+     * @param eventFactory to newInstance events for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      */
     public RingBuffer(final EventFactory<T> eventFactory, final int size)
@@ -204,7 +204,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
     {
         for (int i = 0; i < events.length; i++)
         {
-            events[i] = eventFactory.create();
+            events[i] = eventFactory.newInstance();
         }
     }
 }

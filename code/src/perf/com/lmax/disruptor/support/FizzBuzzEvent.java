@@ -57,7 +57,7 @@ public final class FizzBuzzEvent
 
     public final static EventFactory<FizzBuzzEvent> EVENT_FACTORY = new EventFactory<FizzBuzzEvent>()
     {
-        public FizzBuzzEvent create()
+        public FizzBuzzEvent newInstance()
         {
             return new FizzBuzzEvent();
         }

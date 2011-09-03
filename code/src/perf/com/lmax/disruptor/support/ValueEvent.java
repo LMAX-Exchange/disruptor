@@ -33,7 +33,7 @@ public final class ValueEvent
 
     public final static EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>()
     {
-        public ValueEvent create()
+        public ValueEvent newInstance()
         {
             return new ValueEvent();
         }

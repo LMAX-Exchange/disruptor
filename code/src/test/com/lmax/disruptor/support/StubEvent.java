@@ -54,7 +54,7 @@ public final class StubEvent
 
     public final static EventFactory<StubEvent> EVENT_FACTORY = new EventFactory<StubEvent>()
     {
-        public StubEvent create()
+        public StubEvent newInstance()
         {
             return new StubEvent(-1);
         }

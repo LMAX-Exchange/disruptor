@@ -27,7 +27,7 @@ public final class TestEvent
 
     public final static EventFactory<TestEvent> EVENT_FACTORY = new EventFactory<TestEvent>()
     {
-        public TestEvent create()
+        public TestEvent newInstance()
         {
             return new TestEvent();
         }

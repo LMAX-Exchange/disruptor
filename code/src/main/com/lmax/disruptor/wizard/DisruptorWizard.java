@@ -46,7 +46,7 @@ public class DisruptorWizard<T>
     /**
      * Create a new DisruptorWizard.
      *
-     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param eventFactory   the factory to newInstance events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      */
@@ -58,7 +58,7 @@ public class DisruptorWizard<T>
     /**
      * Create a new DisruptorWizard.
      *
-     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param eventFactory   the factory to newInstance events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      * @param claimStrategy  the claim strategy to use for the ring buffer.

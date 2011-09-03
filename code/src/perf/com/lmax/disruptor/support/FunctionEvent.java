@@ -66,7 +66,7 @@ public final class FunctionEvent
 
     public final static EventFactory<FunctionEvent> EVENT_FACTORY = new EventFactory<FunctionEvent>()
     {
-        public FunctionEvent create()
+        public FunctionEvent newInstance()
         {
             return new FunctionEvent();
         }

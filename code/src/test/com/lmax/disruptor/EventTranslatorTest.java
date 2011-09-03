@@ -26,7 +26,7 @@ public final class EventTranslatorTest
     @Test
     public void shouldTranslateOtherDataIntoAnEvent()
     {
-        StubEvent event = StubEvent.EVENT_FACTORY.create();
+        StubEvent event = StubEvent.EVENT_FACTORY.newInstance();
         EventTranslator<StubEvent> eventTranslator = new ExampleEventTranslator(TEST_VALUE);
 
         event = eventTranslator.translateTo(event, 0);
