@@ -140,7 +140,14 @@ public final class RingBuffer<T> implements SequenceManager
     @Override
     public SequenceBatch nextSequenceBatch(final SequenceBatch sequenceBatch)
     {
-        final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
+        final int batchSize = sequenceBatch.getSize();
+        if (batchSize > events.length)
+        {
+            final String msg = "Batch size " + batchSize + " is greater than buffer size of " + events.length;
+            throw new IllegalArgumentException(msg);
+        }
+
+        final long sequence = claimStrategy.incrementAndGet(batchSize);
         sequenceBatch.setEnd(sequence);
         claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
         return sequenceBatch;
