@@ -146,7 +146,14 @@ public class DisruptorWizard<T>
      */
     public RingBuffer<T> start()
     {
-        ringBuffer.setTrackedProcessors(eventProcessorRepository.getLastEventProcessorsInChain());
+        EventProcessor[] trackedProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
+        Sequence[] sequences = new Sequence[trackedProcessors.length];
+        for (int i = 0; i < sequences.length; i++)
+        {
+            sequences[i] = trackedProcessors[i].getSequence();
+        }
+        ringBuffer.setTrackedSequences(sequences);
+
         ensureOnlyStartedOnce();
         startEventProcessors();
 

@@ -16,19 +16,19 @@
 package com.lmax.disruptor;
 
 /**
- * Abstraction for claiming a sequence in a data structure while tracking dependent {@link EventProcessor}s
- *
- * @param <T> implementation stored in the {@link RingBuffer}
+ * Abstraction for claiming a sequence for access to a data structure while tracking dependent {@link Sequence}s
  */
-public interface SequenceManager<T>
+public interface SequenceManager
 {
     /**
-     * Get the event for a given sequence from the underlying data structure.
+     * Set the sequences that will be tracked to prevent the ring wrapping.
      *
-     * @param sequence of the event to get.
-     * @return the event for the sequence.
+     * This method must be called prior to claiming events in the RingBuffer otherwise
+     * a NullPointerException will be thrown.
+     *
+     * @param sequences to be tracked.
      */
-    T get(long sequence);
+    void setTrackedSequences(final Sequence... sequences);
 
     /**
      * Get the value of the cursor indicating the published sequence.

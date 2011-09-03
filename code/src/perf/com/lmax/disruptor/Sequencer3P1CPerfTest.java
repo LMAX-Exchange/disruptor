@@ -122,7 +122,7 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
         valuePublishers[1] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
         valuePublishers[2] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
 
-        ringBuffer.setTrackedProcessors(batchEventProcessor);
+        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

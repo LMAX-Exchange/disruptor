@@ -160,7 +160,7 @@ public final class Pipeline3StepLatencyPerfTest
     private final BatchEventProcessor<ValueEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<ValueEvent>(ringBuffer, stepThreeDependencyBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedProcessors(stepThreeBatchProcessor);
+        ringBuffer.setTrackedSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

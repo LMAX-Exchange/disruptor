@@ -156,7 +156,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
             new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, dependencyBarrierFizzBuzz, fizzBuzzHandler);
     {
-        ringBuffer.setTrackedProcessors(batchProcessorFizzBuzz);
+        ringBuffer.setTrackedSequences(batchProcessorFizzBuzz.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

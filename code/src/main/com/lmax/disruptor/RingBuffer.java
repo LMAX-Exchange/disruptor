@@ -22,7 +22,7 @@ import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<T> implements SequenceManager<T>
+public final class RingBuffer<T> implements SequenceManager
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -31,7 +31,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
     private final int ringModMask;
     private final Object[] events;
 
-    private Sequence[] processorSequencesToTrack;
+    private Sequence[] sequencesToTrack;
 
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
@@ -73,25 +73,6 @@ public final class RingBuffer<T> implements SequenceManager<T>
     }
 
     /**
-     * Set the processorsToTrack that will be tracked to prevent the ring wrapping.
-     *
-     * This method must be called prior to claiming events in the RingBuffer otherwise
-     * a NullPointerException will be thrown.
-     *
-     * @param eventProcessors to be tracked.
-     */
-    public void setTrackedProcessors(final EventProcessor... eventProcessors)
-    {
-        Sequence[] temp = new Sequence[eventProcessors.length];
-        for (int i = 0; i < eventProcessors.length; i++)
-        {
-            temp[i] = eventProcessors[i].getSequence();
-        }
-
-        this.processorSequencesToTrack = temp;
-    }
-
-    /**
      * Create a {@link DependencyBarrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
      *
      * @param processorsToTrack this barrier will track
@@ -119,16 +100,6 @@ public final class RingBuffer<T> implements SequenceManager<T>
     }
 
     /**
-     * Get the current sequence that is published to the RingBuffer.
-     *
-     * @return the current published sequence.
-     */
-    public long getCursor()
-    {
-        return cursor.get();
-    }
-
-    /**
      * Get the event for a given sequence in the RingBuffer.
      *
      * @param sequence for the event
@@ -141,10 +112,22 @@ public final class RingBuffer<T> implements SequenceManager<T>
     }
 
     @Override
+    public long getCursor()
+    {
+        return cursor.get();
+    }
+
+    @Override
+    public void setTrackedSequences(final Sequence... sequences)
+    {
+        this.sequencesToTrack = sequences;
+    }
+
+    @Override
     public long nextSequence()
     {
         final long sequence = claimStrategy.incrementAndGet();
-        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
         return sequence;
     }
 
@@ -159,7 +142,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
     {
         final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize());
         sequenceBatch.setEnd(sequence);
-        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
         return sequenceBatch;
     }
 
@@ -176,7 +159,7 @@ public final class RingBuffer<T> implements SequenceManager<T>
      */
     public void claimAtSequence(final long sequence)
     {
-        claimStrategy.ensureProcessorsAreInRange(sequence, processorSequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
     }
 
     /**

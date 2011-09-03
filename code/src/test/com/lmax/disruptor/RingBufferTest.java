@@ -36,7 +36,7 @@ public class RingBufferTest
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
     private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     {
-        ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
+        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class RingBufferTest
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, ringBufferSize);
         final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newDependencyBarrier());
-        ringBuffer.setTrackedProcessors(processor);
+        ringBuffer.setTrackedSequences(processor.getSequence());
 
         Thread thread = new Thread(new Runnable()
         {

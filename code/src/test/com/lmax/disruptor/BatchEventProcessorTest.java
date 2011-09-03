@@ -43,7 +43,7 @@ public final class BatchEventProcessorTest
     @SuppressWarnings("unchecked") private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
     private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, eventHandler);
     {
-        ringBuffer.setTrackedProcessors(batchEventProcessor);
+        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
     }
 
     @Test(expected = NullPointerException.class)

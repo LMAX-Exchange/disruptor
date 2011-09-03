@@ -26,7 +26,7 @@ public final class BatchPublisherTest
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
     private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
     {
-        ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
+        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test

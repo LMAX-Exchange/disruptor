@@ -19,7 +19,7 @@ public class LongEvent
     public static final EventFactory<LongEvent> FACTORY = new EventFactory<LongEvent>()
     {
         @Override
-        public LongEvent create()
+        public LongEvent newInstance()
         {
             return new LongEvent();
         }

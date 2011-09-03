@@ -35,7 +35,7 @@ public class SequenceReportingCallbackTest
         final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
         final SequenceReportingEventHandler<StubEvent> handler = new TestSequenceReportingEventHandler();
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, dependencyBarrier, handler);
-        ringBuffer.setTrackedProcessors(batchEventProcessor);
+        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
 
         Thread thread = new Thread(batchEventProcessor);
         thread.setDaemon(true);

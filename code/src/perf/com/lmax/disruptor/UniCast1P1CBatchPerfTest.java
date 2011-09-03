@@ -17,7 +17,6 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.PerfTestUtil;
 import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
 import com.lmax.disruptor.support.ValueEvent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,14 +70,9 @@ import java.util.concurrent.*;
 public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private static final long ITERATIONS = 1000L * 1000L * 500L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +84,7 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handler);
     {
-        ringBuffer.setTrackedProcessors(batchEventProcessor);
+        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,28 +100,9 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     @Override
     protected long runQueuePass(final int passNumber) throws InterruptedException
     {
-        queueProcessor.reset();
-        Future future = EXECUTOR.submit(queueProcessor);
-        long start = System.currentTimeMillis();
+        // Same expected results at UniCast scenario
 
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            blockingQueue.put(Long.valueOf(i));
-        }
-
-        final long expectedSequence = ITERATIONS - 1L;
-        while (queueProcessor.getSequence() < expectedSequence)
-        {
-            // busy spin
-        }
-
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        queueProcessor.halt();
-        future.cancel(true);
-
-        Assert.assertEquals(expectedResult, queueProcessor.getValue());
-
-        return opsPerSecond;
+        return 0L;
     }
 
     @Override

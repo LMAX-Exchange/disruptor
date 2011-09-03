@@ -45,12 +45,12 @@ public interface ClaimStrategy
     void setSequence(final long sequence);
 
     /**
-     * Ensure dependent processors are in range without over taking them for the buffer size.
+     * Ensure dependent sequences are in range without over taking them for the buffer size.
      *
      * @param sequence to check is in range
      * @param dependentSequences to be checked for range.
      */
-    void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences);
+    void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences);
 
     /**
      * Serialise publishing in sequence.
@@ -131,7 +131,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
+        public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minProcessorSequence.get())
@@ -203,7 +203,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void ensureProcessorsAreInRange(final long sequence, final Sequence[] dependentSequences)
+        public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minProcessorSequence[SEQ_INDEX])

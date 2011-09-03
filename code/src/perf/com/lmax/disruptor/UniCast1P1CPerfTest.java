@@ -86,7 +86,7 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handler);
     {
-        ringBuffer.setTrackedProcessors(batchEventProcessor);
+        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

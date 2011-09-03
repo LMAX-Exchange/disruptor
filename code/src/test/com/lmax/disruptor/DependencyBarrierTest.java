@@ -40,7 +40,7 @@ public final class DependencyBarrierTest
 
     public DependencyBarrierTest()
     {
-        ringBuffer.setTrackedProcessors(new NoOpEventProcessor(ringBuffer));
+        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test

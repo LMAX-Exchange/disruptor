@@ -139,7 +139,7 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeDependencyBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedProcessors(stepThreeBatchProcessor);
+        ringBuffer.setTrackedSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

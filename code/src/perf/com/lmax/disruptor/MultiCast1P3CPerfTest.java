@@ -144,7 +144,9 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[0]);
         batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[1]);
         batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[2]);
-        ringBuffer.setTrackedProcessors(batchEventProcessors);
+        ringBuffer.setTrackedSequences(batchEventProcessors[0].getSequence(),
+                                       batchEventProcessors[1].getSequence(),
+                                       batchEventProcessors[2].getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
