@@ -92,8 +92,7 @@
             <src path="${dir.perf.src}"/>
         </javac>
         <junit printsummary="on"
-               fork="true"
-               forkmode="perTest"
+               fork="false"
                haltonfailure="false">
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
