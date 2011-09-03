@@ -6,7 +6,7 @@
 </head>
 <body>
     <p>
-        The Disruptor is a concurrent programming framework for exchanging and coordinating work on a continuous series of events.
+        The Disruptor is a concurrent programming framework for exchanging and coordinating work as a continuous series of events.
         It can be used as an alternative to wiring processing stages together via queues.  The Disruptor design has the
         characteristics of generating significantly less garbage than queues and separates the concurrency concerns so
         non-locking algorithms can be employed resulting in greater scalability and performance.
@@ -152,7 +152,7 @@
     RingBuffer&lt;ValueEvent&gt; ringBuffer =
         new RingBuffer&lt;ValueEvent&gt;(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.YIELDING);
+                                   WaitStrategy.Option.SLEEPING);
 
     DependencyBarrier&lt;ValueEvent&gt; dependencyBarrier = ringBuffer.createDependencyBarrier();
     BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(dependencyBarrier, eventHandler);
@@ -167,7 +167,7 @@
 
     event.setValue(1234);
 
-    // make the event available to EventProcessors
+    // publish the event so it is available to EventProcessors
     ringBuffer.publish(sequence);
     </pre>
 </body>

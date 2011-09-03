@@ -31,21 +31,21 @@ public interface PublishPort<T>
     T get(long sequence);
 
     /**
-     * Delegate a call to the {@link RingBuffer#getCursor()}
+     * Get the value of the {@link RingBuffer} cursor.
      *
      * @return value of the cursor for entries that have been published.
      */
     long getCursor();
 
     /**
-     * Claim the next event in sequence for a publisher on the {@link RingBuffer}
+     * Claim the next event in sequence for publishing to the {@link RingBuffer}
      *
      * @return the claimed sequence
      */
     long nextSequence();
 
     /**
-     * Claim the next batch of events in sequence.
+     * Claim the next batch sequence numbers for publishing to the {@link RingBuffer}
      *
      * @param sequenceBatch to be updated for the batch range.
      * @return the updated sequenceBatch.
@@ -53,13 +53,13 @@ public interface PublishPort<T>
     SequenceBatch nextSequenceBatch(SequenceBatch sequenceBatch);
 
     /**
-     * Publish an event back to the {@link RingBuffer} to make it visible to {@link EventProcessor}s
+     * Publish an event back to the {@link RingBuffer} and make it visible to {@link EventProcessor}s
      * @param sequence to be published from the {@link RingBuffer}
      */
     void publish(long sequence);
 
     /**
-     * Publish the batch of events from to the {@link RingBuffer}.
+     * Publish the batch of events in sequence to the {@link RingBuffer}.
      *
      * @param sequenceBatch to be published.
      */

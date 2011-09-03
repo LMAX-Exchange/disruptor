@@ -181,7 +181,7 @@ public final class RingBuffer<T>
     }
 
     /**
-     * Publish an event back to the {@link RingBuffer} to make it visible to {@link EventProcessor}s.
+     * Publish an event back to the {@link RingBuffer} and make it visible to {@link EventProcessor}s.
      * Only use this method when forcing a sequence and you are sure only one publisher exists.
      * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
      *
