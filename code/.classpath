@@ -3,11 +3,6 @@
 	<classpathentry kind="src" path="src/main"/>
 	<classpathentry kind="src" path="src/perf"/>
 	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/test/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="lib" path="lib/test/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/hamcrest-library-1.1.jar"/>
@@ -16,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/test/jmock-legacy-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="lib/test/objenesis-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
