@@ -24,12 +24,12 @@ import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
- * Strategy employed for making {@link EventProcessor}s wait on a {@link RingBuffer}.
+ * Strategy employed for making {@link EventProcessor}s wait on a cursor {@link Sequence}.
  */
 public interface WaitStrategy
 {
     /**
-     * Wait for the given sequence to be available for consumption in a {@link RingBuffer}
+     * Wait for the given sequence to be available
      *
      * @param dependents further back the chain that must advance first
      * @param cursor on which to wait.
@@ -43,7 +43,7 @@ public interface WaitStrategy
         throws AlertException, InterruptedException;
 
     /**
-     * Wait for the given sequence to be available for consumption in a {@link RingBuffer} with a timeout specified.
+     * Wait for the given sequence to be available with a timeout specified.
      *
      * @param dependents further back the chain that must advance first
      * @param cursor on which to wait.
@@ -59,12 +59,12 @@ public interface WaitStrategy
         throws AlertException, InterruptedException;
 
     /**
-     * Signal those waiting that the {@link RingBuffer} cursor has advanced.
+     * Signal those waiting that the cursor has advanced.
      */
-    void signalAll();
+    void signalAllWhenBlocking();
 
     /**
-     * Strategy options which are available to those waiting on a {@link RingBuffer}
+     * Strategy options which are available to those waiting on a sequence
      */
     enum Option
     {
@@ -121,7 +121,7 @@ public interface WaitStrategy
         };
 
         /**
-         * Used by the {@link com.lmax.disruptor.RingBuffer} as a polymorphic constructor.
+         * Used by the {@link SequenceManager} as a polymorphic constructor.
          *
          * @return a new instance of the WaitStrategy
          */
@@ -222,7 +222,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public void signalAll()
+        public void signalAllWhenBlocking()
         {
             lock.lock();
             try
@@ -237,8 +237,8 @@ public interface WaitStrategy
     }
 
     /**
-     * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier
-     * after an initially spinning.
+     * Sleeping strategy that initially spins, then uses a Thread.yield(), and eventually sleeping for 1ms
+     * while the {@link EventProcessor}s are waiting on a barrier.
      *
      * This strategy is a good compromise between performance and CPU resource.
      */
@@ -310,7 +310,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public void signalAll()
+        public void signalAllWhenBlocking()
         {
         }
 
@@ -421,7 +421,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public void signalAll()
+        public void signalAllWhenBlocking()
         {
         }
 
@@ -516,7 +516,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public void signalAll()
+        public void signalAllWhenBlocking()
         {
         }
 

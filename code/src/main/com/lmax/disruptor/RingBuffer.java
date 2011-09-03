@@ -167,20 +167,20 @@ public final class RingBuffer<T> implements SequenceManager
      * Only use this method when forcing a sequence and you are sure only one publisher exists.
      * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
      *
-     * @param sequence to be published from to the {@link RingBuffer}
+     * @param sequence which is to be published.
      */
     public void publishWithForce(final long sequence)
     {
         claimStrategy.setSequence(sequence);
         cursor.set(sequence);
-        waitStrategy.signalAll();
+        waitStrategy.signalAllWhenBlocking();
     }
 
     private void publish(final long sequence, final long batchSize)
     {
         claimStrategy.serialisePublishing(cursor, sequence, batchSize);
         cursor.set(sequence);
-        waitStrategy.signalAll();
+        waitStrategy.signalAllWhenBlocking();
     }
 
     private void fill(final EventFactory<T> eventFactory)

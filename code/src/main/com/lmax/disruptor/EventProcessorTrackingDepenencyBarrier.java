@@ -18,8 +18,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DependencyBarrier handed out for gating {@link EventProcessor}s of the RingBuffer and dependent {@link com.lmax.disruptor.EventProcessor}(s)
- * by sequence.
+ * DependencyBarrier handed out for gating {@link EventProcessor}s on a sequence and dependent {@link EventProcessor}(s)
  */
 final class TrackingDependencyBarrier implements DependencyBarrier
 {
@@ -67,7 +66,7 @@ final class TrackingDependencyBarrier implements DependencyBarrier
     public void alert()
     {
         alerted = true;
-        waitStrategy.signalAll();
+        waitStrategy.signalAllWhenBlocking();
     }
 
     @Override
