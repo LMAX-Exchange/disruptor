@@ -22,5 +22,22 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class PaddedAtomicLong extends AtomicLong
 {
-    public volatile long p1, p2, p3, p4, p5 = 7L;
+    public volatile long p1, p2, p3, p4, p5, p6 = 7L;
+
+    /**
+     * Default constructor
+     */
+    public PaddedAtomicLong()
+    {
+    }
+
+    /**
+     * Construct with an initial value.
+     *
+     * @param initialValue for initialisation
+     */
+    public PaddedAtomicLong(final long initialValue)
+    {
+        super(initialValue);
+    }
 }

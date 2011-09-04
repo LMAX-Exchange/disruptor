@@ -105,14 +105,12 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final PaddedAtomicLong sequence = new PaddedAtomicLong();
-        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong();
+        private final PaddedAtomicLong sequence = new PaddedAtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
 
         public MultiThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
-            sequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
-            minTrackedSequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
@@ -172,14 +170,12 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final PaddedLong sequence = new PaddedLong();
-        private final PaddedLong minTrackedSequence = new PaddedLong();
+        private final PaddedLong sequence = new PaddedLong(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final PaddedLong minTrackedSequence = new PaddedLong(RingBuffer.INITIAL_CURSOR_VALUE);
 
         public SingleThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
-            sequence.set(RingBuffer.INITIAL_CURSOR_VALUE);
-            minTrackedSequence.set(RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
