@@ -16,11 +16,12 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.util.PaddedLong;
 
 public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 {
     private final FunctionStep functionStep;
-    private final long[] stepThreeCounter = new long[15]; // cache line padded
+    private final PaddedLong stepThreeCounter = new PaddedLong();
 
     public FunctionEventHandler(final FunctionStep functionStep)
     {
@@ -29,12 +30,12 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 
     public long getStepThreeCounter()
     {
-        return stepThreeCounter[7];
+        return stepThreeCounter.get();
     }
 
     public void reset()
     {
-        stepThreeCounter[7] = 0L;
+        stepThreeCounter.set(0L);
     }
 
     @Override
@@ -53,7 +54,7 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
             case THREE:
                 if ((event.getStepTwoResult() & 4L) == 4L)
                 {
-                    ++stepThreeCounter[7];
+                    stepThreeCounter.set(stepThreeCounter.get() + 1L);
                 }
                 break;
         }

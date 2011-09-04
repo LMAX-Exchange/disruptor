@@ -16,11 +16,12 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.util.PaddedLong;
 
 public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
 {
     private final Operation operation;
-    private final long[] value = new long[15]; // cache line padded
+    private final PaddedLong value = new PaddedLong();
 
     public ValueMutationEventHandler(final Operation operation)
     {
@@ -29,17 +30,17 @@ public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
 
     public long getValue()
     {
-        return value[7];
+        return value.get();
     }
 
     public void reset()
     {
-        value[7] = 0L;
+        value.set(0L);
     }
 
     @Override
     public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
-        value[7] = operation.op(value[7], event.getValue());
+        value.set(operation.op(value.get(), event.getValue()));
     }
 }

@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.PaddedAtomicLong;
+
 /**
  * Cache line padded sequence counter.
  *

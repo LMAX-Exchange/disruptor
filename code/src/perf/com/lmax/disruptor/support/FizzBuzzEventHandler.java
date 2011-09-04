@@ -16,11 +16,12 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.util.PaddedLong;
 
 public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
 {
     private final FizzBuzzStep fizzBuzzStep;
-    private final long[] fizzBuzzCounter = new long[15]; // cache line padded
+    private final PaddedLong fizzBuzzCounter = new PaddedLong();
 
     public FizzBuzzEventHandler(final FizzBuzzStep fizzBuzzStep)
     {
@@ -29,12 +30,12 @@ public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
 
     public void reset()
     {
-        fizzBuzzCounter[7] = 0L;
+        fizzBuzzCounter.set(0L);
     }
 
     public long getFizzBuzzCounter()
     {
-        return fizzBuzzCounter[7];
+        return fizzBuzzCounter.get();
     }
 
     @Override
@@ -59,7 +60,7 @@ public final class FizzBuzzEventHandler implements EventHandler<FizzBuzzEvent>
             case FIZZ_BUZZ:
                 if (event.isFizz() && event.isBuzz())
                 {
-                    ++fizzBuzzCounter[7];
+                    fizzBuzzCounter.set(fizzBuzzCounter.get() + 1L);
                 }
                 break;
         }

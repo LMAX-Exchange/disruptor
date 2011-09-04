@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.support;
+package com.lmax.disruptor.util;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.util.PaddedLong;
 
-public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
+/**
+ * Cache line padded long variable to be used when the false sharing maybe an issue.
+ */
+public final class PaddedLong
 {
-    private final PaddedLong value = new PaddedLong();
+    private final int VALUE_OFFSET = 7;
+    private final long[] value = new long[15];
 
-    public long getValue()
+    /**
+     * Get the value as a long.
+     *
+     * @return the long value.
+     */
+    public long get()
     {
-        return value.get();
+        return value[VALUE_OFFSET];
     }
 
-    public void reset()
+    /**
+     * Set the value as a long.
+     *
+     * @param value to be set.
+     */
+    public void set(final long value)
     {
-        value.set(0L);
-    }
-
-    @Override
-    public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
-    {
-        value.set(value.get() + event.getValue());
+        this.value[VALUE_OFFSET] = value;
     }
 }

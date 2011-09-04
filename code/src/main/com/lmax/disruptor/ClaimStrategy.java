@@ -15,6 +15,9 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.PaddedAtomicLong;
+import com.lmax.disruptor.util.PaddedLong;
+
 import static com.lmax.disruptor.Util.getMinimumSequence;
 
 /**
@@ -103,13 +106,13 @@ public interface ClaimStrategy
     {
         private final int bufferSize;
         private final PaddedAtomicLong sequence = new PaddedAtomicLong();
-        private final PaddedAtomicLong minProcessorSequence = new PaddedAtomicLong();
+        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong();
 
         public MultiThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
             sequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
-            minProcessorSequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
+            minTrackedSequence.lazySet(RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
@@ -134,7 +137,7 @@ public interface ClaimStrategy
         public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence.get())
+            if (wrapPoint > minTrackedSequence.get())
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -142,7 +145,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence.lazySet(minSequence);
+                minTrackedSequence.lazySet(minSequence);
             }
         }
 
@@ -168,45 +171,44 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
-        private final int SEQ_INDEX = 7;
         private final int bufferSize;
-        private final long[] sequence = new long[15]; // cache line padded
-        private final long[] minProcessorSequence = new long[15]; // cache line padded
+        private final PaddedLong sequence = new PaddedLong();
+        private final PaddedLong minTrackedSequence = new PaddedLong();
 
         public SingleThreadedStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
-            sequence[SEQ_INDEX] = RingBuffer.INITIAL_CURSOR_VALUE;
-            minProcessorSequence[SEQ_INDEX] = RingBuffer.INITIAL_CURSOR_VALUE;
+            sequence.set(RingBuffer.INITIAL_CURSOR_VALUE);
+            minTrackedSequence.set(RingBuffer.INITIAL_CURSOR_VALUE);
         }
 
         @Override
         public long incrementAndGet()
         {
-            long value = sequence[SEQ_INDEX] + 1L;
-            sequence[SEQ_INDEX] = value;
+            long value = sequence.get() + 1L;
+            sequence.set(value);
             return value;
         }
 
         @Override
         public long incrementAndGet(final int delta)
         {
-            long value = sequence[SEQ_INDEX] + delta;
-            sequence[SEQ_INDEX] = value;
+            long value = sequence.get() + delta;
+            sequence.set(value);
             return value;
         }
 
         @Override
         public void setSequence(final long sequence)
         {
-            this.sequence[SEQ_INDEX] = sequence;
+            this.sequence.set(sequence);
         }
 
         @Override
         public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minProcessorSequence[SEQ_INDEX])
+            if (wrapPoint > minTrackedSequence.get())
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -214,7 +216,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minProcessorSequence[SEQ_INDEX] = minSequence;
+                minTrackedSequence.set(minSequence);
             }
         }
 
