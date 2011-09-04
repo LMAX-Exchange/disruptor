@@ -27,10 +27,9 @@ public class EventPublisher<E>
     public void publishEvent(EventTranslator<E> translator)
     {
         long sequence = ringBuffer.nextSequence();
-        E event = ringBuffer.get(sequence);
         try
         {
-            translator.translateTo(event, sequence);
+            translator.translateTo(ringBuffer.get(sequence), sequence);
         }
         finally
         {
