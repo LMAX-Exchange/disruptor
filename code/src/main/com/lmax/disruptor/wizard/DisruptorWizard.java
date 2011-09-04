@@ -22,15 +22,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A DSL-style wizard for setting up the disruptor pattern around a ring buffer.
- * <p/>
+ *
  * <p>A simple example of setting up the disruptor with two event handlers that must process events in order:</p>
- * <p/>
+ *
  * <pre><code> DisruptorWizard<MyEvent> dw = new DisruptorWizard<MyEvent>(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
  * EventHandler<MyEvent> handler1 = new EventHandler<MyEvent>() { ... };
  * EventHandler<MyEvent> handler2 = new EventHandler<MyEvent>() { ... };
  * dw.handleEventsWith(handler1);
  * dw.after(handler1).handleEventsWith(handler2);
- * <p/>
+ *
  * RingBuffer ringBuffer = dw.start();</code></pre>
  *
  * @param <T> the type of event used.
@@ -46,7 +46,7 @@ public class DisruptorWizard<T>
     /**
      * Create a new DisruptorWizard.
      *
-     * @param eventFactory   the factory to newInstance events in the ring buffer.
+     * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      */
@@ -58,7 +58,7 @@ public class DisruptorWizard<T>
     /**
      * Create a new DisruptorWizard.
      *
-     * @param eventFactory   the factory to newInstance events in the ring buffer.
+     * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      * @param claimStrategy  the claim strategy to use for the ring buffer.
@@ -95,6 +95,22 @@ public class DisruptorWizard<T>
         return createEventProcessors(new EventProcessor[0], handlers);
     }
 
+    /**
+     * Set up custom event processors to handle events from the ring buffer. The DisruptorWizard will
+     * automatically start this processors when {@link #start()} is called.
+     *
+     * @param processors the event processors that will process events.
+     * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
+     */
+    public EventHandlerGroup<T> handleEventsWith(final EventProcessor... processors)
+    {
+        for (EventProcessor processor : processors)
+        {
+            eventProcessorRepository.add(processor);
+        }
+        return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
+    }
+
     /** Specify an exception handler to be used for any future event handlers.
      * Note that only event handlers set up after calling this method will use the exception handler.
      *
@@ -123,8 +139,8 @@ public class DisruptorWizard<T>
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
      * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
-     *                 that will form the barrier for subsequent handlers.
-     * @return an {@link EventHandlerGroup} that can be used to setup a handler barrier over the specified event handlers.
+     *                 that will form the barrier for subsequent handlers or processors.
+     * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over the specified event handlers.
      */
     @SuppressWarnings("varargs")
     public EventHandlerGroup<T> after(final EventHandler<T>... handlers)
@@ -138,9 +154,27 @@ public class DisruptorWizard<T>
         return new EventHandlerGroup<T>(this, eventProcessorRepository, selectedEventProcessors);
     }
 
+    /** Create a group of event processors to be used as a dependency.
+     *
+     * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
+     *                   that will form the barrier for subsequent handlers or processors.
+     * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over hte specified event processors.
+     * @see #after(com.lmax.disruptor.EventHandler[])
+     */
+    public EventHandlerGroup<T> after(final EventProcessor... processors)
+    {
+        for (EventProcessor processor : processors)
+        {
+            eventProcessorRepository.add(processor);
+        }
+        return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
+    }
+
     /**
-     * Starts the event processors and returns the fully configured ring buffer.  The ring buffer is set up to prevent overwriting any entry that is yet to
-     * be processed by the slowest event processor.  This method must only be called once after all event processors have been added.
+     * Starts the event processors and returns the fully configured ring buffer.
+     * The ring buffer is set up to prevent overwriting any entry that is yet to
+     * be processed by the slowest event processor.
+     * This method must only be called once after all event processors have been added.
      *
      * @return the configured ring buffer.
      */
@@ -157,6 +191,16 @@ public class DisruptorWizard<T>
         ensureOnlyStartedOnce();
         startEventProcessors();
 
+        return ringBuffer;
+    }
+
+    /** The the {@link RingBuffer} used by this DisruptorWizard.  This is useful for creating custom
+     * event processors if the behaviour of {@link BatchEventProcessor} is not suitable.
+     *
+     * @return the ring buffer used by this DisruptorWizard.
+     */
+    public RingBuffer<T> getRingBuffer()
+    {
         return ringBuffer;
     }
 

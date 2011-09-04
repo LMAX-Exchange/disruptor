@@ -33,6 +33,12 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
         eventProcessorInfoByEventProcessor.put(eventprocessor, eventProcessorInfo);
     }
 
+    public void add(final EventProcessor processor)
+    {
+        final EventProcessorInfo<T> eventProcessorInfo = new EventProcessorInfo<T>(processor, null, null);
+        eventProcessorInfoByEventProcessor.put(processor, eventProcessorInfo);
+    }
+
     public EventProcessor[] getLastEventProcessorsInChain()
     {
         List<EventProcessor> lastEventProcessors = new ArrayList<EventProcessor>();
@@ -66,7 +72,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
 
     public Iterator<EventProcessorInfo<T>> iterator()
     {
-        return eventProcessorInfoByHandler.values().iterator();
+        return eventProcessorInfoByEventProcessor.values().iterator();
     }
 
     public DependencyBarrier getBarrierFor(final EventHandler<T> handler)

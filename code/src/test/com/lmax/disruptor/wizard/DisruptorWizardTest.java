@@ -82,10 +82,7 @@ public class DisruptorWizardTest
 
         disruptorWizard.handleEventsWith(createDelayedEventHandler(), eventHandler);
 
-        publishEvent();
-        publishEvent();
-
-        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch);
     }
 
     @Test
@@ -98,14 +95,7 @@ public class DisruptorWizardTest
 
         disruptorWizard.handleEventsWith(eventHandler1).then(eventHandler2);
 
-        publishEvent();
-        publishEvent();
-
-        assertThatCountDownLatchEquals(countDownLatch, 2L);
-
-        eventHandler1.processEvent();
-        eventHandler1.processEvent();
-        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, eventHandler1);
     }
 
     @Test
@@ -120,19 +110,7 @@ public class DisruptorWizardTest
         disruptorWizard.handleEventsWith(handler1, handler2);
         disruptorWizard.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
 
-        publishEvent();
-        publishEvent();
-
-        assertThatCountDownLatchEquals(countDownLatch, 2L);
-
-        handler1.processEvent();
-        handler2.processEvent();
-
-        assertThatCountDownLatchEquals(countDownLatch, 2L);
-
-        handler2.processEvent();
-        handler1.processEvent();
-        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
     }
 
     @Test
@@ -147,18 +125,7 @@ public class DisruptorWizardTest
         disruptorWizard.handleEventsWith(handler1, handler2);
         disruptorWizard.after(handler1).and(handler2).handleEventsWith(handlerWithBarrier);
 
-        publishEvent();
-        publishEvent();
-
-        assertThatCountDownLatchEquals(countDownLatch, 2L);
-
-        handler1.processEvent();
-        handler1.processEvent();
-        assertThatCountDownLatchEquals(countDownLatch, 2L);
-
-        handler2.processEvent();
-        handler2.processEvent();
-        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -269,6 +236,77 @@ public class DisruptorWizardTest
         disruptorWizard.start();
     }
 
+    @Test
+    public void shouldSupportCustomProcessorsAsDependencies() throws Exception
+    {
+        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
+
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newDependencyBarrier(),
+                                                                                           delayedEventHandler);
+        disruptorWizard.handleEventsWith(processor);
+        disruptorWizard.after(processor).handleEventsWith(handlerWithBarrier);
+
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
+    }
+
+    @Test
+    public void shouldSupportHandlersAsDependenciesToCustomProcessors() throws Exception
+    {
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptorWizard.handleEventsWith(delayedEventHandler);
+
+
+        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
+
+        final DependencyBarrier dependencyBarrier = disruptorWizard.after(delayedEventHandler).asDependencyBarrier();
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, dependencyBarrier, handlerWithBarrier);
+        disruptorWizard.handleEventsWith(processor);
+
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
+    }
+
+    @Test
+    public void shouldSupportCustomProcessorsAndHandlersAsDependencies() throws Exception
+    {
+        final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
+        final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
+        disruptorWizard.handleEventsWith(delayedEventHandler1);
+
+
+        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+        CountDownLatch countDownLatch = new CountDownLatch(2);
+        EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
+
+        final DependencyBarrier dependencyBarrier = disruptorWizard.after(delayedEventHandler1).asDependencyBarrier();
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, dependencyBarrier, delayedEventHandler2);
+
+        disruptorWizard.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
+
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler1, delayedEventHandler2);
+    }
+
+    private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch, final DelayedEventHandler... dependencies) throws InterruptedException
+    {
+        publishEvent();
+        publishEvent();
+
+        for (DelayedEventHandler dependency : dependencies)
+        {
+            assertThatCountDownLatchEquals(countDownLatch, 2L);
+            dependency.processEvent();
+            dependency.processEvent();
+        }
+
+        assertThatCountDownLatchIsZero(countDownLatch);
+    }
+
     private void assertProducerReaches(final StubPublisher stubPublisher, final int expectedPublicationCount, boolean strict)
     {
         long loopStart = System.currentTimeMillis();
@@ -335,5 +373,10 @@ public class DisruptorWizardTest
     private void assertThatCountDownLatchEquals(final CountDownLatch countDownLatch, final long expectedCountDownValue)
     {
         assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(expectedCountDownValue)));
+    }
+
+    private void assertThatCountDownLatchIsZero(final CountDownLatch countDownLatch) throws InterruptedException
+    {
+        assertTrue("Batch handler did not receive entries.", countDownLatch.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
     }
 }

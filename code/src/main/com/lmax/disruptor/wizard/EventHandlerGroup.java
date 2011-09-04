@@ -15,10 +15,11 @@
  */
 package com.lmax.disruptor.wizard;
 
+import com.lmax.disruptor.DependencyBarrier;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 
-/** A group of {@link EventProcessor}s set up via the {@link DisruptorWizard}.
+/** A group of {@link EventProcessor}s used as part of the {@link DisruptorWizard}.
  *
  * @param <T> the type of entry used by the event processors.
  */
@@ -54,6 +55,25 @@ public class EventHandlerGroup<T>
         return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
     }
 
+    /** Create a new event handler group that combines the handlers in this group with <tt>processors</tt>.
+     *
+     * @param processors the processors to combine.
+     * @return a new EventHandlerGroup combining the existing and new processors into a single dependency group.
+     */
+    public EventHandlerGroup<T> and(final EventProcessor... processors)
+    {
+        EventProcessor[] combinedProcessors = new EventProcessor[eventProcessors.length + processors.length];
+
+        for (EventProcessor processor : processors)
+        {
+            eventProcessorRepository.add(processor);
+        }
+        System.arraycopy(processors, 0, combinedProcessors, 0, processors.length);
+        System.arraycopy(eventProcessors, 0, combinedProcessors, processors.length, eventProcessors.length);
+
+        return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
+    }
+
     /** Set up batch handlers to consume events from the ring buffer. These handlers will only process events
      *  after every {@link EventProcessor} in this group has processed the event.
      *
@@ -84,5 +104,17 @@ public class EventHandlerGroup<T>
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
         return disruptorWizard.createEventProcessors(eventProcessors, handlers);
+    }
+
+
+    /** Create a dependency barrier for the processors in this group.
+     * This allows custom event processors to have dependencies on
+     * {@link com.lmax.disruptor.BatchEventProcessor}s created by the disruptor wizard.
+     *
+     * @return a DependencyBarrier including all the processors in this group.
+     */
+    public DependencyBarrier asDependencyBarrier()
+    {
+        return disruptorWizard.getRingBuffer().newDependencyBarrier(eventProcessors);
     }
 }
