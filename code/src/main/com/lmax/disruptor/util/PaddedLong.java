@@ -17,9 +17,9 @@ package com.lmax.disruptor.util;
 
 
 /**
- * Cache line padded long variable to be used when the false sharing maybe an issue.
+ * Cache line padded long variable to be used when false sharing maybe an issue.
  */
 public final class PaddedLong extends MutableLong
 {
-    public volatile long p1, p2, p3, p4, p5, p6, p7 = 7L;
+    public volatile long p1, p2, p3, p4, p5 = 7L;
 }
