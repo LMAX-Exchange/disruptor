@@ -41,6 +41,7 @@ public class DisruptorTest
     private StubExecutor executor;
     private Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
     private RingBuffer<TestEvent> ringBuffer;
+    private TestEvent lastPublishedEvent;
 
     @Before
     public void setUp() throws Exception
@@ -348,10 +349,17 @@ public class DisruptorTest
             ringBuffer = disruptor.start();
         }
 
-        final long sequence = ringBuffer.next();
-        final TestEvent stubEntry = ringBuffer.get(sequence);
-        ringBuffer.publish(sequence);
-        return stubEntry;
+        disruptor.publishEvent(new EventTranslator<TestEvent>()
+        {
+
+            @Override
+            public TestEvent translateTo(final TestEvent event, final long sequence)
+            {
+                lastPublishedEvent = event;
+                return event;
+            }
+        });
+        return lastPublishedEvent;
     }
 
     private Exception waitFor(final AtomicReference<Exception> reference)

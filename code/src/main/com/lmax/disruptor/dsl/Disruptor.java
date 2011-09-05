@@ -43,6 +43,7 @@ public class Disruptor<T>
     private ExceptionHandler exceptionHandler;
     private EventProcessorRepository<T> eventProcessorRepository = new EventProcessorRepository<T>();
     private AtomicBoolean started = new AtomicBoolean(false);
+    private final EventPublisher<T> eventPublisher;
 
     /**
      * Create a new Disruptor.
@@ -76,6 +77,7 @@ public class Disruptor<T>
     {
         this.ringBuffer = ringBuffer;
         this.executor = executor;
+        eventPublisher = new EventPublisher<T>(ringBuffer);
     }
 
     /**
@@ -169,6 +171,15 @@ public class Disruptor<T>
             eventProcessorRepository.add(processor);
         }
         return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
+    }
+
+    /** Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     */
+    public void publishEvent(final EventTranslator<T> eventTranslator)
+    {
+        eventPublisher.publishEvent(eventTranslator);
     }
 
     /**
