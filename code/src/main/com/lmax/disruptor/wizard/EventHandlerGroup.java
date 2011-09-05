@@ -15,11 +15,13 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.DependencyBarrier;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.util.Util;
 
-/** A group of {@link EventProcessor}s used as part of the {@link DisruptorWizard}.
+/**
+ * A group of {@link EventProcessor}s used as part of the {@link DisruptorWizard}.
  *
  * @param <T> the type of entry used by the event processors.
  */
@@ -37,7 +39,8 @@ public class EventHandlerGroup<T>
         this.eventProcessors = eventProcessors;
     }
 
-    /** Create a new event handler group that combines the handlers in this group with
+    /**
+     * Create a new event handler group that combines the handlers in this group with
      * <tt>handlers</tt>.
      *
      * @param handlers the handlers to combine.
@@ -55,7 +58,8 @@ public class EventHandlerGroup<T>
         return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
     }
 
-    /** Create a new event handler group that combines the handlers in this group with <tt>processors</tt>.
+    /**
+     * Create a new event handler group that combines the handlers in this group with <tt>processors</tt>.
      *
      * @param processors the processors to combine.
      * @return a new EventHandlerGroup combining the existing and new processors into a single dependency group.
@@ -74,13 +78,14 @@ public class EventHandlerGroup<T>
         return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
     }
 
-    /** Set up batch handlers to consume events from the ring buffer. These handlers will only process events
-     *  after every {@link EventProcessor} in this group has processed the event.
+    /**
+     * Set up batch handlers to consume events from the ring buffer. These handlers will only process events
+     * after every {@link EventProcessor} in this group has processed the event.
      *
-     *  <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
-     *  process events before handler <code>B</code>:</p>
+     * <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
+     * process events before handler <code>B</code>:</p>
      *
-     *  <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
      * @param handlers the batch handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
@@ -90,13 +95,14 @@ public class EventHandlerGroup<T>
         return handleEventsWith(handlers);
     }
 
-    /** Set up batch handlers to handle events from the ring buffer. These handlers will only process events
-     *  after every {@link EventProcessor} in this group has processed the event.
+    /**
+     * Set up batch handlers to handle events from the ring buffer. These handlers will only process events
+     * after every {@link EventProcessor} in this group has processed the event.
      *
-     *  <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
-     *  process events before handler <code>B</code>:</p>
+     * <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
+     * process events before handler <code>B</code>:</p>
      *
-     *  <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
+     * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
      * @param handlers the batch handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
@@ -107,14 +113,15 @@ public class EventHandlerGroup<T>
     }
 
 
-    /** Create a dependency barrier for the processors in this group.
+    /**
+     * Create a dependency barrier for the processors in this group.
      * This allows custom event processors to have dependencies on
      * {@link com.lmax.disruptor.BatchEventProcessor}s created by the disruptor wizard.
      *
-     * @return a DependencyBarrier including all the processors in this group.
+     * @return a {@link SequenceBarrier} including all the processors in this group.
      */
-    public DependencyBarrier asDependencyBarrier()
+    public SequenceBarrier asSequenceBarrier()
     {
-        return disruptorWizard.getRingBuffer().newDependencyBarrier(eventProcessors);
+        return disruptorWizard.getRingBuffer().newSequenceBarrier(Util.getSequencesFor(eventProcessors));
     }
 }

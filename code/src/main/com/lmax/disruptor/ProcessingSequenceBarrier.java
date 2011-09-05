@@ -15,17 +15,19 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.PaddedAtomicBoolean;
+
 import java.util.concurrent.TimeUnit;
 
 /**
- * SequenceBarrier handed out for gating {@link EventProcessor}s on a cursor sequence and optional dependent {@link EventProcessor}(s)
+ * {@link SequenceBarrier} handed out for gating {@link EventProcessor}s on a cursor sequence and optional dependent {@link EventProcessor}(s)
  */
 final class ProcessingSequenceBarrier implements SequenceBarrier
 {
     private final WaitStrategy waitStrategy;
     private final Sequence cursorSequence;
     private final Sequence[] dependentSequences;
-    private volatile boolean alerted = false;
+    private final PaddedAtomicBoolean alerted = new PaddedAtomicBoolean(false);
 
     public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
                                      final Sequence cursorSequence,
@@ -59,19 +61,19 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     @Override
     public boolean isAlerted()
     {
-        return alerted;
+        return alerted.get();
     }
 
     @Override
     public void alert()
     {
-        alerted = true;
+        alerted.set(true);
         waitStrategy.signalAllWhenBlocking();
     }
 
     @Override
     public void clearAlert()
     {
-        alerted = false;
+        alerted.set(false);
     }
 }

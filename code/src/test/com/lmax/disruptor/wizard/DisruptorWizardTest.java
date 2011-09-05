@@ -246,7 +246,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newDependencyBarrier(),
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newSequenceBarrier(),
                                                                                            delayedEventHandler);
         disruptorWizard.handleEventsWith(processor);
         disruptorWizard.after(processor).handleEventsWith(handlerWithBarrier);
@@ -265,8 +265,8 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final DependencyBarrier dependencyBarrier = disruptorWizard.after(delayedEventHandler).asDependencyBarrier();
-        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, dependencyBarrier, handlerWithBarrier);
+        final SequenceBarrier sequenceBarrier = disruptorWizard.after(delayedEventHandler).asSequenceBarrier();
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, sequenceBarrier, handlerWithBarrier);
         disruptorWizard.handleEventsWith(processor);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
@@ -284,8 +284,8 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final DependencyBarrier dependencyBarrier = disruptorWizard.after(delayedEventHandler1).asDependencyBarrier();
-        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, dependencyBarrier, delayedEventHandler2);
+        final SequenceBarrier sequenceBarrier = disruptorWizard.after(delayedEventHandler1).asSequenceBarrier();
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, sequenceBarrier, delayedEventHandler2);
 
         disruptorWizard.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
