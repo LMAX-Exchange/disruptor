@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.SequenceManager;
 import com.lmax.disruptor.RingBuffer;
 
 import java.util.concurrent.CyclicBarrier;

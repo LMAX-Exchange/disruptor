@@ -105,8 +105,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final PaddedAtomicLong sequence = new PaddedAtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
-        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         public MultiThreadedStrategy(final int bufferSize)
         {
@@ -170,8 +170,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final PaddedLong sequence = new PaddedLong(RingBuffer.INITIAL_CURSOR_VALUE);
-        private final PaddedLong minTrackedSequence = new PaddedLong(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final PaddedLong sequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
+        private final PaddedLong minTrackedSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         public SingleThreadedStrategy(final int bufferSize)
         {

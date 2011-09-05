@@ -22,19 +22,10 @@ import static com.lmax.disruptor.util.Util.ceilingNextPowerOfTwo;
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<T> implements SequenceManager
+public final class RingBuffer<T> extends Sequencer
 {
-    /** Set to -1 as sequence starting point */
-    public static final long INITIAL_CURSOR_VALUE = -1L;
-
-    private final Sequence cursor = new Sequence(INITIAL_CURSOR_VALUE);
     private final int ringModMask;
     private final Object[] entries;
-
-    private Sequence[] sequencesToTrack;
-
-    private final ClaimStrategy claimStrategy;
-    private final WaitStrategy waitStrategy;
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -48,12 +39,12 @@ public final class RingBuffer<T> implements SequenceManager
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
-        int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
-        ringModMask = sizeAsPowerOfTwo - 1;
-        entries = new Object[sizeAsPowerOfTwo];
+        super(claimStrategyOption.newInstance(ceilingNextPowerOfTwo(size)),
+              waitStrategyOption.newInstance(),
+              ceilingNextPowerOfTwo(size));
 
-        claimStrategy = claimStrategyOption.newInstance(sizeAsPowerOfTwo);
-        waitStrategy = waitStrategyOption.newInstance();
+        ringModMask = getBufferSize() - 1;
+        entries = new Object[getBufferSize()];
 
         fill(eventFactory);
     }
@@ -81,89 +72,7 @@ public final class RingBuffer<T> implements SequenceManager
     @SuppressWarnings("unchecked")
     public T get(final long sequence)
     {
-        return (T) entries[(int)sequence & ringModMask];
-    }
-
-
-    @Override
-    public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
-    {
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
-    }
-
-    @Override
-    public int getBufferSize()
-    {
-        return entries.length;
-    }
-
-    @Override
-    public long getCursor()
-    {
-        return cursor.get();
-    }
-
-    @Override
-    public void setTrackedSequences(final Sequence... sequences)
-    {
-        this.sequencesToTrack = sequences;
-    }
-
-    @Override
-    public long nextSequence()
-    {
-        final long sequence = claimStrategy.incrementAndGet();
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
-        return sequence;
-    }
-
-    @Override
-    public void publish(final long sequence)
-    {
-        publish(sequence, 1);
-    }
-
-    @Override
-    public SequenceBatch nextSequenceBatch(final SequenceBatch sequenceBatch)
-    {
-        final int batchSize = sequenceBatch.getSize();
-        if (batchSize > entries.length)
-        {
-            final String msg = "Batch size " + batchSize + " is greater than buffer size of " + entries.length;
-            throw new IllegalArgumentException(msg);
-        }
-
-        final long sequence = claimStrategy.incrementAndGet(batchSize);
-        sequenceBatch.setEnd(sequence);
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
-        return sequenceBatch;
-    }
-
-    @Override
-    public void publish(final SequenceBatch sequenceBatch)
-    {
-        publish(sequenceBatch.getEnd(), sequenceBatch.getSize());
-    }
-
-    @Override
-    public void claimSequence(final long sequence)
-    {
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
-    }
-
-    @Override
-    public void forcePublish(final long sequence)
-    {
-        claimStrategy.setSequence(sequence);
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
-    }
-
-    private void publish(final long sequence, final long batchSize)
-    {
-        claimStrategy.serialisePublishing(cursor, sequence, batchSize);
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
+        return (T)entries[(int)sequence & ringModMask];
     }
 
     private void fill(final EventFactory<T> eventFactory)

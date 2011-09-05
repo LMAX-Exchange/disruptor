@@ -42,7 +42,7 @@ public class RingBufferTest
     @Test
     public void shouldClaimAndGet() throws Exception
     {
-        assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
+        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
 
         StubEvent expectedEvent = new StubEvent(2701);
 
@@ -63,7 +63,7 @@ public class RingBufferTest
     @Test
     public void shouldClaimAndGetWithTimeout() throws Exception
     {
-        assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
+        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
 
         StubEvent expectedEvent = new StubEvent(2701);
 
@@ -85,7 +85,7 @@ public class RingBufferTest
     public void shouldGetWithTimeout() throws Exception
     {
         long sequence = sequenceBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
-        assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequence);
+        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequence);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class RingBufferTest
     private static final class TestEventProcessor implements EventProcessor
     {
         private final SequenceBarrier sequenceBarrier;
-        private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
         public TestEventProcessor(final SequenceBarrier sequenceBarrier)
         {

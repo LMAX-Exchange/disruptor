@@ -39,7 +39,7 @@ public final class BatchPublisherTest
 
         assertThat(Long.valueOf(sequenceBatch.getStart()), is(Long.valueOf(0L)));
         assertThat(Long.valueOf(sequenceBatch.getEnd()), is(Long.valueOf(4L)));
-        assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(RingBuffer.INITIAL_CURSOR_VALUE)));
+        assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(Sequencer.INITIAL_CURSOR_VALUE)));
 
         ringBuffer.publish(sequenceBatch);
 

@@ -32,7 +32,7 @@ public final class BatchEventProcessor<T>
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
-    private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
+    private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when

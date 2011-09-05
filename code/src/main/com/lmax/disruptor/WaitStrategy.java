@@ -121,7 +121,7 @@ public interface WaitStrategy
         };
 
         /**
-         * Used by the {@link SequenceManager} as a polymorphic constructor.
+         * Used by the {@link Sequencer} as a polymorphic constructor.
          *
          * @return a new instance of the WaitStrategy
          */

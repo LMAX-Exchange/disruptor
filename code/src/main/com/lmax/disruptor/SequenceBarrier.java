@@ -46,7 +46,7 @@ public interface SequenceBarrier
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
-     * Delegate a call to the {@link SequenceManager#getCursor()}
+     * Delegate a call to the {@link Sequencer#getCursor()}
      *
      * @return value of the cursor for entries that have been published.
      */

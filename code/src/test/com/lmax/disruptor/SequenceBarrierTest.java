@@ -230,7 +230,7 @@ public final class SequenceBarrierTest
 
     private static final class StubEventProcessor implements EventProcessor
     {
-        private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
+        private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
         public void setSequence(long sequence)
         {
