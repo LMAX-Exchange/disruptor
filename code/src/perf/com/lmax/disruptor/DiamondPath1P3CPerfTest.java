@@ -65,29 +65,29 @@ import java.util.concurrent.*;
  * Disruptor:
  * ==========
  *                    track to prevent wrap
- *              +--------------------------------+
- *              |                                |
- *              |                                v
- * +----+    +====+               +======+    +-----+
- * | P1 |--->| RB |<--------------| EPB2 |<---| EP3 |
- * +----+    +====+               +======+    +-----+
- *      claim   ^  get                |   waitFor
- *              |                     |
- *           +======+    +-----+      |
- *           | EPB1 |<---| EP1 |<-----+
- *           +======+    +-----+      |
- *              ^                     |
- *              |        +-----+      |
- *              +--------| EP2 |<-----+
- *             waitFor   +-----+
+ *              +-------------------------------+
+ *              |                               |
+ *              |                               v
+ * +----+    +====+               +=====+    +-----+
+ * | P1 |--->| RB |<--------------| SB2 |<---| EP3 |
+ * +----+    +====+               +=====+    +-----+
+ *      claim   ^  get               |   waitFor
+ *              |                    |
+ *           +=====+    +-----+      |
+ *           | SB1 |<---| EP1 |<-----+
+ *           +=====+    +-----+      |
+ *              ^                    |
+ *              |       +-----+      |
+ *              +-------| EP2 |<-----+
+ *             waitFor  +-----+
  *
- * P1   - Publisher 1
- * RB   - RingBuffer
- * EPB1 - SequenceBarrier 1
- * EP1  - EventProcessor 1
- * EP2  - EventProcessor 2
- * EPB2 - SequenceBarrier 2
- * EP3  - EventProcessor 3
+ * P1  - Publisher 1
+ * RB  - RingBuffer
+ * SB1 - SequenceBarrier 1
+ * EP1 - EventProcessor 1
+ * EP2 - EventProcessor 2
+ * SB2 - SequenceBarrier 2
+ * EP3 - EventProcessor 3
  *
  * </pre>
  */

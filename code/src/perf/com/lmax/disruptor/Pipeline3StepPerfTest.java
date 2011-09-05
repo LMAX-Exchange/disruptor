@@ -55,25 +55,25 @@ import java.util.concurrent.*;
  * Disruptor:
  * ==========
  *                           track to prevent wrap
- *              +-------------------------------------------------------------------+
- *              |                                                                   |
- *              |                                                                   v
- * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
- * | P1 |--->| RB |    | EPB1 |<---| EP1 |<---| EPB2 |<---| EP2 |<---| EPB3 |<---| EP3 |
- * +----+    +====+    +======+    +-----+    +======+    +-----+    +======+    +-----+
- *      claim   ^  get    |   waitFor            |   waitFor            |  waitFor
- *              |         |                      |                      |
- *              +---------+----------------------+----------------------+
+ *              +----------------------------------------------------------------+
+ *              |                                                                |
+ *              |                                                                v
+ * +----+    +====+    +=====+    +-----+    +=====+    +-----+    +=====+    +-----+
+ * | P1 |--->| RB |    | SB1 |<---| EP1 |<---| SB2 |<---| EP2 |<---| SB3 |<---| EP3 |
+ * +----+    +====+    +=====+    +-----+    +=====+    +-----+    +=====+    +-----+
+ *      claim   ^  get    |   waitFor           |   waitFor           |  waitFor
+ *              |         |                     |                     |
+ *              +---------+---------------------+---------------------+
  *        </pre>
  *
- * P1   - Publisher 1
- * RB   - RingBuffer
- * EPB1 - SequenceBarrier 1
- * EP1  - EventProcessor 1
- * EPB2 - SequenceBarrier 2
- * EP2  - EventProcessor 2
- * EPB3 - SequenceBarrier 3
- * EP3  - EventProcessor 3
+ * P1  - Publisher 1
+ * RB  - RingBuffer
+ * SB1 - SequenceBarrier 1
+ * EP1 - EventProcessor 1
+ * SB2 - SequenceBarrier 2
+ * EP2 - EventProcessor 2
+ * SB3 - SequenceBarrier 3
+ * EP3 - EventProcessor 3
  *
  * </pre>
  */

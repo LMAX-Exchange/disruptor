@@ -46,20 +46,20 @@ import java.util.concurrent.*;
  * Disruptor:
  * ==========
  *              track to prevent wrap
- *              +-------------------+
- *              |                   |
- *              |                   v
- * +----+    +====+    +=====+   +-----+
- * | P1 |--->| RB |<---| EPB |   | EP1 |
- * +----+    +====+    +=====+   +-----+
- *      claim      get    ^         |
- *                        |         |
- *                        +---------+
+ *              +------------------+
+ *              |                  |
+ *              |                  v
+ * +----+    +====+    +====+   +-----+
+ * | P1 |--->| RB |<---| SB |   | EP1 |
+ * +----+    +====+    +====+   +-----+
+ *      claim      get    ^        |
+ *                        |        |
+ *                        +--------+
  *                          waitFor
  *
  * P1  - Publisher 1
  * RB  - RingBuffer
- * EPB - SequenceBarrier
+ * SB  - SequenceBarrier
  * EP1 - EventProcessor 1
  *
  * </pre>
