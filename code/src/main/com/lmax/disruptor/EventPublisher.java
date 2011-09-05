@@ -26,7 +26,7 @@ public class EventPublisher<E>
      * Construct from the ring buffer to be published to.
      * @param ringBuffer into which events will be published.
      */
-    public EventPublisher(RingBuffer<E> ringBuffer)
+    public EventPublisher(final RingBuffer<E> ringBuffer)
     {
         this.ringBuffer = ringBuffer;
     }
@@ -39,9 +39,9 @@ public class EventPublisher<E>
      * 
      * @param translator The user specified translation for the event
      */
-    public void publishEvent(EventTranslator<E> translator)
+    public void publishEvent(final EventTranslator<E> translator)
     {
-        long sequence = ringBuffer.nextSequence();
+        final long sequence = ringBuffer.nextSequence();
         try
         {
             translator.translateTo(ringBuffer.get(sequence), sequence);
