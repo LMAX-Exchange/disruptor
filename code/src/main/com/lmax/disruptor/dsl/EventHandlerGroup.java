@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard;
+package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
@@ -21,20 +21,20 @@ import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.util.Util;
 
 /**
- * A group of {@link EventProcessor}s used as part of the {@link DisruptorWizard}.
+ * A group of {@link EventProcessor}s used as part of the {@link Disruptor}.
  *
  * @param <T> the type of entry used by the event processors.
  */
 public class EventHandlerGroup<T>
 {
-    private final DisruptorWizard<T> disruptorWizard;
+    private final Disruptor<T> disruptor;
     private final EventProcessorRepository<T> eventProcessorRepository;
     private final EventProcessor[] eventProcessors;
 
-    EventHandlerGroup(final DisruptorWizard<T> disruptorWizard, EventProcessorRepository<T> eventProcessorRepository,
+    EventHandlerGroup(final Disruptor<T> disruptor, EventProcessorRepository<T> eventProcessorRepository,
                       final EventProcessor[] eventProcessors)
     {
-        this.disruptorWizard = disruptorWizard;
+        this.disruptor = disruptor;
         this.eventProcessorRepository = eventProcessorRepository;
         this.eventProcessors = eventProcessors;
     }
@@ -55,7 +55,7 @@ public class EventHandlerGroup<T>
             combinedProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
         }
         System.arraycopy(eventProcessors, 0, combinedProcessors, handlers.length, eventProcessors.length);
-        return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
+        return new EventHandlerGroup<T>(disruptor, eventProcessorRepository, combinedProcessors);
     }
 
     /**
@@ -75,7 +75,7 @@ public class EventHandlerGroup<T>
         System.arraycopy(processors, 0, combinedProcessors, 0, processors.length);
         System.arraycopy(eventProcessors, 0, combinedProcessors, processors.length, eventProcessors.length);
 
-        return new EventHandlerGroup<T>(disruptorWizard, eventProcessorRepository, combinedProcessors);
+        return new EventHandlerGroup<T>(disruptor, eventProcessorRepository, combinedProcessors);
     }
 
     /**
@@ -109,19 +109,19 @@ public class EventHandlerGroup<T>
      */
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
-        return disruptorWizard.createEventProcessors(eventProcessors, handlers);
+        return disruptor.createEventProcessors(eventProcessors, handlers);
     }
 
 
     /**
      * Create a dependency barrier for the processors in this group.
      * This allows custom event processors to have dependencies on
-     * {@link com.lmax.disruptor.BatchEventProcessor}s created by the disruptor wizard.
+     * {@link com.lmax.disruptor.BatchEventProcessor}s created by the disruptor.
      *
      * @return a {@link SequenceBarrier} including all the processors in this group.
      */
     public SequenceBarrier asSequenceBarrier()
     {
-        return disruptorWizard.getRingBuffer().newBarrier(Util.getSequencesFor(eventProcessors));
+        return disruptor.getRingBuffer().newBarrier(Util.getSequencesFor(eventProcessors));
     }
 }

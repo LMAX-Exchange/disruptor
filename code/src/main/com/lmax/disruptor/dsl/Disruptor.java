@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard;
+package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.util.Util;
@@ -22,21 +22,21 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A DSL-style wizard for setting up the disruptor pattern around a ring buffer.
+ * A DSL-style API for setting up the disruptor pattern around a ring buffer.
  *
  * <p>A simple example of setting up the disruptor with two event handlers that must process events in order:</p>
  *
- * <pre><code> DisruptorWizard<MyEvent> dw = new DisruptorWizard<MyEvent>(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
+ * <pre><code> Disruptor<MyEvent> disruptor = new Disruptor<MyEvent>(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
  * EventHandler<MyEvent> handler1 = new EventHandler<MyEvent>() { ... };
  * EventHandler<MyEvent> handler2 = new EventHandler<MyEvent>() { ... };
- * dw.handleEventsWith(handler1);
- * dw.after(handler1).handleEventsWith(handler2);
+ * disruptor.handleEventsWith(handler1);
+ * disruptor.after(handler1).handleEventsWith(handler2);
  *
- * RingBuffer ringBuffer = dw.start();</code></pre>
+ * RingBuffer ringBuffer = disruptor.start();</code></pre>
  *
  * @param <T> the type of event used.
  */
-public class DisruptorWizard<T>
+public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
     private final Executor executor;
@@ -45,19 +45,19 @@ public class DisruptorWizard<T>
     private AtomicBoolean started = new AtomicBoolean(false);
 
     /**
-     * Create a new DisruptorWizard.
+     * Create a new Disruptor.
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      */
-    public DisruptorWizard(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
+    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
     {
         this(new RingBuffer<T>(eventFactory, ringBufferSize), executor);
     }
 
     /**
-     * Create a new DisruptorWizard.
+     * Create a new Disruptor.
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
@@ -65,14 +65,14 @@ public class DisruptorWizard<T>
      * @param claimStrategy  the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
      */
-    public DisruptorWizard(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor,
-                           final ClaimStrategy.Option claimStrategy,
-                           final WaitStrategy.Option waitStrategy)
+    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor,
+                     final ClaimStrategy.Option claimStrategy,
+                     final WaitStrategy.Option waitStrategy)
     {
         this(new RingBuffer<T>(eventFactory, ringBufferSize, claimStrategy, waitStrategy), executor);
     }
 
-    private DisruptorWizard(final RingBuffer<T> ringBuffer, final Executor executor)
+    private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)
     {
         this.ringBuffer = ringBuffer;
         this.executor = executor;
@@ -97,7 +97,7 @@ public class DisruptorWizard<T>
     }
 
     /**
-     * Set up custom event processors to handle events from the ring buffer. The DisruptorWizard will
+     * Set up custom event processors to handle events from the ring buffer. The Disruptor will
      * automatically start this processors when {@link #start()} is called.
      *
      * @param processors the event processors that will process events.
@@ -190,10 +190,10 @@ public class DisruptorWizard<T>
         return ringBuffer;
     }
 
-    /** The the {@link RingBuffer} used by this DisruptorWizard.  This is useful for creating custom
+    /** The the {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
      * event processors if the behaviour of {@link BatchEventProcessor} is not suitable.
      *
-     * @return the ring buffer used by this DisruptorWizard.
+     * @return the ring buffer used by this Disruptor.
      */
     public RingBuffer<T> getRingBuffer()
     {
@@ -213,7 +213,7 @@ public class DisruptorWizard<T>
     }
 
     /**
-     * Calls {@link com.lmax.disruptor.EventProcessor#halt()} on all of the event processors created via this wizard.
+     * Calls {@link com.lmax.disruptor.EventProcessor#halt()} on all of the event processors created via this disruptor.
      */
     public void halt()
     {
@@ -267,7 +267,7 @@ public class DisruptorWizard<T>
     {
         if (!started.compareAndSet(false, true))
         {
-            throw new IllegalStateException("DisruptorWizard.start() must only be called once.");
+            throw new IllegalStateException("Disruptor.start() must only be called once.");
         }
     }
 }

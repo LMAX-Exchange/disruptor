@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard.stubs;
+package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.support.TestEvent;
+import com.lmax.disruptor.ExceptionHandler;
 
-public class ExceptionThrowingEventHandler implements EventHandler<TestEvent>
+import java.util.concurrent.atomic.AtomicReference;
+
+public class StubExceptionHandler implements ExceptionHandler
 {
-    private final RuntimeException testException;
+    private final AtomicReference<Exception> exceptionHandled;
 
-    public ExceptionThrowingEventHandler(final RuntimeException testException)
+    public StubExceptionHandler(final AtomicReference<Exception> exceptionHandled)
     {
-        this.testException = testException;
+        this.exceptionHandled = exceptionHandled;
     }
 
-    @Override
-    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
+    public void handle(final Exception ex, final long sequence, final Object event)
     {
-        throw testException;
+        exceptionHandled.set(ex);
     }
 }

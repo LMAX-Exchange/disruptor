@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard;
+package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.TestEvent;
-import com.lmax.disruptor.wizard.stubs.*;
+import com.lmax.disruptor.dsl.stubs.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +34,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
 @SuppressWarnings(value = {"ThrowableResultOfMethodCallIgnored", "unchecked"})
-public class DisruptorWizardTest
+public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
-    private DisruptorWizard<TestEvent> disruptorWizard;
+    private Disruptor<TestEvent> disruptor;
     private StubExecutor executor;
     private Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
     private RingBuffer<TestEvent> ringBuffer;
@@ -56,7 +56,7 @@ public class DisruptorWizardTest
             delayedEventHandler.stopWaiting();
         }
 
-        disruptorWizard.halt();
+        disruptor.halt();
         executor.joinAllThreads();
     }
 
@@ -67,8 +67,8 @@ public class DisruptorWizardTest
         final EventHandler<TestEvent> eventHandler1 = new NoOpEventHandler();
         EventHandler<TestEvent> eventHandler2 = new NoOpEventHandler();
 
-        final EventHandlerGroup<TestEvent> eventHandlerGroup = disruptorWizard.handleEventsWith(eventHandler1, eventHandler2);
-        disruptorWizard.start();
+        final EventHandlerGroup<TestEvent> eventHandlerGroup = disruptor.handleEventsWith(eventHandler1, eventHandler2);
+        disruptor.start();
 
         assertNotNull(eventHandlerGroup);
         assertThat(Integer.valueOf(executor.getExecutionCount()), equalTo(Integer.valueOf(2)));
@@ -80,7 +80,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> eventHandler = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.handleEventsWith(createDelayedEventHandler(), eventHandler);
+        disruptor.handleEventsWith(createDelayedEventHandler(), eventHandler);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch);
     }
@@ -93,7 +93,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> eventHandler2 = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.handleEventsWith(eventHandler1).then(eventHandler2);
+        disruptor.handleEventsWith(eventHandler1).then(eventHandler2);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, eventHandler1);
     }
@@ -107,8 +107,8 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.handleEventsWith(handler1, handler2);
-        disruptorWizard.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
+        disruptor.handleEventsWith(handler1, handler2);
+        disruptor.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
     }
@@ -122,8 +122,8 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        disruptorWizard.handleEventsWith(handler1, handler2);
-        disruptorWizard.after(handler1).and(handler2).handleEventsWith(handlerWithBarrier);
+        disruptor.handleEventsWith(handler1, handler2);
+        disruptor.after(handler1).and(handler2).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
     }
@@ -131,7 +131,7 @@ public class DisruptorWizardTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming() throws Exception
     {
-        disruptorWizard.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
+        disruptor.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -139,8 +139,8 @@ public class DisruptorWizardTest
     {
         final DelayedEventHandler handler1 = createDelayedEventHandler();
         final DelayedEventHandler handler2 = createDelayedEventHandler();
-        disruptorWizard.handleEventsWith(handler1);
-        disruptorWizard.after(handler1).and(handler2);
+        disruptor.handleEventsWith(handler1);
+        disruptor.after(handler1).and(handler2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -149,8 +149,8 @@ public class DisruptorWizardTest
         EvilEqualsEventHandler handler1 = new EvilEqualsEventHandler();
         EvilEqualsEventHandler handler2 = new EvilEqualsEventHandler();
 
-        disruptorWizard.handleEventsWith(handler1);
-        disruptorWizard.after(handler2); // handler2.equals(handler1) but it hasn't yet been registered so should throw exception.
+        disruptor.handleEventsWith(handler1);
+        disruptor.after(handler2); // handler2.equals(handler1) but it hasn't yet been registered so should throw exception.
     }
 
     @Test
@@ -161,8 +161,8 @@ public class DisruptorWizardTest
         RuntimeException testException = new RuntimeException();
         ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
 
-        disruptorWizard.handleExceptionsWith(exceptionHandler);
-        disruptorWizard.handleEventsWith(handler);
+        disruptor.handleExceptionsWith(exceptionHandler);
+        disruptor.handleEventsWith(handler);
 
         publishEvent();
 
@@ -174,9 +174,9 @@ public class DisruptorWizardTest
     public void shouldBlockProducerUntilAllEventProcessorsHaveAdvanced() throws Exception
     {
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptorWizard.handleEventsWith(delayedEventHandler);
+        disruptor.handleEventsWith(delayedEventHandler);
 
-        final RingBuffer<TestEvent> ringBuffer = disruptorWizard.start();
+        final RingBuffer<TestEvent> ringBuffer = disruptor.start();
 
         final StubPublisher stubPublisher = new StubPublisher(ringBuffer);
         try
@@ -206,13 +206,13 @@ public class DisruptorWizardTest
 
         final RuntimeException testException = new RuntimeException();
         final ExceptionThrowingEventHandler eventHandler2 = new ExceptionThrowingEventHandler(testException);
-        disruptorWizard.handleEventsWith(eventHandler).then(eventHandler2);
+        disruptor.handleEventsWith(eventHandler).then(eventHandler2);
 
         publishEvent();
 
         AtomicReference<Exception> reference = new AtomicReference<Exception>();
         StubExceptionHandler exceptionHandler = new StubExceptionHandler(reference);
-        disruptorWizard.handleExceptionsFor(eventHandler2).with(exceptionHandler);
+        disruptor.handleExceptionsFor(eventHandler2).with(exceptionHandler);
         eventHandler.processEvent();
 
         waitFor(reference);
@@ -222,24 +222,24 @@ public class DisruptorWizardTest
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.handleEventsWith(new NoOpEventHandler());
-        disruptorWizard.start();
-        disruptorWizard.handleEventsWith(new NoOpEventHandler());
+        disruptor.handleEventsWith(new NoOpEventHandler());
+        disruptor.start();
+        disruptor.handleEventsWith(new NoOpEventHandler());
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfStartIsCalledTwice() throws Exception
     {
         executor.ignoreExecutions();
-        disruptorWizard.handleEventsWith(new NoOpEventHandler());
-        disruptorWizard.start();
-        disruptorWizard.start();
+        disruptor.handleEventsWith(new NoOpEventHandler());
+        disruptor.start();
+        disruptor.start();
     }
 
     @Test
     public void shouldSupportCustomProcessorsAsDependencies() throws Exception
     {
-        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+        RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
 
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
 
@@ -248,8 +248,8 @@ public class DisruptorWizardTest
 
         final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newBarrier(),
                                                                                            delayedEventHandler);
-        disruptorWizard.handleEventsWith(processor);
-        disruptorWizard.after(processor).handleEventsWith(handlerWithBarrier);
+        disruptor.handleEventsWith(processor);
+        disruptor.after(processor).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
     }
@@ -258,16 +258,16 @@ public class DisruptorWizardTest
     public void shouldSupportHandlersAsDependenciesToCustomProcessors() throws Exception
     {
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptorWizard.handleEventsWith(delayedEventHandler);
+        disruptor.handleEventsWith(delayedEventHandler);
 
 
-        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+        RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final SequenceBarrier sequenceBarrier = disruptorWizard.after(delayedEventHandler).asSequenceBarrier();
+        final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, sequenceBarrier, handlerWithBarrier);
-        disruptorWizard.handleEventsWith(processor);
+        disruptor.handleEventsWith(processor);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
     }
@@ -277,17 +277,17 @@ public class DisruptorWizardTest
     {
         final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
         final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
-        disruptorWizard.handleEventsWith(delayedEventHandler1);
+        disruptor.handleEventsWith(delayedEventHandler1);
 
 
-        RingBuffer<TestEvent> ringBuffer = disruptorWizard.getRingBuffer();
+        RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final SequenceBarrier sequenceBarrier = disruptorWizard.after(delayedEventHandler1).asSequenceBarrier();
+        final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler1).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, sequenceBarrier, delayedEventHandler2);
 
-        disruptorWizard.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
+        disruptor.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler1, delayedEventHandler2);
     }
@@ -336,7 +336,7 @@ public class DisruptorWizardTest
 
     private void createDisruptor(final Executor executor)
     {
-        disruptorWizard = new DisruptorWizard<TestEvent>(TestEvent.EVENT_FACTORY, 4, executor,
+        disruptor = new Disruptor<TestEvent>(TestEvent.EVENT_FACTORY, 4, executor,
                                                          ClaimStrategy.Option.SINGLE_THREADED,
                                                          WaitStrategy.Option.BLOCKING);
     }
@@ -345,7 +345,7 @@ public class DisruptorWizardTest
     {
         if (ringBuffer == null)
         {
-            ringBuffer = disruptorWizard.start();
+            ringBuffer = disruptor.start();
         }
 
         final long sequence = ringBuffer.next();

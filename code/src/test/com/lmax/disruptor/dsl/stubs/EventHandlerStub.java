@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard.stubs;
+package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.support.TestEvent;
 
-public class NoOpEventHandler implements EventHandler<TestEvent>
+import java.util.concurrent.CountDownLatch;
+
+public class EventHandlerStub implements EventHandler<TestEvent>
 {
+    private final CountDownLatch countDownLatch;
+
+    public EventHandlerStub(final CountDownLatch countDownLatch)
+    {
+        this.countDownLatch = countDownLatch;
+    }
+
     @Override
     public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
     {
-        Thread.sleep(1000);
+        countDownLatch.countDown();
     }
 }

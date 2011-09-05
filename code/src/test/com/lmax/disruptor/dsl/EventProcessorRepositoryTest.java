@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard;
+package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.support.TestEvent;
-import com.lmax.disruptor.wizard.stubs.NoOpEventHandler;
+import com.lmax.disruptor.dsl.stubs.NoOpEventHandler;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;

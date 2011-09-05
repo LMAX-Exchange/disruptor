@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.wizard.stubs;
+package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.support.TestEvent;
