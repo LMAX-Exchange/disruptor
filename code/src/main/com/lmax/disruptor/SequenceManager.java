@@ -21,14 +21,30 @@ package com.lmax.disruptor;
 public interface SequenceManager
 {
     /**
-     * Set the sequences that will be tracked to prevent the ring wrapping.
+     * The capacity of the data structure to hold entries.
+     *
+     * @return the size of the RingBuffer.
+     */
+    public int getBufferSize();
+
+    /**
+     * Set the sequences that will be tracked to prevent the buffer wrapping.
      *
      * This method must be called prior to claiming events in the RingBuffer otherwise
      * a NullPointerException will be thrown.
      *
      * @param sequences to be tracked.
      */
-    void setTrackedSequences(final Sequence... sequences);
+    void setTrackedSequences(Sequence... sequences);
+
+    /**
+     * Create a {@link SequenceBarrier} that gates on the the cursor and a list of {@link Sequence}s
+     *
+     * @param sequencesToTrack this barrier will track
+     * @return the barrier gated as required
+     */
+    public SequenceBarrier newSequenceBarrier(Sequence... sequencesToTrack);
+
 
     /**
      * Get the value of the cursor indicating the published sequence.

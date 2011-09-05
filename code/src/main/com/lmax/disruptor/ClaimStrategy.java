@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.util.PaddedAtomicLong;
 import com.lmax.disruptor.util.PaddedLong;
 
-import static com.lmax.disruptor.Util.getMinimumSequence;
+import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
  * Strategies employed for claiming the sequence of events in the {@link RingBuffer} by publishers.

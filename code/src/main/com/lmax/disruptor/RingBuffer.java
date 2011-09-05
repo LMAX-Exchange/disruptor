@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.Util.ceilingNextPowerOfTwo;
+import static com.lmax.disruptor.util.Util.ceilingNextPowerOfTwo;
 
 /**
- * Ring based store of reusable events containing the data representing an event being exchanged between publisher and {@link EventProcessor}s.
+ * Ring based store of reusable entries containing the data representing an event being exchanged between publisher and {@link EventProcessor}s.
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -29,7 +29,7 @@ public final class RingBuffer<T> implements SequenceManager
 
     private final Sequence cursor = new Sequence(INITIAL_CURSOR_VALUE);
     private final int ringModMask;
-    private final Object[] events;
+    private final Object[] entries;
 
     private Sequence[] sequencesToTrack;
 
@@ -39,10 +39,10 @@ public final class RingBuffer<T> implements SequenceManager
     /**
      * Construct a RingBuffer with the full option set.
      *
-     * @param eventFactory to newInstance events for filling the RingBuffer
+     * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for publisher claiming events in the ring.
-     * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on events becoming available.
+     * @param claimStrategyOption threading strategy for publisher claiming entries in the ring.
+     * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on entries becoming available.
      */
     public RingBuffer(final EventFactory<T> eventFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
@@ -50,7 +50,7 @@ public final class RingBuffer<T> implements SequenceManager
     {
         int sizeAsPowerOfTwo = ceilingNextPowerOfTwo(size);
         ringModMask = sizeAsPowerOfTwo - 1;
-        events = new Object[sizeAsPowerOfTwo];
+        entries = new Object[sizeAsPowerOfTwo];
 
         claimStrategy = claimStrategyOption.newInstance(sizeAsPowerOfTwo);
         waitStrategy = waitStrategyOption.newInstance();
@@ -62,7 +62,7 @@ public final class RingBuffer<T> implements SequenceManager
      * Construct a RingBuffer with default strategies of:
      * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#SLEEPING}
      *
-     * @param eventFactory to newInstance events for filling the RingBuffer
+     * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      */
     public RingBuffer(final EventFactory<T> eventFactory, final int size)
@@ -72,31 +72,16 @@ public final class RingBuffer<T> implements SequenceManager
              WaitStrategy.Option.SLEEPING);
     }
 
-    /**
-     * Create a {@link DependencyBarrier} that gates on the RingBuffer and a list of {@link EventProcessor}s
-     *
-     * @param processorsToTrack this barrier will track
-     * @return the barrier gated as required
-     */
-    public DependencyBarrier newDependencyBarrier(final EventProcessor... processorsToTrack)
+    @Override
+    public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
     {
-        Sequence[] dependentSequences = new Sequence[processorsToTrack.length];
-        for (int i = 0; i < processorsToTrack.length; i++)
-        {
-            dependentSequences[i] = processorsToTrack[i].getSequence();
-        }
-
-        return new TrackingDependencyBarrier(waitStrategy, cursor, dependentSequences);
+        return new TrackingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
     }
 
-    /**
-     * The capacity of the RingBuffer to hold events.
-     *
-     * @return the size of the RingBuffer.
-     */
-    public int getCapacity()
+    @Override
+    public int getBufferSize()
     {
-        return events.length;
+        return entries.length;
     }
 
     /**
@@ -108,7 +93,7 @@ public final class RingBuffer<T> implements SequenceManager
     @SuppressWarnings("unchecked")
     public T get(final long sequence)
     {
-        return (T)events[(int)sequence & ringModMask];
+        return (T) entries[(int)sequence & ringModMask];
     }
 
     @Override
@@ -141,9 +126,9 @@ public final class RingBuffer<T> implements SequenceManager
     public SequenceBatch nextSequenceBatch(final SequenceBatch sequenceBatch)
     {
         final int batchSize = sequenceBatch.getSize();
-        if (batchSize > events.length)
+        if (batchSize > entries.length)
         {
-            final String msg = "Batch size " + batchSize + " is greater than buffer size of " + events.length;
+            final String msg = "Batch size " + batchSize + " is greater than buffer size of " + entries.length;
             throw new IllegalArgumentException(msg);
         }
 
@@ -192,9 +177,9 @@ public final class RingBuffer<T> implements SequenceManager
 
     private void fill(final EventFactory<T> eventFactory)
     {
-        for (int i = 0; i < events.length; i++)
+        for (int i = 0; i < entries.length; i++)
         {
-            events[i] = eventFactory.newInstance();
+            entries[i] = eventFactory.newInstance();
         }
     }
 }

@@ -16,6 +16,7 @@
 package com.lmax.disruptor.wizard;
 
 import com.lmax.disruptor.*;
+import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -181,12 +182,7 @@ public class DisruptorWizard<T>
     public RingBuffer<T> start()
     {
         EventProcessor[] trackedProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
-        Sequence[] sequences = new Sequence[trackedProcessors.length];
-        for (int i = 0; i < sequences.length; i++)
-        {
-            sequences[i] = trackedProcessors[i].getSequence();
-        }
-        ringBuffer.setTrackedSequences(sequences);
+        ringBuffer.setTrackedSequences(Util.getSequencesFor(trackedProcessors));
 
         ensureOnlyStartedOnce();
         startEventProcessors();
@@ -209,9 +205,9 @@ public class DisruptorWizard<T>
      * may be shared by multiple event handlers.
      *
      * @param handler the handler to get the barrier for.
-     * @return the DependencyBarrier used by <i>handler</i>.
+     * @return the SequenceBarrier used by <i>handler</i>.
      */
-    public DependencyBarrier getBarrierFor(final EventHandler<T> handler)
+    public SequenceBarrier getBarrierFor(final EventHandler<T> handler)
     {
         return eventProcessorRepository.getBarrierFor(handler);
     }
@@ -232,7 +228,7 @@ public class DisruptorWizard<T>
         ensureNotStarted();
 
         final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
-        final DependencyBarrier barrier = ringBuffer.newDependencyBarrier(barrierEventProcessors);
+        final SequenceBarrier barrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(barrierEventProcessors));
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
             final EventHandler<T> eventHandler = eventHandlers[i];

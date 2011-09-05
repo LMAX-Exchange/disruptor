@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 public final class BatchPublisherTest
 {
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
     {
         ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
@@ -44,6 +44,6 @@ public final class BatchPublisherTest
         ringBuffer.publish(sequenceBatch);
 
         assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(batchSize - 1L)));
-        assertThat(Long.valueOf(dependencyBarrier.waitFor(0L)), is(Long.valueOf(batchSize - 1L)));
+        assertThat(Long.valueOf(sequenceBarrier.waitFor(0L)), is(Long.valueOf(batchSize - 1L)));
     }
 }

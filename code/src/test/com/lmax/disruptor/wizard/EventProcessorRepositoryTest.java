@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.wizard;
 
-import com.lmax.disruptor.DependencyBarrier;
+import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.support.TestEvent;
 import com.lmax.disruptor.wizard.stubs.NoOpEventHandler;
@@ -35,8 +35,8 @@ public class EventProcessorRepositoryTest
     private EventProcessor eventprocessor2;
     private NoOpEventHandler handler1;
     private NoOpEventHandler handler2;
-    private DependencyBarrier barrier1;
-    private DependencyBarrier barrier2;
+    private SequenceBarrier barrier1;
+    private SequenceBarrier barrier2;
 
     @SuppressWarnings({"unchecked"})
     @Before
@@ -48,8 +48,8 @@ public class EventProcessorRepositoryTest
         handler1 = new NoOpEventHandler();
         handler2 = new NoOpEventHandler();
 
-        barrier1 = mockery.mock(DependencyBarrier.class, "barrier1");
-        barrier2 = mockery.mock(DependencyBarrier.class, "barrier2");
+        barrier1 = mockery.mock(SequenceBarrier.class, "barrier1");
+        barrier2 = mockery.mock(SequenceBarrier.class, "barrier2");
     }
 
     @Test

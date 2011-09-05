@@ -21,7 +21,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
-import static com.lmax.disruptor.Util.getMinimumSequence;
+import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
  * Strategy employed for making {@link EventProcessor}s wait on a cursor {@link Sequence}.
@@ -39,7 +39,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence cursor, DependencyBarrier barrier,  long sequence)
+    long waitFor(Sequence[] dependents, Sequence cursor, SequenceBarrier barrier,  long sequence)
         throws AlertException, InterruptedException;
 
     /**
@@ -55,7 +55,7 @@ public interface WaitStrategy
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence cursor, DependencyBarrier barrier, long sequence, long timeout, TimeUnit units)
+    long waitFor(Sequence[] dependents, Sequence cursor, SequenceBarrier barrier, long sequence, long timeout, TimeUnit units)
         throws AlertException, InterruptedException;
 
     /**
@@ -139,7 +139,7 @@ public interface WaitStrategy
         private final Condition processorNotifyCondition = lock.newCondition();
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -178,7 +178,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -247,7 +247,7 @@ public interface WaitStrategy
         private static final int SPIN_TRIES = 200;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -272,7 +272,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -314,7 +314,7 @@ public interface WaitStrategy
         {
         }
 
-        private int applyWaitMethod(final DependencyBarrier barrier, int counter)
+        private int applyWaitMethod(final SequenceBarrier barrier, int counter)
             throws AlertException
         {
             if (barrier.isAlerted())
@@ -358,7 +358,7 @@ public interface WaitStrategy
         private static final int SPIN_TRIES = 100;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -383,7 +383,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -425,7 +425,7 @@ public interface WaitStrategy
         {
         }
 
-        private int applyWaitMethod(final DependencyBarrier barrier, int counter)
+        private int applyWaitMethod(final SequenceBarrier barrier, int counter)
             throws AlertException
         {
             if (barrier.isAlerted())
@@ -455,7 +455,7 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier, final long sequence)
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -479,7 +479,7 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final DependencyBarrier barrier,
+        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
@@ -520,7 +520,7 @@ public interface WaitStrategy
         {
         }
 
-        private void applyWaitMethod(final DependencyBarrier barrier)
+        private void applyWaitMethod(final SequenceBarrier barrier)
             throws AlertException
         {
             if (barrier.isAlerted())

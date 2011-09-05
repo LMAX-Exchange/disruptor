@@ -30,7 +30,7 @@ public final class BatchEventProcessor<T>
     private volatile boolean running = true;
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private final RingBuffer<T> ringBuffer;
-    private final DependencyBarrier dependencyBarrier;
+    private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
     private final Sequence sequence = new Sequence(RingBuffer.INITIAL_CURSOR_VALUE);
 
@@ -39,15 +39,15 @@ public final class BatchEventProcessor<T>
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
      * @param ringBuffer to which events are published.
-     * @param dependencyBarrier on which it is waiting.
+     * @param sequenceBarrier on which it is waiting.
      * @param eventHandler is the delegate to which events are dispatched.
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
-                               final DependencyBarrier dependencyBarrier,
+                               final SequenceBarrier sequenceBarrier,
                                final EventHandler<T> eventHandler)
     {
         this.ringBuffer = ringBuffer;
-        this.dependencyBarrier = dependencyBarrier;
+        this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
     }
 
@@ -57,15 +57,15 @@ public final class BatchEventProcessor<T>
      * a batch regardless.
      *
      * @param ringBuffer to which events are published.
-     * @param dependencyBarrier on which it is waiting.
+     * @param sequenceBarrier on which it is waiting.
      * @param eventHandler is the delegate to which events are dispatched.
      */
     public BatchEventProcessor(final RingBuffer<T> ringBuffer,
-                               final DependencyBarrier dependencyBarrier,
+                               final SequenceBarrier sequenceBarrier,
                                final SequenceReportingEventHandler<T> eventHandler)
     {
         this.ringBuffer = ringBuffer;
-        this.dependencyBarrier = dependencyBarrier;
+        this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
         eventHandler.setSequenceCallback(sequence);
     }
@@ -80,7 +80,7 @@ public final class BatchEventProcessor<T>
     public void halt()
     {
         running = false;
-        dependencyBarrier.alert();
+        sequenceBarrier.alert();
     }
 
     /**
@@ -99,13 +99,13 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Get the {@link DependencyBarrier} the {@link EventProcessor} is waiting on.
+     * Get the {@link SequenceBarrier} the {@link EventProcessor} is waiting on.
      *
-      * @return the dependencyBarrier this {@link EventProcessor} is using.
+      * @return the sequenceBarrier this {@link EventProcessor} is using.
      */
-    public DependencyBarrier getDependencyBarrier()
+    public SequenceBarrier getSequenceBarrier()
     {
-        return dependencyBarrier;
+        return sequenceBarrier;
     }
 
     /**
@@ -126,7 +126,7 @@ public final class BatchEventProcessor<T>
         {
             try
             {
-                final long availableSequence = dependencyBarrier.waitFor(nextSequence);
+                final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                 while (nextSequence <= availableSequence)
                 {
                     event = ringBuffer.get(nextSequence);

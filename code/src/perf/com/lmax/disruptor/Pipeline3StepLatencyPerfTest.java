@@ -71,11 +71,11 @@ import static org.junit.Assert.assertTrue;
  *
  * P1   - Publisher 1
  * RB   - RingBuffer
- * EPB1 - DependencyBarrier 1
+ * EPB1 - SequenceBarrier 1
  * EP1  - EventProcessor 1
- * EPB2 - DependencyBarrier 2
+ * EPB2 - SequenceBarrier 2
  * EP2  - EventProcessor 2
- * EPB3 - DependencyBarrier 3
+ * EPB3 - SequenceBarrier 3
  * EP3  - EventProcessor 3
  *
  * </pre>
@@ -145,20 +145,20 @@ public final class Pipeline3StepLatencyPerfTest
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.BUSY_SPIN);
 
-    private final DependencyBarrier stepOneDependencyBarrier = ringBuffer.newDependencyBarrier();
+    private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newSequenceBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepOneBatchProcessor =
-        new BatchEventProcessor<ValueEvent>(ringBuffer, stepOneDependencyBarrier, stepOneFunctionHandler);
+        new BatchEventProcessor<ValueEvent>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
 
-    private final DependencyBarrier stepTwoDependencyBarrier = ringBuffer.newDependencyBarrier(stepOneBatchProcessor);
+    private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newSequenceBarrier(stepOneBatchProcessor.getSequence());
     private final LatencyStepEventHandler stepTwoFunctionHandler = new LatencyStepEventHandler(FunctionStep.TWO, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepTwoBatchProcessor =
-        new BatchEventProcessor<ValueEvent>(ringBuffer, stepTwoDependencyBarrier, stepTwoFunctionHandler);
+        new BatchEventProcessor<ValueEvent>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
 
-    private final DependencyBarrier stepThreeDependencyBarrier = ringBuffer.newDependencyBarrier(stepTwoBatchProcessor);
+    private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newSequenceBarrier(stepTwoBatchProcessor.getSequence());
     private final LatencyStepEventHandler stepThreeFunctionHandler = new LatencyStepEventHandler(FunctionStep.THREE, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepThreeBatchProcessor =
-        new BatchEventProcessor<ValueEvent>(ringBuffer, stepThreeDependencyBarrier, stepThreeFunctionHandler);
+        new BatchEventProcessor<ValueEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
     {
         ringBuffer.setTrackedSequences(stepThreeBatchProcessor.getSequence());
     }

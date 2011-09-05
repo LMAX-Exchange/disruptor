@@ -82,7 +82,7 @@ import java.util.concurrent.*;
  * P2  - Publisher 2
  * P3  - Publisher 3
  * RB  - RingBuffer
- * EPB - DependencyBarrier
+ * EPB - SequenceBarrier
  * EP1 - EventProcessor 1
  *
  * </pre>
@@ -113,9 +113,9 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.MULTI_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
     {
         valuePublishers[0] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);

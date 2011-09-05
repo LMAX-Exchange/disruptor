@@ -17,17 +17,17 @@ package com.lmax.disruptor.wizard;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.DependencyBarrier;
+import com.lmax.disruptor.SequenceBarrier;
 
 class EventProcessorInfo<T>
 {
     private final EventProcessor eventprocessor;
     private final EventHandler<T> handler;
-    private final DependencyBarrier barrier;
+    private final SequenceBarrier barrier;
 
     private boolean endOfChain = true;
 
-    EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<T> handler, final DependencyBarrier barrier)
+    EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<T> handler, final SequenceBarrier barrier)
     {
         this.eventprocessor = eventprocessor;
         this.handler = handler;
@@ -45,7 +45,7 @@ class EventProcessorInfo<T>
         return handler;
     }
 
-    public DependencyBarrier getBarrier()
+    public SequenceBarrier getBarrier()
     {
         return barrier;
     }

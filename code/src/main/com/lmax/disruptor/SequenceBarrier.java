@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Coordination barrier for tracking the cursor for publishers and sequence of
- * dependent {@link EventProcessor}s for a {@link RingBuffer}
+ * dependent {@link EventProcessor}s for processing a data structure
  */
-public interface DependencyBarrier
+public interface SequenceBarrier
 {
     /**
      * Wait for the given sequence to be available for consumption.
@@ -46,7 +46,8 @@ public interface DependencyBarrier
     long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
-     * Delegate a call to the {@link RingBuffer#getCursor()}
+     * Delegate a call to the {@link SequenceManager#getCursor()}
+     *
      * @return value of the cursor for entries that have been published.
      */
     long getCursor();

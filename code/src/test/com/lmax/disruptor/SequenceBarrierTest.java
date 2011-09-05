@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.lmax.disruptor.support.StubEvent;
+import com.lmax.disruptor.util.Util;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @RunWith(JMock.class)
-public final class DependencyBarrierTest
+public final class SequenceBarrierTest
 {
     private Mockery context = new Mockery();
     private RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 64);
@@ -38,7 +39,7 @@ public final class DependencyBarrierTest
     private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
     private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
 
-    public DependencyBarrierTest()
+    public SequenceBarrierTest()
     {
         ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
@@ -68,10 +69,10 @@ public final class DependencyBarrierTest
             }
         });
 
-        DependencyBarrier dependencyBarrier =
-            ringBuffer.newDependencyBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
+        SequenceBarrier sequenceBarrier =
+            ringBuffer.newSequenceBarrier(eventProcessor1.getSequence(), eventProcessor2.getSequence(), eventProcessor3.getSequence());
 
-        long completedWorkSequence = dependencyBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -88,7 +89,7 @@ public final class DependencyBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier(workers);
+        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(workers));
 
         Runnable runnable = new Runnable()
         {
@@ -109,7 +110,7 @@ public final class DependencyBarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages;
-        long completedWorkSequence = dependencyBarrier.waitFor(expectedNumberMessages);
+        long completedWorkSequence = sequenceBarrier.waitFor(expectedNumberMessages);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
@@ -138,8 +139,8 @@ public final class DependencyBarrierTest
             }
         });
 
-        final DependencyBarrier dependencyBarrier =
-            ringBuffer.newDependencyBarrier(eventProcessor1, eventProcessor2, eventProcessor3);
+        final SequenceBarrier sequenceBarrier =
+            ringBuffer.newSequenceBarrier(Util.getSequencesFor(eventProcessor1, eventProcessor2, eventProcessor3));
 
         final boolean[] alerted = { false };
         Thread t = new Thread(new Runnable()
@@ -148,7 +149,7 @@ public final class DependencyBarrierTest
             {
                 try
                 {
-                    dependencyBarrier.waitFor(expectedNumberMessages - 1);
+                    sequenceBarrier.waitFor(expectedNumberMessages - 1);
                 }
                 catch (AlertException e)
                 {
@@ -163,7 +164,7 @@ public final class DependencyBarrierTest
 
         t.start();
         latch.await(3, TimeUnit.SECONDS);
-        dependencyBarrier.alert();
+        sequenceBarrier.alert();
         t.join();
 
         assertTrue("Thread was not interrupted", alerted[0]);
@@ -182,7 +183,7 @@ public final class DependencyBarrierTest
             eventProcessors[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier(eventProcessors);
+        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(eventProcessors));
 
         Runnable runnable = new Runnable()
         {
@@ -198,22 +199,22 @@ public final class DependencyBarrierTest
         new Thread(runnable).start();
 
         long expectedWorkSequence = expectedNumberMessages - 1;
-        long completedWorkSequence = dependencyBarrier.waitFor(expectedWorkSequence);
+        long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
     }
 
     @Test
     public void shouldSetAndClearAlertStatus()
     {
-        DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
+        SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
 
-        assertFalse(dependencyBarrier.isAlerted());
+        assertFalse(sequenceBarrier.isAlerted());
 
-        dependencyBarrier.alert();
-        assertTrue(dependencyBarrier.isAlerted());
+        sequenceBarrier.alert();
+        assertTrue(sequenceBarrier.isAlerted());
 
-        dependencyBarrier.clearAlert();
-        assertFalse(dependencyBarrier.isAlerted());
+        sequenceBarrier.clearAlert();
+        assertFalse(sequenceBarrier.isAlerted());
     }
 
     private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException

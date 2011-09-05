@@ -18,18 +18,18 @@ package com.lmax.disruptor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DependencyBarrier handed out for gating {@link EventProcessor}s on a sequence and dependent {@link EventProcessor}(s)
+ * SequenceBarrier handed out for gating {@link EventProcessor}s on a sequence and dependent {@link EventProcessor}(s)
  */
-final class TrackingDependencyBarrier implements DependencyBarrier
+final class TrackingSequenceBarrier implements SequenceBarrier
 {
     private final WaitStrategy waitStrategy;
     private final Sequence cursorSequence;
     private final Sequence[] dependentSequences;
     private volatile boolean alerted = false;
 
-    public TrackingDependencyBarrier(final WaitStrategy waitStrategy,
-                                     final Sequence cursorSequence,
-                                     final Sequence[] dependentSequences)
+    public TrackingSequenceBarrier(final WaitStrategy waitStrategy,
+                                   final Sequence cursorSequence,
+                                   final Sequence[] dependentSequences)
     {
         this.waitStrategy = waitStrategy;
         this.cursorSequence = cursorSequence;

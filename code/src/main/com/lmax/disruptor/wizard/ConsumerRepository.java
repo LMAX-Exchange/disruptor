@@ -17,7 +17,7 @@ package com.lmax.disruptor.wizard;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.DependencyBarrier;
+import com.lmax.disruptor.SequenceBarrier;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
     private final Map<EventHandler, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
     private final Map<EventProcessor, EventProcessorInfo<T>> eventProcessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();
 
-    public void add(EventProcessor eventprocessor, EventHandler<T> handler, final DependencyBarrier barrier)
+    public void add(EventProcessor eventprocessor, EventHandler<T> handler, final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> eventProcessorInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
         eventProcessorInfoByHandler.put(handler, eventProcessorInfo);
@@ -75,7 +75,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
         return eventProcessorInfoByEventProcessor.values().iterator();
     }
 
-    public DependencyBarrier getBarrierFor(final EventHandler<T> handler)
+    public SequenceBarrier getBarrierFor(final EventHandler<T> handler)
     {
         final EventProcessorInfo<T> eventProcessorInfo = getEventProcessorInfo(handler);
         return eventProcessorInfo != null ? eventProcessorInfo.getBarrier() : null;

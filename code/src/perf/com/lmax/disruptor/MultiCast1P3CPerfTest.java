@@ -19,6 +19,7 @@ import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
 import com.lmax.disruptor.support.ValueMutationQueueProcessor;
+import com.lmax.disruptor.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -82,7 +83,7 @@ import java.util.concurrent.*;
  *
  * P1  - Publisher 1
  * RB  - RingBuffer
- * EPB - DependencyBarrier
+ * EPB - SequenceBarrier
  * EP1 - EventProcessor 1
  * EP2 - EventProcessor 2
  * EP3 - EventProcessor 3
@@ -130,7 +131,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final DependencyBarrier dependencyBarrier = ringBuffer.newDependencyBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
 
     private final ValueMutationEventHandler[] handlers = new ValueMutationEventHandler[NUM_EVENT_PROCESSORS];
     {
@@ -141,9 +142,9 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
     private final BatchEventProcessor[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
     {
-        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[0]);
-        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[1]);
-        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, dependencyBarrier, handlers[2]);
+        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[2]);
         ringBuffer.setTrackedSequences(batchEventProcessors[0].getSequence(),
                                        batchEventProcessors[1].getSequence(),
                                        batchEventProcessors[2].getSequence());

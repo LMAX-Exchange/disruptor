@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.DependencyBarrier;
+import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.RingBuffer;
 
 import java.util.ArrayList;
@@ -28,11 +28,11 @@ public final class TestWaiter implements Callable<List<StubEvent>>
     private final long toWaitForSequence;
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
-    private final DependencyBarrier dependencyBarrier;
+    private final SequenceBarrier sequenceBarrier;
     private final RingBuffer<StubEvent> ringBuffer;
 
     public TestWaiter(final CyclicBarrier cyclicBarrier,
-                      final DependencyBarrier dependencyBarrier,
+                      final SequenceBarrier sequenceBarrier,
                       final RingBuffer<StubEvent> ringBuffer,
                       final long initialSequence,
                       final long toWaitForSequence)
@@ -41,14 +41,14 @@ public final class TestWaiter implements Callable<List<StubEvent>>
         this.initialSequence = initialSequence;
         this.ringBuffer = ringBuffer;
         this.toWaitForSequence = toWaitForSequence;
-        this.dependencyBarrier = dependencyBarrier;
+        this.sequenceBarrier = sequenceBarrier;
     }
 
     @Override
     public List<StubEvent> call() throws Exception
     {
         cyclicBarrier.await();
-        dependencyBarrier.waitFor(toWaitForSequence);
+        sequenceBarrier.waitFor(toWaitForSequence);
 
         final List<StubEvent> messages = new ArrayList<StubEvent>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)
