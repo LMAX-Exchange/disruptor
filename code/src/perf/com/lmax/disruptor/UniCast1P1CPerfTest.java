@@ -82,19 +82,18 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
         new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     {
-        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -130,12 +129,14 @@ public final class UniCast1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         handler.reset();
+        sequenceBarrier.clearAlert();
+
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             ValueEvent event = ringBuffer.get(sequence);
             event.setValue(i);
             ringBuffer.publish(sequence);

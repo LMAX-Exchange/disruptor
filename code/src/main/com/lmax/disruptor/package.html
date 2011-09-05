@@ -154,15 +154,15 @@
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.SLEEPING);
 
-    SequenceBarrier&lt;ValueEvent&gt; sequenceBarrier = ringBuffer.newSequenceBarrier();
+    SequenceBarrier&lt;ValueEvent&gt; sequenceBarrier = ringBuffer.newBarrier();
     BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(sequenceBarrier, eventHandler);
-    ringBuffer.setTrackedSequences(batchProcessor.getSequence());
+    ringBuffer.setGatingSequences(batchProcessor.getSequence());
 
     // Each processor runs on a separate thread
     EXECUTOR.submit(batchProcessor);
 
     // Publishers claim events in sequence
-    long sequence = ringBuffer.nextSequence();
+    long sequence = ringBuffer.next();
     ValueEvent event = ringBuffer.get(sequence);
 
     event.setValue(1234);

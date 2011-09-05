@@ -80,19 +80,18 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     {
-        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -100,8 +99,7 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     @Override
     protected long runQueuePass(final int passNumber) throws InterruptedException
     {
-        // Same expected results at UniCast scenario
-
+        // Same expected results as UniCast scenario
         return 0L;
     }
 
@@ -109,6 +107,8 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         handler.reset();
+        sequenceBarrier.clearAlert();
+
         EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
@@ -119,7 +119,7 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            ringBuffer.nextSequenceBatch(sequenceBatch);
+            ringBuffer.next(sequenceBatch);
             for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
             {
                 ValueEvent event = ringBuffer.get(c);

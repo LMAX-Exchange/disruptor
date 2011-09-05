@@ -122,6 +122,6 @@ public class EventHandlerGroup<T>
      */
     public SequenceBarrier asSequenceBarrier()
     {
-        return disruptorWizard.getRingBuffer().newSequenceBarrier(Util.getSequencesFor(eventProcessors));
+        return disruptorWizard.getRingBuffer().newBarrier(Util.getSequencesFor(eventProcessors));
     }
 }

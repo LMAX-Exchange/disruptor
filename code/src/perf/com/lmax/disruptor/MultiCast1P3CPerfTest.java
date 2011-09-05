@@ -131,7 +131,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
     private final ValueMutationEventHandler[] handlers = new ValueMutationEventHandler[NUM_EVENT_PROCESSORS];
     {
@@ -145,17 +145,16 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
         batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[0]);
         batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
         batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[2]);
-        ringBuffer.setTrackedSequences(batchEventProcessors[0].getSequence(),
-                                       batchEventProcessors[1].getSequence(),
-                                       batchEventProcessors[2].getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessors[0].getSequence(),
+                                      batchEventProcessors[1].getSequence(),
+                                      batchEventProcessors[2].getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -213,6 +212,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber)
     {
+        sequenceBarrier.clearAlert();
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             handlers[i].reset();
@@ -223,7 +223,7 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             ValueEvent event = ringBuffer.get(sequence);
             event.setValue(i);
             ringBuffer.publish(sequence);

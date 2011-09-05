@@ -139,7 +139,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
     private final FizzBuzzEventHandler fizzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizz =
@@ -150,21 +150,20 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
         new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, sequenceBarrier, buzzHandler);
 
     private final SequenceBarrier sequenceBarrierFizzBuzz =
-        ringBuffer.newSequenceBarrier(batchProcessorFizz.getSequence(), batchProcessorBuzz.getSequence());
+        ringBuffer.newBarrier(batchProcessorFizz.getSequence(), batchProcessorBuzz.getSequence());
 
     private final FizzBuzzEventHandler fizzBuzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
             new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
     {
-        ringBuffer.setTrackedSequences(batchProcessorFizzBuzz.getSequence());
+        ringBuffer.setGatingSequences(batchProcessorFizzBuzz.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -182,7 +181,7 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             FizzBuzzEvent event = ringBuffer.get(sequence);
             event.setValue(i);
             ringBuffer.publish(sequence);
@@ -209,6 +208,8 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
     protected long runQueuePass(int passNumber) throws Exception
     {
         fizzBuzzQueueProcessor.reset();
+        sequenceBarrier.clearAlert();
+        sequenceBarrierFizzBuzz.clearAlert();
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(fizzQueueProcessor);

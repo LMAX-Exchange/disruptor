@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.ceilingNextPowerOfTwo;
-
 /**
  * Ring based store of reusable entries containing the data representing an event being exchanged between publisher and {@link EventProcessor}s.
  *
@@ -24,7 +22,7 @@ import static com.lmax.disruptor.util.Util.ceilingNextPowerOfTwo;
  */
 public final class RingBuffer<T> extends Sequencer
 {
-    private final int ringModMask;
+    private final int mask;
     private final Object[] entries;
 
     /**
@@ -34,16 +32,21 @@ public final class RingBuffer<T> extends Sequencer
      * @param size of the RingBuffer that will be rounded up to the next power of 2
      * @param claimStrategyOption threading strategy for publisher claiming entries in the ring.
      * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on entries becoming available.
+     *
+     * @throws IllegalArgumentException if bufferSize is not a power of 2
      */
     public RingBuffer(final EventFactory<T> eventFactory, final int size,
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
-        super(claimStrategyOption.newInstance(ceilingNextPowerOfTwo(size)),
-              waitStrategyOption.newInstance(),
-              ceilingNextPowerOfTwo(size));
+        super(size, claimStrategyOption, waitStrategyOption);
 
-        ringModMask = getBufferSize() - 1;
+        if (Integer.bitCount(size) != 1)
+        {
+            throw new IllegalArgumentException("bufferSize must be a power of 2");
+        }
+
+        mask = getBufferSize() - 1;
         entries = new Object[getBufferSize()];
 
         fill(eventFactory);
@@ -72,7 +75,7 @@ public final class RingBuffer<T> extends Sequencer
     @SuppressWarnings("unchecked")
     public T get(final long sequence)
     {
-        return (T)entries[(int)sequence & ringModMask];
+        return (T)entries[(int)sequence & mask];
     }
 
     private void fill(final EventFactory<T> eventFactory)

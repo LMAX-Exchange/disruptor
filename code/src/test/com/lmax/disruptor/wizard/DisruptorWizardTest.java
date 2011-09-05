@@ -246,7 +246,7 @@ public class DisruptorWizardTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newSequenceBarrier(),
+        final BatchEventProcessor<TestEvent> processor = new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newBarrier(),
                                                                                            delayedEventHandler);
         disruptorWizard.handleEventsWith(processor);
         disruptorWizard.after(processor).handleEventsWith(handlerWithBarrier);
@@ -348,7 +348,7 @@ public class DisruptorWizardTest
             ringBuffer = disruptorWizard.start();
         }
 
-        final long sequence = ringBuffer.nextSequence();
+        final long sequence = ringBuffer.next();
         final TestEvent stubEntry = ringBuffer.get(sequence);
         ringBuffer.publish(sequence);
         return stubEntry;

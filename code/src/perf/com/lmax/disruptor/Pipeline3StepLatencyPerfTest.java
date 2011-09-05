@@ -145,29 +145,28 @@ public final class Pipeline3StepLatencyPerfTest
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.BUSY_SPIN);
 
-    private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepOneBatchProcessor =
         new BatchEventProcessor<ValueEvent>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
 
-    private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newSequenceBarrier(stepOneBatchProcessor.getSequence());
+    private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newBarrier(stepOneBatchProcessor.getSequence());
     private final LatencyStepEventHandler stepTwoFunctionHandler = new LatencyStepEventHandler(FunctionStep.TWO, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepTwoBatchProcessor =
         new BatchEventProcessor<ValueEvent>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
 
-    private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newSequenceBarrier(stepTwoBatchProcessor.getSequence());
+    private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newBarrier(stepTwoBatchProcessor.getSequence());
     private final LatencyStepEventHandler stepThreeFunctionHandler = new LatencyStepEventHandler(FunctionStep.THREE, histogram, nanoTimeCost);
     private final BatchEventProcessor<ValueEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<ValueEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedSequences(stepThreeBatchProcessor.getSequence());
+        ringBuffer.setGatingSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         final int RUNS = 3;
         final boolean runQueueTests = "true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true"));
@@ -216,7 +215,7 @@ public final class Pipeline3StepLatencyPerfTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             ValueEvent event = ringBuffer.get(sequence);
             event.setValue(System.nanoTime());
             ringBuffer.publish(sequence);
@@ -242,6 +241,9 @@ public final class Pipeline3StepLatencyPerfTest
     private void runQueuePass() throws Exception
     {
         stepThreeQueueProcessor.reset();
+        stepOneSequenceBarrier.clearAlert();
+        stepTwoSequenceBarrier.clearAlert();
+        stepThreeSequenceBarrier.clearAlert();
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);

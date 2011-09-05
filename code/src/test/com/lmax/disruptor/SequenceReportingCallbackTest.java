@@ -32,17 +32,17 @@ public class SequenceReportingCallbackTest
         throws Exception
     {
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
-        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
         final SequenceReportingEventHandler<StubEvent> handler = new TestSequenceReportingEventHandler();
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, handler);
-        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
 
         Thread thread = new Thread(batchEventProcessor);
         thread.setDaemon(true);
         thread.start();
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
-        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.next());
 
         callbackLatch.await();
         assertEquals(0L, batchEventProcessor.getSequence().get());

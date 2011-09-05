@@ -39,11 +39,11 @@ public final class BatchEventProcessorTest
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     @SuppressWarnings("unchecked") private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
     private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, eventHandler);
     {
-        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
     }
 
     @Test(expected = NullPointerException.class)
@@ -77,7 +77,7 @@ public final class BatchEventProcessorTest
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
 
-        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.next());
 
         latch.await();
 
@@ -103,9 +103,9 @@ public final class BatchEventProcessorTest
             }
         });
 
-        ringBuffer.publish(ringBuffer.nextSequence());
-        ringBuffer.publish(ringBuffer.nextSequence());
-        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
 
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
@@ -153,7 +153,7 @@ public final class BatchEventProcessorTest
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
 
-        ringBuffer.publish(ringBuffer.nextSequence());
+        ringBuffer.publish(ringBuffer.next());
 
         latch.await();
 

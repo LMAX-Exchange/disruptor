@@ -113,7 +113,7 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
                                    ClaimStrategy.Option.MULTI_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
@@ -122,15 +122,14 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
         valuePublishers[1] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
         valuePublishers[2] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
 
-        ringBuffer.setTrackedSequences(batchEventProcessor.getSequence());
+        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -169,6 +168,8 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber) throws Exception
     {
+        sequenceBarrier.clearAlert();
+
         Future[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {

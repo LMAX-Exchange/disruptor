@@ -33,10 +33,10 @@ import static org.junit.Assert.assertThat;
 public class RingBufferTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
-    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 32);
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {
-        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        long claimSequence = ringBuffer.nextSequence();
+        long claimSequence = ringBuffer.next();
         StubEvent oldEvent = ringBuffer.get(claimSequence);
         oldEvent.copy(expectedEvent);
         ringBuffer.publish(claimSequence);
@@ -67,7 +67,7 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        long claimSequence = ringBuffer.nextSequence();
+        long claimSequence = ringBuffer.next();
         StubEvent oldEvent = ringBuffer.get(claimSequence);
         oldEvent.copy(expectedEvent);
         ringBuffer.publish(claimSequence);
@@ -95,7 +95,7 @@ public class RingBufferTest
 
         StubEvent expectedEvent = new StubEvent(2701);
 
-        long sequence = ringBuffer.nextSequence();
+        long sequence = ringBuffer.next();
         StubEvent oldEvent = ringBuffer.get(sequence);
         oldEvent.copy(expectedEvent);
         ringBuffer.publish(sequence);
@@ -109,7 +109,7 @@ public class RingBufferTest
         int numMessages = ringBuffer.getBufferSize();
         for (int i = 0; i < numMessages; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             StubEvent event = ringBuffer.get(sequence);
             event.setValue(i);
             ringBuffer.publish(sequence);
@@ -132,7 +132,7 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             StubEvent event = ringBuffer.get(sequence);
             event.setValue(i);
             ringBuffer.publish(sequence);
@@ -153,7 +153,7 @@ public class RingBufferTest
     {
         long expectedSequence = 5;
 
-        ringBuffer.claimSequence(expectedSequence);
+        ringBuffer.claim(expectedSequence);
         StubEvent expectedEvent = ringBuffer.get(expectedSequence);
         expectedEvent.setValue((int) expectedSequence);
         ringBuffer.forcePublish(expectedSequence);
@@ -174,8 +174,8 @@ public class RingBufferTest
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
         final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, ringBufferSize);
-        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newSequenceBarrier());
-        ringBuffer.setTrackedSequences(processor.getSequence());
+        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newBarrier());
+        ringBuffer.setGatingSequences(processor.getSequence());
 
         Thread thread = new Thread(new Runnable()
         {
@@ -184,7 +184,7 @@ public class RingBufferTest
             {
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
-                    long sequence = ringBuffer.nextSequence();
+                    long sequence = ringBuffer.next();
                     StubEvent event = ringBuffer.get(sequence);
                     event.setValue(i);
                     ringBuffer.publish(sequence);
@@ -210,7 +210,7 @@ public class RingBufferTest
         throws InterruptedException, BrokenBarrierException
     {
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
         final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, sequenceBarrier, ringBuffer, initial, toWaitFor));
 

@@ -41,7 +41,7 @@ public final class SequenceBarrierTest
 
     public SequenceBarrierTest()
     {
-        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -70,7 +70,7 @@ public final class SequenceBarrierTest
         });
 
         SequenceBarrier sequenceBarrier =
-            ringBuffer.newSequenceBarrier(eventProcessor1.getSequence(), eventProcessor2.getSequence(), eventProcessor3.getSequence());
+            ringBuffer.newBarrier(eventProcessor1.getSequence(), eventProcessor2.getSequence(), eventProcessor3.getSequence());
 
         long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
@@ -89,13 +89,13 @@ public final class SequenceBarrierTest
             workers[i].setSequence(expectedNumberMessages - 1);
         }
 
-        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(workers));
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(workers));
 
         Runnable runnable = new Runnable()
         {
             public void run()
             {
-                long sequence = ringBuffer.nextSequence();
+                long sequence = ringBuffer.next();
                 StubEvent event = ringBuffer.get(sequence);
                 event.setValue((int) sequence);
                 ringBuffer.publish(sequence);
@@ -140,7 +140,7 @@ public final class SequenceBarrierTest
         });
 
         final SequenceBarrier sequenceBarrier =
-            ringBuffer.newSequenceBarrier(Util.getSequencesFor(eventProcessor1, eventProcessor2, eventProcessor3));
+            ringBuffer.newBarrier(Util.getSequencesFor(eventProcessor1, eventProcessor2, eventProcessor3));
 
         final boolean[] alerted = { false };
         Thread t = new Thread(new Runnable()
@@ -183,7 +183,7 @@ public final class SequenceBarrierTest
             eventProcessors[i].setSequence(expectedNumberMessages - 2);
         }
 
-        final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(eventProcessors));
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(eventProcessors));
 
         Runnable runnable = new Runnable()
         {
@@ -206,7 +206,7 @@ public final class SequenceBarrierTest
     @Test
     public void shouldSetAndClearAlertStatus()
     {
-        SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+        SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
         assertFalse(sequenceBarrier.isAlerted());
 
@@ -221,7 +221,7 @@ public final class SequenceBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             StubEvent event = ringBuffer.get(sequence);
             event.setValue((int) i);
             ringBuffer.publish(sequence);

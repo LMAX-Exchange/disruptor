@@ -23,10 +23,10 @@ import static org.junit.Assert.assertThat;
 
 public final class BatchPublisherTest
 {
-    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 20);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 32);
+    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {
-        ringBuffer.setTrackedSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -35,7 +35,7 @@ public final class BatchPublisherTest
         final int batchSize = 5;
         final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
 
-        ringBuffer.nextSequenceBatch(sequenceBatch);
+        ringBuffer.next(sequenceBatch);
 
         assertThat(Long.valueOf(sequenceBatch.getStart()), is(Long.valueOf(0L)));
         assertThat(Long.valueOf(sequenceBatch.getEnd()), is(Long.valueOf(4L)));

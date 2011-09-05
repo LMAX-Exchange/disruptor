@@ -181,8 +181,8 @@ public class DisruptorWizard<T>
      */
     public RingBuffer<T> start()
     {
-        EventProcessor[] trackedProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
-        ringBuffer.setTrackedSequences(Util.getSequencesFor(trackedProcessors));
+        EventProcessor[] gatingProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
+        ringBuffer.setGatingSequences(Util.getSequencesFor(gatingProcessors));
 
         ensureOnlyStartedOnce();
         startEventProcessors();
@@ -228,7 +228,8 @@ public class DisruptorWizard<T>
         ensureNotStarted();
 
         final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
-        final SequenceBarrier barrier = ringBuffer.newSequenceBarrier(Util.getSequencesFor(barrierEventProcessors));
+        final SequenceBarrier barrier = ringBuffer.newBarrier(Util.getSequencesFor(barrierEventProcessors));
+
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
             final EventHandler<T> eventHandler = eventHandlers[i];

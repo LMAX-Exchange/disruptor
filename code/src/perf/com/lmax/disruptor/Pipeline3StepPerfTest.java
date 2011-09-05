@@ -124,30 +124,29 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 
-    private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newSequenceBarrier();
+    private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
     private final BatchEventProcessor<FunctionEvent> stepOneBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
 
-    private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newSequenceBarrier(stepOneBatchProcessor.getSequence());
+    private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newBarrier(stepOneBatchProcessor.getSequence());
     private final FunctionEventHandler stepTwoFunctionHandler = new FunctionEventHandler(FunctionStep.TWO);
     private final BatchEventProcessor<FunctionEvent> stepTwoBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
 
-    private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newSequenceBarrier(stepTwoBatchProcessor.getSequence());
+    private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newBarrier(stepTwoBatchProcessor.getSequence());
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setTrackedSequences(stepThreeBatchProcessor.getSequence());
+        ringBuffer.setGatingSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     @Override
-    public void shouldCompareDisruptorVsQueues()
-        throws Exception
+    public void shouldCompareDisruptorVsQueues() throws Exception
     {
         testImplementations();
     }
@@ -156,6 +155,9 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     protected long runDisruptorPass(final int passNumber)
     {
         stepThreeFunctionHandler.reset();
+        stepOneSequenceBarrier.clearAlert();
+        stepTwoSequenceBarrier.clearAlert();
+        stepThreeSequenceBarrier.clearAlert();
 
         EXECUTOR.submit(stepOneBatchProcessor);
         EXECUTOR.submit(stepTwoBatchProcessor);
@@ -166,7 +168,7 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.nextSequence();
+            long sequence = ringBuffer.next();
             FunctionEvent event = ringBuffer.get(sequence);
             event.setOperandOne(i);
             event.setOperandTwo(operandTwo--);

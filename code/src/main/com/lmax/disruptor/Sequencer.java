@@ -23,41 +23,41 @@ public class Sequencer
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
 
+    private final int bufferSize;
+
     private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private Sequence[] sequencesToTrack;
+    private Sequence[] gatingSequences;
 
     private final ClaimStrategy claimStrategy;
     private final WaitStrategy waitStrategy;
 
-    private final int bufferSize;
-
     /**
      * Construct a Sequencer with the selected strategies.
      *
-     * @param claimStrategy for those claiming sequences.
-     * @param waitStrategy for those waiting on sequences.
      * @param bufferSize over which sequences are valid.
+     * @param claimStrategyOption for those claiming sequences.
+     * @param waitStrategyOption for those waiting on sequences.
      */
-    public Sequencer(final ClaimStrategy claimStrategy,
-                     final WaitStrategy waitStrategy,
-                     final int bufferSize)
+    public Sequencer(final int bufferSize,
+                     final ClaimStrategy.Option claimStrategyOption,
+                     final WaitStrategy.Option waitStrategyOption)
     {
-        this.claimStrategy = claimStrategy;
-        this.waitStrategy = waitStrategy;
+        this.claimStrategy = claimStrategyOption.newInstance(bufferSize);
+        this.waitStrategy = waitStrategyOption.newInstance();
         this.bufferSize = bufferSize;
     }
 
     /**
-     * Set the sequences that will be tracked to prevent the buffer wrapping.
+     * Set the sequences that will gate publishers to prevent the buffer wrapping.
      *
-     * This method must be called prior to claiming events in the RingBuffer otherwise
+     * This method must be called prior to claiming sequences otherwise
      * a NullPointerException will be thrown.
      *
-     * @param sequences to be tracked.
+     * @param sequences to be to be gated on.
      */
-    public void setTrackedSequences(final Sequence... sequences)
+    public void setGatingSequences(final Sequence... sequences)
     {
-        this.sequencesToTrack = sequences;
+        this.gatingSequences = sequences;
     }
 
     /**
@@ -66,11 +66,10 @@ public class Sequencer
      * @param sequencesToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
+    public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
     {
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
     }
-
 
     /**
      * The capacity of the data structure to hold entries.
@@ -97,10 +96,10 @@ public class Sequencer
      *
      * @return the claimed sequence
      */
-    public long nextSequence()
+    public long next()
     {
         final long sequence = claimStrategy.incrementAndGet();
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
         return sequence;
     }
 
@@ -119,7 +118,7 @@ public class Sequencer
      * @param sequenceBatch to be updated for the batch range.
      * @return the updated sequenceBatch.
      */
-    public SequenceBatch nextSequenceBatch(final SequenceBatch sequenceBatch)
+    public SequenceBatch next(final SequenceBatch sequenceBatch)
     {
         final int batchSize = sequenceBatch.getSize();
         if (batchSize > bufferSize)
@@ -130,7 +129,7 @@ public class Sequencer
 
         final long sequence = claimStrategy.incrementAndGet(batchSize);
         sequenceBatch.setEnd(sequence);
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
         return sequenceBatch;
     }
 
@@ -149,9 +148,9 @@ public class Sequencer
      *
      * @param sequence to be claimed.
      */
-    public void claimSequence(final long sequence)
+    public void claim(final long sequence)
     {
-        claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
+        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
     }
 
     /**
