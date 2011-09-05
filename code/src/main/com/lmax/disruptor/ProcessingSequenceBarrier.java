@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.PaddedAtomicBoolean;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +25,9 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final WaitStrategy waitStrategy;
     private final Sequence cursorSequence;
     private final Sequence[] dependentSequences;
-    private final PaddedAtomicBoolean alerted = new PaddedAtomicBoolean(false);
+    private volatile boolean alerted = false;
+
+    public volatile long p1, p2, p3, p4, p5, p6, p7 = 7L; // cache line padding
 
     public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
                                      final Sequence cursorSequence,
@@ -61,19 +61,19 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     @Override
     public boolean isAlerted()
     {
-        return alerted.get();
+        return alerted;
     }
 
     @Override
     public void alert()
     {
-        alerted.set(true);
+        alerted = true;
         waitStrategy.signalAllWhenBlocking();
     }
 
     @Override
     public void clearAlert()
     {
-        alerted.set(false);
+        alerted = false;
     }
 }
