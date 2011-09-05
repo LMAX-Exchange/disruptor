@@ -154,9 +154,9 @@
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.SLEEPING);
 
-    DependencyBarrier&lt;ValueEvent&gt; dependencyBarrier = ringBuffer.createDependencyBarrier();
-    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(dependencyBarrier, eventHandler);
-    ringBuffer.setTrackedProcessors(batchProcessor);
+    SequenceBarrier&lt;ValueEvent&gt; sequenceBarrier = ringBuffer.newSequenceBarrier();
+    BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(sequenceBarrier, eventHandler);
+    ringBuffer.setTrackedSequences(batchProcessor.getSequence());
 
     // Each processor runs on a separate thread
     EXECUTOR.submit(batchProcessor);

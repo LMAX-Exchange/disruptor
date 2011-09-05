@@ -75,7 +75,7 @@ public final class RingBuffer<T> implements SequenceManager
     @Override
     public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
     {
-        return new TrackingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
+        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
     }
 
     @Override
