@@ -72,18 +72,6 @@ public final class RingBuffer<T> implements SequenceManager
              WaitStrategy.Option.SLEEPING);
     }
 
-    @Override
-    public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
-    {
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
-    }
-
-    @Override
-    public int getBufferSize()
-    {
-        return entries.length;
-    }
-
     /**
      * Get the event for a given sequence in the RingBuffer.
      *
@@ -94,6 +82,19 @@ public final class RingBuffer<T> implements SequenceManager
     public T get(final long sequence)
     {
         return (T) entries[(int)sequence & ringModMask];
+    }
+
+
+    @Override
+    public SequenceBarrier newSequenceBarrier(final Sequence... sequencesToTrack)
+    {
+        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
+    }
+
+    @Override
+    public int getBufferSize()
+    {
+        return entries.length;
     }
 
     @Override
@@ -144,24 +145,14 @@ public final class RingBuffer<T> implements SequenceManager
         publish(sequenceBatch.getEnd(), sequenceBatch.getSize());
     }
 
-    /**
-     * Claim a specific sequence in the {@link RingBuffer} when only one publisher is involved.
-     *
-     * @param sequence to be claimed.
-     */
-    public void claimAtSequence(final long sequence)
+    @Override
+    public void claimSequence(final long sequence)
     {
         claimStrategy.ensureSequencesAreInRange(sequence, sequencesToTrack);
     }
 
-    /**
-     * Publish an event back to the {@link RingBuffer} and make it visible to {@link EventProcessor}s.
-     * Only use this method when forcing a sequence and you are sure only one publisher exists.
-     * This will cause the {@link RingBuffer} to advance the {@link RingBuffer#getCursor()} to this sequence.
-     *
-     * @param sequence which is to be published.
-     */
-    public void publishWithForce(final long sequence)
+    @Override
+    public void forcePublish(final long sequence)
     {
         claimStrategy.setSequence(sequence);
         cursor.set(sequence);

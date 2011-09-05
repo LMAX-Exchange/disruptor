@@ -153,10 +153,10 @@ public class RingBufferTest
     {
         long expectedSequence = 5;
 
-        ringBuffer.claimAtSequence(expectedSequence);
+        ringBuffer.claimSequence(expectedSequence);
         StubEvent expectedEvent = ringBuffer.get(expectedSequence);
         expectedEvent.setValue((int) expectedSequence);
-        ringBuffer.publishWithForce(expectedSequence);
+        ringBuffer.forcePublish(expectedSequence);
 
         long sequence = sequenceBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, sequence);

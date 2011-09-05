@@ -80,4 +80,21 @@ public interface SequenceManager
      * @param sequenceBatch to be published.
      */
     void publish(SequenceBatch sequenceBatch);
+
+    /**
+     * Claim a specific sequence when only one publisher is involved.
+     *
+     * @param sequence to be claimed.
+     */
+    public void claimSequence(long sequence);
+
+    /**
+     * Force the publication of a cursor sequence.
+     *
+     * Only use this method when forcing a sequence and you are sure only one publisher exists.
+     * This will cause the cursor to advance to this sequence.
+     *
+     * @param sequence which is to be forced for publication.
+     */
+    public void forcePublish(long sequence);
 }
