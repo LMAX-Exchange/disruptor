@@ -92,6 +92,26 @@ public class Sequencer
     }
 
     /**
+     * Has the buffer got capacity to allocate another sequence.
+     *
+     * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
+     */
+    public boolean hasAvailableCapacity()
+    {
+        return claimStrategy.hasAvailableCapacity(cursor.get() + 1L, gatingSequences);
+    }
+
+    /**
+     * Has the buffer got capacity to allocate another batch of sequences.
+     *
+     * @return true if the buffer has the capacity to allocate the next sequence batch otherwise false.
+     */
+    public boolean hasAvailableCapacity(final SequenceBatch sequenceBatch)
+    {
+        return claimStrategy.hasAvailableCapacity(cursor.get() + sequenceBatch.getSize(), gatingSequences);
+    }
+
+    /**
      * Claim the next event in sequence for publishing to the {@link RingBuffer}
      *
      * @return the claimed sequence

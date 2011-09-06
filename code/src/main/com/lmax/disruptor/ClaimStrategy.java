@@ -56,6 +56,14 @@ public interface ClaimStrategy
     void ensureCapacity(final long sequence, final Sequence[] dependentSequences);
 
     /**
+     * Is there available capacity in the buffer for the requested sequence.
+     *
+     * @param sequence to check is in range
+     * @param dependentSequences to be checked for range.
+     */
+    boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences);
+
+    /**
      * Serialise publishing in sequence.
      *
      * @param cursor to serialise against.
@@ -150,6 +158,24 @@ public interface ClaimStrategy
         }
 
         @Override
+        public boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
+            {
+                long minSequence = getMinimumSequence(dependentSequences);
+                minGatingSequence.set(minSequence);
+
+                if (wrapPoint > minSequence)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        @Override
         public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
         {
             final long expectedSequence = sequence - batchSize;
@@ -163,6 +189,7 @@ public interface ClaimStrategy
                 }
             }
         }
+
 
         private int applyBackPressure(int counter)
         {
@@ -241,6 +268,24 @@ public interface ClaimStrategy
 
                 minGatingSequence.set(minSequence);
             }
+        }
+
+        @Override
+        public boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
+            {
+                long minSequence = getMinimumSequence(dependentSequences);
+                minGatingSequence.set(minSequence);
+
+                if (wrapPoint > minSequence)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         @Override
