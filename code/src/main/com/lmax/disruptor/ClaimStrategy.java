@@ -60,6 +60,7 @@ public interface ClaimStrategy
      *
      * @param sequence to check is in range
      * @param dependentSequences to be checked for range.
+     * @return true if the buffer has capacity for the requested sequence.
      */
     boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences);
 
