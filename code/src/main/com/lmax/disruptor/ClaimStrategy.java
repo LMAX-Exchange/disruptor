@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.MutableLong;
 import com.lmax.disruptor.util.PaddedAtomicLong;
 import com.lmax.disruptor.util.PaddedLong;
 
@@ -25,6 +26,14 @@ import static com.lmax.disruptor.util.Util.getMinimumSequence;
  */
 public interface ClaimStrategy
 {
+    /**
+     * Is there available capacity in the buffer for the requested sequence.
+     *
+     * @param dependentSequences to be checked for range.
+     * @return true if the buffer has capacity for the requested sequence.
+     */
+    boolean hasAvailableCapacity(final Sequence[] dependentSequences);
+
     /**
      * Claim the next sequence in the {@link Sequencer}.
      *
@@ -51,21 +60,13 @@ public interface ClaimStrategy
     void setSequence(final long sequence, final Sequence[] dependentSequences);
 
     /**
-     * Is there available capacity in the buffer for the requested sequence.
-     *
-     * @param dependentSequences to be checked for range.
-     * @return true if the buffer has capacity for the requested sequence.
-     */
-    boolean hasAvailableCapacity(final Sequence[] dependentSequences);
-
-    /**
      * Serialise publishing in sequence.
      *
-     * @param cursor to serialise against.
      * @param sequence sequence to be applied
+     * @param cursor to serialise against.
      * @param batchSize of the sequence.
      */
-    void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize);
+    void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize);
 
     /**
      * Indicates the threading policy to be applied for claiming events by publisher to the {@link Sequencer}
@@ -109,8 +110,16 @@ public interface ClaimStrategy
     {
         private static final int RETRIES = 100;
         private final int bufferSize;
-        private final PaddedAtomicLong minGatingSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+
+        private static final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
+        {
+            @Override
+            protected MutableLong initialValue()
+            {
+                return new MutableLong(Sequencer.INITIAL_CURSOR_VALUE);
+            }
+        };
 
         public MultiThreadedStrategy(final int bufferSize)
         {
@@ -118,37 +127,14 @@ public interface ClaimStrategy
         }
 
         @Override
-        public long incrementAndGet(final Sequence[] dependentSequences)
-        {
-            checkCapacity(dependentSequences);
-            long value = sequence.incrementAndGet();
-            ensureCapacity(value, dependentSequences);
-            return value;
-        }
-
-        @Override
-        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-        {
-            long value = sequence.addAndGet(delta);
-            ensureCapacity(value, dependentSequences);
-            return value;
-        }
-
-        @Override
-        public void setSequence(final long sequence, final Sequence[] dependentSequences)
-        {
-            this.sequence.lazySet(sequence);
-            ensureCapacity(sequence, dependentSequences);
-        }
-
-        @Override
         public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
         {
+            final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
             final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
-                minGatingSequence.lazySet(minSequence);
+                minGatingSequence.set(minSequence);
 
                 if (wrapPoint > minSequence)
                 {
@@ -160,7 +146,32 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
+        public long incrementAndGet(final Sequence[] dependentSequences)
+        {
+            final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
+            checkCapacity(dependentSequences, minGatingSequence);
+            final long value = sequence.incrementAndGet();
+            ensureCapacity(value, dependentSequences, minGatingSequence);
+            return value;
+        }
+
+        @Override
+        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
+        {
+            final long value = sequence.addAndGet(delta);
+            ensureCapacity(value, dependentSequences, minGatingSequenceThreadLocal.get());
+            return value;
+        }
+
+        @Override
+        public void setSequence(final long sequence, final Sequence[] dependentSequences)
+        {
+            this.sequence.lazySet(sequence);
+            ensureCapacity(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
+        }
+
+        @Override
+        public void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize)
         {
             final long expectedSequence = sequence - batchSize;
             int counter = RETRIES;
@@ -174,7 +185,7 @@ public interface ClaimStrategy
             }
         }
 
-        private void checkCapacity(final Sequence[] dependentSequences)
+        private void checkCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
             final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -186,11 +197,11 @@ public interface ClaimStrategy
                     counter = applyBackPressure(counter);
                 }
 
-                minGatingSequence.lazySet(minSequence);
+                minGatingSequence.set(minSequence);
             }
         }
 
-        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
+        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -206,7 +217,7 @@ public interface ClaimStrategy
                     }
                 }
 
-                minGatingSequence.lazySet(minSequence);
+                minGatingSequence.set(minSequence);
             }
         }
 
@@ -250,6 +261,24 @@ public interface ClaimStrategy
         }
 
         @Override
+        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
+            {
+                long minSequence = getMinimumSequence(dependentSequences);
+                minGatingSequence.set(minSequence);
+
+                if (wrapPoint > minSequence)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        @Override
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
             long value = sequence.get() + 1L;
@@ -275,25 +304,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
-        {
-            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence = getMinimumSequence(dependentSequences);
-                minGatingSequence.set(minSequence);
-
-                if (wrapPoint > minSequence)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
+        public void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize)
         {
         }
 
