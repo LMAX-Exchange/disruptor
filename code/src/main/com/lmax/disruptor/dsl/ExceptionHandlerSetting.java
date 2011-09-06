@@ -19,7 +19,8 @@ import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 
-/** A support class used as part of setting an exception handler for a specific event handler.
+/**
+ * A support class used as part of setting an exception handler for a specific event handler.
  * For example:
  * <pre><code>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</code></pre>
  *
@@ -36,7 +37,8 @@ public class ExceptionHandlerSetting<T>
         this.eventProcessorRepository = eventProcessorRepository;
     }
 
-    /** Specify the {@link ExceptionHandler} to use with the event handler.
+    /**
+     * Specify the {@link ExceptionHandler} to use with the event handler.
      *
      * @param exceptionHandler the exception handler to use.
      */

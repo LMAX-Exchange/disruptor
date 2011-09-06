@@ -49,6 +49,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
                 lastEventProcessors.add(eventProcessorInfo.getEventProcessor());
             }
         }
+
         return lastEventProcessors.toArray(new EventProcessor[lastEventProcessors.size()]);
     }
 
@@ -59,6 +60,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
         {
             throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
         }
+
         return eventprocessorInfo.getEventProcessor();
     }
 
