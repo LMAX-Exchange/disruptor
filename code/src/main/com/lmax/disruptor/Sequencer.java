@@ -98,17 +98,7 @@ public class Sequencer
      */
     public boolean hasAvailableCapacity()
     {
-        return claimStrategy.hasAvailableCapacity(cursor.get() + 1L, gatingSequences);
-    }
-
-    /**
-     * Has the buffer got capacity to allocate another batch of sequences.
-     *
-     * @return true if the buffer has the capacity to allocate the next sequence batch otherwise false.
-     */
-    public boolean hasAvailableCapacity(final SequenceBatch sequenceBatch)
-    {
-        return claimStrategy.hasAvailableCapacity(cursor.get() + sequenceBatch.getSize(), gatingSequences);
+        return claimStrategy.hasAvailableCapacity(gatingSequences);
     }
 
     /**

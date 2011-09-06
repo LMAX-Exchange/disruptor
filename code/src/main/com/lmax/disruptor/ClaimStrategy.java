@@ -58,11 +58,10 @@ public interface ClaimStrategy
     /**
      * Is there available capacity in the buffer for the requested sequence.
      *
-     * @param sequence to check is in range
      * @param dependentSequences to be checked for range.
      * @return true if the buffer has capacity for the requested sequence.
      */
-    boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences);
+    boolean hasAvailableCapacity(final Sequence[] dependentSequences);
 
     /**
      * Serialise publishing in sequence.
@@ -159,9 +158,9 @@ public interface ClaimStrategy
         }
 
         @Override
-        public boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences)
+        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
         {
-            final long wrapPoint = sequence - bufferSize;
+            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
@@ -272,9 +271,9 @@ public interface ClaimStrategy
         }
 
         @Override
-        public boolean hasAvailableCapacity(final long sequence, final Sequence[] dependentSequences)
+        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
         {
-            final long wrapPoint = sequence - bufferSize;
+            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
