@@ -92,7 +92,8 @@ public class Sequencer
     }
 
     /**
-     * Has the buffer got capacity to allocate another sequence.
+     * Has the buffer got capacity to allocate another sequence.  This is a concurrent
+     * method so the response should only be taken as an indication of available capacity.
      *
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
@@ -108,18 +109,14 @@ public class Sequencer
      */
     public long next()
     {
+        if (null == gatingSequences)
+        {
+            throw new NullPointerException("gatingSequences must be set before claim sequences");
+        }
+
         final long sequence = claimStrategy.incrementAndGet();
         claimStrategy.ensureCapacity(sequence, gatingSequences);
         return sequence;
-    }
-
-    /**
-     * Publish an event and make it visible to {@link EventProcessor}s
-     * @param sequence to be published
-     */
-    public void publish(final long sequence)
-    {
-        publish(sequence, 1);
     }
 
     /**
@@ -130,6 +127,11 @@ public class Sequencer
      */
     public SequenceBatch next(final SequenceBatch sequenceBatch)
     {
+        if (null == gatingSequences)
+        {
+            throw new NullPointerException("gatingSequences must be set before claim sequences");
+        }
+
         final int batchSize = sequenceBatch.getSize();
         if (batchSize > bufferSize)
         {
@@ -144,6 +146,32 @@ public class Sequencer
     }
 
     /**
+     * Claim a specific sequence when only one publisher is involved.
+     *
+     * @param sequence to be claimed.
+     */
+    public void claim(final long sequence)
+    {
+        if (null == gatingSequences)
+        {
+            throw new NullPointerException("gatingSequences must be set before claim sequences");
+        }
+
+        claimStrategy.setSequence(sequence);
+        claimStrategy.ensureCapacity(sequence, gatingSequences);
+    }
+
+    /**
+     * Publish an event and make it visible to {@link EventProcessor}s
+     *
+     * @param sequence to be published
+     */
+    public void publish(final long sequence)
+    {
+        publish(sequence, 1);
+    }
+
+    /**
      * Publish the batch of events in sequence.
      *
      * @param sequenceBatch to be published.
@@ -151,17 +179,6 @@ public class Sequencer
     public void publish(final SequenceBatch sequenceBatch)
     {
         publish(sequenceBatch.getEnd(), sequenceBatch.getSize());
-    }
-
-    /**
-     * Claim a specific sequence when only one publisher is involved.
-     *
-     * @param sequence to be claimed.
-     */
-    public void claim(final long sequence)
-    {
-        claimStrategy.setSequence(sequence);
-        claimStrategy.ensureCapacity(sequence, gatingSequences);
     }
 
     /**
