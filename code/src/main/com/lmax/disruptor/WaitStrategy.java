@@ -244,7 +244,7 @@ public interface WaitStrategy
      */
     static final class SleepingStrategy implements WaitStrategy
     {
-        private static final int SPIN_TRIES = 200;
+        private static final int RETRIES = 200;
 
         @Override
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
@@ -252,7 +252,7 @@ public interface WaitStrategy
         {
             long availableSequence;
 
-            int counter = SPIN_TRIES;
+            int counter = RETRIES;
             if (0 == dependents.length)
             {
                 while ((availableSequence = cursor.get()) < sequence)
@@ -280,7 +280,7 @@ public interface WaitStrategy
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
 
-            int counter = SPIN_TRIES;
+            int counter = RETRIES;
             if (0 == dependents.length)
             {
                 while ((availableSequence = cursor.get()) < sequence)

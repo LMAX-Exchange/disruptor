@@ -104,6 +104,7 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
+        private static final int RETRIES = 200;
         private final int bufferSize;
         private final PaddedAtomicLong minGatingSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
@@ -138,9 +139,10 @@ public interface ClaimStrategy
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
+                int counter = 100;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    Thread.yield();
+                    counter = applyBackPressure(counter);
                 }
 
                 minGatingSequence.lazySet(minSequence);
@@ -151,15 +153,41 @@ public interface ClaimStrategy
         public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
         {
             final long expectedSequence = sequence - batchSize;
-            int counter = 1000;
+            int counter = RETRIES;
             while (expectedSequence != cursor.get())
             {
-                if (0 == --counter)
+                if (counter > 100)
                 {
-                    counter = 1000;
-                    Thread.yield();
+                    --counter;
+                }
+                else
+                {
+                    counter = applyBackPressure(counter);
                 }
             }
+        }
+
+        private int applyBackPressure(int counter)
+        {
+            if (counter > 0)
+            {
+                --counter;
+                Thread.yield();
+            }
+            else
+            {
+                try
+                {
+                    counter = RETRIES;
+                    Thread.sleep(1L);
+                }
+                catch (InterruptedException e)
+                {
+                    // don't care
+                }
+            }
+
+            return counter;
         }
     }
 
@@ -169,6 +197,7 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
+        private static final int RETRIES = 100;
         private final int bufferSize;
         private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedLong sequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
@@ -207,9 +236,10 @@ public interface ClaimStrategy
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
+                int counter = RETRIES;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    Thread.yield();
+                    counter = applyBackPressure(counter);
                 }
 
                 minGatingSequence.set(minSequence);
@@ -219,6 +249,29 @@ public interface ClaimStrategy
         @Override
         public void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize)
         {
+        }
+
+        private int applyBackPressure(int counter)
+        {
+            if (counter > 0)
+            {
+                --counter;
+                Thread.yield();
+            }
+            else
+            {
+                try
+                {
+                    counter = RETRIES;
+                    Thread.sleep(1L);
+                }
+                catch (InterruptedException e)
+                {
+                    // don't care
+                }
+            }
+
+            return counter;
         }
     }
 }
