@@ -123,7 +123,6 @@ public interface ClaimStrategy
             checkCapacity(dependentSequences);
             long value = sequence.incrementAndGet();
             ensureCapacity(value, dependentSequences);
-
             return value;
         }
 
@@ -132,7 +131,6 @@ public interface ClaimStrategy
         {
             long value = sequence.addAndGet(delta);
             ensureCapacity(value, dependentSequences);
-
             return value;
         }
 
@@ -257,7 +255,6 @@ public interface ClaimStrategy
             long value = sequence.get() + 1L;
             sequence.set(value);
             ensureCapacity(value, dependentSequences);
-
             return value;
         }
 
@@ -267,7 +264,6 @@ public interface ClaimStrategy
             long value = sequence.get() + delta;
             sequence.set(value);
             ensureCapacity(value, dependentSequences);
-
             return value;
         }
 

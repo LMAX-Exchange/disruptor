@@ -111,14 +111,14 @@ public class Sequencer
     {
         if (null == gatingSequences)
         {
-            throw new NullPointerException("gatingSequences must be set before claim sequences");
+            throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
         return claimStrategy.incrementAndGet(gatingSequences);
     }
 
     /**
-     * Claim the next batch sequence numbers for publishing.
+     * Claim the next batch of sequence numbers for publishing.
      *
      * @param sequenceBatch to be updated for the batch range.
      * @return the updated sequenceBatch.
@@ -127,7 +127,7 @@ public class Sequencer
     {
         if (null == gatingSequences)
         {
-            throw new NullPointerException("gatingSequences must be set before claim sequences");
+            throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
         final int batchSize = sequenceBatch.getSize();
@@ -151,7 +151,7 @@ public class Sequencer
     {
         if (null == gatingSequences)
         {
-            throw new NullPointerException("gatingSequences must be set before claim sequences");
+            throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
         claimStrategy.setSequence(sequence, gatingSequences);
