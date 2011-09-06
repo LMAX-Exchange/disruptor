@@ -183,8 +183,9 @@ public interface ClaimStrategy
             while (expectedSequence != cursor.get())
             {
                 --counter;
-                if (counter < 0)
+                if (counter == 0)
                 {
+                    counter = RETRIES;
                     Thread.yield();
                 }
             }
