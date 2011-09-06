@@ -99,7 +99,7 @@ public class Sequencer
     public long next()
     {
         final long sequence = claimStrategy.incrementAndGet();
-        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
+        claimStrategy.ensureCapacity(sequence, gatingSequences);
         return sequence;
     }
 
@@ -129,7 +129,7 @@ public class Sequencer
 
         final long sequence = claimStrategy.incrementAndGet(batchSize);
         sequenceBatch.setEnd(sequence);
-        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
+        claimStrategy.ensureCapacity(sequence, gatingSequences);
         return sequenceBatch;
     }
 
@@ -150,7 +150,7 @@ public class Sequencer
      */
     public void claim(final long sequence)
     {
-        claimStrategy.ensureSequencesAreInRange(sequence, gatingSequences);
+        claimStrategy.ensureCapacity(sequence, gatingSequences);
     }
 
     /**

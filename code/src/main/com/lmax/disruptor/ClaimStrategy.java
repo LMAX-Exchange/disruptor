@@ -48,12 +48,12 @@ public interface ClaimStrategy
     void setSequence(final long sequence);
 
     /**
-     * Ensure dependent sequences are in range without over taking them for the buffer size.
+     * Ensure sufficient capacity remains in the buffer for the dependent sequences.
      *
      * @param sequence to check is in range
      * @param dependentSequences to be checked for range.
      */
-    void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences);
+    void ensureCapacity(final long sequence, final Sequence[] dependentSequences);
 
     /**
      * Serialise publishing in sequence.
@@ -133,7 +133,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
+        public void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -227,7 +227,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
+        public void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
