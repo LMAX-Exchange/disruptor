@@ -164,7 +164,7 @@ public interface ClaimStrategy
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
-                minGatingSequence.set(minSequence);
+                minGatingSequence.lazySet(minSequence);
 
                 if (wrapPoint > minSequence)
                 {
