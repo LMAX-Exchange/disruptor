@@ -28,6 +28,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     public void shouldPublishEvent()
     {
         RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, 32);
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
         EventPublisher<LongEvent> eventPublisher = new EventPublisher<LongEvent>(ringBuffer);
 
         eventPublisher.publishEvent(this);

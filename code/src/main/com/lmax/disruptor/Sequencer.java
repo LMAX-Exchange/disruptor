@@ -114,9 +114,7 @@ public class Sequencer
             throw new NullPointerException("gatingSequences must be set before claim sequences");
         }
 
-        final long sequence = claimStrategy.incrementAndGet();
-        claimStrategy.ensureCapacity(sequence, gatingSequences);
-        return sequence;
+        return claimStrategy.incrementAndGet(gatingSequences);
     }
 
     /**
@@ -139,9 +137,8 @@ public class Sequencer
             throw new IllegalArgumentException(msg);
         }
 
-        final long sequence = claimStrategy.incrementAndGet(batchSize);
+        final long sequence = claimStrategy.incrementAndGet(batchSize, gatingSequences);
         sequenceBatch.setEnd(sequence);
-        claimStrategy.ensureCapacity(sequence, gatingSequences);
         return sequenceBatch;
     }
 
@@ -157,8 +154,7 @@ public class Sequencer
             throw new NullPointerException("gatingSequences must be set before claim sequences");
         }
 
-        claimStrategy.setSequence(sequence);
-        claimStrategy.ensureCapacity(sequence, gatingSequences);
+        claimStrategy.setSequence(sequence, gatingSequences);
     }
 
     /**

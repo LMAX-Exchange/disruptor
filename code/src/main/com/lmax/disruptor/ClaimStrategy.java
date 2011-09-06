@@ -28,32 +28,27 @@ public interface ClaimStrategy
     /**
      * Claim the next sequence in the {@link Sequencer}.
      *
-     * @return the  index to be used for the publishing.
+     * @param dependentSequences to be checked for range.
+     * @return the index to be used for the publishing.
      */
-    long incrementAndGet();
+    long incrementAndGet(final Sequence[] dependentSequences);
 
     /**
      * Increment sequence by a delta and get the result.
      *
      * @param delta to increment by.
+     * @param dependentSequences to be checked for range.
      * @return the result after incrementing.
      */
-    long incrementAndGet(final int delta);
+    long incrementAndGet(final int delta, final Sequence[] dependentSequences);
 
     /**
      * Set the current sequence value for claiming an event in the {@link Sequencer}
      *
+     * @param dependentSequences to be checked for range.
      * @param sequence to be set as the current value.
      */
-    void setSequence(final long sequence);
-
-    /**
-     * Ensure sufficient capacity remains in the buffer for the dependent sequences.
-     *
-     * @param sequence to check is in range
-     * @param dependentSequences to be checked for range.
-     */
-    void ensureCapacity(final long sequence, final Sequence[] dependentSequences);
+    void setSequence(final long sequence, final Sequence[] dependentSequences);
 
     /**
      * Is there available capacity in the buffer for the requested sequence.
@@ -112,7 +107,7 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
-        private static final int RETRIES = 200;
+        private static final int RETRIES = 100;
         private final int bufferSize;
         private final PaddedAtomicLong minGatingSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
@@ -123,38 +118,30 @@ public interface ClaimStrategy
         }
 
         @Override
-        public long incrementAndGet()
+        public long incrementAndGet(final Sequence[] dependentSequences)
         {
-            return sequence.incrementAndGet();
+            checkCapacity(dependentSequences);
+            long value = sequence.incrementAndGet();
+            ensureCapacity(value, dependentSequences);
+
+            return value;
         }
 
         @Override
-        public long incrementAndGet(final int delta)
+        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            return sequence.addAndGet(delta);
+            checkCapacity(dependentSequences);
+            long value = sequence.addAndGet(delta);
+            ensureCapacity(value, dependentSequences);
+
+            return value;
         }
 
         @Override
-        public void setSequence(final long sequence)
+        public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
             this.sequence.lazySet(sequence);
-        }
-
-        @Override
-        public void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
-        {
-            final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                int counter = 100;
-                long minSequence;
-                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-                {
-                    counter = applyBackPressure(counter);
-                }
-
-                minGatingSequence.lazySet(minSequence);
-            }
+            ensureCapacity(sequence, dependentSequences);
         }
 
         @Override
@@ -182,8 +169,7 @@ public interface ClaimStrategy
             int counter = RETRIES;
             while (expectedSequence != cursor.get())
             {
-                --counter;
-                if (counter == 0)
+                if (--counter == 0)
                 {
                     counter = RETRIES;
                     Thread.yield();
@@ -191,9 +177,38 @@ public interface ClaimStrategy
             }
         }
 
+        private void checkCapacity(final Sequence[] dependentSequences)
+        {
+            int counter = RETRIES;
+            while (!hasAvailableCapacity(dependentSequences))
+            {
+                counter = applyBackPressure(counter);
+            }
+        }
+
+        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
+            {
+                int counter = RETRIES;
+                long minSequence;
+                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+                {
+                    if (--counter == 0)
+                    {
+                        counter = RETRIES;
+                        Thread.yield();
+                    }
+                }
+
+                minGatingSequence.lazySet(minSequence);
+            }
+        }
+
         private int applyBackPressure(int counter)
         {
-            if (counter > 0)
+            if (0 != counter)
             {
                 --counter;
                 Thread.yield();
@@ -202,7 +217,6 @@ public interface ClaimStrategy
             {
                 try
                 {
-                    counter = RETRIES;
                     Thread.sleep(1L);
                 }
                 catch (InterruptedException e)
@@ -232,42 +246,32 @@ public interface ClaimStrategy
         }
 
         @Override
-        public long incrementAndGet()
+        public long incrementAndGet(final Sequence[] dependentSequences)
         {
+            checkCapacity(dependentSequences);
             long value = sequence.get() + 1L;
             sequence.set(value);
+            ensureCapacity(value, dependentSequences);
+
             return value;
         }
 
         @Override
-        public long incrementAndGet(final int delta)
+        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
+            checkCapacity(dependentSequences);
             long value = sequence.get() + delta;
             sequence.set(value);
+            ensureCapacity(value, dependentSequences);
+
             return value;
         }
 
         @Override
-        public void setSequence(final long sequence)
+        public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
             this.sequence.set(sequence);
-        }
-
-        @Override
-        public void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
-        {
-            final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence;
-                int counter = RETRIES;
-                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-                {
-                    counter = applyBackPressure(counter);
-                }
-
-                minGatingSequence.set(minSequence);
-            }
+            ensureCapacity(sequence, dependentSequences);
         }
 
         @Override
@@ -293,9 +297,38 @@ public interface ClaimStrategy
         {
         }
 
+        private void checkCapacity(final Sequence[] dependentSequences)
+        {
+            int counter = RETRIES;
+            while (!hasAvailableCapacity(dependentSequences))
+            {
+                counter = applyBackPressure(counter);
+            }
+        }
+
+        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
+        {
+            final long wrapPoint = sequence - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
+            {
+                long minSequence;
+                int counter = RETRIES;
+                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+                {
+                    if (--counter == 0)
+                    {
+                        counter = RETRIES;
+                        Thread.yield();
+                    }
+                }
+
+                minGatingSequence.set(minSequence);
+            }
+        }
+
         private int applyBackPressure(int counter)
         {
-            if (counter > 0)
+            if (0 != counter)
             {
                 --counter;
                 Thread.yield();
@@ -304,7 +337,6 @@ public interface ClaimStrategy
             {
                 try
                 {
-                    counter = RETRIES;
                     Thread.sleep(1L);
                 }
                 catch (InterruptedException e)
