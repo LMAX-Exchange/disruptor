@@ -240,7 +240,7 @@ public interface WaitStrategy
      * Sleeping strategy that initially spins, then uses a Thread.yield(), and eventually sleeping for 1ms
      * while the {@link EventProcessor}s are waiting on a barrier.
      *
-     * This strategy is a good compromise between performance and CPU resource.
+     * This strategy is a good compromise between performance and CPU resource. Latency spikes can occur after quiet periods.
      */
     static final class SleepingStrategy implements WaitStrategy
     {
@@ -351,7 +351,7 @@ public interface WaitStrategy
      * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier
      * after an initially spinning.
      *
-     * This strategy is a good compromise between performance and CPU resource.
+     * This strategy is a good compromise between performance and CPU resource without significant latency spikes.
      */
     static final class YieldingStrategy implements WaitStrategy
     {

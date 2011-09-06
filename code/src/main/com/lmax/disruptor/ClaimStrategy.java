@@ -21,19 +21,19 @@ import com.lmax.disruptor.util.PaddedLong;
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
- * Strategies employed for claiming the sequence of events in the {@link RingBuffer} by publishers.
+ * Strategies employed for claiming the sequence of events in the {@link Sequencer} by publishers.
  */
 public interface ClaimStrategy
 {
     /**
-     * Claim the next sequence index in the {@link RingBuffer} and increment.
+     * Claim the next sequence in the {@link Sequencer}.
      *
-     * @return the event index to be used for the publisher.
+     * @return the  index to be used for the publishing.
      */
     long incrementAndGet();
 
     /**
-     * Increment by a delta and get the result.
+     * Increment sequence by a delta and get the result.
      *
      * @param delta to increment by.
      * @return the result after incrementing.
@@ -41,7 +41,7 @@ public interface ClaimStrategy
     long incrementAndGet(final int delta);
 
     /**
-     * Set the current sequence value for claiming an event in the {@link RingBuffer}
+     * Set the current sequence value for claiming an event in the {@link Sequencer}
      *
      * @param sequence to be set as the current value.
      */
@@ -74,11 +74,11 @@ public interface ClaimStrategy
     void serialisePublishing(final Sequence cursor, final long sequence, final long batchSize);
 
     /**
-     * Indicates the threading policy to be applied for claiming events by publisher to the {@link RingBuffer}
+     * Indicates the threading policy to be applied for claiming events by publisher to the {@link Sequencer}
      */
     enum Option
     {
-        /** Makes the {@link RingBuffer} thread safe for claiming events by multiple producing threads. */
+        /** Makes the {@link Sequencer} thread safe for claiming events by multiple producing threads. */
         MULTI_THREADED
         {
             @Override
@@ -88,7 +88,7 @@ public interface ClaimStrategy
             }
         },
 
-         /** Optimised {@link RingBuffer} for use by single thread claiming events as a publisher. */
+         /** Optimised {@link Sequencer} for use by single thread claiming events as a publisher. */
         SINGLE_THREADED
         {
             @Override
@@ -99,16 +99,16 @@ public interface ClaimStrategy
         };
 
         /**
-         * Used by the {@link RingBuffer} as a polymorphic constructor.
+         * Used by the {@link Sequencer} as a polymorphic constructor.
          *
-         * @param bufferSize of the {@link RingBuffer} for events.
+         * @param bufferSize of the {@link Sequencer} for events.
          * @return a new instance of the ClaimStrategy
          */
         abstract ClaimStrategy newInstance(final int bufferSize);
     }
 
     /**
-     * Strategy to be used when there are multiple publisher threads claiming events.
+     * Strategy to be used when there are multiple publisher threads claiming sequences.
      */
     static final class MultiThreadedStrategy
         implements ClaimStrategy
@@ -192,7 +192,6 @@ public interface ClaimStrategy
             }
         }
 
-
         private int applyBackPressure(int counter)
         {
             if (counter > 0)
@@ -218,7 +217,7 @@ public interface ClaimStrategy
     }
 
     /**
-     * Optimised strategy can be used when there is a single publisher thread claiming events.
+     * Optimised strategy can be used when there is a single publisher thread claiming sequences.
      */
     static final class SingleThreadedStrategy
         implements ClaimStrategy
