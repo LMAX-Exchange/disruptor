@@ -160,6 +160,7 @@ public class Sequencer
      */
     public void claim(final long sequence)
     {
+        claimStrategy.setSequence(sequence);
         claimStrategy.ensureCapacity(sequence, gatingSequences);
     }
 
@@ -173,7 +174,6 @@ public class Sequencer
      */
     public void forcePublish(final long sequence)
     {
-        claimStrategy.setSequence(sequence);
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
