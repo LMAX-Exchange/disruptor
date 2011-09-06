@@ -114,10 +114,11 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
     }
 
-    /** Specify an exception handler to be used for any future event handlers.
+    /**
+     * Specify an exception handler to be used for any future event handlers.
      * Note that only event handlers set up after calling this method will use the exception handler.
      *
-     * @param exceptionHandler the exception handler to use for any future eventprocessors.
+     * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
      */
     public void handleExceptionsWith(final ExceptionHandler exceptionHandler)
     {
@@ -136,7 +137,8 @@ public class Disruptor<T>
         return new ExceptionHandlerSetting<T>(eventHandler, eventProcessorRepository);
     }
 
-    /** Create a group of event handlers to be used as a dependency.
+    /**
+     * Create a group of event handlers to be used as a dependency.
      * For example if the handler <code>A</code> must process events before handler <code>B</code>:
      * <p/>
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
@@ -157,11 +159,12 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, eventProcessorRepository, selectedEventProcessors);
     }
 
-    /** Create a group of event processors to be used as a dependency.
+    /**
+     * Create a group of event processors to be used as a dependency.
      *
      * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
      *                   that will form the barrier for subsequent handlers or processors.
-     * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over hte specified event processors.
+     * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over hte specified event processors.
      * @see #after(com.lmax.disruptor.EventHandler[])
      */
     public EventHandlerGroup<T> after(final EventProcessor... processors)
@@ -173,7 +176,8 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
     }
 
-    /** Publish an event to the ring buffer.
+    /**
+     * Publish an event to the ring buffer.
      *
      * @param eventTranslator the translator that will load data into the event.
      */
@@ -201,7 +205,8 @@ public class Disruptor<T>
         return ringBuffer;
     }
 
-    /** The the {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
+    /**
+     * The the {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
      * event processors if the behaviour of {@link BatchEventProcessor} is not suitable.
      *
      * @return the ring buffer used by this Disruptor.
@@ -212,7 +217,7 @@ public class Disruptor<T>
     }
 
     /**
-     * Get the dependency barrier used by a specific handler. Note that the dependency barrier
+     * Get the {@link SequenceBarrier} used by a specific handler. Note that the {@link SequenceBarrier}
      * may be shared by multiple event handlers.
      *
      * @param handler the handler to get the barrier for.
