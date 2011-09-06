@@ -130,7 +130,6 @@ public interface ClaimStrategy
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            checkCapacity(dependentSequences);
             long value = sequence.addAndGet(delta);
             ensureCapacity(value, dependentSequences);
 
@@ -179,10 +178,17 @@ public interface ClaimStrategy
 
         private void checkCapacity(final Sequence[] dependentSequences)
         {
-            int counter = RETRIES;
-            while (!hasAvailableCapacity(dependentSequences))
+            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
+            if (wrapPoint > minGatingSequence.get())
             {
-                counter = applyBackPressure(counter);
+                int counter = RETRIES;
+                long minSequence;
+                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+                {
+                    counter = applyBackPressure(counter);
+                }
+
+                minGatingSequence.lazySet(minSequence);
             }
         }
 
@@ -248,7 +254,6 @@ public interface ClaimStrategy
         @Override
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
-            checkCapacity(dependentSequences);
             long value = sequence.get() + 1L;
             sequence.set(value);
             ensureCapacity(value, dependentSequences);
@@ -259,7 +264,6 @@ public interface ClaimStrategy
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            checkCapacity(dependentSequences);
             long value = sequence.get() + delta;
             sequence.set(value);
             ensureCapacity(value, dependentSequences);
@@ -297,15 +301,6 @@ public interface ClaimStrategy
         {
         }
 
-        private void checkCapacity(final Sequence[] dependentSequences)
-        {
-            int counter = RETRIES;
-            while (!hasAvailableCapacity(dependentSequences))
-            {
-                counter = applyBackPressure(counter);
-            }
-        }
-
         private void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
@@ -324,28 +319,6 @@ public interface ClaimStrategy
 
                 minGatingSequence.set(minSequence);
             }
-        }
-
-        private int applyBackPressure(int counter)
-        {
-            if (0 != counter)
-            {
-                --counter;
-                Thread.yield();
-            }
-            else
-            {
-                try
-                {
-                    Thread.sleep(1L);
-                }
-                catch (InterruptedException e)
-                {
-                    // don't care
-                }
-            }
-
-            return counter;
         }
     }
 }
