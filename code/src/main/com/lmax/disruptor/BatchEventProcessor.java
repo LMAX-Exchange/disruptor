@@ -114,7 +114,9 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
+        sequenceBarrier.clearAlert();
         running = true;
+
         if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
         {
             ((LifecycleAware) eventHandler).onStart();

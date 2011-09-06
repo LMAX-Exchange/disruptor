@@ -27,8 +27,6 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final Sequence[] dependentSequences;
     private volatile boolean alerted = false;
 
-    public volatile long p1, p2, p3, p4, p5, p6, p7 = 7L; // cache line padding
-
     public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
                                      final Sequence cursorSequence,
                                      final Sequence[] dependentSequences)

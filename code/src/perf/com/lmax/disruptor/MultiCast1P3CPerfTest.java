@@ -212,7 +212,6 @@ public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber)
     {
-        sequenceBarrier.clearAlert();
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             handlers[i].reset();

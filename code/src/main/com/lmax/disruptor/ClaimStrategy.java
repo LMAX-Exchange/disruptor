@@ -105,8 +105,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
+        private final PaddedAtomicLong minGatingSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
-        private final PaddedAtomicLong minTrackedSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         public MultiThreadedStrategy(final int bufferSize)
         {
@@ -135,7 +135,7 @@ public interface ClaimStrategy
         public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minTrackedSequence.get())
+            if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -143,7 +143,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minTrackedSequence.lazySet(minSequence);
+                minGatingSequence.lazySet(minSequence);
             }
         }
 
@@ -170,8 +170,8 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
+        private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedLong sequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-        private final PaddedLong minTrackedSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         public SingleThreadedStrategy(final int bufferSize)
         {
@@ -204,7 +204,7 @@ public interface ClaimStrategy
         public void ensureSequencesAreInRange(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minTrackedSequence.get())
+            if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -212,7 +212,7 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
 
-                minTrackedSequence.set(minSequence);
+                minGatingSequence.set(minSequence);
             }
         }
 

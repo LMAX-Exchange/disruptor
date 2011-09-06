@@ -168,8 +168,6 @@ public final class Sequencer3P1CPerfTest extends AbstractPerfTestQueueVsDisrupto
     @Override
     protected long runDisruptorPass(final int passNumber) throws Exception
     {
-        sequenceBarrier.clearAlert();
-
         Future[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {

@@ -208,8 +208,6 @@ public final class DiamondPath1P3CPerfTest extends AbstractPerfTestQueueVsDisrup
     protected long runQueuePass(int passNumber) throws Exception
     {
         fizzBuzzQueueProcessor.reset();
-        sequenceBarrier.clearAlert();
-        sequenceBarrierFizzBuzz.clearAlert();
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(fizzQueueProcessor);

@@ -241,9 +241,6 @@ public final class Pipeline3StepLatencyPerfTest
     private void runQueuePass() throws Exception
     {
         stepThreeQueueProcessor.reset();
-        stepOneSequenceBarrier.clearAlert();
-        stepTwoSequenceBarrier.clearAlert();
-        stepThreeSequenceBarrier.clearAlert();
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);

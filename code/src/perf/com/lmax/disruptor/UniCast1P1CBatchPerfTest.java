@@ -107,7 +107,6 @@ public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisru
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         handler.reset();
-        sequenceBarrier.clearAlert();
 
         EXECUTOR.submit(batchEventProcessor);
 

@@ -62,7 +62,7 @@ public class UniCastRaw1P1CPerfTest extends AbstractPerfTestQueueVsDisruptor
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         rawProcessor.reset();
-        barrier.clearAlert();
+
         EXECUTOR.submit(rawProcessor);
         long start = System.currentTimeMillis();
 

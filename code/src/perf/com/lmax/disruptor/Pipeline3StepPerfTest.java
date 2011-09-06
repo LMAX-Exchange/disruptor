@@ -155,9 +155,6 @@ public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisrupto
     protected long runDisruptorPass(final int passNumber)
     {
         stepThreeFunctionHandler.reset();
-        stepOneSequenceBarrier.clearAlert();
-        stepTwoSequenceBarrier.clearAlert();
-        stepThreeSequenceBarrier.clearAlert();
 
         EXECUTOR.submit(stepOneBatchProcessor);
         EXECUTOR.submit(stepTwoBatchProcessor);
