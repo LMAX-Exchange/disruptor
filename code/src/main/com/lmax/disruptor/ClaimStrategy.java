@@ -138,8 +138,8 @@ public interface ClaimStrategy
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
-                long minSequence;
                 int counter = 100;
+                long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
                     counter = applyBackPressure(counter);
@@ -156,13 +156,10 @@ public interface ClaimStrategy
             int counter = RETRIES;
             while (expectedSequence != cursor.get())
             {
-                if (counter > 100)
+                --counter;
+                if (counter < 0)
                 {
-                    --counter;
-                }
-                else
-                {
-                    counter = applyBackPressure(counter);
+                    Thread.yield();
                 }
             }
         }
