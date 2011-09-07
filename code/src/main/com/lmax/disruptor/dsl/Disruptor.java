@@ -40,10 +40,10 @@ public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
     private final Executor executor;
-    private ExceptionHandler exceptionHandler;
-    private EventProcessorRepository<T> eventProcessorRepository = new EventProcessorRepository<T>();
-    private AtomicBoolean started = new AtomicBoolean(false);
+    private final EventProcessorRepository<T> eventProcessorRepository = new EventProcessorRepository<T>();
+    private final AtomicBoolean started = new AtomicBoolean(false);
     private final EventPublisher<T> eventPublisher;
+    private ExceptionHandler exceptionHandler;
 
     /**
      * Create a new Disruptor.

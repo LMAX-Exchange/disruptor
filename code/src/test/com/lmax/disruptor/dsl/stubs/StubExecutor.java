@@ -18,14 +18,14 @@ package com.lmax.disruptor.dsl.stubs;
 import com.lmax.disruptor.support.DaemonThreadFactory;
 import org.junit.Assert;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 public class StubExecutor implements Executor
 {
-    private DaemonThreadFactory threadFactory = new DaemonThreadFactory();
-    private Collection<Thread> threads = new ArrayList<Thread>();
+    private final DaemonThreadFactory threadFactory = new DaemonThreadFactory();
+    private final Collection<Thread> threads = new ArrayList<Thread>();
     private boolean ignoreExecutions = false;
     private int executionCount = 0;
 
@@ -56,8 +56,10 @@ public class StubExecutor implements Executor
                     e.printStackTrace();
                 }
             }
+
             Assert.assertFalse("Failed to stop thread: " + thread, thread.isAlive());
         }
+
         threads.clear();
     }
 
