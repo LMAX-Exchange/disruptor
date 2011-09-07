@@ -63,8 +63,8 @@
             <src path="${dir.test.src}"/>
         </javac>
         <junit printsummary="on"
-               fork="false"
-               haltonfailure="true">
+               errorProperty="test.failed"
+               failureProperty="test.failed">
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
             <batchtest fork="false" todir="${dir.reports}/unit">
@@ -79,6 +79,7 @@
           </fileset>
           <report todir="${dir.reports}/unit" />
         </junitreport>
+        <fail message="Tests failed. Check log and/or reports." if="test.failed"/>
     </target>
 
     <target name="perf:test"
@@ -92,8 +93,7 @@
             <src path="${dir.perf.src}"/>
         </javac>
         <junit printsummary="on"
-               fork="false"
-               haltonfailure="false">
+               haltonfailure="true">
             <classpath refid="test.classpath"/>
             <formatter type="xml"/>
             <sysproperty key="com.lmax.runQueueTests" value="false"/>
