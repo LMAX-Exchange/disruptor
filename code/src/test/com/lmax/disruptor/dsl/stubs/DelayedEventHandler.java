@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DelayedEventHandler implements EventHandler<TestEvent>
 {
-    private AtomicBoolean readyToProcessEvent = new AtomicBoolean(false);
+    private final AtomicBoolean readyToProcessEvent = new AtomicBoolean(false);
     private volatile boolean stopped = false;
 
     @Override
