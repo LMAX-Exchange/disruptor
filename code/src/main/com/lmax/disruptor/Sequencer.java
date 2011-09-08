@@ -146,8 +146,9 @@ public class Sequencer
      * Claim a specific sequence when only one publisher is involved.
      *
      * @param sequence to be claimed.
+     * @return sequence just claimed.
      */
-    public void claim(final long sequence)
+    public long claim(final long sequence)
     {
         if (null == gatingSequences)
         {
@@ -155,6 +156,8 @@ public class Sequencer
         }
 
         claimStrategy.setSequence(sequence, gatingSequences);
+
+        return sequence;
     }
 
     /**
