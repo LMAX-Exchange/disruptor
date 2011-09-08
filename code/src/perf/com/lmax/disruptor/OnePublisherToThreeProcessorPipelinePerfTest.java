@@ -77,7 +77,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class Pipeline3StepPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class OnePublisherToThreeProcessorPipelinePerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;

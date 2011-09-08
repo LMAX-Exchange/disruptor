@@ -67,7 +67,7 @@ import java.util.concurrent.*;
  * EP1 - EventProcessor 1
  * </pre>
  */
-public final class UniCast1P1CBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class OnePublisherToOneProcessorUniCastBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 500L;

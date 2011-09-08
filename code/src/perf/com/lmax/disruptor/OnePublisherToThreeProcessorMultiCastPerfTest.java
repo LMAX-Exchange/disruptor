@@ -91,7 +91,7 @@ import java.util.concurrent.*;
  * </pre>
  */
 @SuppressWarnings("unchecked")
-public final class MultiCast1P3CPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class OnePublisherToThreeProcessorMultiCastPerfTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;
