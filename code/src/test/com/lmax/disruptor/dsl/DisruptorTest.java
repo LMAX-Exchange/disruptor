@@ -66,8 +66,8 @@ public class DisruptorTest
         throws Exception
     {
         executor.ignoreExecutions();
-        final EventHandler<TestEvent> eventHandler1 = new NoOpEventHandler();
-        EventHandler<TestEvent> eventHandler2 = new NoOpEventHandler();
+        final EventHandler<TestEvent> eventHandler1 = new SleepingEventHandler();
+        EventHandler<TestEvent> eventHandler2 = new SleepingEventHandler();
 
         final EventHandlerGroup<TestEvent> eventHandlerGroup =
             disruptor.handleEventsWith(eventHandler1, eventHandler2);
@@ -237,9 +237,9 @@ public class DisruptorTest
         throws Exception
     {
         executor.ignoreExecutions();
-        disruptor.handleEventsWith(new NoOpEventHandler());
+        disruptor.handleEventsWith(new SleepingEventHandler());
         disruptor.start();
-        disruptor.handleEventsWith(new NoOpEventHandler());
+        disruptor.handleEventsWith(new SleepingEventHandler());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -247,7 +247,7 @@ public class DisruptorTest
         throws Exception
     {
         executor.ignoreExecutions();
-        disruptor.handleEventsWith(new NoOpEventHandler());
+        disruptor.handleEventsWith(new SleepingEventHandler());
         disruptor.start();
         disruptor.start();
     }

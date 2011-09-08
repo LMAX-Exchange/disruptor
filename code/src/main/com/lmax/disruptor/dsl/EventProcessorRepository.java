@@ -26,7 +26,9 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
     private final Map<EventHandler, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
     private final Map<EventProcessor, EventProcessorInfo<T>> eventProcessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();
 
-    public void add(EventProcessor eventprocessor, EventHandler<T> handler, final SequenceBarrier barrier)
+    public void add(final EventProcessor eventprocessor,
+                    final EventHandler<T> handler,
+                    final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> eventProcessorInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
         eventProcessorInfoByHandler.put(handler, eventProcessorInfo);

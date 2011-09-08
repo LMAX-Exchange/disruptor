@@ -31,7 +31,8 @@ public class EventHandlerGroup<T>
     private final EventProcessorRepository<T> eventProcessorRepository;
     private final EventProcessor[] eventProcessors;
 
-    EventHandlerGroup(final Disruptor<T> disruptor, EventProcessorRepository<T> eventProcessorRepository,
+    EventHandlerGroup(final Disruptor<T> disruptor,
+                      final EventProcessorRepository<T> eventProcessorRepository,
                       final EventProcessor[] eventProcessors)
     {
         this.disruptor = disruptor;
@@ -55,6 +56,7 @@ public class EventHandlerGroup<T>
             combinedProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
         }
         System.arraycopy(eventProcessors, 0, combinedProcessors, handlers.length, eventProcessors.length);
+
         return new EventHandlerGroup<T>(disruptor, eventProcessorRepository, combinedProcessors);
     }
 
@@ -111,7 +113,6 @@ public class EventHandlerGroup<T>
     {
         return disruptor.createEventProcessors(eventProcessors, handlers);
     }
-
 
     /**
      * Create a dependency barrier for the processors in this group.

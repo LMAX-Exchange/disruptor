@@ -31,7 +31,8 @@ public class ExceptionHandlerSetting<T>
     private final EventHandler<T> eventHandler;
     private final EventProcessorRepository<T> eventProcessorRepository;
 
-    ExceptionHandlerSetting(final EventHandler<T> eventHandler, EventProcessorRepository<T> eventProcessorRepository)
+    ExceptionHandlerSetting(final EventHandler<T> eventHandler,
+                            final EventProcessorRepository<T> eventProcessorRepository)
     {
         this.eventHandler = eventHandler;
         this.eventProcessorRepository = eventProcessorRepository;

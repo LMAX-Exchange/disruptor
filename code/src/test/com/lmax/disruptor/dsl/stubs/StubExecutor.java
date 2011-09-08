@@ -19,20 +19,22 @@ import com.lmax.disruptor.support.DaemonThreadFactory;
 import org.junit.Assert;
 
 import java.util.Collection;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class StubExecutor implements Executor
 {
     private final DaemonThreadFactory threadFactory = new DaemonThreadFactory();
-    private final Collection<Thread> threads = new ArrayList<Thread>();
-    private boolean ignoreExecutions = false;
-    private int executionCount = 0;
+    private final Collection<Thread> threads = new CopyOnWriteArrayList<Thread>();
+    private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
+    private final AtomicInteger executionCount = new AtomicInteger(0);
 
     public void execute(final Runnable command)
     {
-        executionCount++;
-        if (!ignoreExecutions)
+        executionCount.getAndIncrement();
+        if (!ignoreExecutions.get())
         {
             Thread t = threadFactory.newThread(command);
             t.setName(command.toString());
@@ -65,11 +67,11 @@ public class StubExecutor implements Executor
 
     public void ignoreExecutions()
     {
-        ignoreExecutions = true;
+        ignoreExecutions.set(true);
     }
 
     public int getExecutionCount()
     {
-        return executionCount;
+        return executionCount.get();
     }
 }

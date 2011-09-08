@@ -173,6 +173,7 @@ public class Disruptor<T>
         {
             eventProcessorRepository.add(processor);
         }
+
         return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
     }
 
@@ -239,7 +240,8 @@ public class Disruptor<T>
         }
     }
 
-    EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors, final EventHandler<T>[] eventHandlers)
+    EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
+                                               final EventHandler<T>[] eventHandlers)
     {
         ensureNotStarted();
 
@@ -267,7 +269,7 @@ public class Disruptor<T>
     {
         if (started.get())
         {
-            throw new IllegalStateException("All event handlers must be added before calling start.");
+            throw new IllegalStateException("All event handlers must be added before calling starts.");
         }
     }
 

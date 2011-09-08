@@ -25,7 +25,7 @@ public class StubPublisher implements Runnable
 
     private final RingBuffer<TestEvent> ringBuffer;
 
-    public StubPublisher(RingBuffer<TestEvent> ringBuffer)
+    public StubPublisher(final RingBuffer<TestEvent> ringBuffer)
     {
         this.ringBuffer = ringBuffer;
     }
