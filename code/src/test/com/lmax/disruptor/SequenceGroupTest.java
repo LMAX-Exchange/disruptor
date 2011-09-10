@@ -20,24 +20,24 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-public final class GroupSequenceTest
+public final class SequenceGroupTest
 {
     @Test
     public void shouldReturnMaxSequenceWhenEmptyGroup()
     {
-        final GroupSequence groupSequence = new GroupSequence();
-        assertEquals(Long.MAX_VALUE, groupSequence.get());
+        final SequenceGroup sequenceGroup = new SequenceGroup();
+        assertEquals(Long.MAX_VALUE, sequenceGroup.get());
     }
 
     @Test
     public void shouldAddOneSequenceToGroup()
     {
         final Sequence sequence = new Sequence(7L);
-        final GroupSequence groupSequence = new GroupSequence();
+        final SequenceGroup sequenceGroup = new SequenceGroup();
 
-        groupSequence.add(sequence);
+        sequenceGroup.add(sequence);
 
-        assertEquals(sequence.get(), groupSequence.get());
+        assertEquals(sequence.get(), sequenceGroup.get());
     }
 
     @Test
@@ -45,23 +45,23 @@ public final class GroupSequenceTest
     {
         final Sequence sequenceThree = new Sequence(3L);
         final Sequence sequenceSeven = new Sequence(7L);
-        final GroupSequence groupSequence = new GroupSequence();
+        final SequenceGroup sequenceGroup = new SequenceGroup();
 
-        groupSequence.add(sequenceSeven);
-        groupSequence.add(sequenceThree);
+        sequenceGroup.add(sequenceSeven);
+        sequenceGroup.add(sequenceThree);
 
-        assertEquals(sequenceThree.get(), groupSequence.get());
+        assertEquals(sequenceThree.get(), sequenceGroup.get());
     }
 
     @Test
     public void shouldReportSizeOfGroup()
     {
-        final GroupSequence groupSequence = new GroupSequence();
-        groupSequence.add(new Sequence());
-        groupSequence.add(new Sequence());
-        groupSequence.add(new Sequence());
+        final SequenceGroup sequenceGroup = new SequenceGroup();
+        sequenceGroup.add(new Sequence());
+        sequenceGroup.add(new Sequence());
+        sequenceGroup.add(new Sequence());
 
-        assertEquals(3, groupSequence.size());
+        assertEquals(3, sequenceGroup.size());
     }
 
     @Test
@@ -69,16 +69,16 @@ public final class GroupSequenceTest
     {
         final Sequence sequenceThree = new Sequence(3L);
         final Sequence sequenceSeven = new Sequence(7L);
-        final GroupSequence groupSequence = new GroupSequence();
+        final SequenceGroup sequenceGroup = new SequenceGroup();
 
-        groupSequence.add(sequenceSeven);
-        groupSequence.add(sequenceThree);
+        sequenceGroup.add(sequenceSeven);
+        sequenceGroup.add(sequenceThree);
 
-        assertEquals(sequenceThree.get(), groupSequence.get());
+        assertEquals(sequenceThree.get(), sequenceGroup.get());
 
-        assertTrue(groupSequence.remove(sequenceThree));
-        assertEquals(sequenceSeven.get(), groupSequence.get());
-        assertEquals(1, groupSequence.size());
+        assertTrue(sequenceGroup.remove(sequenceThree));
+        assertEquals(sequenceSeven.get(), sequenceGroup.get());
+        assertEquals(1, sequenceGroup.size());
     }
 
     @Test
@@ -86,13 +86,13 @@ public final class GroupSequenceTest
     {
         final Sequence sequenceThree = new Sequence(3L);
         final Sequence sequenceSeven = new Sequence(7L);
-        final GroupSequence groupSequence = new GroupSequence();
+        final SequenceGroup sequenceGroup = new SequenceGroup();
 
-        groupSequence.add(sequenceSeven);
-        groupSequence.add(sequenceThree);
+        sequenceGroup.add(sequenceSeven);
+        sequenceGroup.add(sequenceThree);
 
         final long expectedSequence = 11L;
-        groupSequence.set(expectedSequence);
+        sequenceGroup.set(expectedSequence);
 
         assertEquals(expectedSequence, sequenceThree.get());
         assertEquals(expectedSequence, sequenceSeven.get());

@@ -21,17 +21,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Group {@link Sequence} that can dynamically have {@link Sequence}s added and removed while being
  * thread safe.
  * <p>
- * The {@link GroupSequence#get()} and {@link GroupSequence#set(long)} methods are lock free and can be
- * concurrently be called with the {@link GroupSequence#add(Sequence)} and {@link GroupSequence#remove(Sequence)}.
+ * The {@link SequenceGroup#get()} and {@link SequenceGroup#set(long)} methods are lock free and can be
+ * concurrently be called with the {@link SequenceGroup#add(Sequence)} and {@link SequenceGroup#remove(Sequence)}.
  */
-public final class GroupSequence extends Sequence
+public final class SequenceGroup extends Sequence
 {
     private final CopyOnWriteArrayList<Sequence> aggregateSequences = new CopyOnWriteArrayList<Sequence>();
 
     /**
      * Default Constructor
      */
-    public GroupSequence()
+    public SequenceGroup()
     {
     }
 
