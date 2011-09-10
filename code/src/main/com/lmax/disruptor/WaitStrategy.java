@@ -137,6 +137,7 @@ public interface WaitStrategy
     {
         private final Lock lock = new ReentrantLock();
         private final Condition processorNotifyCondition = lock.newCondition();
+        private volatile int numWaiters = 0;
 
         @Override
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
@@ -148,6 +149,7 @@ public interface WaitStrategy
                 lock.lock();
                 try
                 {
+                    ++numWaiters;
                     while ((availableSequence = cursor.get()) < sequence)
                     {
                         if (barrier.isAlerted())
@@ -159,6 +161,7 @@ public interface WaitStrategy
                 }
                 finally
                 {
+                    --numWaiters;
                     lock.unlock();
                 }
             }
@@ -188,6 +191,7 @@ public interface WaitStrategy
                 lock.lock();
                 try
                 {
+                    ++numWaiters;
                     while ((availableSequence = cursor.get()) < sequence)
                     {
                         if (barrier.isAlerted())
@@ -203,6 +207,7 @@ public interface WaitStrategy
                 }
                 finally
                 {
+                    --numWaiters;
                     lock.unlock();
                 }
             }
@@ -224,14 +229,17 @@ public interface WaitStrategy
         @Override
         public void signalAllWhenBlocking()
         {
-            lock.lock();
-            try
+            if (0 != numWaiters)
             {
-                processorNotifyCondition.signalAll();
-            }
-            finally
-            {
-                lock.unlock();
+                lock.lock();
+                try
+                {
+                    processorNotifyCondition.signalAll();
+                }
+                finally
+                {
+                    lock.unlock();
+                }
             }
         }
     }
