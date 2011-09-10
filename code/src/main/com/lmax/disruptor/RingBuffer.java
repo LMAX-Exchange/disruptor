@@ -63,7 +63,7 @@ public final class RingBuffer<T> extends Sequencer
     {
         this(eventFactory, size,
              ClaimStrategy.Option.MULTI_THREADED,
-             WaitStrategy.Option.SLEEPING);
+             WaitStrategy.Option.BLOCKING);
     }
 
     /**
