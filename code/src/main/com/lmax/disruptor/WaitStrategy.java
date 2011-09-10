@@ -70,7 +70,7 @@ public interface WaitStrategy
     {
         /**
          * This strategy uses a condition variable inside a lock to block the event processor
-         * which saves CPU resource as the expense of lock contention.
+         * which saves CPU resource at the expense of lock contention.
          */
         BLOCKING
         {
@@ -131,7 +131,7 @@ public interface WaitStrategy
     /**
      * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
      *
-     * This strategy should be used when performance and low-latency are not as important as CPU resource.
+     * This strategy can be used when throughput and low-latency are not as important as CPU resource.
      */
     static final class BlockingStrategy implements WaitStrategy
     {
@@ -359,7 +359,7 @@ public interface WaitStrategy
      * Yielding strategy that uses a Thread.yield() for {@link EventProcessor}s waiting on a barrier
      * after an initially spinning.
      *
-     * This strategy is a good compromise between performance and CPU resource without significant latency spikes.
+     * This strategy is a good compromise between performance and CPU resource without incurring significant latency spikes.
      */
     static final class YieldingStrategy implements WaitStrategy
     {
