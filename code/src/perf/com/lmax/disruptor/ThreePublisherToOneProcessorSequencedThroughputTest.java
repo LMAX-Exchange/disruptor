@@ -87,7 +87,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class ThreePublisherToOneProcessorSequencedPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class ThreePublisherToOneProcessorSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int SIZE = 1024 * 8;

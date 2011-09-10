@@ -82,7 +82,7 @@ import static org.junit.Assert.assertTrue;
  *
  * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
-public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyPerfTest
+public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;

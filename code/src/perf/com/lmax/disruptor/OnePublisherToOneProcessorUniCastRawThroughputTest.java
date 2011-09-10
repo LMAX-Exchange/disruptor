@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class OnePublisherToOneProcessorUniCastRawPerfTest extends AbstractPerfTestQueueVsDisruptor
+public class OnePublisherToOneProcessorUniCastRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 8;
     private static final int mask = SIZE - 1;

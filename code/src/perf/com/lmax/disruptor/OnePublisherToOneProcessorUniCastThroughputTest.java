@@ -15,9 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.PerfTestUtil;
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.support.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,8 +24,6 @@ import java.util.concurrent.*;
 /**
  * <pre>
  * UniCast a series of items between 1 publisher and 1 event processor.
- * This test illustrates the benefits of writing batches of 10 events
- * for exchange at a time.
  *
  * +----+    +-----+
  * | P1 |--->| EP1 |
@@ -65,14 +61,20 @@ import java.util.concurrent.*;
  * RB  - RingBuffer
  * SB  - SequenceBarrier
  * EP1 - EventProcessor 1
+ *
  * </pre>
  */
-public final class OnePublisherToOneProcessorUniCastBatchPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class OnePublisherToOneProcessorUniCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 500L;
+    private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,8 +101,28 @@ public final class OnePublisherToOneProcessorUniCastBatchPerfTest extends Abstra
     @Override
     protected long runQueuePass(final int passNumber) throws InterruptedException
     {
-        // Same expected results as UniCast scenario
-        return 0L;
+        queueProcessor.reset();
+        Future future = EXECUTOR.submit(queueProcessor);
+        long start = System.currentTimeMillis();
+
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            blockingQueue.put(Long.valueOf(i));
+        }
+
+        final long expectedSequence = ITERATIONS - 1L;
+        while (queueProcessor.getSequence() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        queueProcessor.halt();
+        future.cancel(true);
+
+        Assert.assertEquals(expectedResult, queueProcessor.getValue());
+
+        return opsPerSecond;
     }
 
     @Override
@@ -109,22 +131,14 @@ public final class OnePublisherToOneProcessorUniCastBatchPerfTest extends Abstra
         handler.reset();
 
         EXECUTOR.submit(batchEventProcessor);
-
-        final int batchSize = 10;
-        final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
-
         long start = System.currentTimeMillis();
 
-        long offset = 0;
-        for (long i = 0; i < ITERATIONS; i += batchSize)
+        for (long i = 0; i < ITERATIONS; i++)
         {
-            ringBuffer.next(sequenceBatch);
-            for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
-            {
-                ValueEvent event = ringBuffer.get(c);
-                event.setValue(offset++);
-            }
-            ringBuffer.publish(sequenceBatch);
+            long sequence = ringBuffer.next();
+            ValueEvent event = ringBuffer.get(sequence);
+            event.setValue(i);
+            ringBuffer.publish(sequence);
         }
 
         final long expectedSequence = ringBuffer.getCursor();

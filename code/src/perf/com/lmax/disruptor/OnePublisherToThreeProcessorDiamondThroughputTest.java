@@ -91,7 +91,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class OnePublisherToThreeProcessorDiamondPerfTest extends AbstractPerfTestQueueVsDisruptor
+public final class OnePublisherToThreeProcessorDiamondThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int SIZE = 1024 * 8;

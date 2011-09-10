@@ -51,64 +51,56 @@
         </javac>
     </target>
 
+    <macrodef name="perform-tests">
+        <attribute name="source.dir"/>
+        <attribute name="test.type"/>
+        <attribute name="include.pattern"/>
+        <sequential>
+            <javac destdir="${dir.test.build}"
+                   includeAntRuntime="false"
+                   debug="true"
+                   nowarn="true">
+                <classpath refid="test.classpath"/>
+                <src path="@{source.dir}"/>
+            </javac>
+            <junit printsummary="on"
+                   errorProperty="test.failed"
+                   failureProperty="test.failed">
+                <sysproperty key="com.lmax.runQueueTests" value="false"/>
+                <classpath refid="test.classpath"/>
+                <formatter type="xml"/>
+                <batchtest fork="false" todir="${dir.reports}/@{test.type}">
+                    <fileset dir="@{source.dir}">
+                        <include name="@{include.pattern}"/>
+                    </fileset>
+                </batchtest>
+            </junit>
+            <junitreport todir="${dir.reports}/@{test.type}">
+              <fileset dir="${dir.reports}/@{test.type}">
+                <include name="TEST-*.xml" />
+              </fileset>
+              <report todir="${dir.reports}/@{test.type}" />
+            </junitreport>
+            <fail message="Tests failed. Check log and/or reports." if="test.failed"/>
+        </sequential>
+    </macrodef>
+
     <target name="test"
             depends="test:prepare, build"
             description="Run the unit tests">
-        <javac destdir="${dir.test.build}"
-               includeAntRuntime="false"
-               debug="true"
-               nowarn="true">
-            <compilerarg value="-Xlint:unchecked"/>
-            <classpath refid="test.classpath"/>
-            <src path="${dir.test.src}"/>
-        </javac>
-        <junit printsummary="on"
-               errorProperty="test.failed"
-               failureProperty="test.failed">
-            <classpath refid="test.classpath"/>
-            <formatter type="xml"/>
-            <batchtest fork="false" todir="${dir.reports}/unit">
-                <fileset dir="${dir.test.src}">
-                    <include name="**/*Test.java"/>
-                </fileset>
-            </batchtest>
-        </junit>
-        <junitreport todir="${dir.reports}/unit">
-          <fileset dir="${dir.reports}/unit">
-            <include name="TEST-*.xml" />
-          </fileset>
-          <report todir="${dir.reports}/unit" />
-        </junitreport>
-        <fail message="Tests failed. Check log and/or reports." if="test.failed"/>
+        <perform-tests source.dir="${dir.test.src}" test.type="unit" include.pattern="**/*Test.java"/>
     </target>
 
-    <target name="perf:test"
+    <target name="throughput:test"
             depends="test:prepare, build"
-            description="Run the performance tests">
-        <javac destdir="${dir.test.build}"
-               includeAntRuntime="false"
-               debug="true"
-               nowarn="true">
-            <classpath refid="test.classpath"/>
-            <src path="${dir.perf.src}"/>
-        </javac>
-        <junit printsummary="on"
-               haltonfailure="true">
-            <classpath refid="test.classpath"/>
-            <formatter type="xml"/>
-            <sysproperty key="com.lmax.runQueueTests" value="false"/>
-            <batchtest fork="false" todir="${dir.reports}/perf">
-                <fileset dir="${dir.perf.src}">
-                    <include name="**/*PerfTest.java"/>
-                </fileset>
-            </batchtest>
-        </junit>
-        <junitreport todir="${dir.reports}/perf">
-          <fileset dir="${dir.reports}/perf">
-            <include name="TEST-*.xml" />
-          </fileset>
-          <report todir="${dir.reports}/perf"/>
-        </junitreport>
+            description="Run the throughput performance tests">
+        <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/*ThroughputTest.java"/>
+    </target>
+
+    <target name="latency:test"
+            depends="test:prepare, build"
+            description="Run the latency performance tests">
+        <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/*LatencyTest.java"/>
     </target>
 
     <target name="javadoc" depends="main:prepare">
