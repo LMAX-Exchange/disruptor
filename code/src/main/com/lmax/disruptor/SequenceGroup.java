@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Group {@link Sequence} that can dynamically have {@link Sequence}s added and removed while being
+ * {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
  * thread safe.
  * <p>
  * The {@link SequenceGroup#get()} and {@link SequenceGroup#set(long)} methods are lock free and can be
