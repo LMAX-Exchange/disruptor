@@ -54,6 +54,11 @@ public final class GroupSequence extends Sequence
         return minimum;
     }
 
+    /**
+     * Set all {@link Sequence}s in the group to a given value.
+     *
+     * @param value to set the group of sequences to.
+     */
     @Override
     public void set(final long value)
     {
@@ -74,13 +79,14 @@ public final class GroupSequence extends Sequence
     }
 
     /**
-     * Remove a {@link Sequence} from this aggregate.
+     * Remove the first occurrence of the {@link Sequence} from this aggregate.
      *
      * @param sequence to be removed from this aggregate.
+     * @return true if the sequence was removed otherwise false.
      */
-    public void remove(final Sequence sequence)
+    public boolean remove(final Sequence sequence)
     {
-        aggregateSequences.remove(sequence);
+        return aggregateSequences.remove(sequence);
     }
 
     /**

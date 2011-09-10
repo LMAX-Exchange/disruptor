@@ -18,6 +18,7 @@ package com.lmax.disruptor;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 public final class GroupSequenceTest
 {
@@ -75,7 +76,7 @@ public final class GroupSequenceTest
 
         assertEquals(sequenceThree.get(), groupSequence.get());
 
-        groupSequence.remove(sequenceThree);
+        assertTrue(groupSequence.remove(sequenceThree));
         assertEquals(sequenceSeven.get(), groupSequence.get());
         assertEquals(1, groupSequence.size());
     }
