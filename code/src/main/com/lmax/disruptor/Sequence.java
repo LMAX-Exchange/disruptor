@@ -9,7 +9,14 @@ import com.lmax.disruptor.util.PaddedAtomicLong;
  */
 public class Sequence
 {
-    private final PaddedAtomicLong value = new PaddedAtomicLong();
+    private final PaddedAtomicLong value = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+
+    /**
+     * Default Constructor that uses an initial value of {@link Sequencer#INITIAL_CURSOR_VALUE}.
+     */
+    public Sequence()
+    {
+    }
 
     /**
      * Construct a sequence counter that can be tracked across threads.
