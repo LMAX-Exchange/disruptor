@@ -16,21 +16,21 @@
 package com.lmax.disruptor;
 
 /**
- * No operation version of a {@link EventProcessor} that simply tracks a {@link RingBuffer}.
+ * No operation version of a {@link EventProcessor} that simply tracks a {@link Sequencer}.
  * This is useful in tests or for pre-filling a {@link RingBuffer} from a publisher.
  */
 public final class NoOpEventProcessor implements EventProcessor
 {
-    private final RingBufferTrackingSequence sequence;
+    private final SequencerFollowingSequence sequence;
 
     /**
-     * Construct a {@link EventProcessor} that simply tracks a {@link RingBuffer}.
+     * Construct a {@link EventProcessor} that simply tracks a {@link Sequencer}.
      *
-     * @param ringBuffer to track.
+     * @param sequencer to track.
      */
-    public NoOpEventProcessor(final RingBuffer ringBuffer)
+    public NoOpEventProcessor(final Sequencer sequencer)
     {
-        sequence = new RingBufferTrackingSequence(ringBuffer);
+        sequence = new SequencerFollowingSequence(sequencer);
     }
 
     @Override
@@ -49,20 +49,20 @@ public final class NoOpEventProcessor implements EventProcessor
     {
     }
 
-    private static final class RingBufferTrackingSequence extends Sequence
+    private static final class SequencerFollowingSequence extends Sequence
     {
-        private final RingBuffer ringBuffer;
+        private final Sequencer sequencer;
 
-        private RingBufferTrackingSequence(final RingBuffer ringBuffer)
+        private SequencerFollowingSequence(final Sequencer sequencer)
         {
             super(Sequencer.INITIAL_CURSOR_VALUE);
-            this.ringBuffer = ringBuffer;
+            this.sequencer = sequencer;
         }
 
         @Override
         public long get()
         {
-            return ringBuffer.getCursor();
+            return sequencer.getCursor();
         }
     }
 }
