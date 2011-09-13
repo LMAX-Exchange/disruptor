@@ -23,6 +23,11 @@ import org.junit.Test;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This performance test illustrates direct use of the {@link Sequencer} without requiring a {@link RingBuffer}.
+ * <p>
+ * The {@link Sequencer} can be used to sequence access to any data structure as can been seen from the use of the "values" array below.
+ */
 public class OnePublisherToOneProcessorUniCastRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int SIZE = 1024 * 8;
@@ -37,7 +42,6 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     private final Sequencer sequencer = new Sequencer(SIZE, ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.YIELDING);
     private final SequenceBarrier barrier = sequencer.newBarrier();
     private final RawProcessor rawProcessor = new RawProcessor(values, barrier);
-
     {
         sequencer.setGatingSequences(rawProcessor.getSequence());
     }
