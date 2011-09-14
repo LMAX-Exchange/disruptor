@@ -38,4 +38,9 @@ public final class PaddedLong extends MutableLong
     {
         super(initialValue);
     }
+
+    public long sumPaddingToPreventOptimisation()
+    {
+        return p1 + p2 + p3 + p4 + p5 + p6;
+    }
 }
