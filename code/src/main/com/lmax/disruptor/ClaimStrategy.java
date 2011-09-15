@@ -112,7 +112,7 @@ public interface ClaimStrategy
         private final int bufferSize;
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
 
-        private static final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
+        private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
         {
             @Override
             protected MutableLong initialValue()
