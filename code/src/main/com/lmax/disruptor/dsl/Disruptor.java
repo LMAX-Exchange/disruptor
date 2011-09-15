@@ -240,6 +240,7 @@ public class Disruptor<T>
         }
     }
 
+    @SuppressWarnings(value="unchecked")
     EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
                                                final EventHandler<T>[] eventHandlers)
     {
@@ -251,7 +252,17 @@ public class Disruptor<T>
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
             final EventHandler<T> eventHandler = eventHandlers[i];
-            final BatchEventProcessor<T> batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
+
+            final BatchEventProcessor<T> batchEventProcessor;
+            if (eventHandler instanceof SequenceReportingEventHandler)
+            {
+                batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, (SequenceReportingEventHandler)eventHandler);
+            }
+            else
+            {
+                batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
+            }
+
             if (exceptionHandler != null)
             {
                 batchEventProcessor.setExceptionHandler(exceptionHandler);
