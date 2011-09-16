@@ -132,6 +132,8 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
         public void run()
         {
             running = true;
+            barrier.clearAlert();
+
             long nextSequence = sequence.get() + 1L;
             while (true)
             {
@@ -148,10 +150,10 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
                 }
                 catch (final AlertException ex)
                 {
-                   if (!running)
-                   {
-                       break;
-                   }
+                    if (!running)
+                    {
+                        break;
+                    }
                 }
                 catch (Exception ex)
                 {
