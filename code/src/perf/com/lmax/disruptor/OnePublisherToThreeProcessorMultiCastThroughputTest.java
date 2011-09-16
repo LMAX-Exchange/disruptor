@@ -90,7 +90,6 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-@SuppressWarnings("unchecked")
 public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
@@ -110,6 +109,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unchecked")
     private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_EVENT_PROCESSORS];
     {
         blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE);
