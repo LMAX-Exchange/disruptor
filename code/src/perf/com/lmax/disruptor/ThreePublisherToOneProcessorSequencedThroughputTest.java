@@ -101,9 +101,10 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
     {
-        valueQueuePublishers[0] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
-        valueQueuePublishers[1] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
-        valueQueuePublishers[2] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
+        {
+            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,9 +119,10 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
     {
-        valuePublishers[0] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
-        valuePublishers[1] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
-        valuePublishers[2] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
+        for (int i = 0; i < NUM_PUBLISHERS; i++)
+        {
+            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
+        }
 
         ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
     }
