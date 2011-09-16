@@ -68,4 +68,11 @@ public interface SequenceBarrier
      * Clear the current alert status.
      */
     void clearAlert();
+
+    /**
+     * Check if an alert has been raised and throw an {@link AlertException} if it has.
+     *
+     * @throws AlertException if alert has been raised.
+     */
+    void checkAlert() throws AlertException;
 }

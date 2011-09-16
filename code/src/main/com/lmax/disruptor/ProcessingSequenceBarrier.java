@@ -17,6 +17,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
+
 /**
  * {@link SequenceBarrier} handed out for gating {@link EventProcessor}s on a cursor sequence and optional dependent {@link EventProcessor}(s)
  */
@@ -40,6 +42,8 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     public long waitFor(final long sequence)
         throws AlertException, InterruptedException
     {
+        checkAlert();
+
         return waitStrategy.waitFor(dependentSequences, cursorSequence, this, sequence);
     }
 
@@ -47,6 +51,8 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     public long waitFor(final long sequence, final long timeout, final TimeUnit units)
         throws AlertException, InterruptedException
     {
+        checkAlert();
+
         return waitStrategy.waitFor(dependentSequences, cursorSequence, this, sequence, timeout, units);
     }
 
@@ -73,5 +79,14 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     public void clearAlert()
     {
         alerted = false;
+    }
+
+    @Override
+    public void checkAlert() throws AlertException
+    {
+        if (alerted)
+        {
+            throw ALERT_EXCEPTION;
+        }
     }
 }

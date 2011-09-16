@@ -20,7 +20,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
@@ -143,8 +142,6 @@ public interface WaitStrategy
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             long availableSequence;
             if ((availableSequence = cursor.get()) < sequence)
             {
@@ -154,7 +151,7 @@ public interface WaitStrategy
                     ++numWaiters;
                     while ((availableSequence = cursor.get()) < sequence)
                     {
-                        checkAlert(barrier);
+                        barrier.checkAlert();
                         processorNotifyCondition.await();
                     }
                 }
@@ -169,7 +166,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
                 }
             }
 
@@ -181,8 +178,6 @@ public interface WaitStrategy
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             long availableSequence;
             if ((availableSequence = cursor.get()) < sequence)
             {
@@ -192,7 +187,7 @@ public interface WaitStrategy
                     ++numWaiters;
                     while ((availableSequence = cursor.get()) < sequence)
                     {
-                        checkAlert(barrier);
+                        barrier.checkAlert();
 
                         if (!processorNotifyCondition.await(timeout, units))
                         {
@@ -211,7 +206,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
                 }
             }
 
@@ -234,14 +229,6 @@ public interface WaitStrategy
                 }
             }
         }
-
-        private void checkAlert(final SequenceBarrier barrier) throws AlertException
-        {
-            if (barrier.isAlerted())
-            {
-                throw ALERT_EXCEPTION;
-            }
-        }
     }
 
     /**
@@ -258,8 +245,6 @@ public interface WaitStrategy
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             long availableSequence;
             int counter = RETRIES;
 
@@ -286,8 +271,6 @@ public interface WaitStrategy
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
@@ -329,7 +312,7 @@ public interface WaitStrategy
         private int applyWaitMethod(final SequenceBarrier barrier, int counter)
             throws AlertException
         {
-            checkAlert(barrier);
+            barrier.checkAlert();
 
             if (counter > 100)
             {
@@ -354,14 +337,6 @@ public interface WaitStrategy
 
             return counter;
         }
-
-        private void checkAlert(final SequenceBarrier barrier) throws AlertException
-        {
-            if (barrier.isAlerted())
-            {
-                throw ALERT_EXCEPTION;
-            }
-        }
     }
 
     /**
@@ -378,8 +353,6 @@ public interface WaitStrategy
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             long availableSequence;
             int counter = SPIN_TRIES;
 
@@ -406,8 +379,6 @@ public interface WaitStrategy
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
@@ -449,7 +420,7 @@ public interface WaitStrategy
         private int applyWaitMethod(final SequenceBarrier barrier, int counter)
             throws AlertException
         {
-            checkAlert(barrier);
+            barrier.checkAlert();
 
             if (0 == counter)
             {
@@ -461,14 +432,6 @@ public interface WaitStrategy
             }
 
             return counter;
-        }
-
-        private void checkAlert(final SequenceBarrier barrier) throws AlertException
-        {
-            if (barrier.isAlerted())
-            {
-                throw ALERT_EXCEPTION;
-            }
         }
     }
 
@@ -484,22 +447,20 @@ public interface WaitStrategy
         public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             long availableSequence;
 
             if (0 == dependents.length)
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
                 }
             }
             else
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
                 }
             }
 
@@ -511,8 +472,6 @@ public interface WaitStrategy
                             final long sequence, final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
-            checkAlert(barrier);
-
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
             final long currentTime = System.currentTimeMillis();
             long availableSequence;
@@ -521,7 +480,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = cursor.get()) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -533,7 +492,7 @@ public interface WaitStrategy
             {
                 while ((availableSequence = getMinimumSequence(dependents)) < sequence)
                 {
-                    checkAlert(barrier);
+                    barrier.checkAlert();
 
                     if (timeoutMs < (System.currentTimeMillis() - currentTime))
                     {
@@ -548,14 +507,6 @@ public interface WaitStrategy
         @Override
         public void signalAllWhenBlocking()
         {
-        }
-
-        private void checkAlert(final SequenceBarrier barrier) throws AlertException
-        {
-            if (barrier.isAlerted())
-            {
-                throw ALERT_EXCEPTION;
-            }
         }
     }
 }
