@@ -149,7 +149,7 @@ public interface ClaimStrategy
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
             final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-            checkCapacity(dependentSequences, minGatingSequence);
+            pauseForCapacity(dependentSequences, minGatingSequence);
             final long value = sequence.incrementAndGet();
             ensureCapacity(value, dependentSequences, minGatingSequence);
             return value;
@@ -185,7 +185,7 @@ public interface ClaimStrategy
             }
         }
 
-        private void checkCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
+        private void pauseForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
             final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -206,15 +206,10 @@ public interface ClaimStrategy
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
-                int counter = RETRIES;
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    if (--counter == 0)
-                    {
-                        counter = RETRIES;
-                        Thread.yield();
-                    }
+                    Thread.yield();
                 }
 
                 minGatingSequence.set(minSequence);
@@ -250,7 +245,6 @@ public interface ClaimStrategy
     static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
-        private static final int RETRIES = 100;
         private final int bufferSize;
         private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedLong sequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
@@ -314,14 +308,9 @@ public interface ClaimStrategy
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
-                int counter = RETRIES;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    if (--counter == 0)
-                    {
-                        counter = RETRIES;
-                        Thread.yield();
-                    }
+                    Thread.yield();
                 }
 
                 minGatingSequence.set(minSequence);
