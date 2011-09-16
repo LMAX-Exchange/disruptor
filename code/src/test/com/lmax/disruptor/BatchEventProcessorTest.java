@@ -53,12 +53,6 @@ public final class BatchEventProcessorTest
     }
 
     @Test
-    public void shouldReturnUnderlyingBarrier()
-    {
-        assertEquals(sequenceBarrier, batchEventProcessor.getSequenceBarrier());
-    }
-
-    @Test
     public void shouldCallMethodsInLifecycleOrder()
         throws Exception
     {

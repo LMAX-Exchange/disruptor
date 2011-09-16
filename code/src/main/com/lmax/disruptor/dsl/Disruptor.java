@@ -253,15 +253,7 @@ public class Disruptor<T>
         {
             final EventHandler<T> eventHandler = eventHandlers[i];
 
-            final BatchEventProcessor<T> batchEventProcessor;
-            if (eventHandler instanceof SequenceReportingEventHandler)
-            {
-                batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, (SequenceReportingEventHandler)eventHandler);
-            }
-            else
-            {
-                batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
-            }
+            final BatchEventProcessor<T> batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
 
             if (exceptionHandler != null)
             {

@@ -49,25 +49,11 @@ public final class BatchEventProcessor<T>
         this.ringBuffer = ringBuffer;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
-    }
 
-    /**
-     * Construct a batch event processor that will allow a {@link SequenceReportingEventHandler}
-     * to callback and update its sequence within a batch.  The Sequence will be updated at the end of
-     * a batch regardless.
-     *
-     * @param ringBuffer to which events are published.
-     * @param sequenceBarrier on which it is waiting.
-     * @param eventHandler is the delegate to which events are dispatched.
-     */
-    public BatchEventProcessor(final RingBuffer<T> ringBuffer,
-                               final SequenceBarrier sequenceBarrier,
-                               final SequenceReportingEventHandler<T> eventHandler)
-    {
-        this.ringBuffer = ringBuffer;
-        this.sequenceBarrier = sequenceBarrier;
-        this.eventHandler = eventHandler;
-        eventHandler.setSequenceCallback(sequence);
+        if (SequenceReportingEventHandler.class.isAssignableFrom(eventHandler.getClass()))
+        {
+            ((SequenceReportingEventHandler)eventHandler).setSequenceCallback(sequence);
+        }
     }
 
     @Override
@@ -99,16 +85,6 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Get the {@link SequenceBarrier} the {@link EventProcessor} is waiting on.
-     *
-      * @return the sequenceBarrier this {@link EventProcessor} is using.
-     */
-    public SequenceBarrier getSequenceBarrier()
-    {
-        return sequenceBarrier;
-    }
-
-    /**
      * It is ok to have another thread rerun this method after a halt().
      */
     @Override
@@ -119,7 +95,7 @@ public final class BatchEventProcessor<T>
 
         if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
         {
-            ((LifecycleAware) eventHandler).onStart();
+            ((LifecycleAware)eventHandler).onStart();
         }
 
         T event = null;
@@ -155,7 +131,7 @@ public final class BatchEventProcessor<T>
 
         if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
         {
-            ((LifecycleAware) eventHandler).onShutdown();
+            ((LifecycleAware)eventHandler).onShutdown();
         }
     }
 }
