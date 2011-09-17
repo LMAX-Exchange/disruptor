@@ -72,6 +72,18 @@ public class Sequencer
     }
 
     /**
+     * Create a new {@link SequenceBatch} that is the minimum of the requested size
+     * and the buffer size.
+     *
+     * @param size for the batch
+     * @return the new {@link SequenceBatch}
+     */
+    public SequenceBatch newSequenceBatch(final int size)
+    {
+        return new SequenceBatch(Math.min(size, bufferSize));
+    }
+
+    /**
      * The capacity of the data structure to hold entries.
      *
      * @return the size of the RingBuffer.
@@ -130,14 +142,7 @@ public class Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        final int batchSize = sequenceBatch.getSize();
-        if (batchSize > bufferSize)
-        {
-            final String msg = "Batch size " + batchSize + " is greater than buffer size of " + bufferSize;
-            throw new IllegalArgumentException(msg);
-        }
-
-        final long sequence = claimStrategy.incrementAndGet(batchSize, gatingSequences);
+        final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize(), gatingSequences);
         sequenceBatch.setEnd(sequence);
         return sequenceBatch;
     }

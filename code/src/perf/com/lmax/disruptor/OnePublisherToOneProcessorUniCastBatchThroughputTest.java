@@ -111,7 +111,7 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
         EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
-        final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
+        final SequenceBatch sequenceBatch = ringBuffer.newSequenceBatch(batchSize);
 
         long start = System.currentTimeMillis();
 

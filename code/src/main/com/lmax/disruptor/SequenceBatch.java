@@ -27,7 +27,7 @@ public final class SequenceBatch
      * Create a holder for tracking a batch of claimed sequences in a {@link Sequencer}
      * @param size of the batch to claim.
      */
-    public SequenceBatch(final int size)
+    SequenceBatch(final int size)
     {
         this.size = size;
     }
