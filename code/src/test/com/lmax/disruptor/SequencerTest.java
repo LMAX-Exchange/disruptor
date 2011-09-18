@@ -90,14 +90,14 @@ public final class SequencerTest
     public void shouldPublishSequenceBatch()
     {
         final int batchSize = 3;
-        SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
+        BatchDescriptor batchDescriptor = new BatchDescriptor(batchSize);
 
-        sequenceBatch = sequencer.next(sequenceBatch);
+        batchDescriptor = sequencer.next(batchDescriptor);
         assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
-        assertEquals(sequenceBatch.getEnd(), Sequencer.INITIAL_CURSOR_VALUE + batchSize);
-        assertEquals(sequenceBatch.getSize(), batchSize);
+        assertEquals(batchDescriptor.getEnd(), Sequencer.INITIAL_CURSOR_VALUE + batchSize);
+        assertEquals(batchDescriptor.getSize(), batchSize);
 
-        sequencer.publish(sequenceBatch);
+        sequencer.publish(batchDescriptor);
         assertEquals(sequencer.getCursor(), Sequencer.INITIAL_CURSOR_VALUE + batchSize);
     }
 

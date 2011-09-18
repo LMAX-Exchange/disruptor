@@ -72,15 +72,15 @@ public class Sequencer
     }
 
     /**
-     * Create a new {@link SequenceBatch} that is the minimum of the requested size
+     * Create a new {@link BatchDescriptor} that is the minimum of the requested size
      * and the buffer size.
      *
      * @param size for the batch
-     * @return the new {@link SequenceBatch}
+     * @return the new {@link BatchDescriptor}
      */
-    public SequenceBatch newSequenceBatch(final int size)
+    public BatchDescriptor newBatchDescriptor(final int size)
     {
-        return new SequenceBatch(Math.min(size, bufferSize));
+        return new BatchDescriptor(Math.min(size, bufferSize));
     }
 
     /**
@@ -132,19 +132,19 @@ public class Sequencer
     /**
      * Claim the next batch of sequence numbers for publishing.
      *
-     * @param sequenceBatch to be updated for the batch range.
-     * @return the updated sequenceBatch.
+     * @param batchDescriptor to be updated for the batch range.
+     * @return the updated batchDescriptor.
      */
-    public SequenceBatch next(final SequenceBatch sequenceBatch)
+    public BatchDescriptor next(final BatchDescriptor batchDescriptor)
     {
         if (null == gatingSequences)
         {
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        final long sequence = claimStrategy.incrementAndGet(sequenceBatch.getSize(), gatingSequences);
-        sequenceBatch.setEnd(sequence);
-        return sequenceBatch;
+        final long sequence = claimStrategy.incrementAndGet(batchDescriptor.getSize(), gatingSequences);
+        batchDescriptor.setEnd(sequence);
+        return batchDescriptor;
     }
 
     /**
@@ -178,11 +178,11 @@ public class Sequencer
     /**
      * Publish the batch of events in sequence.
      *
-     * @param sequenceBatch to be published.
+     * @param batchDescriptor to be published.
      */
-    public void publish(final SequenceBatch sequenceBatch)
+    public void publish(final BatchDescriptor batchDescriptor)
     {
-        publish(sequenceBatch.getEnd(), sequenceBatch.getSize());
+        publish(batchDescriptor.getEnd(), batchDescriptor.getSize());
     }
 
     /**

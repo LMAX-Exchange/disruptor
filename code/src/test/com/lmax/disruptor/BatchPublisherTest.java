@@ -33,15 +33,15 @@ public final class BatchPublisherTest
     public void shouldClaimBatchAndPublishBack() throws Exception
     {
         final int batchSize = 5;
-        final SequenceBatch sequenceBatch = new SequenceBatch(batchSize);
+        final BatchDescriptor batchDescriptor = ringBuffer.newBatchDescriptor(batchSize);
 
-        ringBuffer.next(sequenceBatch);
+        ringBuffer.next(batchDescriptor);
 
-        assertThat(Long.valueOf(sequenceBatch.getStart()), is(Long.valueOf(0L)));
-        assertThat(Long.valueOf(sequenceBatch.getEnd()), is(Long.valueOf(4L)));
+        assertThat(Long.valueOf(batchDescriptor.getStart()), is(Long.valueOf(0L)));
+        assertThat(Long.valueOf(batchDescriptor.getEnd()), is(Long.valueOf(4L)));
         assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(Sequencer.INITIAL_CURSOR_VALUE)));
 
-        ringBuffer.publish(sequenceBatch);
+        ringBuffer.publish(batchDescriptor);
 
         assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(batchSize - 1L)));
         assertThat(Long.valueOf(sequenceBarrier.waitFor(0L)), is(Long.valueOf(batchSize - 1L)));

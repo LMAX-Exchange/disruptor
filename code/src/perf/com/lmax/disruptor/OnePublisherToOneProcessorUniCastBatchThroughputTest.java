@@ -111,20 +111,20 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
         EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
-        final SequenceBatch sequenceBatch = ringBuffer.newSequenceBatch(batchSize);
+        final BatchDescriptor batchDescriptor = ringBuffer.newBatchDescriptor(batchSize);
 
         long start = System.currentTimeMillis();
 
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            ringBuffer.next(sequenceBatch);
-            for (long c = sequenceBatch.getStart(), end = sequenceBatch.getEnd(); c <= end; c++)
+            ringBuffer.next(batchDescriptor);
+            for (long c = batchDescriptor.getStart(), end = batchDescriptor.getEnd(); c <= end; c++)
             {
                 ValueEvent event = ringBuffer.get(c);
                 event.setValue(offset++);
             }
-            ringBuffer.publish(sequenceBatch);
+            ringBuffer.publish(batchDescriptor);
         }
 
         final long expectedSequence = ringBuffer.getCursor();
