@@ -149,25 +149,25 @@ public interface ClaimStrategy
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
             final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-            pauseForCapacity(dependentSequences, minGatingSequence);
-            final long value = sequence.incrementAndGet();
-            ensureCapacity(value, dependentSequences, minGatingSequence);
-            return value;
+            waitForCapacity(dependentSequences, minGatingSequence);
+            final long nextSequence = sequence.incrementAndGet();
+            waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequence);
+            return nextSequence;
         }
 
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            final long value = sequence.addAndGet(delta);
-            ensureCapacity(value, dependentSequences, minGatingSequenceThreadLocal.get());
-            return value;
+            final long nextSequence = sequence.addAndGet(delta);
+            waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
+            return nextSequence;
         }
 
         @Override
         public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
             this.sequence.lazySet(sequence);
-            ensureCapacity(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
+            waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
         }
 
         @Override
@@ -185,7 +185,7 @@ public interface ClaimStrategy
             }
         }
 
-        private void pauseForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
+        private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
             final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -201,7 +201,7 @@ public interface ClaimStrategy
             }
         }
 
-        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
+        private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())
@@ -275,26 +275,26 @@ public interface ClaimStrategy
         @Override
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
-            long value = sequence.get() + 1L;
-            sequence.set(value);
-            ensureCapacity(value, dependentSequences);
-            return value;
+            long nextSequence = sequence.get() + 1L;
+            sequence.set(nextSequence);
+            waitForFreeSlotAt(nextSequence, dependentSequences);
+            return nextSequence;
         }
 
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            long value = sequence.get() + delta;
-            sequence.set(value);
-            ensureCapacity(value, dependentSequences);
-            return value;
+            long nextSequence = sequence.get() + delta;
+            sequence.set(nextSequence);
+            waitForFreeSlotAt(nextSequence, dependentSequences);
+            return nextSequence;
         }
 
         @Override
         public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
             this.sequence.set(sequence);
-            ensureCapacity(sequence, dependentSequences);
+            waitForFreeSlotAt(sequence, dependentSequences);
         }
 
         @Override
@@ -302,7 +302,7 @@ public interface ClaimStrategy
         {
         }
 
-        private void ensureCapacity(final long sequence, final Sequence[] dependentSequences)
+        private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
         {
             final long wrapPoint = sequence - bufferSize;
             if (wrapPoint > minGatingSequence.get())

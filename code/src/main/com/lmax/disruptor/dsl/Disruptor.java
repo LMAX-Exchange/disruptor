@@ -200,8 +200,11 @@ public class Disruptor<T>
         EventProcessor[] gatingProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
         ringBuffer.setGatingSequences(Util.getSequencesFor(gatingProcessors));
 
-        ensureOnlyStartedOnce();
-        startEventProcessors();
+        checkOnlyStartedOnce();
+        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorRepository)
+        {
+            executor.execute(eventProcessorInfo.getEventProcessor());
+        }
 
         return ringBuffer;
     }
@@ -244,7 +247,7 @@ public class Disruptor<T>
     EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
                                                final EventHandler<T>[] eventHandlers)
     {
-        ensureNotStarted();
+        checkNotStarted();
 
         final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
         final SequenceBarrier barrier = ringBuffer.newBarrier(Util.getSequencesFor(barrierEventProcessors));
@@ -268,7 +271,7 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, eventProcessorRepository, createdEventProcessors);
     }
 
-    private void ensureNotStarted()
+    private void checkNotStarted()
     {
         if (started.get())
         {
@@ -276,15 +279,7 @@ public class Disruptor<T>
         }
     }
 
-    private void startEventProcessors()
-    {
-        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorRepository)
-        {
-            executor.execute(eventProcessorInfo.getEventProcessor());
-        }
-    }
-
-    private void ensureOnlyStartedOnce()
+    private void checkOnlyStartedOnce()
     {
         if (!started.compareAndSet(false, true))
         {
