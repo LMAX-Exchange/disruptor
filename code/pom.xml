@@ -1,0 +1,28 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.google.code</groupId>
+    <artifactId>disruptor</artifactId>
+    <packaging>jar</packaging>
+    <name>Disruptor Framework</name>
+    <version>@VERSION@</version>
+    <description>Disruptor - Concurrent Programming Framework</description>
+    <url>http://code.google.com/p/disruptor/</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>http://disruptor.googlecode.com/svn/</url>
+        <connection>http://disruptor.googlecode.com/svn/</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>martin</id>
+            <name>Martin Thompson</name>
+            <email>martin@email.com</email>
+        </developer>
+    </developers>
+</project>
