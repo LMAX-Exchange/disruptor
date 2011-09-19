@@ -42,7 +42,8 @@ public final class WorkProcessor<T>
      * @param sequenceBarrier on which it is waiting.
      * @param workHandler is the delegate to which events are dispatched.
      * @param exceptionHandler to be called back when an error occurs
-     * @param workSequence from which to claim the next event to be worked on.
+     * @param workSequence from which to claim the next event to be worked on.  It should always be initialised
+     * as {@link Sequencer#INITIAL_CURSOR_VALUE}
      */
     public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
