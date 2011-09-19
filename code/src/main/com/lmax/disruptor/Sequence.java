@@ -28,13 +28,33 @@ public class Sequence
         set(initialValue);
     }
 
+    /**
+     * Get the current value of the {@link Sequence}
+     *
+     * @return the current value.
+     */
     public long get()
     {
         return value.get();
     }
 
+    /**
+     * Set the {@link Sequence} to a value.
+     *
+     * @param value to which the {@link Sequence} will be set.
+     */
     public void set(final long value)
     {
         this.value.lazySet(value);
+    }
+
+    /**
+     * Value of the {@link Sequence} as a String.
+     *
+     * @return String representation of the sequence.
+     */
+    public String toString()
+    {
+        return Long.toString(value.get());
     }
 }
