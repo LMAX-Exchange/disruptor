@@ -22,7 +22,7 @@
             <property name="artifact.javadoc.jar" value="${dir.dist}/disruptor-javadoc-@{artifact.version}.jar"/>
             <property name="artifact.sources.jar" value="${dir.dist}/disruptor-sources-@{artifact.version}.jar"/>
 
-            <copy file="pom.xml" tofile="${artifact.pom}" overwrite="true">
+            <copy file="pom.template" tofile="${artifact.pom}" overwrite="true">
                 <filterset>
                     <filter token="VERSION" value="@{artifact.version}"/>
                 </filterset>
