@@ -44,7 +44,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(dependentSequences, cursorSequence, this, sequence);
+        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequences, this);
     }
 
     @Override
@@ -53,7 +53,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(dependentSequences, cursorSequence, this, sequence, timeout, units);
+        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequences, this, timeout, units);
     }
 
     @Override

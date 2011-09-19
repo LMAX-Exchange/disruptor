@@ -30,31 +30,31 @@ public interface WaitStrategy
     /**
      * Wait for the given sequence to be available
      *
-     * @param dependents further back the chain that must advance first
-     * @param cursor on which to wait.
-     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
+     * @param cursor on which to wait.
+     * @param dependents further back the chain that must advance first
+     * @param barrier the processor is waiting on.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence cursor, SequenceBarrier barrier,  long sequence)
+    long waitFor(long sequence, Sequence cursor, Sequence[] dependents, SequenceBarrier barrier)
         throws AlertException, InterruptedException;
 
     /**
      * Wait for the given sequence to be available with a timeout specified.
      *
-     * @param dependents further back the chain that must advance first
-     * @param cursor on which to wait.
-     * @param barrier the processor is waiting on.
      * @param sequence to be waited on.
+     * @param cursor on which to wait.
+     * @param dependents further back the chain that must advance first
+     * @param barrier the processor is waiting on.
      * @param timeout value to abort after.
      * @param units of the timeout value.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(Sequence[] dependents, Sequence cursor, SequenceBarrier barrier, long sequence, long timeout, TimeUnit units)
+    long waitFor(long sequence, Sequence cursor, Sequence[] dependents, SequenceBarrier barrier, long timeout, TimeUnit units)
         throws AlertException, InterruptedException;
 
     /**
@@ -139,7 +139,7 @@ public interface WaitStrategy
         private volatile int numWaiters = 0;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -174,8 +174,8 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
-                            final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
+                            final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -242,7 +242,7 @@ public interface WaitStrategy
         private static final int RETRIES = 200;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -267,8 +267,8 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
-                            final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
+                            final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
@@ -350,7 +350,7 @@ public interface WaitStrategy
         private static final int SPIN_TRIES = 100;
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -375,8 +375,8 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
-                            final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
+                            final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
@@ -444,7 +444,7 @@ public interface WaitStrategy
     static final class BusySpinStrategy implements WaitStrategy
     {
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier, final long sequence)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
             throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -468,8 +468,8 @@ public interface WaitStrategy
         }
 
         @Override
-        public long waitFor(final Sequence[] dependents, final Sequence cursor, final SequenceBarrier barrier,
-                            final long sequence, final long timeout, final TimeUnit units)
+        public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
+                            final long timeout, final TimeUnit units)
             throws AlertException, InterruptedException
         {
             final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
