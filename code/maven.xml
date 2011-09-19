@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="maven-deployment" default="maven:release-snapshot" basedir="."
-         xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project name="maven-deployment" default="maven:all:release-snapshot" basedir="."
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="antlib:org.apache.maven.artifact.ant ">
 
     <import file="build.xml"/>
@@ -21,7 +22,7 @@
             <property name="artifact.javadoc.jar" value="${dir.dist}/disruptor-javadoc-@{artifact.version}.jar"/>
             <property name="artifact.sources.jar" value="${dir.dist}/disruptor-sources-@{artifact.version}.jar"/>
 
-            <copy file="pom.xml" tofile="${artifact.pom}">
+            <copy file="pom.xml" tofile="${artifact.pom}" overwrite="true">
                 <filterset>
                     <filter token="VERSION" value="@{artifact.version}"/>
                 </filterset>
@@ -37,7 +38,6 @@
         <attribute name="repository.id"/>
         <attribute name="repository.url"/>
         <sequential>
-            <echo message="@{artifact.classifier}"/>
             <artifact:mvn>
                 <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file"/>
                 <arg value="-Durl=@{repository.url}"/>
@@ -51,16 +51,20 @@
         </sequential>
     </macrodef>
 
-    <target name="maven:release-snapshot" depends="all">
+    <target name="maven:release-staging">
+    <version-artifacts artifact.version="${version}"/>
+        <release-artifacts repository.id="staging-repo"
+                           repository.url="http://localhost:8081/nexus/content/repositories/releases"/>
+    </target>
+
+    <target name="maven:all:release-staging" depends="all, maven:release-staging"/>
+
+    <target name="maven:release-snapshot">
         <version-artifacts artifact.version="${version}-SNAPSHOT"/>
         <release-artifacts repository.id="snapshots-repo"
                            repository.url="http://localhost:8081/nexus/content/repositories/snapshots"/>
     </target>
 
-    <target name="maven:release-staging" depends="all">
-        <version-artifacts artifact.version="${version}"/>
-        <release-artifacts repository.id="staging-repo"
-                           repository.url="http://localhost:8081/nexus/content/repositories/releases"/>
-    </target>
+    <target name="maven:all:release-snapshot" depends="all, maven:release-snapshot"/>
 
 </project>
