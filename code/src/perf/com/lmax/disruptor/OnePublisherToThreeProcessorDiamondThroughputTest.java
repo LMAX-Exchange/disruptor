@@ -169,42 +169,6 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     }
 
     @Override
-    protected long runDisruptorPass(int PassNumber) throws Exception
-    {
-        fizzBuzzHandler.reset();
-
-        EXECUTOR.submit(batchProcessorFizz);
-        EXECUTOR.submit(batchProcessorBuzz);
-        EXECUTOR.submit(batchProcessorFizzBuzz);
-
-        long start = System.currentTimeMillis();
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            long sequence = ringBuffer.next();
-            FizzBuzzEvent event = ringBuffer.get(sequence);
-            event.setValue(i);
-            ringBuffer.publish(sequence);
-        }
-
-        final long expectedSequence = ringBuffer.getCursor();
-        while (batchProcessorFizzBuzz.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-
-        batchProcessorFizz.halt();
-        batchProcessorBuzz.halt();
-        batchProcessorFizzBuzz.halt();
-
-        Assert.assertEquals(expectedResult, fizzBuzzHandler.getFizzBuzzCounter());
-
-        return opsPerSecond;
-    }
-
-    @Override
     protected long runQueuePass(int passNumber) throws Exception
     {
         fizzBuzzQueueProcessor.reset();
@@ -241,6 +205,41 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         }
 
         Assert.assertEquals(expectedResult, fizzBuzzQueueProcessor.getFizzBuzzCounter());
+
+        return opsPerSecond;
+    }
+
+    @Override
+    protected long runDisruptorPass(int PassNumber) throws Exception
+    {
+        fizzBuzzHandler.reset();
+
+        EXECUTOR.submit(batchProcessorFizz);
+        EXECUTOR.submit(batchProcessorBuzz);
+        EXECUTOR.submit(batchProcessorFizzBuzz);
+
+        long start = System.currentTimeMillis();
+
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            long sequence = ringBuffer.next();
+            ringBuffer.get(sequence).setValue(i);
+            ringBuffer.publish(sequence);
+        }
+
+        final long expectedSequence = ringBuffer.getCursor();
+        while (batchProcessorFizzBuzz.getSequence().get() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+
+        batchProcessorFizz.halt();
+        batchProcessorBuzz.halt();
+        batchProcessorFizzBuzz.halt();
+
+        Assert.assertEquals(expectedResult, fizzBuzzHandler.getFizzBuzzCounter());
 
         return opsPerSecond;
     }

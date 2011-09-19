@@ -136,8 +136,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         for (long i = 0; i < ITERATIONS; i++)
         {
             long sequence = ringBuffer.next();
-            ValueEvent event = ringBuffer.get(sequence);
-            event.setValue(i);
+            ringBuffer.get(sequence).setValue(i);
             ringBuffer.publish(sequence);
         }
 

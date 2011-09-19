@@ -152,44 +152,6 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber)
-    {
-        stepThreeFunctionHandler.reset();
-
-        EXECUTOR.submit(stepOneBatchProcessor);
-        EXECUTOR.submit(stepTwoBatchProcessor);
-        EXECUTOR.submit(stepThreeBatchProcessor);
-
-        long start = System.currentTimeMillis();
-
-        long operandTwo = OPERAND_TWO_INITIAL_VALUE;
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            long sequence = ringBuffer.next();
-            FunctionEvent event = ringBuffer.get(sequence);
-            event.setOperandOne(i);
-            event.setOperandTwo(operandTwo--);
-            ringBuffer.publish(sequence);
-        }
-
-        final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-
-        stepOneBatchProcessor.halt();
-        stepTwoBatchProcessor.halt();
-        stepThreeBatchProcessor.halt();
-
-        Assert.assertEquals(expectedResult, stepThreeFunctionHandler.getStepThreeCounter());
-
-        return opsPerSecond;
-    }
-
-    @Override
     protected long runQueuePass(final int passNumber) throws Exception
     {
         stepThreeQueueProcessor.reset();
@@ -228,6 +190,44 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         }
 
         Assert.assertEquals(expectedResult, stepThreeQueueProcessor.getStepThreeCounter());
+
+        return opsPerSecond;
+    }
+
+    @Override
+    protected long runDisruptorPass(final int passNumber)
+    {
+        stepThreeFunctionHandler.reset();
+
+        EXECUTOR.submit(stepOneBatchProcessor);
+        EXECUTOR.submit(stepTwoBatchProcessor);
+        EXECUTOR.submit(stepThreeBatchProcessor);
+
+        long start = System.currentTimeMillis();
+
+        long operandTwo = OPERAND_TWO_INITIAL_VALUE;
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            long sequence = ringBuffer.next();
+            FunctionEvent event = ringBuffer.get(sequence);
+            event.setOperandOne(i);
+            event.setOperandTwo(operandTwo--);
+            ringBuffer.publish(sequence);
+        }
+
+        final long expectedSequence = ringBuffer.getCursor();
+        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+
+        stepOneBatchProcessor.halt();
+        stepTwoBatchProcessor.halt();
+        stepThreeBatchProcessor.halt();
+
+        Assert.assertEquals(expectedResult, stepThreeFunctionHandler.getStepThreeCounter());
 
         return opsPerSecond;
     }

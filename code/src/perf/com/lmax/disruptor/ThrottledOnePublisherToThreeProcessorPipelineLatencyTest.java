@@ -207,37 +207,6 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         }
     }
 
-    private void runDisruptorPass()
-    {
-        EXECUTOR.submit(stepOneBatchProcessor);
-        EXECUTOR.submit(stepTwoBatchProcessor);
-        EXECUTOR.submit(stepThreeBatchProcessor);
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            long sequence = ringBuffer.next();
-            ValueEvent event = ringBuffer.get(sequence);
-            event.setValue(System.nanoTime());
-            ringBuffer.publish(sequence);
-
-            long pauseStart = System.nanoTime();
-            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
-            {
-                // busy spin
-            }
-        }
-
-        final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
-        stepOneBatchProcessor.halt();
-        stepTwoBatchProcessor.halt();
-        stepThreeBatchProcessor.halt();
-    }
-
     private void runQueuePass() throws Exception
     {
         stepThreeQueueProcessor.reset();
@@ -272,5 +241,35 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         {
             future.cancel(true);
         }
+    }
+
+    private void runDisruptorPass()
+    {
+        EXECUTOR.submit(stepOneBatchProcessor);
+        EXECUTOR.submit(stepTwoBatchProcessor);
+        EXECUTOR.submit(stepThreeBatchProcessor);
+
+        for (long i = 0; i < ITERATIONS; i++)
+        {
+            long sequence = ringBuffer.next();
+            ringBuffer.get(sequence).setValue(System.nanoTime());
+            ringBuffer.publish(sequence);
+
+            long pauseStart = System.nanoTime();
+            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
+            {
+                // busy spin
+            }
+        }
+
+        final long expectedSequence = ringBuffer.getCursor();
+        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
+        {
+            // busy spin
+        }
+
+        stepOneBatchProcessor.halt();
+        stepTwoBatchProcessor.halt();
+        stepThreeBatchProcessor.halt();
     }
 }

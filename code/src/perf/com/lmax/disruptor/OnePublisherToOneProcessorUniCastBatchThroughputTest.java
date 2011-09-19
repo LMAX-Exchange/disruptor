@@ -121,8 +121,7 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
             ringBuffer.next(batchDescriptor);
             for (long c = batchDescriptor.getStart(), end = batchDescriptor.getEnd(); c <= end; c++)
             {
-                ValueEvent event = ringBuffer.get(c);
-                event.setValue(offset++);
+                ringBuffer.get(c).setValue(offset++);
             }
             ringBuffer.publish(batchDescriptor);
         }
