@@ -16,6 +16,7 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.PaddedAtomicLong;
+import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -116,7 +117,8 @@ public final class WorkerPool<T>
      */
     public void drainAndHalt()
     {
-        while (ringBuffer.getCursor() > workSequence.get())
+        Sequence[] workerSequences = getWorkerSequences();
+        while (ringBuffer.getCursor() > Util.getMinimumSequence(workerSequences))
         {
             Thread.yield();
         }
