@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="maven-deployment" default="mvn:all:release-snapshot" basedir="."
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="antlib:org.apache.maven.artifact.ant ">
+
+    <import file="build.xml"/>
+
+    <property file="build.properties"/>
+
+    <property name="dir.deploy.lib" value="lib/release"/>
+
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpath="${dir.deploy.lib}/maven-ant-tasks-2.1.3.jar"/>
+
+    <macrodef name="release-artifacts">
+        <attribute name="artifact.version"/>
+        <attribute name="repository.id"/>
+        <attribute name="repository.url"/>
+        <sequential>
+            <property name="file.dist.pom" value="${dir.dist}/pom.xml"/>
+            <copy file="pom.template" tofile="${file.dist.pom}" overwrite="true">
+                <filterset>
+                    <filter token="VERSION" value="@{artifact.version}"/>
+                </filterset>
+            </copy>
+            <artifact:mvn>
+                <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file"/>
+                <arg value="-Durl=@{repository.url}"/>
+                <arg value="-DrepositoryId=@{repository.id}"/>
+                <arg value="-DpomFile=${file.dist.pom}"/>
+                <arg value="-Dfile=${file.dist.bin}"/>
+                <arg value="-Dsources=${file.dist.src}"/>
+                <arg value="-Djavadoc=${file.dist.api}"/>
+                <arg value="-Pgpg"/>
+            </artifact:mvn>
+        </sequential>
+    </macrodef>
+
+    <target name="mvn:release-staging">
+        <release-artifacts artifact.version="${version}"
+                           repository.id="staging-repo"
+                           repository.url="http://localhost:8081/nexus/content/repositories/releases"/>
+    </target>
+
+    <target name="mvn:all:release-staging" depends="all, mvn:release-staging"/>
+
+    <target name="mvn:release-snapshot">
+        <release-artifacts artifact.version="${version}-SNAPSHOT"
+                           repository.id="snapshots-repo"
+                           repository.url="http://localhost:8081/nexus/content/repositories/snapshots"/>
+    </target>
+
+    <target name="mvn:all:release-snapshot" depends="all, mvn:release-snapshot"/>
+
+</project>

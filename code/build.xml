@@ -13,6 +13,10 @@
     <property name="dir.dist" value="target/dist"/>
     <property name="dir.docs" value="target/docs"/>
 
+    <property name="file.dist.bin" value="${dir.dist}/disruptor.jar"/>
+    <property name="file.dist.src" value="${dir.dist}/disruptor-src.jar"/>
+    <property name="file.dist.api" value="${dir.dist}/disruptor-api.jar"/>
+
     <path id="test.classpath">
         <pathelement location="${dir.test.build}"/>
         <pathelement location="${dir.main.build}"/>
@@ -117,9 +121,9 @@
     </target>
 
     <target name="dist" depends="build">
-        <jar destfile="${dir.dist}/disruptor.jar" basedir="${dir.main.build}"/>
-        <jar destfile="${dir.dist}/disruptor-src.jar" basedir="${dir.main.src}"/>
-        <jar destfile="${dir.dist}/disruptor-api.jar" basedir="${dir.docs}"/>
+        <jar destfile="${file.dist.bin}" basedir="${dir.main.build}"/>
+        <jar destfile="${file.dist.src}" basedir="${dir.main.src}"/>
+        <jar destfile="${file.dist.api}" basedir="${dir.docs}"/>
     </target>
 
     <target name="all" depends="clean, build, test, javadoc, dist"/>
