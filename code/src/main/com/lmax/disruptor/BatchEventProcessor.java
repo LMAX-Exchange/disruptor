@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available events to a {@link EventHandler}.
@@ -27,7 +29,7 @@ package com.lmax.disruptor;
 public final class BatchEventProcessor<T>
     implements EventProcessor
 {
-    private volatile boolean running = true;
+    private final AtomicBoolean running = new AtomicBoolean(false);
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
@@ -65,7 +67,7 @@ public final class BatchEventProcessor<T>
     @Override
     public void halt()
     {
-        running = false;
+        running.set(false);
         sequenceBarrier.alert();
     }
 
@@ -90,8 +92,11 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
+        if (!running.compareAndSet(false, true))
+        {
+            throw new IllegalStateException("Thread is already running");
+        }
         sequenceBarrier.clearAlert();
-        running = true;
 
         if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
         {
@@ -116,7 +121,7 @@ public final class BatchEventProcessor<T>
             }
             catch (final AlertException ex)
             {
-               if (!running)
+               if (!running.get())
                {
                    break;
                }
@@ -133,5 +138,7 @@ public final class BatchEventProcessor<T>
         {
             ((LifecycleAware)eventHandler).onShutdown();
         }
+
+        running.set(false);
     }
 }

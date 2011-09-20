@@ -30,16 +30,16 @@ import java.util.concurrent.Executors;
  */
 public class OnePublisherToOneProcessorUniCastRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int SIZE = 1024 * 8;
-    private static final int mask = SIZE - 1;
+    private static final int BUFFER_SIZE = 1024 * 8;
+    private static final int mask = BUFFER_SIZE - 1;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final long[] values = new long[SIZE];
-    private final Sequencer sequencer = new Sequencer(SIZE, ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.YIELDING);
+    private final long[] values = new long[BUFFER_SIZE];
+    private final Sequencer sequencer = new Sequencer(BUFFER_SIZE, ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.YIELDING);
     private final SequenceBarrier barrier = sequencer.newBarrier();
     private final RawProcessor rawProcessor = new RawProcessor(values, barrier);
     {

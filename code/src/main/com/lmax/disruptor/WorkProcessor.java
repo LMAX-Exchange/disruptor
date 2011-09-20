@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -27,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class WorkProcessor<T>
     implements EventProcessor
 {
-    private volatile boolean running = true;
+    private final AtomicBoolean running = new AtomicBoolean(false);
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
@@ -67,7 +68,7 @@ public final class WorkProcessor<T>
     @Override
     public void halt()
     {
-        running = false;
+        running.set(false);
         sequenceBarrier.alert();
     }
 
@@ -77,8 +78,11 @@ public final class WorkProcessor<T>
     @Override
     public void run()
     {
+        if (!running.compareAndSet(false, true))
+        {
+            throw new IllegalStateException("Thread is already running");
+        }
         sequenceBarrier.clearAlert();
-        running = true;
 
         if (LifecycleAware.class.isAssignableFrom(workHandler.getClass()))
         {
@@ -107,7 +111,7 @@ public final class WorkProcessor<T>
             }
             catch (final AlertException ex)
             {
-                if (!running)
+                if (!running.get())
                 {
                     break;
                 }
@@ -123,5 +127,7 @@ public final class WorkProcessor<T>
         {
             ((LifecycleAware)workHandler).onShutdown();
         }
+
+        running.set(false);
     }
 }

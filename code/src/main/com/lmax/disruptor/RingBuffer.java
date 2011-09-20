@@ -35,7 +35,8 @@ public final class RingBuffer<T> extends Sequencer
      *
      * @throws IllegalArgumentException if bufferSize is not a power of 2
      */
-    public RingBuffer(final EventFactory<T> eventFactory, final int size,
+    public RingBuffer(final EventFactory<T> eventFactory,
+                      final int size,
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {

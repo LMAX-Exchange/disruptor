@@ -94,7 +94,7 @@ import java.util.concurrent.*;
 public final class OnePublisherToThreeProcessorDiamondThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
@@ -118,10 +118,10 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> fizzInputQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final BlockingQueue<Long> buzzInputQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final BlockingQueue<Boolean> fizzOutputQueue = new ArrayBlockingQueue<Boolean>(SIZE);
-    private final BlockingQueue<Boolean> buzzOutputQueue = new ArrayBlockingQueue<Boolean>(SIZE);
+    private final BlockingQueue<Long> fizzInputQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> buzzInputQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> fizzOutputQueue = new ArrayBlockingQueue<Boolean>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> buzzOutputQueue = new ArrayBlockingQueue<Boolean>(BUFFER_SIZE);
 
     private final FizzBuzzQueueProcessor fizzQueueProcessor =
         new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue);
@@ -135,7 +135,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FizzBuzzEvent> ringBuffer =
-        new RingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY, SIZE,
+        new RingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE,
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 

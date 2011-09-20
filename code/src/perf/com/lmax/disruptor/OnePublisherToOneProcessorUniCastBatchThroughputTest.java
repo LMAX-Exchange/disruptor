@@ -69,7 +69,7 @@ import java.util.concurrent.*;
  */
 public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 500L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
@@ -77,7 +77,7 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, BUFFER_SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();

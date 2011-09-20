@@ -85,7 +85,7 @@ import static org.junit.Assert.assertTrue;
 public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 30L;
     private static final long PAUSE_NANOS = 1000L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
@@ -127,9 +127,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> stepOneQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final BlockingQueue<Long> stepOneQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
 
     private final LatencyStepQueueProcessor stepOneQueueProcessor =
         new LatencyStepQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost);
@@ -141,7 +141,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, BUFFER_SIZE,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.BUSY_SPIN);
 

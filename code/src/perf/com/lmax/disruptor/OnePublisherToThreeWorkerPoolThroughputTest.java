@@ -27,7 +27,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_WORKERS = 3;
-    private static final int SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_WORKERS);
 
@@ -41,7 +41,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
     private final EventCountingQueueProcessor[] queueWorkers = new EventCountingQueueProcessor[NUM_WORKERS];
     {
         for (int i = 0; i < NUM_WORKERS; i++)
@@ -52,11 +52,6 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
-                                   ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.YIELDING);
-
     private final EventCountingWorkHandler[] handlers = new EventCountingWorkHandler[NUM_WORKERS];
     {
         for (int i = 0; i < NUM_WORKERS; i++)
@@ -65,10 +60,13 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
         }
     }
 
-    private final WorkerPool<ValueEvent> workerPool = new WorkerPool<ValueEvent>(ringBuffer, handlers);
-    {
-        ringBuffer.setGatingSequences(workerPool.getWorkerSequences());
-    }
+    private final WorkerPool<ValueEvent> workerPool
+        = new WorkerPool<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                                     BUFFER_SIZE,
+                                     ClaimStrategy.Option.SINGLE_THREADED,
+                                     WaitStrategy.Option.YIELDING,
+                                     new FatalExceptionHandler(),
+                                     handlers);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +116,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     protected long runDisruptorPass(final int passNumber) throws InterruptedException
     {
         resetCounters();
-        workerPool.start(EXECUTOR);
+        RingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)

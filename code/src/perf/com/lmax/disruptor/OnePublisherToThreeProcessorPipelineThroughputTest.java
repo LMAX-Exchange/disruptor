@@ -80,7 +80,7 @@ import java.util.concurrent.*;
 public final class OnePublisherToThreeProcessorPipelineThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
@@ -106,9 +106,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<long[]> stepOneQueue = new ArrayBlockingQueue<long[]>(SIZE);
-    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(SIZE);
-    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(SIZE);
+    private final BlockingQueue<long[]> stepOneQueue = new ArrayBlockingQueue<long[]>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
 
     private final FunctionQueueProcessor stepOneQueueProcessor =
         new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
@@ -120,7 +120,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FunctionEvent> ringBuffer =
-        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY, SIZE,
+        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE,
                                       ClaimStrategy.Option.SINGLE_THREADED,
                                       WaitStrategy.Option.YIELDING);
 

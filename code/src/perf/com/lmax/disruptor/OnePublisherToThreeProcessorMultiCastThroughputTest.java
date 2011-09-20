@@ -93,7 +93,7 @@ import java.util.concurrent.*;
 public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE = 1024 * 8;
+    private static final int SIZE_BUFFER = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 300L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
@@ -112,9 +112,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     @SuppressWarnings("unchecked")
     private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_EVENT_PROCESSORS];
     {
-        blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE);
-        blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE);
-        blockingQueues[2] = new ArrayBlockingQueue<Long>(SIZE);
+        blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[2] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
@@ -127,7 +127,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE,
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE_BUFFER,
                                    ClaimStrategy.Option.SINGLE_THREADED,
                                    WaitStrategy.Option.YIELDING);
 
