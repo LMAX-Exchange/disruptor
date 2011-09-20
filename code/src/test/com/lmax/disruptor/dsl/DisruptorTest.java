@@ -212,22 +212,19 @@ public class DisruptorTest
         }
     }
 
-    // @Test : TODO Why does this check the reference?
+    @Test
     public void shouldBeAbleToOverrideTheExceptionHandlerForAEventProcessor()
         throws Exception
     {
-        final DelayedEventHandler eventHandler = createDelayedEventHandler();
-
         final RuntimeException testException = new RuntimeException();
-        final ExceptionThrowingEventHandler eventHandler2 = new ExceptionThrowingEventHandler(testException);
-        disruptor.handleEventsWith(eventHandler).then(eventHandler2);
-
-        publishEvent();
+        final ExceptionThrowingEventHandler eventHandler = new ExceptionThrowingEventHandler(testException);
+        disruptor.handleEventsWith(eventHandler);
 
         AtomicReference<Exception> reference = new AtomicReference<Exception>();
         StubExceptionHandler exceptionHandler = new StubExceptionHandler(reference);
-        disruptor.handleExceptionsFor(eventHandler2).with(exceptionHandler);
-        eventHandler.processEvent();
+        disruptor.handleExceptionsFor(eventHandler).with(exceptionHandler);
+
+        publishEvent();
 
         waitFor(reference);
     }
