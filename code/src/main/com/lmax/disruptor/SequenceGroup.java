@@ -104,7 +104,7 @@ public final class SequenceGroup extends Sequence
             for (int i = 0; i < oldSize; i++)
             {
                 final Sequence testSequence = oldSequences[i];
-                if (sequence == testSequence)
+                if (sequence == testSequence && !found)
                 {
                     found = true;
                 }
