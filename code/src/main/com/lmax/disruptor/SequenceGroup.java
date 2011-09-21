@@ -15,7 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.lmax.disruptor.util.Util;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
@@ -26,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class SequenceGroup extends Sequence
 {
-    private final CopyOnWriteArrayList<Sequence> aggregateSequences = new CopyOnWriteArrayList<Sequence>();
+    private final AtomicReference<Sequence[]> sequencesRef = new AtomicReference<Sequence[]>(new Sequence[0]);
 
     /**
      * Default Constructor
@@ -43,15 +45,7 @@ public final class SequenceGroup extends Sequence
     @Override
     public long get()
     {
-        long minimum = Long.MAX_VALUE;
-
-        for (final Sequence sequence : aggregateSequences)
-        {
-            long sequenceMin = sequence.get();
-            minimum = minimum < sequenceMin ? minimum : sequenceMin;
-        }
-
-        return minimum;
+        return Util.getMinimumSequence(sequencesRef.get());
     }
 
     /**
@@ -62,9 +56,10 @@ public final class SequenceGroup extends Sequence
     @Override
     public void set(final long value)
     {
-        for (final Sequence sequence : aggregateSequences)
+        final Sequence[] sequences = sequencesRef.get();
+        for (int i = 0, size = sequences.length; i < size; i++)
         {
-            sequence.set(value);
+            sequences[i].set(value);
         }
     }
 
@@ -75,7 +70,17 @@ public final class SequenceGroup extends Sequence
      */
     public void add(final Sequence sequence)
     {
-        aggregateSequences.add(sequence);
+        Sequence[] oldSequences;
+        Sequence[] newSequences;
+        do
+        {
+            oldSequences = sequencesRef.get();
+            final int oldSize = oldSequences.length;
+            newSequences = new Sequence[oldSize + 1];
+            System.arraycopy(oldSequences, 0, newSequences, 0, oldSize);
+            newSequences[oldSize] = sequence;
+        }
+        while (!sequencesRef.compareAndSet(oldSequences, newSequences));
     }
 
     /**
@@ -86,7 +91,37 @@ public final class SequenceGroup extends Sequence
      */
     public boolean remove(final Sequence sequence)
     {
-        return aggregateSequences.remove(sequence);
+        boolean found = false;
+        Sequence[] oldSequences;
+        Sequence[] newSequences;
+        do
+        {
+            oldSequences = sequencesRef.get();
+            final int oldSize = oldSequences.length;
+            newSequences = new Sequence[oldSize - 1];
+
+            int pos = 0;
+            for (int i = 0; i < oldSize; i++)
+            {
+                final Sequence testSequence = oldSequences[i];
+                if (sequence == testSequence)
+                {
+                    found = true;
+                }
+                else
+                {
+                    newSequences[pos++] = testSequence;
+                }
+            }
+
+            if (!found)
+            {
+                break;
+            }
+        }
+        while (!sequencesRef.compareAndSet(oldSequences, newSequences));
+
+        return found;
     }
 
     /**
@@ -96,6 +131,6 @@ public final class SequenceGroup extends Sequence
      */
     public int size()
     {
-        return aggregateSequences.size();
+        return sequencesRef.get().length;
     }
 }

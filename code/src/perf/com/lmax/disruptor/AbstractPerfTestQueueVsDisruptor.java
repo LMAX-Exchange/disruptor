@@ -47,7 +47,7 @@ public abstract class AbstractPerfTestQueueVsDisruptor
 
     public static void printResults(final String className, final long disruptorOps, final long queueOps, final int i)
     {
-        System.out.format("%s OpsPerSecond run %d: BlockingQueues=%,d, Disruptor=%,d\n",
+        System.out.format("%s OpsPerSecond run %d: BlockingQueues=%,d Disruptor=%,d\n",
                           className, Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
     }
 
