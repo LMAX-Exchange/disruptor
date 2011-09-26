@@ -210,6 +210,34 @@ public class Disruptor<T>
     }
 
     /**
+     * Calls {@link com.lmax.disruptor.EventProcessor#halt()} on all of the event processors created via this disruptor.
+     */
+    public void halt()
+    {
+        for (EventProcessorInfo eventprocessorInfo : eventProcessorRepository)
+        {
+            eventprocessorInfo.getEventProcessor().halt();
+        }
+    }
+
+    /**
+     * Waits until all events currently in the disruptor have been processed by all event processors
+     * and then halts the processors.  It is critical that publishing to the ring buffer has stopped
+     * before calling this method, otherwise it may never return.
+     *
+     * <p>This method will not shutdown the executor, nor will it await the final termination of the
+     * processor threads.</p>
+     */
+    public void shutdown()
+    {
+        while (hasBacklog())
+        {
+            // Busy spin
+        }
+        halt();
+    }
+
+    /**
      * The the {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
      * event processors if the behaviour of {@link BatchEventProcessor} is not suitable.
      *
@@ -232,18 +260,20 @@ public class Disruptor<T>
         return eventProcessorRepository.getBarrierFor(handler);
     }
 
-    /**
-     * Calls {@link com.lmax.disruptor.EventProcessor#halt()} on all of the event processors created via this disruptor.
-     */
-    public void halt()
+    private boolean hasBacklog()
     {
-        for (EventProcessorInfo eventprocessorInfo : eventProcessorRepository)
+        final long cursor = ringBuffer.getCursor();
+        for (EventProcessor consumer : eventProcessorRepository.getLastEventProcessorsInChain())
         {
-            eventprocessorInfo.getEventProcessor().halt();
+            if (cursor != consumer.getSequence().get())
+            {
+                return true;
+            }
         }
+        return false;
     }
 
-    @SuppressWarnings(value="unchecked")
+    @SuppressWarnings(value = "unchecked")
     EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
                                                final EventHandler<T>[] eventHandlers)
     {
