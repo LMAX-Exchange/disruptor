@@ -297,7 +297,11 @@ public class Disruptor<T>
             createdEventProcessors[i] = batchEventProcessor;
         }
 
-        eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(barrierEventProcessors);
+        if (createdEventProcessors.length > 0)
+        {
+            eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(barrierEventProcessors);
+        }
+
         return new EventHandlerGroup<T>(this, eventProcessorRepository, createdEventProcessors);
     }
 
