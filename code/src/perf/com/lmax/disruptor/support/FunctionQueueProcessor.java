@@ -25,7 +25,6 @@ public final class FunctionQueueProcessor implements Runnable
     private final BlockingQueue<Long> stepThreeQueue;
 
     private volatile boolean running;
-    private volatile long sequence;
     private long stepThreeCounter;
 
     public FunctionQueueProcessor(final FunctionStep functionStep,
@@ -47,12 +46,6 @@ public final class FunctionQueueProcessor implements Runnable
     public void reset()
     {
         stepThreeCounter = 0L;
-        sequence = -1L;
-    }
-
-    public long getSequence()
-    {
-        return sequence;
     }
 
     public void halt()
@@ -95,8 +88,6 @@ public final class FunctionQueueProcessor implements Runnable
                         break;
                     }
                 }
-
-                sequence++;
             }
             catch (InterruptedException ex)
             {

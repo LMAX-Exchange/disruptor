@@ -110,8 +110,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
             blockingQueue.put(Long.valueOf(i));
         }
 
-        final long expectedSequence = ITERATIONS - 1L;
-        while (queueProcessor.getSequence() < expectedSequence)
+        while (blockingQueue.size() > 0)
         {
             // busy spin
         }

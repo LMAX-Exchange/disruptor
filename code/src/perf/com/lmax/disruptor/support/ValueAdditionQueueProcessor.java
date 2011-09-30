@@ -20,7 +20,6 @@ import java.util.concurrent.BlockingQueue;
 public final class ValueAdditionQueueProcessor implements Runnable
 {
     private volatile boolean running;
-    private volatile long sequence;
     private long value;
 
     private final BlockingQueue<Long> blockingQueue;
@@ -38,12 +37,6 @@ public final class ValueAdditionQueueProcessor implements Runnable
     public void reset()
     {
         value = 0L;
-        sequence = -1L;
-    }
-
-    public long getSequence()
-    {
-        return sequence;
     }
 
     public void halt()
@@ -61,7 +54,6 @@ public final class ValueAdditionQueueProcessor implements Runnable
             {
                 long value = blockingQueue.take().longValue();
                 this.value += value;
-                sequence++;
             }
             catch (InterruptedException ex)
             {

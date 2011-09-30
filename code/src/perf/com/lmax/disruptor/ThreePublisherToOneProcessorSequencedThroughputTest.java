@@ -154,10 +154,9 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
             futures[i].get();
         }
 
-        final long expectedSequence = (ITERATIONS * NUM_PUBLISHERS) - 1L;
-        while (expectedSequence > queueProcessor.getSequence())
+        while (blockingQueue.size() > 0)
         {
-            // busy spin
+            // busy spin until drained
         }
 
         long opsPerSecond = (NUM_PUBLISHERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);

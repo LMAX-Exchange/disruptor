@@ -209,8 +209,6 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private void runQueuePass() throws Exception
     {
-        stepThreeQueueProcessor.reset();
-
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
         futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
@@ -227,8 +225,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             }
         }
 
-        final long expectedSequence = ITERATIONS - 1;
-        while (stepThreeQueueProcessor.getSequence() < expectedSequence)
+        while (stepOneQueue.size() > 0 || stepTwoQueue.size() > 0 || stepThreeQueue.size() > 0)
         {
             // busy spin
         }

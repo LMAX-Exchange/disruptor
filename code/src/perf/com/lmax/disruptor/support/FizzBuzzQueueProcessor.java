@@ -26,7 +26,6 @@ public final class FizzBuzzQueueProcessor implements Runnable
     private final BlockingQueue<Boolean> buzzOutputQueue;
 
     private volatile boolean running;
-    private volatile long sequence;
     private long fizzBuzzCounter = 0;
 
     public FizzBuzzQueueProcessor(final FizzBuzzStep fizzBuzzStep,
@@ -51,12 +50,6 @@ public final class FizzBuzzQueueProcessor implements Runnable
     public void reset()
     {
         fizzBuzzCounter = 0L;
-        sequence = -1L;
-    }
-
-    public long getSequence()
-    {
-        return sequence;
     }
 
     public void halt()
@@ -99,8 +92,6 @@ public final class FizzBuzzQueueProcessor implements Runnable
                         break;
                     }
                 }
-
-                sequence++;
             }
             catch (InterruptedException ex)
             {

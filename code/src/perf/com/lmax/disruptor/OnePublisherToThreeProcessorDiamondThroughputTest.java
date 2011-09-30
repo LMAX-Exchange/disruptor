@@ -187,10 +187,11 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
             buzzInputQueue.put(value);
         }
 
-        final long expectedSequence = ITERATIONS - 1;
-        while (fizzBuzzQueueProcessor.getSequence() < expectedSequence)
+
+        while (fizzInputQueue.size() > 0 || buzzInputQueue.size() > 0 ||
+               fizzOutputQueue.size() > 0 || buzzOutputQueue.size() > 0)
         {
-            // busy spin
+            // busy spin until they drain
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);

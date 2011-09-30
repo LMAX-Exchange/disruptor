@@ -29,7 +29,6 @@ public final class LatencyStepQueueProcessor implements Runnable
     private final long nanoTimeCost;
 
     private volatile boolean running;
-    private volatile long sequence;
 
     public LatencyStepQueueProcessor(final FunctionStep functionStep,
                                      final BlockingQueue<Long> inputQueue,
@@ -41,16 +40,6 @@ public final class LatencyStepQueueProcessor implements Runnable
         this.outputQueue = outputQueue;
         this.histogram = histogram;
         this.nanoTimeCost = nanoTimeCost;
-    }
-
-    public void reset()
-    {
-        sequence = -1L;
-    }
-
-    public long getSequence()
-    {
-        return sequence;
     }
 
     public void halt()
@@ -85,8 +74,6 @@ public final class LatencyStepQueueProcessor implements Runnable
                         break;
                     }
                 }
-
-                sequence++;
             }
             catch (InterruptedException ex)
             {

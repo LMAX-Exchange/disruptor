@@ -172,10 +172,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
             stepOneQueue.put(values);
         }
 
-        final long expectedSequence = ITERATIONS - 1;
-        while (stepThreeQueueProcessor.getSequence() < expectedSequence)
+        while (stepOneQueue.size() > 0 || stepTwoQueue.size() > 0 || stepThreeQueue.size() > 0)
         {
-            // busy spin
+            // busy spin until drained
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);

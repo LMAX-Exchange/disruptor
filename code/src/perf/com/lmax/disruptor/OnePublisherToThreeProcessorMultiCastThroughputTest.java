@@ -174,15 +174,23 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         for (long i = 0; i < ITERATIONS; i++)
         {
             final Long value = Long.valueOf(i);
-            blockingQueues[0].put(value);
-            blockingQueues[1].put(value);
-            blockingQueues[2].put(value);
+            for (BlockingQueue<Long> queue : blockingQueues)
+            {
+                queue.put(value);
+            }
         }
 
-        final long expectedSequence = ITERATIONS - 1;
-        while (getMinimumSequence(queueProcessors) < expectedSequence)
+        boolean hasBacklog = true;
+        while (hasBacklog)
         {
-            // busy spin
+            hasBacklog = false;
+            for (BlockingQueue queue : blockingQueues)
+            {
+                if (queue.size() > 0)
+                {
+                    hasBacklog = true;
+                }
+            }
         }
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
@@ -194,19 +202,6 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         }
 
         return opsPerSecond;
-    }
-
-    private long getMinimumSequence(final ValueMutationQueueProcessor[] queueProcessors)
-    {
-        long minimum = Long.MAX_VALUE;
-
-        for (ValueMutationQueueProcessor processor : queueProcessors)
-        {
-            long sequence = processor.getSequence();
-            minimum = minimum < sequence ? minimum : sequence;
-        }
-
-        return minimum;
     }
 
     @Override

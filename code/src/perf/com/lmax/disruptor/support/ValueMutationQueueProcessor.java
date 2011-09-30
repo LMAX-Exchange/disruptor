@@ -20,7 +20,6 @@ import java.util.concurrent.BlockingQueue;
 public final class ValueMutationQueueProcessor implements Runnable
 {
     private volatile boolean running;
-    private volatile long sequence;
     private long value;
 
     private final BlockingQueue<Long> blockingQueue;
@@ -42,11 +41,6 @@ public final class ValueMutationQueueProcessor implements Runnable
         value = 0L;
     }
 
-    public long getSequence()
-    {
-        return sequence;
-    }
-
     public void halt()
     {
         running = false;
@@ -62,7 +56,6 @@ public final class ValueMutationQueueProcessor implements Runnable
             {
                 long value = blockingQueue.take().longValue();
                 this.value = operation.op(this.value, value);
-                sequence = value;
             }
             catch (InterruptedException ex)
             {
