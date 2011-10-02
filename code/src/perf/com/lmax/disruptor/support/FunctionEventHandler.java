@@ -18,10 +18,14 @@ package com.lmax.disruptor.support;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
+import java.util.concurrent.CountDownLatch;
+
 public final class FunctionEventHandler implements EventHandler<FunctionEvent>
 {
     private final FunctionStep functionStep;
     private final PaddedLong stepThreeCounter = new PaddedLong();
+    private long count;
+    private CountDownLatch latch;
 
     public FunctionEventHandler(final FunctionStep functionStep)
     {
@@ -33,9 +37,11 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
         return stepThreeCounter.get();
     }
 
-    public void reset()
+    public void reset(final CountDownLatch latch, final long expectedCount)
     {
         stepThreeCounter.set(0L);
+        this.latch = latch;
+        count = expectedCount;
     }
 
     @Override
@@ -57,6 +63,11 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
                     stepThreeCounter.set(stepThreeCounter.get() + 1L);
                 }
                 break;
+        }
+
+        if (latch != null && count == sequence)
+        {
+            latch.countDown();
         }
     }
 }

@@ -124,13 +124,13 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     private final BlockingQueue<Boolean> buzzOutputQueue = new ArrayBlockingQueue<Boolean>(BUFFER_SIZE);
 
     private final FizzBuzzQueueProcessor fizzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue);
+        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     private final FizzBuzzQueueProcessor buzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue);
+        new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     private final FizzBuzzQueueProcessor fizzBuzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue);
+        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -169,9 +169,10 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     }
 
     @Override
-    protected long runQueuePass(int passNumber) throws Exception
+    protected long runQueuePass() throws Exception
     {
-        fizzBuzzQueueProcessor.reset();
+        final CountDownLatch latch = new CountDownLatch(1);
+        fizzBuzzQueueProcessor.reset(latch);
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(fizzQueueProcessor);
@@ -187,13 +188,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
             buzzInputQueue.put(value);
         }
 
-
-        while (fizzInputQueue.size() > 0 || buzzInputQueue.size() > 0 ||
-               fizzOutputQueue.size() > 0 || buzzOutputQueue.size() > 0)
-        {
-            // busy spin until they drain
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
         fizzQueueProcessor.halt();
@@ -211,9 +206,10 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     }
 
     @Override
-    protected long runDisruptorPass(int PassNumber) throws Exception
+    protected long runDisruptorPass() throws Exception
     {
-        fizzBuzzHandler.reset();
+        CountDownLatch latch = new CountDownLatch(1);
+        fizzBuzzHandler.reset(latch, batchProcessorFizzBuzz.getSequence().get() + ITERATIONS);
 
         EXECUTOR.submit(batchProcessorFizz);
         EXECUTOR.submit(batchProcessorBuzz);
@@ -228,12 +224,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
             ringBuffer.publish(sequence);
         }
 
-        final long expectedSequence = ringBuffer.getCursor();
-        while (batchProcessorFizzBuzz.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
         batchProcessorFizz.halt();

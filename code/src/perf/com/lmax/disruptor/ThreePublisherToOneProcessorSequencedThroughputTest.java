@@ -98,12 +98,12 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
+    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS);
+            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / 3);
         }
     }
 
@@ -121,7 +121,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
+            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / 3);
         }
 
         ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
@@ -137,8 +137,11 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws Exception
+    protected long runQueuePass() throws Exception
     {
+        final CountDownLatch latch = new CountDownLatch(1);
+        queueProcessor.reset(latch);
+
         Future[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
@@ -154,21 +157,21 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
             futures[i].get();
         }
 
-        while (blockingQueue.size() > 0)
-        {
-            // busy spin until drained
-        }
+        latch.await();
 
-        long opsPerSecond = (NUM_PUBLISHERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        batchEventProcessor.halt();
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        queueProcessor.halt();
         processorFuture.cancel(true);
 
         return opsPerSecond;
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber) throws Exception
+    protected long runDisruptorPass() throws Exception
     {
+        final CountDownLatch latch = new CountDownLatch(1);
+        handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
+
         Future[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
@@ -184,13 +187,9 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
             futures[i].get();
         }
 
-        final long expectedSequence = (ITERATIONS * NUM_PUBLISHERS * (passNumber + 1L)) - 1L;
-        while (expectedSequence > batchEventProcessor.getSequence().get())
-        {
-            // busy spin
-        }
+        latch.await();
 
-        long opsPerSecond = (NUM_PUBLISHERS * ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         batchEventProcessor.halt();
 
         return opsPerSecond;

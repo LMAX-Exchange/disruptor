@@ -16,6 +16,7 @@
 package com.lmax.disruptor.support;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 public final class FizzBuzzQueueProcessor implements Runnable
 {
@@ -24,15 +25,18 @@ public final class FizzBuzzQueueProcessor implements Runnable
     private final BlockingQueue<Long> buzzInputQueue;
     private final BlockingQueue<Boolean> fizzOutputQueue;
     private final BlockingQueue<Boolean> buzzOutputQueue;
+    private final long count;
 
     private volatile boolean running;
     private long fizzBuzzCounter = 0;
+    private long sequence;
+    private CountDownLatch latch = null;
 
     public FizzBuzzQueueProcessor(final FizzBuzzStep fizzBuzzStep,
                                   final BlockingQueue<Long> fizzInputQueue,
                                   final BlockingQueue<Long> buzzInputQueue,
                                   final BlockingQueue<Boolean> fizzOutputQueue,
-                                  final BlockingQueue<Boolean> buzzOutputQueue)
+                                  final BlockingQueue<Boolean> buzzOutputQueue, final long count)
     {
         this.fizzBuzzStep = fizzBuzzStep;
 
@@ -40,6 +44,7 @@ public final class FizzBuzzQueueProcessor implements Runnable
         this.buzzInputQueue = buzzInputQueue;
         this.fizzOutputQueue = fizzOutputQueue;
         this.buzzOutputQueue = buzzOutputQueue;
+        this.count = count;
     }
 
     public long getFizzBuzzCounter()
@@ -47,9 +52,11 @@ public final class FizzBuzzQueueProcessor implements Runnable
         return fizzBuzzCounter;
     }
 
-    public void reset()
+    public void reset(final CountDownLatch latch)
     {
         fizzBuzzCounter = 0L;
+        sequence = 0L;
+        this.latch = latch;
     }
 
     public void halt()
@@ -61,7 +68,7 @@ public final class FizzBuzzQueueProcessor implements Runnable
     public void run()
     {
         running = true;
-        while (running)
+        while (true)
         {
             try
             {
@@ -92,10 +99,18 @@ public final class FizzBuzzQueueProcessor implements Runnable
                         break;
                     }
                 }
+
+                if (null != latch && sequence++ == count)
+                {
+                    latch.countDown();
+                }
             }
             catch (InterruptedException ex)
             {
-                break;
+                if (!running)
+                {
+                    break;
+                }
             }
         }
     }

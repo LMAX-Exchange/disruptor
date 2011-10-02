@@ -18,6 +18,7 @@ package com.lmax.disruptor.support;
 import com.lmax.disruptor.collections.Histogram;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 public final class LatencyStepQueueProcessor implements Runnable
 {
@@ -27,19 +28,31 @@ public final class LatencyStepQueueProcessor implements Runnable
     private final BlockingQueue<Long> outputQueue;
     private final Histogram histogram;
     private final long nanoTimeCost;
+    private final long count;
 
     private volatile boolean running;
+    private long sequence;
+    private CountDownLatch latch;
 
     public LatencyStepQueueProcessor(final FunctionStep functionStep,
                                      final BlockingQueue<Long> inputQueue,
                                      final BlockingQueue<Long> outputQueue,
-                                     final Histogram histogram, final long nanoTimeCost)
+                                     final Histogram histogram,
+                                     final long nanoTimeCost,
+                                     final long count)
     {
         this.functionStep = functionStep;
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
         this.histogram = histogram;
         this.nanoTimeCost = nanoTimeCost;
+        this.count = count;
+    }
+
+    public void reset(final CountDownLatch latch)
+    {
+        sequence = 0L;
+        this.latch = latch;
     }
 
     public void halt()
@@ -51,7 +64,7 @@ public final class LatencyStepQueueProcessor implements Runnable
     public void run()
     {
         running = true;
-        while (running)
+        while (true)
         {
             try
             {
@@ -74,10 +87,18 @@ public final class LatencyStepQueueProcessor implements Runnable
                         break;
                     }
                 }
+
+                if (null != latch && sequence++ == count)
+                {
+                    latch.countDown();
+                }
             }
             catch (InterruptedException ex)
             {
-                break;
+                if (!running)
+                {
+                    break;
+                }
             }
         }
     }

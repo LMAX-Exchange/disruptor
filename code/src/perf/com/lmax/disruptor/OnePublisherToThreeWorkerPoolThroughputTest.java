@@ -78,7 +78,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws InterruptedException
+    protected long runQueuePass() throws InterruptedException
     {
         resetCounters();
         Future[] futures = new Future[NUM_WORKERS];
@@ -113,7 +113,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber) throws InterruptedException
+    protected long runDisruptorPass() throws InterruptedException
     {
         resetCounters();
         RingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);

@@ -31,11 +31,11 @@ public abstract class AbstractPerfTestQueueVsDisruptor
         {
             System.gc();
 
-            disruptorOps = runDisruptorPass(i);
+            disruptorOps = runDisruptorPass();
 
             if (runQueueTests)
             {
-                queueOps = runQueuePass(i);
+                queueOps = runQueuePass();
             }
 
             printResults(getClass().getSimpleName(), disruptorOps, queueOps, i);
@@ -51,9 +51,9 @@ public abstract class AbstractPerfTestQueueVsDisruptor
                           className, Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
     }
 
-    protected abstract long runQueuePass(int passNumber) throws Exception;
+    protected abstract long runQueuePass() throws Exception;
 
-    protected abstract long runDisruptorPass(int passNumber) throws Exception;
+    protected abstract long runDisruptorPass() throws Exception;
 
     protected abstract void shouldCompareDisruptorVsQueues() throws Exception;
 }

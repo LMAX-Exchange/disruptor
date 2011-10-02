@@ -74,7 +74,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue);
+    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,9 +99,10 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws InterruptedException
+    protected long runQueuePass() throws InterruptedException
     {
-        queueProcessor.reset();
+        final CountDownLatch latch = new CountDownLatch(1);
+        queueProcessor.reset(latch);
         Future future = EXECUTOR.submit(queueProcessor);
         long start = System.currentTimeMillis();
 
@@ -110,11 +111,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
             blockingQueue.put(Long.valueOf(i));
         }
 
-        while (blockingQueue.size() > 0)
-        {
-            // busy spin
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         queueProcessor.halt();
         future.cancel(true);
@@ -125,10 +122,10 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber) throws InterruptedException
+    protected long runDisruptorPass() throws InterruptedException
     {
-        handler.reset();
-
+        final CountDownLatch latch = new CountDownLatch(1);
+        handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
 
@@ -139,12 +136,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
             ringBuffer.publish(sequence);
         }
 
-        final long expectedSequence = ringBuffer.getCursor();
-        while (batchEventProcessor.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         batchEventProcessor.halt();
 

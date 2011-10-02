@@ -56,14 +56,14 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws InterruptedException
+    protected long runQueuePass() throws InterruptedException
     {
         // Same expected results as UniCast scenario
         return 0L;
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber) throws InterruptedException
+    protected long runDisruptorPass() throws InterruptedException
     {
         rawProcessor.reset();
 

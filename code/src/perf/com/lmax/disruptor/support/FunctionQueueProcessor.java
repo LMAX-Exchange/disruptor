@@ -16,6 +16,7 @@
 package com.lmax.disruptor.support;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 public final class FunctionQueueProcessor implements Runnable
 {
@@ -23,19 +24,24 @@ public final class FunctionQueueProcessor implements Runnable
     private final BlockingQueue<long[]> stepOneQueue;
     private final BlockingQueue<Long> stepTwoQueue;
     private final BlockingQueue<Long> stepThreeQueue;
+    private final long count;
 
     private volatile boolean running;
     private long stepThreeCounter;
+    private long sequence;
+    private CountDownLatch latch;
 
     public FunctionQueueProcessor(final FunctionStep functionStep,
                                   final BlockingQueue<long[]> stepOneQueue,
                                   final BlockingQueue<Long> stepTwoQueue,
-                                  final BlockingQueue<Long> stepThreeQueue)
+                                  final BlockingQueue<Long> stepThreeQueue,
+                                  final long count)
     {
         this.functionStep = functionStep;
         this.stepOneQueue = stepOneQueue;
         this.stepTwoQueue = stepTwoQueue;
         this.stepThreeQueue = stepThreeQueue;
+        this.count = count;
     }
 
     public long getStepThreeCounter()
@@ -43,9 +49,11 @@ public final class FunctionQueueProcessor implements Runnable
         return stepThreeCounter;
     }
 
-    public void reset()
+    public void reset(final CountDownLatch latch)
     {
         stepThreeCounter = 0L;
+        sequence = 0L;
+        this.latch = latch;
     }
 
     public void halt()
@@ -57,7 +65,7 @@ public final class FunctionQueueProcessor implements Runnable
     public void run()
     {
         running = true;
-        while (running)
+        while (true)
         {
             try
             {
@@ -88,10 +96,18 @@ public final class FunctionQueueProcessor implements Runnable
                         break;
                     }
                 }
+
+                if (null != latch && sequence++ == count)
+                {
+                    latch.countDown();
+                }
             }
             catch (InterruptedException ex)
             {
-                break;
+                if (!running)
+                {
+                    break;
+                }
             }
         }
     }

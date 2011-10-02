@@ -132,11 +132,11 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
 
     private final LatencyStepQueueProcessor stepOneQueueProcessor =
-        new LatencyStepQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost);
+        new LatencyStepQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost, ITERATIONS - 1);
     private final LatencyStepQueueProcessor stepTwoQueueProcessor =
-        new LatencyStepQueueProcessor(FunctionStep.TWO, stepTwoQueue, stepThreeQueue, histogram, nanoTimeCost);
+        new LatencyStepQueueProcessor(FunctionStep.TWO, stepTwoQueue, stepThreeQueue, histogram, nanoTimeCost, ITERATIONS - 1);
     private final LatencyStepQueueProcessor stepThreeQueueProcessor =
-        new LatencyStepQueueProcessor(FunctionStep.THREE, stepThreeQueue, null, histogram, nanoTimeCost);
+        new LatencyStepQueueProcessor(FunctionStep.THREE, stepThreeQueue, null, histogram, nanoTimeCost, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -209,6 +209,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private void runQueuePass() throws Exception
     {
+        CountDownLatch latch = new CountDownLatch(1);
+        stepThreeQueueProcessor.reset(latch);
+
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
         futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
@@ -219,17 +222,13 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             stepOneQueue.put(Long.valueOf(System.nanoTime()));
 
             long pauseStart = System.nanoTime();
-            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
+            while (PAUSE_NANOS > (System.nanoTime() - pauseStart))
             {
                 // busy spin
             }
         }
 
-        while (stepOneQueue.size() > 0 || stepTwoQueue.size() > 0 || stepThreeQueue.size() > 0)
-        {
-            // busy spin
-        }
-
+        latch.await();
         stepOneQueueProcessor.halt();
         stepTwoQueueProcessor.halt();
         stepThreeQueueProcessor.halt();
@@ -240,8 +239,11 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         }
     }
 
-    private void runDisruptorPass()
+    private void runDisruptorPass() throws InterruptedException
     {
+        CountDownLatch latch = new CountDownLatch(1);
+        stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
+
         EXECUTOR.submit(stepOneBatchProcessor);
         EXECUTOR.submit(stepTwoBatchProcessor);
         EXECUTOR.submit(stepThreeBatchProcessor);
@@ -253,18 +255,13 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             ringBuffer.publish(sequence);
 
             long pauseStart = System.nanoTime();
-            while (PAUSE_NANOS > (System.nanoTime() -  pauseStart))
+            while (PAUSE_NANOS > (System.nanoTime() - pauseStart))
             {
                 // busy spin
             }
         }
 
-        final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
+        latch.await();
         stepOneBatchProcessor.halt();
         stepTwoBatchProcessor.halt();
         stepThreeBatchProcessor.halt();

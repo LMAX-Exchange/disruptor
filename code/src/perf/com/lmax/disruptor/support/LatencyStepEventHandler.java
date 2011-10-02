@@ -18,17 +18,27 @@ package com.lmax.disruptor.support;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.collections.Histogram;
 
+import java.util.concurrent.CountDownLatch;
+
 public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
 {
     private final FunctionStep functionStep;
     private final Histogram histogram;
     private final long nanoTimeCost;
+    private long count;
+    private CountDownLatch latch;
 
     public LatencyStepEventHandler(final FunctionStep functionStep, final Histogram histogram, final long nanoTimeCost)
     {
         this.functionStep = functionStep;
         this.histogram = histogram;
         this.nanoTimeCost = nanoTimeCost;
+    }
+
+    public void reset(final CountDownLatch latch, final long expectedCount)
+    {
+        this.latch = latch;
+        count = expectedCount;
     }
 
     @Override
@@ -50,6 +60,11 @@ public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
                 duration -= nanoTimeCost;
                 histogram.addObservation(duration);
                 break;
+        }
+
+        if (latch != null && count == sequence)
+        {
+            latch.countDown();
         }
     }
 }

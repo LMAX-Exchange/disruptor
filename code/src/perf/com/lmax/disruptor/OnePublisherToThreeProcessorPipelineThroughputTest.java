@@ -111,11 +111,11 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
 
     private final FunctionQueueProcessor stepOneQueueProcessor =
-        new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue, ITERATIONS - 1);
     private final FunctionQueueProcessor stepTwoQueueProcessor =
-        new FunctionQueueProcessor(FunctionStep.TWO, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueProcessor(FunctionStep.TWO, stepOneQueue, stepTwoQueue, stepThreeQueue, ITERATIONS - 1);
     private final FunctionQueueProcessor stepThreeQueueProcessor =
-        new FunctionQueueProcessor(FunctionStep.THREE, stepOneQueue, stepTwoQueue, stepThreeQueue);
+        new FunctionQueueProcessor(FunctionStep.THREE, stepOneQueue, stepTwoQueue, stepThreeQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -152,9 +152,10 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws Exception
+    protected long runQueuePass() throws Exception
     {
-        stepThreeQueueProcessor.reset();
+        CountDownLatch latch = new CountDownLatch(1);
+        stepThreeQueueProcessor.reset(latch);
 
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
@@ -172,11 +173,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
             stepOneQueue.put(values);
         }
 
-        while (stepOneQueue.size() > 0 || stepTwoQueue.size() > 0 || stepThreeQueue.size() > 0)
-        {
-            // busy spin until drained
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
         stepOneQueueProcessor.halt();
@@ -194,9 +191,10 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber)
+    protected long runDisruptorPass() throws InterruptedException
     {
-        stepThreeFunctionHandler.reset();
+        CountDownLatch latch = new CountDownLatch(1);
+        stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
         EXECUTOR.submit(stepOneBatchProcessor);
         EXECUTOR.submit(stepTwoBatchProcessor);
@@ -214,12 +212,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
             ringBuffer.publish(sequence);
         }
 
-        final long expectedSequence = ringBuffer.getCursor();
-        while (stepThreeBatchProcessor.getSequence().get() < expectedSequence)
-        {
-            // busy spin
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
         stepOneBatchProcessor.halt();

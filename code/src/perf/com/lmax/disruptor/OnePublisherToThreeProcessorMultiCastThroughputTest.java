@@ -19,7 +19,6 @@ import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
 import com.lmax.disruptor.support.ValueMutationQueueProcessor;
-import com.lmax.disruptor.util.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -119,9 +118,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
     {
-        queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION);
-        queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION);
-        queueProcessors[2] = new ValueMutationQueueProcessor(blockingQueues[2], Operation.AND);
+        queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION, ITERATIONS - 1);
+        queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION, ITERATIONS - 1);
+        queueProcessors[2] = new ValueMutationQueueProcessor(blockingQueues[2], Operation.AND, ITERATIONS - 1);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,12 +159,13 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     }
 
     @Override
-    protected long runQueuePass(final int passNumber) throws InterruptedException
+    protected long runQueuePass() throws InterruptedException
     {
+        CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
         Future[] futures = new Future[NUM_EVENT_PROCESSORS];
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
-            queueProcessors[i].reset();
+            queueProcessors[i].reset(latch);
             futures[i] = EXECUTOR.submit(queueProcessors[i]);
         }
 
@@ -180,19 +180,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
             }
         }
 
-        boolean hasBacklog = true;
-        while (hasBacklog)
-        {
-            hasBacklog = false;
-            for (BlockingQueue queue : blockingQueues)
-            {
-                if (queue.size() > 0)
-                {
-                    hasBacklog = true;
-                }
-            }
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
@@ -205,11 +193,12 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     }
 
     @Override
-    protected long runDisruptorPass(final int passNumber)
+    protected long runDisruptorPass() throws InterruptedException
     {
+        CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
-            handlers[i].reset();
+            handlers[i].reset(latch, batchEventProcessors[i].getSequence().get() + ITERATIONS);
             EXECUTOR.submit(batchEventProcessors[i]);
         }
 
@@ -222,12 +211,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
             ringBuffer.publish(sequence);
         }
 
-        final long expectedSequence = ringBuffer.getCursor();
-        while (Util.getMinimumSequence(batchEventProcessors) < expectedSequence)
-        {
-            // busy spin
-        }
-
+        latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
