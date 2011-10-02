@@ -299,7 +299,7 @@ public class Disruptor<T>
 
         if (createdEventProcessors.length > 0)
         {
-            eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(barrierEventProcessors);
+            eventProcessorRepository.unMarkEventProcessorsAsEndOfChain(barrierEventProcessors);
         }
 
         return new EventHandlerGroup<T>(this, eventProcessorRepository, createdEventProcessors);

@@ -72,7 +72,7 @@ public class EventProcessorRepositoryTest
         eventProcessorRepository.add(eventProcessor1, handler1, barrier1);
         eventProcessorRepository.add(eventProcessor2, handler2, barrier2);
 
-        eventProcessorRepository.unmarkEventProcessorsAsEndOfChain(eventProcessor2);
+        eventProcessorRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2);
 
         final EventProcessor[] lastEventProcessorsInChain = eventProcessorRepository.getLastEventProcessorsInChain();
         assertThat(Integer.valueOf(lastEventProcessorsInChain.length), equalTo(Integer.valueOf(1)));

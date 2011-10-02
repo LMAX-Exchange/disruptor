@@ -24,7 +24,6 @@ class EventProcessorInfo<T>
     private final EventProcessor eventprocessor;
     private final EventHandler<T> handler;
     private final SequenceBarrier barrier;
-
     private boolean endOfChain = true;
 
     EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<T> handler, final SequenceBarrier barrier)
@@ -32,7 +31,6 @@ class EventProcessorInfo<T>
         this.eventprocessor = eventprocessor;
         this.handler = handler;
         this.barrier = barrier;
-        this.endOfChain = true;
     }
 
     public EventProcessor getEventProcessor()
@@ -55,7 +53,7 @@ class EventProcessorInfo<T>
         return endOfChain;
     }
 
-    public void usedInBarrier()
+    public void markAsUsedInBarrier()
     {
         endOfChain = false;
     }

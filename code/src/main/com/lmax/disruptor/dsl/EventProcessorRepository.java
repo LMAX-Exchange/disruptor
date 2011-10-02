@@ -66,11 +66,11 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
         return eventprocessorInfo.getEventProcessor();
     }
 
-    public void unmarkEventProcessorsAsEndOfChain(final EventProcessor... barrierEventProcessors)
+    public void unMarkEventProcessorsAsEndOfChain(final EventProcessor... barrierEventProcessors)
     {
         for (EventProcessor barrierEventProcessor : barrierEventProcessors)
         {
-            getEventProcessorInfo(barrierEventProcessor).usedInBarrier();
+            getEventProcessorInfo(barrierEventProcessor).markAsUsedInBarrier();
         }
     }
 
