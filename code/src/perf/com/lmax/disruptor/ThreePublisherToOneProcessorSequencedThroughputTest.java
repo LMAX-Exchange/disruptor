@@ -91,7 +91,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 

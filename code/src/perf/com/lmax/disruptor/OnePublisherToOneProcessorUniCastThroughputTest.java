@@ -67,7 +67,7 @@ import java.util.concurrent.*;
 public final class OnePublisherToOneProcessorUniCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
 

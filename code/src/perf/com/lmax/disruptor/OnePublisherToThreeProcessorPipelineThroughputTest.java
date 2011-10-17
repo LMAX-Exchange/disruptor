@@ -81,7 +81,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 300L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
