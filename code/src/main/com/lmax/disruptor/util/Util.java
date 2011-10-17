@@ -36,25 +36,6 @@ public final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link com.lmax.disruptor.EventProcessor}s.
-     *
-     * @param eventProcessors to compare.
-     * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
-     */
-    public static long getMinimumSequence(final EventProcessor[] eventProcessors)
-    {
-        long minimum = Long.MAX_VALUE;
-
-        for (EventProcessor eventProcessor : eventProcessors)
-        {
-            long sequence = eventProcessor.getSequence().get();
-            minimum = minimum < sequence ? minimum : sequence;
-        }
-
-        return minimum;
-    }
-
-    /**
      * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
      *
      * @param sequences to compare.
@@ -72,7 +53,6 @@ public final class Util
 
         return minimum;
     }
-
 
     /**
      * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s
