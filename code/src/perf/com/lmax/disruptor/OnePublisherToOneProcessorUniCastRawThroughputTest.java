@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 public class OnePublisherToOneProcessorUniCastRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final int mask = BUFFER_SIZE - 1;
+    private static final int indexMask = BUFFER_SIZE - 1;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
@@ -73,7 +73,7 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
         for (long i = 0; i < ITERATIONS; i++)
         {
             long sequence = sequencer.next();
-            values[(int)sequence & mask] = i;
+            values[(int)sequence & indexMask] = i;
             sequencer.publish(sequence);
         }
 
@@ -142,7 +142,7 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
                     final long availableSequence = barrier.waitFor(nextSequence);
                     while (nextSequence <= availableSequence)
                     {
-                        value.set(value.get() + values[(int)nextSequence & mask]);
+                        value.set(value.get() + values[(int)nextSequence & indexMask]);
                         nextSequence++;
                     }
 
