@@ -98,12 +98,13 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
+    private final ValueAdditionQueueProcessor queueProcessor =
+        new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / 3);
+            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
         }
     }
 
@@ -121,7 +122,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / 3);
+            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS);
         }
 
         ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
@@ -170,7 +171,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     protected long runDisruptorPass() throws Exception
     {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
+        handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
 
         Future[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
