@@ -62,7 +62,7 @@ public interface ClaimStrategy
     void setSequence(final long sequence, final Sequence[] dependentSequences);
 
     /**
-     * Serialise publishing in sequence.
+     * Serialise publishing in sequence and set cursor to latest available sequence.
      *
      * @param sequence sequence to be applied
      * @param cursor to serialise against.
@@ -185,6 +185,8 @@ public interface ClaimStrategy
                     Thread.yield();
                 }
             }
+
+            cursor.set(sequence);
         }
 
         private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
@@ -279,6 +281,7 @@ public interface ClaimStrategy
         @Override
         public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
         {
+            cursor.set(sequence);
         }
 
         private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
