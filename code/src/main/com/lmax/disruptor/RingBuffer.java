@@ -22,7 +22,7 @@ package com.lmax.disruptor;
  */
 public final class RingBuffer<T> extends Sequencer
 {
-    private final int mask;
+    private final int indexMask;
     private final Object[] entries;
 
     /**
@@ -47,7 +47,7 @@ public final class RingBuffer<T> extends Sequencer
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
 
-        mask = getBufferSize() - 1;
+        indexMask = getBufferSize() - 1;
         entries = new Object[getBufferSize()];
 
         fill(eventFactory);
@@ -76,7 +76,7 @@ public final class RingBuffer<T> extends Sequencer
     @SuppressWarnings("unchecked")
     public T get(final long sequence)
     {
-        return (T)entries[(int)sequence & mask];
+        return (T)entries[(int)sequence & indexMask];
     }
 
     private void fill(final EventFactory<T> eventFactory)
