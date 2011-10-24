@@ -199,7 +199,7 @@ public class Sequencer
         waitStrategy.signalAllWhenBlocking();
     }
 
-    private void publish(final long sequence, final long batchSize)
+    private void publish(final long sequence, final int batchSize)
     {
         claimStrategy.serialisePublishing(sequence, cursor, batchSize);
         cursor.set(sequence);

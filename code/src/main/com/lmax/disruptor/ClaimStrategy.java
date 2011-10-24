@@ -66,7 +66,7 @@ public interface ClaimStrategy
      * @param cursor to serialise against.
      * @param batchSize of the sequence.
      */
-    void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize);
+    void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize);
 
     /**
      * Indicates the threading policy to be applied for claiming events by publisher to the {@link Sequencer}
@@ -171,7 +171,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize)
+        public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
         {
             final long expectedSequence = sequence - batchSize;
             int counter = RETRIES;
@@ -298,7 +298,7 @@ public interface ClaimStrategy
         }
 
         @Override
-        public void serialisePublishing(final long sequence, final Sequence cursor, final long batchSize)
+        public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
         {
         }
 
