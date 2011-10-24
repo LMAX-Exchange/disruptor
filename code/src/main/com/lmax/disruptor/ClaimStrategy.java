@@ -19,6 +19,8 @@ import com.lmax.disruptor.util.MutableLong;
 import com.lmax.disruptor.util.PaddedAtomicLong;
 import com.lmax.disruptor.util.PaddedLong;
 
+import java.util.concurrent.locks.LockSupport;
+
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
@@ -108,7 +110,7 @@ public interface ClaimStrategy
     static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
-        private static final int RETRIES = 100;
+        private static final int RETRIES = 1000;
         private final int bufferSize;
         private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
 
@@ -190,11 +192,10 @@ public interface ClaimStrategy
             final long wrapPoint = (sequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
-                int counter = RETRIES;
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    counter = applyBackPressure(counter);
+                    LockSupport.parkNanos(1000L);
                 }
 
                 minGatingSequence.set(minSequence);
@@ -209,33 +210,11 @@ public interface ClaimStrategy
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    Thread.yield();
+                    LockSupport.parkNanos(1000L);
                 }
 
                 minGatingSequence.set(minSequence);
             }
-        }
-
-        private int applyBackPressure(int counter)
-        {
-            if (0 != counter)
-            {
-                --counter;
-                Thread.yield();
-            }
-            else
-            {
-                try
-                {
-                    Thread.sleep(1L);
-                }
-                catch (InterruptedException e)
-                {
-                    // don't care
-                }
-            }
-
-            return counter;
         }
     }
 
@@ -310,7 +289,7 @@ public interface ClaimStrategy
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    Thread.yield();
+                    LockSupport.parkNanos(1000L);
                 }
 
                 minGatingSequence.set(minSequence);
