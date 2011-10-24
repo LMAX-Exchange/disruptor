@@ -29,20 +29,20 @@ public final class RingBuffer<T> extends Sequencer
      * Construct a RingBuffer with the full option set.
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
-     * @param size of the RingBuffer that will be rounded up to the next power of 2
+     * @param bufferSize of the RingBuffer that will be rounded up to the next power of 2
      * @param claimStrategyOption threading strategy for publisher claiming entries in the ring.
      * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on entries becoming available.
      *
      * @throws IllegalArgumentException if bufferSize is not a power of 2
      */
     public RingBuffer(final EventFactory<T> eventFactory,
-                      final int size,
+                      final int bufferSize,
                       final ClaimStrategy.Option claimStrategyOption,
                       final WaitStrategy.Option waitStrategyOption)
     {
-        super(size, claimStrategyOption, waitStrategyOption);
+        super(bufferSize, claimStrategyOption, waitStrategyOption);
 
-        if (Integer.bitCount(size) != 1)
+        if (Integer.bitCount(bufferSize) != 1)
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
