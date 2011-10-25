@@ -19,36 +19,44 @@ import org.junit.Assert;
 
 public abstract class AbstractPerfTestQueueVsDisruptor
 {
+    public static final int RUNS = 3;
+
     protected void testImplementations()
         throws Exception
     {
-        final boolean runQueueTests = "true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true"));
-        final int RUNS = 3;
-        long disruptorOps = 0L;
-        long queueOps = 0L;
+        long queueOps[] = new long[RUNS];
+        long disruptorOps[] = new long[RUNS];
+
+        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
+        {
+            for (int i = 0; i < RUNS; i++)
+            {
+                System.gc();
+                queueOps[i] = runQueuePass();
+            }
+        }
 
         for (int i = 0; i < RUNS; i++)
         {
             System.gc();
-
-            disruptorOps = runDisruptorPass();
-
-            if (runQueueTests)
-            {
-                queueOps = runQueuePass();
-            }
-
-            printResults(getClass().getSimpleName(), disruptorOps, queueOps, i);
+            disruptorOps[i] = runDisruptorPass();
         }
 
-        Assert.assertTrue("Performance degraded", disruptorOps > queueOps);
+        printResults(getClass().getSimpleName(), disruptorOps, queueOps);
+
+        for (int i = 0; i < RUNS; i++)
+        {
+            Assert.assertTrue("Performance degraded", disruptorOps[i] > queueOps[i]);
+        }
     }
 
-
-    public static void printResults(final String className, final long disruptorOps, final long queueOps, final int i)
+    public static void printResults(final String className, final long[] disruptorOps, final long[] queueOps)
     {
-        System.out.format("%s OpsPerSecond run %d: BlockingQueues=%,d Disruptor=%,d\n",
-                          className, Integer.valueOf(i), Long.valueOf(queueOps), Long.valueOf(disruptorOps));
+        for (int i = 0; i < RUNS; i++)
+        {
+            System.out.format("%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec\n",
+                              className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
+        }
     }
 
     protected abstract long runQueuePass() throws Exception;
