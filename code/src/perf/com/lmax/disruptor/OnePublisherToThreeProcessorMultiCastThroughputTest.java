@@ -109,7 +109,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unchecked")
-    private final ArrayBlockingQueue<Long>[] blockingQueues = new ArrayBlockingQueue[NUM_EVENT_PROCESSORS];
+    private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
     {
         blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
         blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
@@ -144,6 +144,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[0]);
         batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
         batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[2]);
+
         ringBuffer.setGatingSequences(batchEventProcessors[0].getSequence(),
                                       batchEventProcessors[1].getSequence(),
                                       batchEventProcessors[2].getSequence());
