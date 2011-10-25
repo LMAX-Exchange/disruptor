@@ -24,7 +24,7 @@ import java.util.concurrent.locks.LockSupport;
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
- * Strategies employed for claiming the sequence of events in the {@link Sequencer} by publishers.
+ * Strategy contract for claiming the sequence of events in the {@link Sequencer} by publishers.
  */
 public interface ClaimStrategy
 {
@@ -107,12 +107,12 @@ public interface ClaimStrategy
     /**
      * Strategy to be used when there are multiple publisher threads claiming sequences.
      */
-    static final class MultiThreadedStrategy
+    public static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
         private static final int RETRIES = 1000;
         private final int bufferSize;
-        private final PaddedAtomicLong sequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+        private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
         {
@@ -132,7 +132,7 @@ public interface ClaimStrategy
         public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
         {
             final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
+            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
@@ -152,23 +152,26 @@ public interface ClaimStrategy
         {
             final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
             waitForCapacity(dependentSequences, minGatingSequence);
-            final long nextSequence = sequence.incrementAndGet();
+
+            final long nextSequence = claimSequence.incrementAndGet();
             waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequence);
+
             return nextSequence;
         }
 
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            final long nextSequence = sequence.addAndGet(delta);
+            final long nextSequence = claimSequence.addAndGet(delta);
             waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
+
             return nextSequence;
         }
 
         @Override
         public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
-            this.sequence.lazySet(sequence);
+            claimSequence.lazySet(sequence);
             waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
         }
 
@@ -191,7 +194,7 @@ public interface ClaimStrategy
 
         private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
         {
-            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
+            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence;
@@ -223,12 +226,12 @@ public interface ClaimStrategy
     /**
      * Optimised strategy can be used when there is a single publisher thread claiming sequences.
      */
-    static final class SingleThreadedStrategy
+    public static final class SingleThreadedStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
         private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-        private final PaddedLong sequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
+        private final PaddedLong claimSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
 
         public SingleThreadedStrategy(final int bufferSize)
         {
@@ -238,7 +241,7 @@ public interface ClaimStrategy
         @Override
         public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
         {
-            final long wrapPoint = (sequence.get() + 1L) - bufferSize;
+            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
             if (wrapPoint > minGatingSequence.get())
             {
                 long minSequence = getMinimumSequence(dependentSequences);
@@ -256,25 +259,27 @@ public interface ClaimStrategy
         @Override
         public long incrementAndGet(final Sequence[] dependentSequences)
         {
-            long nextSequence = sequence.get() + 1L;
-            sequence.set(nextSequence);
+            long nextSequence = claimSequence.get() + 1L;
+            claimSequence.set(nextSequence);
             waitForFreeSlotAt(nextSequence, dependentSequences);
+
             return nextSequence;
         }
 
         @Override
         public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
         {
-            long nextSequence = sequence.get() + delta;
-            sequence.set(nextSequence);
+            long nextSequence = claimSequence.get() + delta;
+            claimSequence.set(nextSequence);
             waitForFreeSlotAt(nextSequence, dependentSequences);
+
             return nextSequence;
         }
 
         @Override
         public void setSequence(final long sequence, final Sequence[] dependentSequences)
         {
-            this.sequence.set(sequence);
+            claimSequence.set(sequence);
             waitForFreeSlotAt(sequence, dependentSequences);
         }
 
