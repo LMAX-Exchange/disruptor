@@ -33,13 +33,16 @@ public abstract class AbstractPerfTestQueueVsDisruptor
             {
                 System.gc();
                 queueOps[i] = runQueuePass();
+                System.out.println("Completed BlockingQueue run " + i);
             }
+
         }
 
         for (int i = 0; i < RUNS; i++)
         {
             System.gc();
             disruptorOps[i] = runDisruptorPass();
+            System.out.println("Completed Disruptor run " + i);
         }
 
         printResults(getClass().getSimpleName(), disruptorOps, queueOps);
