@@ -196,6 +196,10 @@ public interface ClaimStrategy
             if (expectedSequence == cursor.get())
             {
                 cursor.set(sequence);
+                if (sequence == claimSequence.get())
+                {
+                    return;
+                }
             }
             else
             {
@@ -205,7 +209,7 @@ public interface ClaimStrategy
                 }
             }
 
-            if (0L == csLock.get() && csLock.compareAndSet(0L, 1L))
+            if (csLock.compareAndSet(0L, 1L))
             {
                 long initialCursor = cursor.get();
                 long currentCursor = initialCursor;
@@ -226,7 +230,7 @@ public interface ClaimStrategy
                     cursor.set(currentCursor);
                 }
 
-                csLock.lazySet(0L);
+                csLock.set(0L);
             }
         }
 
