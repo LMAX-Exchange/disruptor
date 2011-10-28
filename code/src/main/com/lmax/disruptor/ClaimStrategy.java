@@ -19,6 +19,7 @@ import com.lmax.disruptor.util.MutableLong;
 import com.lmax.disruptor.util.PaddedAtomicLong;
 import com.lmax.disruptor.util.PaddedLong;
 
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.LockSupport;
 
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
@@ -110,9 +111,11 @@ public interface ClaimStrategy
     public static final class MultiThreadedStrategy
         implements ClaimStrategy
     {
-        private static final int RETRIES = 1000;
         private final int bufferSize;
+        private final int indexMask;
+        private final AtomicLongArray pendingPublications;
         private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+        private final PaddedAtomicLong csLock = new PaddedAtomicLong(0L);
 
         private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
         {
@@ -125,7 +128,18 @@ public interface ClaimStrategy
 
         public MultiThreadedStrategy(final int bufferSize)
         {
+            if (Integer.bitCount(bufferSize) != 1)
+            {
+                throw new IllegalArgumentException("bufferSize must be a power of 2");
+            }
+
             this.bufferSize = bufferSize;
+            indexMask = bufferSize - 1;
+            pendingPublications = new AtomicLongArray(bufferSize);
+            for (int i = 0, size = pendingPublications.length(); i < size; i++)
+            {
+                pendingPublications.lazySet(i, Sequencer.INITIAL_CURSOR_VALUE);
+            }
         }
 
         @Override
@@ -179,17 +193,41 @@ public interface ClaimStrategy
         public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
         {
             final long expectedSequence = sequence - batchSize;
-            int counter = RETRIES;
-            while (expectedSequence != cursor.get())
+            if (expectedSequence == cursor.get())
             {
-                if (--counter == 0)
+                cursor.set(sequence);
+            }
+            else
+            {
+                for (long i = expectedSequence + 1; i <= sequence; i++)
                 {
-                    counter = RETRIES;
-                    Thread.yield();
+                    pendingPublications.lazySet((int)i & indexMask, i);
                 }
             }
 
-            cursor.set(sequence);
+            if (0L == csLock.get() && csLock.compareAndSet(0L, 1L))
+            {
+                long initialCursor = cursor.get();
+                long currentCursor = initialCursor;
+
+                while (currentCursor < claimSequence.get())
+                {
+                    long nextSequence = currentCursor + 1L;
+                    if (nextSequence != pendingPublications.get((int)nextSequence & indexMask))
+                    {
+                        break;
+                    }
+
+                    currentCursor = nextSequence;
+                }
+
+                if (currentCursor > initialCursor)
+                {
+                    cursor.set(currentCursor);
+                }
+
+                csLock.lazySet(0L);
+            }
         }
 
         private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
