@@ -203,10 +203,12 @@ public interface ClaimStrategy
             }
             else
             {
-                for (long i = expectedSequence + 1; i <= sequence; i++)
+                for (long i = expectedSequence + 1; i < sequence; i++)
                 {
-                    pendingPublications.set((int)i & indexMask, i);
+                    pendingPublications.lazySet((int)i & indexMask, i);
                 }
+
+                pendingPublications.set((int)sequence & indexMask, sequence);
             }
 
             if (csLock.compareAndSet(0L, 1L))
