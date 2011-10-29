@@ -91,6 +91,12 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected int getRequiredProcessorCount()
+    {
+        return 2;
+    }
+
     @Test
     @Override
     public void shouldCompareDisruptorVsQueues() throws Exception

@@ -48,6 +48,12 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected int getRequiredProcessorCount()
+    {
+        return 2;
+    }
+
     @Test
     @Override
     public void shouldCompareDisruptorVsQueues() throws Exception

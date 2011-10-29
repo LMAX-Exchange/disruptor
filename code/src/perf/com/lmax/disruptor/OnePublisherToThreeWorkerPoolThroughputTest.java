@@ -70,6 +70,12 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected int getRequiredProcessorCount()
+    {
+        return 4;
+    }
+
     @Test
     @Override
     public void shouldCompareDisruptorVsQueues() throws Exception

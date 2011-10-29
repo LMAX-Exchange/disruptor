@@ -161,6 +161,12 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected int getRequiredProcessorCount()
+    {
+        return 4;
+    }
+
     @Test
     @Override
     public void shouldCompareDisruptorVsQueues() throws Exception

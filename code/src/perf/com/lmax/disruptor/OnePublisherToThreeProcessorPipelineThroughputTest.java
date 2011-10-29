@@ -144,6 +144,12 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Override
+    protected int getRequiredProcessorCount()
+    {
+        return 4;
+    }
+
     @Test
     @Override
     public void shouldCompareDisruptorVsQueues() throws Exception

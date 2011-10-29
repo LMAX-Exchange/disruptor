@@ -24,6 +24,13 @@ public abstract class AbstractPerfTestQueueVsDisruptor
     protected void testImplementations()
         throws Exception
     {
+        final int availableProcessors = Runtime.getRuntime().availableProcessors();
+        if (getRequiredProcessorCount() > availableProcessors)
+        {
+            System.out.print("*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
+            System.out.println("Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
+        }
+
         long queueOps[] = new long[RUNS];
         long disruptorOps[] = new long[RUNS];
 
@@ -61,6 +68,8 @@ public abstract class AbstractPerfTestQueueVsDisruptor
                               className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
         }
     }
+
+    protected abstract int getRequiredProcessorCount();
 
     protected abstract long runQueuePass() throws Exception;
 
