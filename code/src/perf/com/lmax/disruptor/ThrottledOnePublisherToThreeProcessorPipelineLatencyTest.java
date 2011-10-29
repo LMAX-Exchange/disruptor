@@ -169,30 +169,51 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     public void shouldCompareDisruptorVsQueues() throws Exception
     {
         final int RUNS = 3;
-        final boolean runQueueTests = "true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true"));
+
+        BigDecimal queueMeanLatency[] = new BigDecimal[RUNS];
+        BigDecimal disruptorMeanLatency[] = new BigDecimal[RUNS];
+
+        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
+        {
+            for (int i = 0; i < RUNS; i++)
+            {
+                System.gc();
+                histogram.clear();
+
+                runQueuePass();
+
+                assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
+                queueMeanLatency[i] = histogram.getMean();
+
+                System.out.format("%s run %d BlockingQueue %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
+                dumpHistogram(System.out);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < RUNS; i++)
+            {
+                queueMeanLatency[i] = new BigDecimal(Long.MAX_VALUE);
+            }
+        }
 
         for (int i = 0; i < RUNS; i++)
         {
             System.gc();
-
             histogram.clear();
+
             runDisruptorPass();
+
             assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
-            final BigDecimal disruptorMeanLatency = histogram.getMean();
+            disruptorMeanLatency[i] = histogram.getMean();
+
             System.out.format("%s run %d Disruptor %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
             dumpHistogram(System.out);
+        }
 
-            if (runQueueTests)
-            {
-                histogram.clear();
-                runQueuePass();
-                assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
-                final BigDecimal queueMeanLatency = histogram.getMean();
-                System.out.format("%s run %d Queues %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
-                dumpHistogram(System.out);
-
-                assertTrue(queueMeanLatency.compareTo(disruptorMeanLatency) > 0);
-            }
+        for (int i = 0; i < RUNS; i++)
+        {
+            assertTrue(queueMeanLatency[i].compareTo(disruptorMeanLatency[i]) > 0);
         }
     }
 
