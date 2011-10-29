@@ -205,7 +205,7 @@ public interface ClaimStrategy
             {
                 for (long i = expectedSequence + 1; i <= sequence; i++)
                 {
-                    pendingPublications.lazySet((int)i & indexMask, i);
+                    pendingPublications.set((int)i & indexMask, i);
                 }
             }
 
