@@ -19,7 +19,6 @@ import com.lmax.disruptor.util.MutableLong;
 import com.lmax.disruptor.util.PaddedAtomicLong;
 import com.lmax.disruptor.util.PaddedLong;
 
-import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.LockSupport;
 
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
@@ -112,10 +111,7 @@ public interface ClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
-        private final int indexMask;
-        private final AtomicLongArray pendingPublications;
         private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
-        private final PaddedAtomicLong csLock = new PaddedAtomicLong(0L);
 
         private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
         {
@@ -128,18 +124,7 @@ public interface ClaimStrategy
 
         public MultiThreadedStrategy(final int bufferSize)
         {
-            if (Integer.bitCount(bufferSize) != 1)
-            {
-                throw new IllegalArgumentException("bufferSize must be a power of 2");
-            }
-
             this.bufferSize = bufferSize;
-            indexMask = bufferSize - 1;
-            pendingPublications = new AtomicLongArray(bufferSize);
-            for (int i = 0, size = pendingPublications.length(); i < size; i++)
-            {
-                pendingPublications.lazySet(i, Sequencer.INITIAL_CURSOR_VALUE);
-            }
         }
 
         @Override
@@ -193,47 +178,12 @@ public interface ClaimStrategy
         public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
         {
             final long expectedSequence = sequence - batchSize;
-            if (expectedSequence == cursor.get())
+            while (expectedSequence != cursor.get())
             {
-                cursor.set(sequence);
-                if (sequence == claimSequence.get())
-                {
-                    return;
-                }
-            }
-            else
-            {
-                for (long i = expectedSequence + 1; i < sequence; i++)
-                {
-                    pendingPublications.lazySet((int)i & indexMask, i);
-                }
-
-                pendingPublications.set((int)sequence & indexMask, sequence);
+                // busy spin
             }
 
-            if (csLock.compareAndSet(0L, 1L))
-            {
-                long initialCursor = cursor.get();
-                long currentCursor = initialCursor;
-
-                while (currentCursor < claimSequence.get())
-                {
-                    long nextSequence = currentCursor + 1L;
-                    if (nextSequence != pendingPublications.get((int)nextSequence & indexMask))
-                    {
-                        break;
-                    }
-
-                    currentCursor = nextSequence;
-                }
-
-                if (currentCursor > initialCursor)
-                {
-                    cursor.set(currentCursor);
-                }
-
-                csLock.set(0L);
-            }
+            cursor.set(sequence);
         }
 
         private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
@@ -244,7 +194,7 @@ public interface ClaimStrategy
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    LockSupport.parkNanos(1000L);
+                    LockSupport.parkNanos(1L);
                 }
 
                 minGatingSequence.set(minSequence);
@@ -259,7 +209,7 @@ public interface ClaimStrategy
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    LockSupport.parkNanos(1000L);
+                    LockSupport.parkNanos(1L);
                 }
 
                 minGatingSequence.set(minSequence);
@@ -341,7 +291,7 @@ public interface ClaimStrategy
                 long minSequence;
                 while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
                 {
-                    LockSupport.parkNanos(1000L);
+                    LockSupport.parkNanos(1L);
                 }
 
                 minGatingSequence.set(minSequence);
