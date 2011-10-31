@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.PaddedAtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * Cache line padded sequence counter.
@@ -9,7 +9,11 @@ import com.lmax.disruptor.util.PaddedAtomicLong;
  */
 public class Sequence
 {
-    private final PaddedAtomicLong value = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+    private static final AtomicLongFieldUpdater<Sequence> updater = AtomicLongFieldUpdater.newUpdater(Sequence.class, "value");
+
+    private volatile long p1 = 7L, p2 = 7L, p3 = 7L, p4 = 7L, p5 = 7L, p6 = 7L, p7 = 7L,
+                          value = Sequencer.INITIAL_CURSOR_VALUE,
+                          q1 = 7L, q2 = 7L, q3 = 7L, q4 = 7L, q5 = 7L, q6 = 7L, q7 = 7L;
 
     /**
      * Default Constructor that uses an initial value of {@link Sequencer#INITIAL_CURSOR_VALUE}.
@@ -35,7 +39,7 @@ public class Sequence
      */
     public long get()
     {
-        return value.get();
+        return value;
     }
 
     /**
@@ -45,7 +49,7 @@ public class Sequence
      */
     public void set(final long value)
     {
-        this.value.lazySet(value);
+        updater.lazySet(this, value);
     }
 
     /**
@@ -55,6 +59,21 @@ public class Sequence
      */
     public String toString()
     {
-        return Long.toString(value.get());
+        return Long.toString(value);
+    }
+
+    /**
+     * Here to help make sure false sharing prevention padding is not optimised away.
+     *
+     * @return sum of padding.
+     */
+    public long sumPaddingToPreventOptimisation()
+    {
+        return  p1 + p2 + p3 + p4 + p5 + p6 + p7 + value + q1 + q2 + q3 + q4 + q5 + q6 + q7;
+    }
+
+    public void setPaddingValue(final long value)
+    {
+       p1 = p2 = p3 = p4 = p5 = p6 = p7 = q1 = q2 = q3 = q4 = q5 = q6 = q7 = value;
     }
 }
