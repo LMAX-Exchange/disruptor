@@ -106,9 +106,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<long[]> stepOneQueue = new ArrayBlockingQueue<long[]>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<long[]> stepOneQueue = new LinkedBlockingQueue<long[]>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
 
     private final FunctionQueueProcessor stepOneQueueProcessor =
         new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue, ITERATIONS - 1);

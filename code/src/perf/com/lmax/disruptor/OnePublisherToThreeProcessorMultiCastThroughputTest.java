@@ -111,9 +111,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     @SuppressWarnings("unchecked")
     private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
     {
-        blockingQueues[0] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
-        blockingQueues[1] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
-        blockingQueues[2] = new ArrayBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[0] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[1] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[2] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];

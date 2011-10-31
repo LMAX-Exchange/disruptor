@@ -41,7 +41,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
     private final EventCountingQueueProcessor[] queueWorkers = new EventCountingQueueProcessor[NUM_WORKERS];
     {
         for (int i = 0; i < NUM_WORKERS; i++)

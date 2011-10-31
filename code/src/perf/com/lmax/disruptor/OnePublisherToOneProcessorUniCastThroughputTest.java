@@ -73,7 +73,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
     private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

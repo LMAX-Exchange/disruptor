@@ -118,10 +118,10 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> fizzInputQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> buzzInputQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Boolean> fizzOutputQueue = new ArrayBlockingQueue<Boolean>(BUFFER_SIZE);
-    private final BlockingQueue<Boolean> buzzOutputQueue = new ArrayBlockingQueue<Boolean>(BUFFER_SIZE);
+    private final BlockingQueue<Long> fizzInputQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> buzzInputQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> fizzOutputQueue = new LinkedBlockingQueue<Boolean>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> buzzOutputQueue = new LinkedBlockingQueue<Boolean>(BUFFER_SIZE);
 
     private final FizzBuzzQueueProcessor fizzQueueProcessor =
         new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);

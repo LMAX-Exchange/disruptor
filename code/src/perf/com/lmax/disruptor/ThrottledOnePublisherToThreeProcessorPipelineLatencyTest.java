@@ -127,9 +127,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> stepOneQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepTwoQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepThreeQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepOneQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
 
     private final LatencyStepQueueProcessor stepOneQueueProcessor =
         new LatencyStepQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, histogram, nanoTimeCost, ITERATIONS - 1);
