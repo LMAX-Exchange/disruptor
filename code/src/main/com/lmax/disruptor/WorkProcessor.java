@@ -84,7 +84,7 @@ public final class WorkProcessor<T>
         }
         sequenceBarrier.clearAlert();
 
-        if (LifecycleAware.class.isAssignableFrom(workHandler.getClass()))
+        if (workHandler instanceof LifecycleAware)
         {
             ((LifecycleAware)workHandler).onStart();
         }
@@ -123,7 +123,7 @@ public final class WorkProcessor<T>
             }
         }
 
-        if (LifecycleAware.class.isAssignableFrom(workHandler.getClass()))
+        if (workHandler instanceof LifecycleAware)
         {
             ((LifecycleAware)workHandler).onShutdown();
         }

@@ -52,7 +52,7 @@ public final class BatchEventProcessor<T>
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
 
-        if (SequenceReportingEventHandler.class.isAssignableFrom(eventHandler.getClass()))
+        if (eventHandler instanceof SequenceReportingEventHandler)
         {
             ((SequenceReportingEventHandler)eventHandler).setSequenceCallback(sequence);
         }
@@ -98,7 +98,7 @@ public final class BatchEventProcessor<T>
         }
         sequenceBarrier.clearAlert();
 
-        if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
+        if (eventHandler instanceof LifecycleAware)
         {
             ((LifecycleAware)eventHandler).onStart();
         }
@@ -134,7 +134,7 @@ public final class BatchEventProcessor<T>
             }
         }
 
-        if (LifecycleAware.class.isAssignableFrom(eventHandler.getClass()))
+        if (eventHandler instanceof LifecycleAware)
         {
             ((LifecycleAware)eventHandler).onShutdown();
         }
