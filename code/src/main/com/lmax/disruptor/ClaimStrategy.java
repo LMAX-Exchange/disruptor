@@ -81,7 +81,7 @@ public interface ClaimStrategy
             @Override
             public ClaimStrategy newInstance(final int bufferSize)
             {
-                return new MultiThreadedStrategy(bufferSize);
+                return new MultiThreadedClaimStrategy(bufferSize);
             }
         },
 
@@ -91,7 +91,7 @@ public interface ClaimStrategy
             @Override
             public ClaimStrategy newInstance(final int bufferSize)
             {
-                return new SingleThreadedStrategy(bufferSize);
+                return new SingleThreadedClaimStrategy(bufferSize);
             }
         };
 
@@ -107,7 +107,7 @@ public interface ClaimStrategy
     /**
      * Strategy to be used when there are multiple publisher threads claiming sequences.
      */
-    public static final class MultiThreadedStrategy
+    public static final class MultiThreadedClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
@@ -122,7 +122,7 @@ public interface ClaimStrategy
             }
         };
 
-        public MultiThreadedStrategy(final int bufferSize)
+        public MultiThreadedClaimStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
         }
@@ -220,14 +220,14 @@ public interface ClaimStrategy
     /**
      * Optimised strategy can be used when there is a single publisher thread claiming sequences.
      */
-    public static final class SingleThreadedStrategy
+    public static final class SingleThreadedClaimStrategy
         implements ClaimStrategy
     {
         private final int bufferSize;
         private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
         private final PaddedLong claimSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
 
-        public SingleThreadedStrategy(final int bufferSize)
+        public SingleThreadedClaimStrategy(final int bufferSize)
         {
             this.bufferSize = bufferSize;
         }

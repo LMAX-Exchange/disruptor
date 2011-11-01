@@ -76,7 +76,7 @@ public interface WaitStrategy
             @Override
             public WaitStrategy newInstance()
             {
-                return new BlockingStrategy();
+                return new BlockingWaitStrategy();
             }
         },
 
@@ -87,9 +87,9 @@ public interface WaitStrategy
         SLEEPING
         {
             @Override
-            public SleepingStrategy newInstance()
+            public SleepingWaitStrategy newInstance()
             {
-                return new SleepingStrategy();
+                return new SleepingWaitStrategy();
             }
         },
 
@@ -102,7 +102,7 @@ public interface WaitStrategy
             @Override
             public WaitStrategy newInstance()
             {
-                return new YieldingStrategy();
+                return new YieldingWaitStrategy();
             }
         },
 
@@ -115,7 +115,7 @@ public interface WaitStrategy
             @Override
             public WaitStrategy newInstance()
             {
-                return new BusySpinStrategy();
+                return new BusySpinWaitStrategy();
             }
         };
 
@@ -132,7 +132,7 @@ public interface WaitStrategy
      *
      * This strategy can be used when throughput and low-latency are not as important as CPU resource.
      */
-    static final class BlockingStrategy implements WaitStrategy
+    public static final class BlockingWaitStrategy implements WaitStrategy
     {
         private final Lock lock = new ReentrantLock();
         private final Condition processorNotifyCondition = lock.newCondition();
@@ -237,7 +237,7 @@ public interface WaitStrategy
      *
      * This strategy is a good compromise between performance and CPU resource. Latency spikes can occur after quiet periods.
      */
-    static final class SleepingStrategy implements WaitStrategy
+    public static final class SleepingWaitStrategy implements WaitStrategy
     {
         private static final int RETRIES = 200;
 
@@ -345,7 +345,7 @@ public interface WaitStrategy
      *
      * This strategy is a good compromise between performance and CPU resource without incurring significant latency spikes.
      */
-    static final class YieldingStrategy implements WaitStrategy
+    public static final class YieldingWaitStrategy implements WaitStrategy
     {
         private static final int SPIN_TRIES = 100;
 
@@ -441,7 +441,7 @@ public interface WaitStrategy
      * This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best
      * used when threads can be bound to specific CPU cores.
      */
-    static final class BusySpinStrategy implements WaitStrategy
+    public static final class BusySpinWaitStrategy implements WaitStrategy
     {
         @Override
         public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
