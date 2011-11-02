@@ -23,8 +23,6 @@ public class Sequencer
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
 
-    private final int bufferSize;
-
     private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private Sequence[] gatingSequences;
 
@@ -34,17 +32,14 @@ public class Sequencer
     /**
      * Construct a Sequencer with the selected strategies.
      *
-     * @param bufferSize over which sequences are valid.
-     * @param claimStrategyOption for those claiming sequences.
-     * @param waitStrategyOption for those waiting on sequences.
+     * @param claimStrategy for those claiming sequences.
+     * @param waitStrategy for those waiting on sequences.
      */
-    public Sequencer(final int bufferSize,
-                     final ClaimStrategy.Option claimStrategyOption,
-                     final WaitStrategy.Option waitStrategyOption)
+    public Sequencer(final ClaimStrategy claimStrategy,
+                     final WaitStrategy waitStrategy)
     {
-        this.claimStrategy = claimStrategyOption.newInstance(bufferSize);
-        this.waitStrategy = waitStrategyOption.newInstance();
-        this.bufferSize = bufferSize;
+        this.claimStrategy = claimStrategy;
+        this.waitStrategy = waitStrategy;
     }
 
     /**
@@ -80,7 +75,7 @@ public class Sequencer
      */
     public BatchDescriptor newBatchDescriptor(final int size)
     {
-        return new BatchDescriptor(Math.min(size, bufferSize));
+        return new BatchDescriptor(Math.min(size, claimStrategy.getBufferSize()));
     }
 
     /**
@@ -90,7 +85,7 @@ public class Sequencer
      */
     public int getBufferSize()
     {
-        return bufferSize;
+        return claimStrategy.getBufferSize();
     }
 
     /**

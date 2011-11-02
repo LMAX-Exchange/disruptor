@@ -61,16 +61,15 @@ public class Disruptor<T>
      * Create a new Disruptor.
      *
      * @param eventFactory   the factory to create events in the ring buffer.
-     * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
      * @param claimStrategy  the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
      */
-    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor,
-                     final ClaimStrategy.Option claimStrategy,
-                     final WaitStrategy.Option waitStrategy)
+    public Disruptor(final EventFactory<T> eventFactory, final Executor executor,
+                     final ClaimStrategy claimStrategy,
+                     final WaitStrategy waitStrategy)
     {
-        this(new RingBuffer<T>(eventFactory, ringBufferSize, claimStrategy, waitStrategy), executor);
+        this(new RingBuffer<T>(eventFactory, claimStrategy, waitStrategy), executor);
     }
 
     private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)

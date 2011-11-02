@@ -31,9 +31,8 @@ public final class SequencerTest
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private static final int BUFFER_SIZE = 4;
 
-    private final Sequencer sequencer = new Sequencer(BUFFER_SIZE,
-                                                      ClaimStrategy.Option.SINGLE_THREADED,
-                                                      WaitStrategy.Option.SLEEPING);
+    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                                      new SleepingWaitStrategy());
 
     private final Sequence gatingSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 

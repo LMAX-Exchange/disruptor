@@ -141,9 +141,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, BUFFER_SIZE,
-                                   ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.BUSY_SPIN);
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                   new BusySpinWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);

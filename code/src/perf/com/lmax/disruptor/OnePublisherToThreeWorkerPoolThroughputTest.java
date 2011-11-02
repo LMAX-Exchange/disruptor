@@ -62,9 +62,8 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     private final WorkerPool<ValueEvent> workerPool
         = new WorkerPool<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                     BUFFER_SIZE,
-                                     ClaimStrategy.Option.SINGLE_THREADED,
-                                     WaitStrategy.Option.YIELDING,
+                                     new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                     new YieldingWaitStrategy(),
                                      new FatalExceptionHandler(),
                                      handlers);
 

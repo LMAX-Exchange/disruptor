@@ -15,19 +15,25 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.MutableLong;
-import com.lmax.disruptor.util.PaddedAtomicLong;
-import com.lmax.disruptor.util.PaddedLong;
-
-import java.util.concurrent.locks.LockSupport;
-
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 /**
- * Strategy contract for claiming the sequence of events in the {@link Sequencer} by publishers.
+ * Strategy contract for claiming the sequence of events in the {@link Sequencer} by event publishers.
  */
 public interface ClaimStrategy
 {
+    /**
+     * Get the size of the data structure used to buffer events.
+     *
+     * @return size of the underlying buffer.
+     */
+    int getBufferSize();
+
+    /**
+     * Get the current claimed sequence.
+     *
+     * @return the current claimed sequence.
+     */
+    long getSequence();
+
     /**
      * Is there available capacity in the buffer for the requested sequence.
      *
@@ -38,6 +44,7 @@ public interface ClaimStrategy
 
     /**
      * Claim the next sequence in the {@link Sequencer}.
+     * The caller should be held up until the claimed sequence is available by tracking the dependentSequences.
      *
      * @param dependentSequences to be checked for range.
      * @return the index to be used for the publishing.
@@ -46,6 +53,7 @@ public interface ClaimStrategy
 
     /**
      * Increment sequence by a delta and get the result.
+     * The caller should be held up until the claimed sequence batch is available by tracking the dependentSequences.
      *
      * @param delta to increment by.
      * @param dependentSequences to be checked for range.
@@ -55,6 +63,7 @@ public interface ClaimStrategy
 
     /**
      * Set the current sequence value for claiming an event in the {@link Sequencer}
+     * The caller should be held up until the claimed sequence is available by tracking the dependentSequences.
      *
      * @param dependentSequences to be checked for range.
      * @param sequence to be set as the current value.
@@ -62,240 +71,11 @@ public interface ClaimStrategy
     void setSequence(final long sequence, final Sequence[] dependentSequences);
 
     /**
-     * Serialise publishing in sequence and set cursor to latest available sequence.
+     * Serialise publishers in sequence and set cursor to latest available sequence.
      *
      * @param sequence sequence to be applied
      * @param cursor to serialise against.
      * @param batchSize of the sequence.
      */
     void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize);
-
-    /**
-     * Indicates the threading policy to be applied for claiming events by publisher to the {@link Sequencer}
-     */
-    enum Option
-    {
-        /** Makes the {@link Sequencer} thread safe for claiming events by multiple producing threads. */
-        MULTI_THREADED
-        {
-            @Override
-            public ClaimStrategy newInstance(final int bufferSize)
-            {
-                return new MultiThreadedClaimStrategy(bufferSize);
-            }
-        },
-
-         /** Optimised {@link Sequencer} for use by single thread claiming events as a publisher. */
-        SINGLE_THREADED
-        {
-            @Override
-            public ClaimStrategy newInstance(final int bufferSize)
-            {
-                return new SingleThreadedClaimStrategy(bufferSize);
-            }
-        };
-
-        /**
-         * Used by the {@link Sequencer} as a polymorphic constructor.
-         *
-         * @param bufferSize of the {@link Sequencer} for events.
-         * @return a new instance of the ClaimStrategy
-         */
-        abstract ClaimStrategy newInstance(final int bufferSize);
-    }
-
-    /**
-     * Strategy to be used when there are multiple publisher threads claiming sequences.
-     */
-    public static final class MultiThreadedClaimStrategy
-        implements ClaimStrategy
-    {
-        private final int bufferSize;
-        private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
-
-        private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
-        {
-            @Override
-            protected MutableLong initialValue()
-            {
-                return new MutableLong(Sequencer.INITIAL_CURSOR_VALUE);
-            }
-        };
-
-        public MultiThreadedClaimStrategy(final int bufferSize)
-        {
-            this.bufferSize = bufferSize;
-        }
-
-        @Override
-        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
-        {
-            final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence = getMinimumSequence(dependentSequences);
-                minGatingSequence.set(minSequence);
-
-                if (wrapPoint > minSequence)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public long incrementAndGet(final Sequence[] dependentSequences)
-        {
-            final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-            waitForCapacity(dependentSequences, minGatingSequence);
-
-            final long nextSequence = claimSequence.incrementAndGet();
-            waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequence);
-
-            return nextSequence;
-        }
-
-        @Override
-        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-        {
-            final long nextSequence = claimSequence.addAndGet(delta);
-            waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
-
-            return nextSequence;
-        }
-
-        @Override
-        public void setSequence(final long sequence, final Sequence[] dependentSequences)
-        {
-            claimSequence.lazySet(sequence);
-            waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
-        }
-
-        @Override
-        public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
-        {
-            final long expectedSequence = sequence - batchSize;
-            while (expectedSequence != cursor.get())
-            {
-                // busy spin
-            }
-
-            cursor.set(sequence);
-        }
-
-        private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
-        {
-            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence;
-                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-                {
-                    LockSupport.parkNanos(1L);
-                }
-
-                minGatingSequence.set(minSequence);
-            }
-        }
-
-        private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
-        {
-            final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence;
-                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-                {
-                    LockSupport.parkNanos(1L);
-                }
-
-                minGatingSequence.set(minSequence);
-            }
-        }
-    }
-
-    /**
-     * Optimised strategy can be used when there is a single publisher thread claiming sequences.
-     */
-    public static final class SingleThreadedClaimStrategy
-        implements ClaimStrategy
-    {
-        private final int bufferSize;
-        private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-        private final PaddedLong claimSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-
-        public SingleThreadedClaimStrategy(final int bufferSize)
-        {
-            this.bufferSize = bufferSize;
-        }
-
-        @Override
-        public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
-        {
-            final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence = getMinimumSequence(dependentSequences);
-                minGatingSequence.set(minSequence);
-
-                if (wrapPoint > minSequence)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public long incrementAndGet(final Sequence[] dependentSequences)
-        {
-            long nextSequence = claimSequence.get() + 1L;
-            claimSequence.set(nextSequence);
-            waitForFreeSlotAt(nextSequence, dependentSequences);
-
-            return nextSequence;
-        }
-
-        @Override
-        public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-        {
-            long nextSequence = claimSequence.get() + delta;
-            claimSequence.set(nextSequence);
-            waitForFreeSlotAt(nextSequence, dependentSequences);
-
-            return nextSequence;
-        }
-
-        @Override
-        public void setSequence(final long sequence, final Sequence[] dependentSequences)
-        {
-            claimSequence.set(sequence);
-            waitForFreeSlotAt(sequence, dependentSequences);
-        }
-
-        @Override
-        public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
-        {
-            cursor.set(sequence);
-        }
-
-        private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
-        {
-            final long wrapPoint = sequence - bufferSize;
-            if (wrapPoint > minGatingSequence.get())
-            {
-                long minSequence;
-                while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-                {
-                    LockSupport.parkNanos(1L);
-                }
-
-                minGatingSequence.set(minSequence);
-            }
-        }
-    }
 }

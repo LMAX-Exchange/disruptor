@@ -77,9 +77,9 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, BUFFER_SIZE,
-                                   ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.YIELDING);
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                   new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
@@ -88,7 +88,6 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
 
     @Override
     protected int getRequiredProcessorCount()

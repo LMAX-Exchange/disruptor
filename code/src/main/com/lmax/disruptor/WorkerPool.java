@@ -70,20 +70,18 @@ public final class WorkerPool<T>
      * This option does not require {@link RingBuffer#setGatingSequences(Sequence...)} to be called before the work pool is started.
      *
      * @param eventFactory for filling the {@link RingBuffer}
-     * @param size of the internal {@link RingBuffer}
-     * @param claimStrategyOption for the {@link RingBuffer}
-     * @param waitStrategyOption for the {@link RingBuffer}
+     * @param claimStrategy for the {@link RingBuffer}
+     * @param waitStrategy for the {@link RingBuffer}
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers to distribute the work load across.
      */
     public WorkerPool(final EventFactory<T> eventFactory,
-                      final int size,
-                      final ClaimStrategy.Option claimStrategyOption,
-                      final WaitStrategy.Option waitStrategyOption,
+                      final ClaimStrategy claimStrategy,
+                      final WaitStrategy waitStrategy,
                       final ExceptionHandler exceptionHandler,
                       final WorkHandler<T>... workHandlers)
     {
-        ringBuffer = new RingBuffer<T>(eventFactory, size, claimStrategyOption, waitStrategyOption);
+        ringBuffer = new RingBuffer<T>(eventFactory, claimStrategy, waitStrategy);
         final SequenceBarrier barrier = ringBuffer.newBarrier();
         final int numWorkers = workHandlers.length;
         workProcessors = new WorkProcessor[numWorkers];

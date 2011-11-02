@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Ring based store of reusable entries containing the data representing an event being exchanged between publisher and {@link EventProcessor}s.
+ * Ring based store of reusable entries containing the data representing an event being exchanged between event publisher and {@link EventProcessor}s.
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -29,42 +29,40 @@ public final class RingBuffer<T> extends Sequencer
      * Construct a RingBuffer with the full option set.
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
-     * @param bufferSize of the RingBuffer that will be rounded up to the next power of 2
-     * @param claimStrategyOption threading strategy for publisher claiming entries in the ring.
-     * @param waitStrategyOption waiting strategy employed by processorsToTrack waiting on entries becoming available.
+     * @param claimStrategy threading strategy for publisher claiming entries in the ring.
+     * @param waitStrategy waiting strategy employed by processorsToTrack waiting on entries becoming available.
      *
      * @throws IllegalArgumentException if bufferSize is not a power of 2
      */
     public RingBuffer(final EventFactory<T> eventFactory,
-                      final int bufferSize,
-                      final ClaimStrategy.Option claimStrategyOption,
-                      final WaitStrategy.Option waitStrategyOption)
+                      final ClaimStrategy claimStrategy,
+                      final WaitStrategy waitStrategy)
     {
-        super(bufferSize, claimStrategyOption, waitStrategyOption);
+        super(claimStrategy, waitStrategy);
 
-        if (Integer.bitCount(bufferSize) != 1)
+        if (Integer.bitCount(claimStrategy.getBufferSize()) != 1)
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
 
-        indexMask = getBufferSize() - 1;
-        entries = new Object[getBufferSize()];
+        indexMask = claimStrategy.getBufferSize() - 1;
+        entries = new Object[claimStrategy.getBufferSize()];
 
         fill(eventFactory);
     }
 
     /**
      * Construct a RingBuffer with default strategies of:
-     * {@link ClaimStrategy.Option#MULTI_THREADED} and {@link WaitStrategy.Option#SLEEPING}
+     * {@link MultiThreadedClaimStrategy} and {@link BlockingWaitStrategy}
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
-     * @param size of the RingBuffer that will be rounded up to the next power of 2
+     * @param bufferSize of the RingBuffer that will be rounded up to the next power of 2
      */
-    public RingBuffer(final EventFactory<T> eventFactory, final int size)
+    public RingBuffer(final EventFactory<T> eventFactory, final int bufferSize)
     {
-        this(eventFactory, size,
-             ClaimStrategy.Option.MULTI_THREADED,
-             WaitStrategy.Option.BLOCKING);
+        this(eventFactory,
+             new MultiThreadedClaimStrategy(bufferSize),
+             new BlockingWaitStrategy());
     }
 
     /**

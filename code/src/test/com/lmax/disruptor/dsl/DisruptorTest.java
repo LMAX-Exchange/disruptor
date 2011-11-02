@@ -357,9 +357,9 @@ public class DisruptorTest
 
     private void createDisruptor(final Executor executor)
     {
-        disruptor = new Disruptor<TestEvent>(TestEvent.EVENT_FACTORY, 4, executor,
-                                             ClaimStrategy.Option.SINGLE_THREADED,
-                                             WaitStrategy.Option.BLOCKING);
+        disruptor = new Disruptor<TestEvent>(TestEvent.EVENT_FACTORY, executor,
+                                             new SingleThreadedClaimStrategy(4),
+                                             new BlockingWaitStrategy());
     }
 
     private TestEvent publishEvent()

@@ -120,9 +120,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FunctionEvent> ringBuffer =
-        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE,
-                                      ClaimStrategy.Option.SINGLE_THREADED,
-                                      WaitStrategy.Option.YIELDING);
+        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY,
+                                      new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                      new YieldingWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);

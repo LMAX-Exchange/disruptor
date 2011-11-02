@@ -39,7 +39,7 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final long[] values = new long[BUFFER_SIZE];
-    private final Sequencer sequencer = new Sequencer(BUFFER_SIZE, ClaimStrategy.Option.SINGLE_THREADED, WaitStrategy.Option.YIELDING);
+    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE), new YieldingWaitStrategy());
     private final SequenceBarrier barrier = sequencer.newBarrier();
     private final RawProcessor rawProcessor = new RawProcessor(values, barrier);
     {

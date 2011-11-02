@@ -92,7 +92,7 @@ import java.util.concurrent.*;
 public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int SIZE_BUFFER = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
@@ -111,9 +111,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     @SuppressWarnings("unchecked")
     private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
     {
-        blockingQueues[0] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
-        blockingQueues[1] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
-        blockingQueues[2] = new LinkedBlockingQueue<Long>(SIZE_BUFFER);
+        blockingQueues[0] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+        blockingQueues[1] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+        blockingQueues[2] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
@@ -126,9 +126,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, SIZE_BUFFER,
-                                   ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.YIELDING);
+        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                   new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 

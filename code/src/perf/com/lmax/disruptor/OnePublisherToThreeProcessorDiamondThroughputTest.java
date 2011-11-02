@@ -135,9 +135,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FizzBuzzEvent> ringBuffer =
-        new RingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE,
-                                      ClaimStrategy.Option.SINGLE_THREADED,
-                                      WaitStrategy.Option.YIELDING);
+        new RingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY,
+                                      new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                      new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
