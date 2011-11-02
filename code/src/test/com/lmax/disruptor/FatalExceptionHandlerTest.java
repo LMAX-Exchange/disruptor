@@ -56,7 +56,7 @@ public final class FatalExceptionHandlerTest
 
         try
         {
-            exceptionHandler.handle(causeException, 0L, event);
+            exceptionHandler.handleEventException(causeException, 0L, event);
         }
         catch (RuntimeException ex)
         {

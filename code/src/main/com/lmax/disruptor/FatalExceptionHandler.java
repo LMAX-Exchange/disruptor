@@ -38,10 +38,22 @@ public final class FatalExceptionHandler implements ExceptionHandler
     }
 
     @Override
-    public void handle(final Exception ex, final long sequence, final Object event)
+    public void handleEventException(final Throwable ex, final long sequence, final Object event)
     {
         logger.log(Level.SEVERE, "Exception processing: " + sequence + " " + event, ex);
 
         throw new RuntimeException(ex);
+    }
+
+    @Override
+    public void handleOnStartException(final Throwable ex)
+    {
+        logger.log(Level.SEVERE, "Exception during onStart()", ex);
+    }
+
+    @Override
+    public void handleOnShutdownException(final Throwable ex)
+    {
+        logger.log(Level.SEVERE, "Exception during onShutdown()", ex);
     }
 }

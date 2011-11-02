@@ -84,10 +84,7 @@ public final class WorkProcessor<T>
         }
         sequenceBarrier.clearAlert();
 
-        if (workHandler instanceof LifecycleAware)
-        {
-            ((LifecycleAware)workHandler).onStart();
-        }
+        notifyStart();
 
         boolean processedSequence = true;
         long nextSequence = sequence.get();
@@ -116,18 +113,45 @@ public final class WorkProcessor<T>
                     break;
                 }
             }
-            catch (final Exception ex)
+            catch (final Throwable ex)
             {
-                exceptionHandler.handle(ex, nextSequence, event);
+                exceptionHandler.handleEventException(ex, nextSequence, event);
                 processedSequence = true;
             }
         }
 
-        if (workHandler instanceof LifecycleAware)
-        {
-            ((LifecycleAware)workHandler).onShutdown();
-        }
+        notifyShutdown();
 
         running.set(false);
+    }
+
+    private void notifyStart()
+    {
+        if (workHandler instanceof LifecycleAware)
+        {
+            try
+            {
+                ((LifecycleAware)workHandler).onStart();
+            }
+            catch (final Throwable ex)
+            {
+                exceptionHandler.handleOnStartException(ex);
+            }
+        }
+    }
+
+    private void notifyShutdown()
+    {
+        if (workHandler instanceof LifecycleAware)
+        {
+            try
+            {
+                ((LifecycleAware)workHandler).onShutdown();
+            }
+            catch (final Throwable ex)
+            {
+                exceptionHandler.handleOnShutdownException(ex);
+            }
+        }
     }
 }

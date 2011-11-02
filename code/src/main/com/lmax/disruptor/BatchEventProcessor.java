@@ -98,10 +98,7 @@ public final class BatchEventProcessor<T>
         }
         sequenceBarrier.clearAlert();
 
-        if (eventHandler instanceof LifecycleAware)
-        {
-            ((LifecycleAware)eventHandler).onStart();
-        }
+        notifyStart();
 
         T event = null;
         long nextSequence = sequence.get() + 1L;
@@ -126,19 +123,46 @@ public final class BatchEventProcessor<T>
                    break;
                }
             }
-            catch (final Exception ex)
+            catch (final Throwable ex)
             {
-                exceptionHandler.handle(ex, nextSequence, event);
+                exceptionHandler.handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
                 nextSequence++;
             }
         }
 
-        if (eventHandler instanceof LifecycleAware)
-        {
-            ((LifecycleAware)eventHandler).onShutdown();
-        }
+        notifyShutdown();
 
         running.set(false);
+    }
+
+    private void notifyStart()
+    {
+        if (eventHandler instanceof LifecycleAware)
+        {
+            try
+            {
+                ((LifecycleAware)eventHandler).onStart();
+            }
+            catch (final Throwable ex)
+            {
+                exceptionHandler.handleOnStartException(ex);
+            }
+        }
+    }
+
+    private void notifyShutdown()
+    {
+        if (eventHandler instanceof LifecycleAware)
+        {
+            try
+            {
+                ((LifecycleAware)eventHandler).onShutdown();
+            }
+            catch (final Throwable ex)
+            {
+                exceptionHandler.handleOnShutdownException(ex);
+            }
+        }
     }
 }

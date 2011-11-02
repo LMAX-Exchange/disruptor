@@ -138,7 +138,7 @@ public final class BatchEventProcessorTest
                     }
                 });
 
-                oneOf(exceptionHandler).handle(ex, 0L, ringBuffer.get(0));
+                oneOf(exceptionHandler).handleEventException(ex, 0L, ringBuffer.get(0));
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
             }

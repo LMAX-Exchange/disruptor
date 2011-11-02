@@ -21,14 +21,26 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class StubExceptionHandler implements ExceptionHandler
 {
-    private final AtomicReference<Exception> exceptionHandled;
+    private final AtomicReference<Throwable> exceptionHandled;
 
-    public StubExceptionHandler(final AtomicReference<Exception> exceptionHandled)
+    public StubExceptionHandler(final AtomicReference<Throwable> exceptionHandled)
     {
         this.exceptionHandled = exceptionHandled;
     }
 
-    public void handle(final Exception ex, final long sequence, final Object event)
+    public void handleEventException(final Throwable ex, final long sequence, final Object event)
+    {
+        exceptionHandled.set(ex);
+    }
+
+    @Override
+    public void handleOnStartException(final Throwable ex)
+    {
+        exceptionHandled.set(ex);
+    }
+
+    @Override
+    public void handleOnShutdownException(final Throwable ex)
     {
         exceptionHandled.set(ex);
     }

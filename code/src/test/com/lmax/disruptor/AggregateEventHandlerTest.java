@@ -30,6 +30,7 @@ public final class AggregateEventHandlerTest
             setImposteriser(ClassImposteriser.INSTANCE);
         }
     };
+
     private final org.jmock.Sequence callSequence = context.sequence("callSequence");
 
     private final LifecycleAwareEventHandler<int[]> eh1 = context.mock(LifecycleAwareEventHandler.class, "eh1");
@@ -119,10 +120,9 @@ public final class AggregateEventHandlerTest
         aggregateEventHandler.onShutdown();
     }
 
-    private static class LifecycleAwareEventHandler<T>
+    public static class LifecycleAwareEventHandler<T>
         implements EventHandler<T>, LifecycleAware
     {
-
         @Override
         public void onEvent(final T event, final long sequence, final boolean endOfBatch) throws Exception
         {

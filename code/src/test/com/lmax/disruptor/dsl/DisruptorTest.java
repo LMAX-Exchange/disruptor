@@ -168,7 +168,7 @@ public class DisruptorTest
     public void shouldSupportSpecifyingADefaultExceptionHandlerForEventProcessors()
         throws Exception
     {
-        AtomicReference<Exception> eventHandled = new AtomicReference<Exception>();
+        AtomicReference<Throwable> eventHandled = new AtomicReference<Throwable>();
         ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
         RuntimeException testException = new RuntimeException();
         ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
@@ -178,7 +178,7 @@ public class DisruptorTest
 
         publishEvent();
 
-        final Exception actualException = waitFor(eventHandled);
+        final Throwable actualException = waitFor(eventHandled);
         assertSame(testException, actualException);
     }
 
@@ -220,7 +220,7 @@ public class DisruptorTest
         final ExceptionThrowingEventHandler eventHandler = new ExceptionThrowingEventHandler(testException);
         disruptor.handleEventsWith(eventHandler);
 
-        AtomicReference<Exception> reference = new AtomicReference<Exception>();
+        AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
         StubExceptionHandler exceptionHandler = new StubExceptionHandler(reference);
         disruptor.handleExceptionsFor(eventHandler).with(exceptionHandler);
 
@@ -382,7 +382,7 @@ public class DisruptorTest
         return lastPublishedEvent;
     }
 
-    private Exception waitFor(final AtomicReference<Exception> reference)
+    private Throwable waitFor(final AtomicReference<Throwable> reference)
     {
         while (reference.get() == null)
         {

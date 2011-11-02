@@ -81,7 +81,7 @@ public class Disruptor<T>
     }
 
     /**
-     * Set up event handlers to handle events from the ring buffer. These handlers will process events
+     * Set up event handlers to handleEventException events from the ring buffer. These handlers will process events
      * as soon as they become available, in parallel.
      * <p/>
      * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
@@ -99,7 +99,7 @@ public class Disruptor<T>
     }
 
     /**
-     * Set up custom event processors to handle events from the ring buffer. The Disruptor will
+     * Set up custom event processors to handleEventException events from the ring buffer. The Disruptor will
      * automatically start this processors when {@link #start()} is called.
      *
      * @param processors the event processors that will process events.

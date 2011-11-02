@@ -30,5 +30,19 @@ public interface ExceptionHandler
      * @param sequence of the event which cause the exception.
      * @param event being processed when the exception occurred.
      */
-    void handle(Exception ex, long sequence, Object event);
+    void handleEventException(Throwable ex, long sequence, Object event);
+
+    /**
+     * Callback to notify of an exception during {@link LifecycleAware#onStart()}
+     *
+     * @param ex throw during the starting process.
+     */
+    void handleOnStartException(Throwable ex);
+
+    /**
+     * Callback to notify of an exception during {@link LifecycleAware#onShutdown()}
+     *
+     * @param ex throw during the shutdown process.
+     */
+    void handleOnShutdownException(Throwable ex);
 }

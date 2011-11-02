@@ -98,7 +98,7 @@ public class EventHandlerGroup<T>
     }
 
     /**
-     * Set up batch handlers to handle events from the ring buffer. These handlers will only process events
+     * Set up batch handlers to handleEventException events from the ring buffer. These handlers will only process events
      * after every {@link EventProcessor} in this group has processed the event.
      *
      * <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
