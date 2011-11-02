@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import static junit.framework.Assert.*;
 
@@ -205,35 +206,17 @@ public final class MultiThreadedClaimStrategyTest
         final Sequence dependentSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
         final Sequence[] dependentSequences = { dependentSequence };
 
-        final AtomicInteger tOneCounter = new AtomicInteger(0);
-        final AtomicInteger tTwoCounter = new AtomicInteger(0);
-        final AtomicReference<String> firstToUpdate = new AtomicReference<String>("init");
+        final AtomicReferenceArray<String> threadSequences = new AtomicReferenceArray<String>(2);
 
         final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE)
         {
-            @Override
-            public long get()
-            {
-                if ("tOne".equals(Thread.currentThread().getName()))
-                {
-                    tOneCounter.getAndIncrement();
-                }
-
-                if ("tTwo".equals(Thread.currentThread().getName()))
-                {
-                    tTwoCounter.getAndIncrement();
-                }
-
-                return super.get();
-            }
-
             @Override
             public void set(final long value)
             {
                 final String threadName = Thread.currentThread().getName();
                 if ("tOne".equals(threadName) || "tTwo".equals(threadName))
                 {
-                    firstToUpdate.compareAndSet("init", threadName);
+                    threadSequences.set((int)value, threadName);
                 }
 
                 super.set(value);
@@ -292,8 +275,7 @@ public final class MultiThreadedClaimStrategyTest
         tOne.join();
         tTwo.join();
 
-        assertEquals(1L, tOneCounter.get());
-        assertTrue(tTwoCounter.get() > 1L);
-        assertEquals("tOne", firstToUpdate.get());
+        assertEquals("tOne", threadSequences.get(0));
+        assertEquals("tTwo", threadSequences.get(1));
     }
 }
