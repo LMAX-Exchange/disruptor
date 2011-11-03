@@ -150,9 +150,9 @@
     };
 
     RingBuffer&lt;ValueEvent&gt; ringBuffer =
-        new RingBuffer&lt;ValueEvent&gt;(ValueEvent.EVENT_FACTORY, SIZE,
-                                   ClaimStrategy.Option.SINGLE_THREADED,
-                                   WaitStrategy.Option.SLEEPING);
+        new RingBuffer&lt;ValueEvent&gt;(ValueEvent.EVENT_FACTORY,
+                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
+                                   new SleepingWaitStrategy());
 
     SequenceBarrier&lt;ValueEvent&gt; sequenceBarrier = ringBuffer.newBarrier();
     BatchEventProcessor&lt;ValueEvent&gt; batchProcessor = new BatchEventProcessor&lt;ValueEvent&gt;(sequenceBarrier, eventHandler);
