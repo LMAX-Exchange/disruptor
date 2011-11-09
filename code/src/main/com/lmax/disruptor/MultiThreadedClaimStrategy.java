@@ -65,10 +65,10 @@ public final class MultiThreadedClaimStrategy
     }
 
     @Override
-    public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
+    public boolean hasAvailableCapacity(final int availableCapacity, final Sequence[] dependentSequences)
     {
+        final long wrapPoint = (claimSequence.get() + availableCapacity) - bufferSize;
         final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-        final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
             long minSequence = getMinimumSequence(dependentSequences);

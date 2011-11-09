@@ -56,9 +56,9 @@ public final class SingleThreadedClaimStrategy
     }
 
     @Override
-    public boolean hasAvailableCapacity(final Sequence[] dependentSequences)
+    public boolean hasAvailableCapacity(final int availableCapacity, final Sequence[] dependentSequences)
     {
-        final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
+        final long wrapPoint = (claimSequence.get() + availableCapacity) - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
             long minSequence = getMinimumSequence(dependentSequences);

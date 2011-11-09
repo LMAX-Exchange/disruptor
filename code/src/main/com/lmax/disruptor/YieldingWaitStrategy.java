@@ -60,7 +60,7 @@ public final class YieldingWaitStrategy implements WaitStrategy
         throws AlertException, InterruptedException
     {
         final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
-        final long currentTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
         long availableSequence;
         int counter = SPIN_TRIES;
 
@@ -70,7 +70,8 @@ public final class YieldingWaitStrategy implements WaitStrategy
             {
                 counter = applyWaitMethod(barrier, counter);
 
-                if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                final long elapsedTime = System.currentTimeMillis() - startTime;
+                if (elapsedTime > timeoutMs)
                 {
                     break;
                 }
@@ -82,7 +83,8 @@ public final class YieldingWaitStrategy implements WaitStrategy
             {
                 counter = applyWaitMethod(barrier, counter);
 
-                if (timeoutMs < (System.currentTimeMillis() - currentTime))
+                final long elapsedTime = System.currentTimeMillis() - startTime;
+                if (elapsedTime > timeoutMs)
                 {
                     break;
                 }

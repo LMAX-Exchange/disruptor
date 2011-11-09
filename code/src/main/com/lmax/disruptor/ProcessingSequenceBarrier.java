@@ -17,8 +17,6 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.lmax.disruptor.AlertException.ALERT_EXCEPTION;
-
 /**
  * {@link SequenceBarrier} handed out for gating {@link EventProcessor}s on a cursor sequence and optional dependent {@link EventProcessor}(s)
  */
@@ -86,7 +84,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         if (alerted)
         {
-            throw ALERT_EXCEPTION;
+            throw AlertException.INSTANCE;
         }
     }
 }

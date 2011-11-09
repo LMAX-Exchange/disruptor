@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
@@ -35,8 +37,7 @@ public class Sequencer
      * @param claimStrategy for those claiming sequences.
      * @param waitStrategy for those waiting on sequences.
      */
-    public Sequencer(final ClaimStrategy claimStrategy,
-                     final WaitStrategy waitStrategy)
+    public Sequencer(final ClaimStrategy claimStrategy, final WaitStrategy waitStrategy)
     {
         this.claimStrategy = claimStrategy;
         this.waitStrategy = waitStrategy;
@@ -102,17 +103,18 @@ public class Sequencer
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent
      * method so the response should only be taken as an indication of available capacity.
      *
+     * @param availableCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
-    public boolean hasAvailableCapacity()
+    public boolean hasAvailableCapacity(final int availableCapacity)
     {
-        return claimStrategy.hasAvailableCapacity(gatingSequences);
+        return claimStrategy.hasAvailableCapacity(availableCapacity, gatingSequences);
     }
 
     /**
-     * Claim the next event in sequence for publishing to the {@link RingBuffer}
+     * Claim the next event in sequence for publishing.
      *
-     * @return the claimed sequence
+     * @return the claimed sequence value
      */
     public long next()
     {
@@ -122,6 +124,22 @@ public class Sequencer
         }
 
         return claimStrategy.incrementAndGet(gatingSequences);
+    }
+
+    /**
+     * Claim the next event in sequence for publishing with a timeout.
+     * If the timeout occurs the sequence will not be claimed and a {@link TimeoutException} will be thrown.
+     *
+     * @param timeout period to wait
+     * @param units for the timeout period.
+     * @return the claimed sequence value
+     * @throws TimeoutException if the timeout period elapses
+     */
+    public long next(final long timeout, final TimeUnit units) throws TimeoutException
+    {
+        waitForCapacity(1, timeout, units);
+
+        return next();
     }
 
     /**
@@ -140,6 +158,23 @@ public class Sequencer
         final long sequence = claimStrategy.incrementAndGet(batchDescriptor.getSize(), gatingSequences);
         batchDescriptor.setEnd(sequence);
         return batchDescriptor;
+    }
+
+    /**
+     * Claim the next batch of sequence numbers for publishing with a timeout.
+     * If the timeout occurs the sequence will not be claimed and a {@link TimeoutException} will be thrown.
+     *
+     * @param batchDescriptor to be updated for the batch range.
+     * @param timeout period to wait
+     * @param units for the timeout period.
+     * @return the updated batchDescriptor.
+     * @throws TimeoutException if the timeout period elapses
+     */
+    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit units) throws TimeoutException
+    {
+        waitForCapacity(batchDescriptor.getSize(), timeout, units);
+
+        return next(batchDescriptor);
     }
 
     /**
@@ -198,5 +233,20 @@ public class Sequencer
     {
         claimStrategy.serialisePublishing(sequence, cursor, batchSize);
         waitStrategy.signalAllWhenBlocking();
+    }
+
+    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit units) throws TimeoutException
+    {
+        final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+        final long startTime = System.currentTimeMillis();
+
+        while (!claimStrategy.hasAvailableCapacity(capacity, gatingSequences))
+        {
+            final long elapsedTime = System.currentTimeMillis() - startTime;
+            if (elapsedTime > timeoutMs)
+            {
+                throw TimeoutException.INSTANCE;
+            }
+        }
     }
 }

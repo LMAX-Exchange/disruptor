@@ -16,20 +16,20 @@
 package com.lmax.disruptor;
 
 /**
- * Used to alert {@link EventProcessor}s waiting at a {@link SequenceBarrier} of status changes.
+ * Used to signal that an operation has timed out and been aborted.
  * <P>
  * It does not fill in a stack trace for performance reasons.
  */
 @SuppressWarnings("serial")
-public class AlertException extends Exception
+public class TimeoutException extends Exception
 {
     /** Pre-allocated exception to avoid garbage generation */
-    public static final AlertException INSTANCE = new AlertException();
+    public static final TimeoutException INSTANCE = new TimeoutException();
 
     /**
      * Private constructor so only a single instance exists.
      */
-    private AlertException()
+    private TimeoutException()
     {
     }
 

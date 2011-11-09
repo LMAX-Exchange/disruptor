@@ -126,7 +126,7 @@ public final class MultiThreadedClaimStrategyTest
 
         Sequence[] dependentSequences = { dependentSequence };
 
-        assertTrue(claimStrategy.hasAvailableCapacity(dependentSequences));
+        assertTrue(claimStrategy.hasAvailableCapacity(1, dependentSequences));
     }
 
     @Test
@@ -145,7 +145,7 @@ public final class MultiThreadedClaimStrategyTest
         Sequence[] dependentSequences = { dependentSequence };
         claimStrategy.setSequence(claimStrategy.getBufferSize() - 1L, dependentSequences);
 
-        assertFalse(claimStrategy.hasAvailableCapacity(dependentSequences));
+        assertFalse(claimStrategy.hasAvailableCapacity(1, dependentSequences));
     }
 
     @Test

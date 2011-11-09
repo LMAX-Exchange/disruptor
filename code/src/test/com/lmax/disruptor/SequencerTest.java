@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -31,8 +32,7 @@ public final class SequencerTest
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private static final int BUFFER_SIZE = 4;
 
-    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                                      new SleepingWaitStrategy());
+    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE), new SleepingWaitStrategy());
 
     private final Sequence gatingSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
@@ -61,7 +61,7 @@ public final class SequencerTest
     @Test
     public void shouldIndicateAvailableCapacity()
     {
-        assertTrue(sequencer.hasAvailableCapacity());
+        assertTrue(sequencer.hasAvailableCapacity(1));
     }
 
     @Test
@@ -69,7 +69,7 @@ public final class SequencerTest
     {
         fillBuffer();
 
-        assertFalse(sequencer.hasAvailableCapacity());
+        assertFalse(sequencer.hasAvailableCapacity(1));
     }
 
     @Test
@@ -164,7 +164,7 @@ public final class SequencerTest
     }
 
     @Test
-    public void shouldHoldUpPublisherWhenRingIsFull()
+    public void shouldHoldUpPublisherWhenBufferIsFull()
         throws InterruptedException
     {
         fillBuffer();
@@ -172,8 +172,8 @@ public final class SequencerTest
         final CountDownLatch waitingLatch = new CountDownLatch(1);
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
-        final long expectedFullCursor = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        assertEquals(sequencer.getCursor(), expectedFullCursor);
+        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
+        assertEquals(sequencer.getCursor(), expectedFullSequence);
 
         EXECUTOR.submit(new Runnable()
         {
@@ -189,12 +189,52 @@ public final class SequencerTest
         });
 
         waitingLatch.await();
-        assertEquals(sequencer.getCursor(), expectedFullCursor);
+        assertEquals(sequencer.getCursor(), expectedFullSequence);
 
         gatingSequence.set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
-        assertEquals(sequencer.getCursor(), expectedFullCursor + 1L);
+        assertEquals(sequencer.getCursor(), expectedFullSequence + 1L);
+    }
+
+    @Test
+    public void shouldNotTimeoutWhenBufferHasSufficientCapacity() throws TimeoutException
+    {
+        long sequence = sequencer.next(1000L, TimeUnit.MILLISECONDS);
+        assertEquals(Sequencer.INITIAL_CURSOR_VALUE + 1L, sequence);
+    }
+
+    @Test(expected = TimeoutException.class)
+    public void shouldThrowExceptionDueToTimeoutWhenInsufficientCapacity() throws TimeoutException
+    {
+        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
+        sequencer.claim(expectedFullSequence);
+        sequencer.publish(expectedFullSequence);
+
+        sequencer.next(1000L, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void shouldNotTimeoutWhenBufferHasSufficientCapacityForBatch() throws TimeoutException
+    {
+        final int batchSize = 3;
+        BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
+
+        batchDescriptor = sequencer.next(batchDescriptor, 1000L, TimeUnit.MILLISECONDS);
+        assertEquals(Sequencer.INITIAL_CURSOR_VALUE + batchSize, batchDescriptor.getEnd());
+    }
+
+    @Test(expected = TimeoutException.class)
+    public void shouldThrowExceptionDueToTimeoutWhenInsufficientCapacityForBatch() throws TimeoutException
+    {
+        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
+        sequencer.claim(expectedFullSequence);
+        sequencer.publish(expectedFullSequence);
+
+        final int batchSize = 3;
+        BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
+
+        sequencer.next(batchDescriptor, 1000L, TimeUnit.MILLISECONDS);
     }
 
     private void fillBuffer()

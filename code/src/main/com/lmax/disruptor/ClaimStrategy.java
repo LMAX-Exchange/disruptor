@@ -37,10 +37,11 @@ public interface ClaimStrategy
     /**
      * Is there available capacity in the buffer for the requested sequence.
      *
+     * @param availableCapacity remaining in the buffer.
      * @param dependentSequences to be checked for range.
      * @return true if the buffer has capacity for the requested sequence.
      */
-    boolean hasAvailableCapacity(final Sequence[] dependentSequences);
+    boolean hasAvailableCapacity(final int availableCapacity, final Sequence[] dependentSequences);
 
     /**
      * Claim the next sequence in the {@link Sequencer}.
