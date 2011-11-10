@@ -60,7 +60,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
                         final long timeout, final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
-        final long timeoutMs = TimeUnit.MILLISECONDS.convert(timeout, sourceUnit);
+        final long timeoutMs = sourceUnit.toMillis(timeout);
         final long startTime = System.currentTimeMillis();
         long availableSequence;
         int counter = RETRIES;

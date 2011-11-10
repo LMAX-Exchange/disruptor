@@ -237,7 +237,7 @@ public class Sequencer
 
     private void waitForCapacity(final int capacity, final long timeout, final TimeUnit sourceUnit) throws TimeoutException
     {
-        final long timeoutMs = TimeUnit.MILLISECONDS.convert(timeout, sourceUnit);
+        final long timeoutMs = sourceUnit.toMillis(timeout);
         final long startTime = System.currentTimeMillis();
 
         while (!claimStrategy.hasAvailableCapacity(capacity, gatingSequences))
