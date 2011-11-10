@@ -170,7 +170,8 @@ public class Sequencer
      * @return the updated batchDescriptor.
      * @throws TimeoutException if the timeout period elapses
      */
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit sourceUnit) throws TimeoutException
+    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit sourceUnit)
+        throws TimeoutException
     {
         waitForCapacity(batchDescriptor.getSize(), timeout, sourceUnit);
 
@@ -235,7 +236,8 @@ public class Sequencer
         waitStrategy.signalAllWhenBlocking();
     }
 
-    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit sourceUnit) throws TimeoutException
+    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit sourceUnit)
+        throws TimeoutException
     {
         final long timeoutMs = sourceUnit.toMillis(timeout);
         final long startTime = System.currentTimeMillis();
