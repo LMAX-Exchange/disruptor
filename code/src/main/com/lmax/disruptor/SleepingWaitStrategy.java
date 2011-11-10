@@ -57,10 +57,10 @@ public final class SleepingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
-                        final long timeout, final TimeUnit units)
+                        final long timeout, final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
-        final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+        final long timeoutMs = TimeUnit.MILLISECONDS.convert(timeout, sourceUnit);
         final long startTime = System.currentTimeMillis();
         long availableSequence;
         int counter = RETRIES;

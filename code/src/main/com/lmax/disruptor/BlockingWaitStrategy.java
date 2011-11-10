@@ -70,7 +70,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
-                        final long timeout, final TimeUnit units)
+                        final long timeout, final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
         long availableSequence;
@@ -84,7 +84,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
                 {
                     barrier.checkAlert();
 
-                    if (!processorNotifyCondition.await(timeout, units))
+                    if (!processorNotifyCondition.await(timeout, sourceUnit))
                     {
                         break;
                     }

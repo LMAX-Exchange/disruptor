@@ -235,9 +235,9 @@ public class Sequencer
         waitStrategy.signalAllWhenBlocking();
     }
 
-    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit units) throws TimeoutException
+    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit sourceUnit) throws TimeoutException
     {
-        final long timeoutMs = units.convert(timeout, TimeUnit.MILLISECONDS);
+        final long timeoutMs = TimeUnit.MILLISECONDS.convert(timeout, sourceUnit);
         final long startTime = System.currentTimeMillis();
 
         while (!claimStrategy.hasAvailableCapacity(capacity, gatingSequences))
