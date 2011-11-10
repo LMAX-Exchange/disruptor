@@ -131,13 +131,13 @@ public class Sequencer
      * If the timeout occurs the sequence will not be claimed and a {@link TimeoutException} will be thrown.
      *
      * @param timeout period to wait
-     * @param units for the timeout period.
+     * @param sourceUnit for the timeout period.
      * @return the claimed sequence value
      * @throws TimeoutException if the timeout period elapses
      */
-    public long next(final long timeout, final TimeUnit units) throws TimeoutException
+    public long next(final long timeout, final TimeUnit sourceUnit) throws TimeoutException
     {
-        waitForCapacity(1, timeout, units);
+        waitForCapacity(1, timeout, sourceUnit);
 
         return next();
     }
@@ -166,13 +166,13 @@ public class Sequencer
      *
      * @param batchDescriptor to be updated for the batch range.
      * @param timeout period to wait
-     * @param units for the timeout period.
+     * @param sourceUnit for the timeout period.
      * @return the updated batchDescriptor.
      * @throws TimeoutException if the timeout period elapses
      */
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit units) throws TimeoutException
+    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit sourceUnit) throws TimeoutException
     {
-        waitForCapacity(batchDescriptor.getSize(), timeout, units);
+        waitForCapacity(batchDescriptor.getSize(), timeout, sourceUnit);
 
         return next(batchDescriptor);
     }

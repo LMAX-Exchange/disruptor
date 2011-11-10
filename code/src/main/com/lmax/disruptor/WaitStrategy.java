@@ -44,12 +44,12 @@ public interface WaitStrategy
      * @param dependents further back the chain that must advance first
      * @param barrier the processor is waiting on.
      * @param timeout value to abort after.
-     * @param units of the timeout value.
+     * @param sourceUnit of the timeout value.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(long sequence, Sequence cursor, Sequence[] dependents, SequenceBarrier barrier, long timeout, TimeUnit units)
+    long waitFor(long sequence, Sequence cursor, Sequence[] dependents, SequenceBarrier barrier, long timeout, TimeUnit sourceUnit)
         throws AlertException, InterruptedException;
 
     /**
