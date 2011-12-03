@@ -76,4 +76,9 @@ public class Sequence
     {
        p1 = p2 = p3 = p4 = p5 = p6 = p7 = q1 = q2 = q3 = q4 = q5 = q6 = q7 = value;
     }
+
+    public boolean compareAndSet(long expectedSequence, long nextSequence)
+    {
+        return updater.compareAndSet(this, expectedSequence, nextSequence);
+    }
 }
