@@ -34,13 +34,12 @@ import com.lmax.disruptor.util.PaddedAtomicLong;
 public final class MultiThreadedClaimStrategyV2
     implements ClaimStrategy
 {
-    private static final int PENDING = 1024;
     private static final int RETRIES = 1000;
-    private static final int PENDING_MASK = PENDING - 1;
     
     private final int bufferSize;
     private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private final AtomicLongArray pendingPublication = new AtomicLongArray(PENDING);
+    private final AtomicLongArray pendingPublication;
+    private final int pendingMask;
 
     private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
     {
@@ -56,9 +55,21 @@ public final class MultiThreadedClaimStrategyV2
      *
      * @param bufferSize for the underlying data structure.
      */
-    public MultiThreadedClaimStrategyV2(final int bufferSize)
+    public MultiThreadedClaimStrategyV2(final int bufferSize, final int pendingBufferSize)
     {
         this.bufferSize = bufferSize;
+        this.pendingPublication = new AtomicLongArray(pendingBufferSize);
+        this.pendingMask = pendingBufferSize - 1;
+    }
+
+    /**
+     * Construct a new multi-threaded publisher {@link ClaimStrategy} for a given buffer size.
+     *
+     * @param bufferSize for the underlying data structure.
+     */
+    public MultiThreadedClaimStrategyV2(final int bufferSize)
+    {
+        this(bufferSize, 1024);
     }
 
     @Override
@@ -123,20 +134,20 @@ public final class MultiThreadedClaimStrategyV2
     @Override
     public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
     {
-        int counters = RETRIES;
-        while (sequence - cursor.get() > PENDING)
+        int counter = RETRIES;
+        while (sequence - cursor.get() > pendingPublication.length())
         {
-            if (--counters == 0)
+            if (--counter == 0)
             {
                 Thread.yield();
-                counters = RETRIES;
+                counter = RETRIES;
             }
         }
         
         long expectedSequence = sequence - batchSize;
         for (long pendingSequence = expectedSequence + 1; pendingSequence <= sequence; pendingSequence++)
         {
-            pendingPublication.set((int) pendingSequence & PENDING_MASK, pendingSequence);
+            pendingPublication.set((int) pendingSequence & pendingMask, pendingSequence);
         }
         
         if (cursor.get() != expectedSequence)
@@ -149,7 +160,7 @@ public final class MultiThreadedClaimStrategyV2
         {
             expectedSequence = nextSequence;
             nextSequence++;
-            if (pendingPublication.get((int) nextSequence & PENDING_MASK) != nextSequence)
+            if (pendingPublication.get((int) nextSequence & pendingMask) != nextSequence)
             {
                 break;
             }
