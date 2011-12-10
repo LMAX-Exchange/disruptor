@@ -101,6 +101,12 @@
         <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/*ThroughputTest.java"/>
     </target>
 
+    <target name="throughput:multihreaded-test"
+            depends="test:prepare, build"
+            description="Run the throughput performance tests">
+        <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/Three*ThroughputTest.java"/>
+    </target>
+
     <target name="latency:test"
             depends="test:prepare, build"
             description="Run the latency performance tests">
