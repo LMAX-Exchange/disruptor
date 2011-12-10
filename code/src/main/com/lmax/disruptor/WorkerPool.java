@@ -32,7 +32,7 @@ public final class WorkerPool<T>
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final PaddedAtomicLong workSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
-    private final WorkProcessor[] workProcessors;
+    private final WorkProcessor<?>[] workProcessors;
 
     /**
      * Create a worker pool to enable an array of {@link WorkHandler}s to consume published sequences.
@@ -131,7 +131,7 @@ public final class WorkerPool<T>
         final long cursor = ringBuffer.getCursor();
         workSequence.set(cursor);
 
-        for (WorkProcessor processor : workProcessors)
+        for (WorkProcessor<?> processor : workProcessors)
         {
             processor.getSequence().set(cursor);
             executor.execute(processor);
@@ -151,7 +151,7 @@ public final class WorkerPool<T>
             Thread.yield();
         }
 
-        for (WorkProcessor processor : workProcessors)
+        for (WorkProcessor<?> processor : workProcessors)
         {
             processor.halt();
         }
@@ -164,7 +164,7 @@ public final class WorkerPool<T>
      */
     public void halt()
     {
-        for (WorkProcessor processor : workProcessors)
+        for (WorkProcessor<?> processor : workProcessors)
         {
             processor.halt();
         }

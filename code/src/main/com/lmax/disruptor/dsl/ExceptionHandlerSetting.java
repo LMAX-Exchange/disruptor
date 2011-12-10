@@ -45,7 +45,7 @@ public class ExceptionHandlerSetting<T>
      */
     public void with(ExceptionHandler exceptionHandler)
     {
-        ((BatchEventProcessor)eventProcessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
+        ((BatchEventProcessor<?>)eventProcessorRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
         eventProcessorRepository.getBarrierFor(eventHandler).alert();
     }
 }

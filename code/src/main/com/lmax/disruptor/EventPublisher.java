@@ -16,7 +16,6 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * Utility class for simplifying publication to the ring buffer.

@@ -23,7 +23,7 @@ import java.util.*;
 
 class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
 {
-    private final Map<EventHandler, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler, EventProcessorInfo<T>>();
+    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
     private final Map<EventProcessor, EventProcessorInfo<T>> eventProcessorInfoByEventProcessor = new IdentityHashMap<EventProcessor, EventProcessorInfo<T>>();
 
     public void add(final EventProcessor eventprocessor,
@@ -57,7 +57,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
 
     public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
     {
-        final EventProcessorInfo eventprocessorInfo = getEventProcessorInfo(handler);
+        final EventProcessorInfo<?> eventprocessorInfo = getEventProcessorInfo(handler);
         if (eventprocessorInfo == null)
         {
             throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");

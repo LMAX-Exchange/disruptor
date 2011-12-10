@@ -54,7 +54,7 @@ public final class BatchEventProcessor<T>
 
         if (eventHandler instanceof SequenceReportingEventHandler)
         {
-            ((SequenceReportingEventHandler)eventHandler).setSequenceCallback(sequence);
+            ((SequenceReportingEventHandler<?>)eventHandler).setSequenceCallback(sequence);
         }
     }
 

@@ -131,7 +131,7 @@ public class Disruptor<T>
      * @param eventHandler the event handler to set a different exception handler for.
      * @return an ExceptionHandlerSetting dsl object - intended to be used by chaining the with method call.
      */
-    public ExceptionHandlerSetting handleExceptionsFor(final EventHandler<T> eventHandler)
+    public ExceptionHandlerSetting<?> handleExceptionsFor(final EventHandler<T> eventHandler)
     {
         return new ExceptionHandlerSetting<T>(eventHandler, eventProcessorRepository);
     }
@@ -213,7 +213,7 @@ public class Disruptor<T>
      */
     public void halt()
     {
-        for (EventProcessorInfo eventprocessorInfo : eventProcessorRepository)
+        for (EventProcessorInfo<?> eventprocessorInfo : eventProcessorRepository)
         {
             eventprocessorInfo.getEventProcessor().halt();
         }
@@ -272,7 +272,6 @@ public class Disruptor<T>
         return false;
     }
 
-    @SuppressWarnings(value = "unchecked")
     EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
                                                final EventHandler<T>[] eventHandlers)
     {
