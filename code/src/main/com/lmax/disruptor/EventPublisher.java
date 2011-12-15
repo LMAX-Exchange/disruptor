@@ -54,7 +54,9 @@ public class EventPublisher<E>
      * after translation.
      * 
      * @param translator The user specified translation for the event
-     * @throws TimeoutException 
+     * @param timeout period to wait
+     * @param units for the timeout period
+     * @throws TimeoutException if the timeout period has expired
      */
     public void publishEvent(final EventTranslator<E> translator, long timeout, TimeUnit units) throws TimeoutException
     {
