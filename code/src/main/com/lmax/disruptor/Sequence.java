@@ -63,6 +63,19 @@ public class Sequence
     }
 
     /**
+     * Atomically compare and set the sequence value.
+     *
+     * @see java.util.concurrent.atomic.AtomicLong#compareAndSet(long, long)
+     * @param expectedSequence to check against
+     * @param nextSequence to be set if expectedSequence
+     * @return true if the set operation succeeds
+     */
+    public boolean compareAndSet(long expectedSequence, long nextSequence)
+    {
+        return updater.compareAndSet(this, expectedSequence, nextSequence);
+    }
+
+    /**
      * Here to help make sure false sharing prevention padding is not optimised away.
      *
      * @return sum of padding.
@@ -75,10 +88,5 @@ public class Sequence
     public void setPaddingValue(final long value)
     {
        p1 = p2 = p3 = p4 = p5 = p6 = p7 = q1 = q2 = q3 = q4 = q5 = q6 = q7 = value;
-    }
-
-    public boolean compareAndSet(long expectedSequence, long nextSequence)
-    {
-        return updater.compareAndSet(this, expectedSequence, nextSequence);
     }
 }
