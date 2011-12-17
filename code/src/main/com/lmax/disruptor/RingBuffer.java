@@ -53,7 +53,7 @@ public final class RingBuffer<T> extends Sequencer
 
     /**
      * Construct a RingBuffer with default strategies of:
-     * {@link MultiThreadedClaimStrategy} and {@link BlockingWaitStrategy}
+     * {@link MultiThreadedLowContentionClaimStrategy} and {@link BlockingWaitStrategy}
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param bufferSize of the RingBuffer that will be rounded up to the next power of 2

@@ -15,6 +15,14 @@
  */
 package com.lmax.disruptor;
 
+import static junit.framework.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -22,12 +30,10 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import java.util.concurrent.atomic.AtomicReferenceArray;
-
-import static junit.framework.Assert.*;
+import com.lmax.disruptor.ClaimStrategy;
+import com.lmax.disruptor.MultiThreadedClaimStrategy;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.Sequencer;
 
 @RunWith(JMock.class)
 public final class MultiThreadedClaimStrategyTest
@@ -210,15 +216,15 @@ public final class MultiThreadedClaimStrategyTest
         final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE)
         {
             @Override
-            public void set(final long value)
+            public boolean compareAndSet(long expectedSequence, long nextSequence)
             {
                 final String threadName = Thread.currentThread().getName();
                 if ("tOne".equals(threadName) || "tTwo".equals(threadName))
                 {
-                    threadSequences.set((int)value, threadName);
+                    threadSequences.set((int)nextSequence, threadName);
                 }
-
-                super.set(value);
+                
+                return super.compareAndSet(expectedSequence, nextSequence);
             }
         };
 
@@ -273,8 +279,9 @@ public final class MultiThreadedClaimStrategyTest
         tTwo.start();
         tOne.join();
         tTwo.join();
-
-        assertEquals("tOne", threadSequences.get(0));
-        assertEquals("tTwo", threadSequences.get(1));
+        
+        // One thread can end up setting both sequences.
+        assertThat(threadSequences.get(0), is(notNullValue()));
+        assertThat(threadSequences.get(1), is(notNullValue()));
     }
 }

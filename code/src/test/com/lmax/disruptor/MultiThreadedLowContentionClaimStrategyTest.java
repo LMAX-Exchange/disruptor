@@ -13,15 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.experimental;
-
-import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+package com.lmax.disruptor;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -30,12 +22,15 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.lmax.disruptor.ClaimStrategy;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.Sequencer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
+import static junit.framework.Assert.*;
 
 @RunWith(JMock.class)
-public final class MultiThreadedClaimStrategyV2Test
+public final class MultiThreadedLowContentionClaimStrategyTest
 {
     private Mockery context = new Mockery()
     {
@@ -45,7 +40,7 @@ public final class MultiThreadedClaimStrategyV2Test
     };
 
     private static final int BUFFER_SIZE = 8;
-    private final ClaimStrategy claimStrategy = new MultiThreadedClaimStrategyV2(BUFFER_SIZE);
+    private final ClaimStrategy claimStrategy = new MultiThreadedLowContentionClaimStrategy(BUFFER_SIZE);
 
     @Test
     public void shouldGetCorrectBufferSize()
@@ -215,15 +210,15 @@ public final class MultiThreadedClaimStrategyV2Test
         final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE)
         {
             @Override
-            public boolean compareAndSet(long expectedSequence, long nextSequence)
+            public void set(final long value)
             {
                 final String threadName = Thread.currentThread().getName();
                 if ("tOne".equals(threadName) || "tTwo".equals(threadName))
                 {
-                    threadSequences.set((int)nextSequence, threadName);
+                    threadSequences.set((int)value, threadName);
                 }
-                
-                return super.compareAndSet(expectedSequence, nextSequence);
+
+                super.set(value);
             }
         };
 
@@ -278,9 +273,8 @@ public final class MultiThreadedClaimStrategyV2Test
         tTwo.start();
         tOne.join();
         tTwo.join();
-        
-        // One thread can end up setting both sequences.
-        assertThat(threadSequences.get(0), is(notNullValue()));
-        assertThat(threadSequences.get(1), is(notNullValue()));
+
+        assertEquals("tOne", threadSequences.get(0));
+        assertEquals("tTwo", threadSequences.get(1));
     }
 }

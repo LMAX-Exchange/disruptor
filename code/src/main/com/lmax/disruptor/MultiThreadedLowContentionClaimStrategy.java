@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.experimental;
+package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.locks.LockSupport;
-
-import com.lmax.disruptor.ClaimStrategy;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.util.MutableLong;
 import com.lmax.disruptor.util.PaddedAtomicLong;
+
+import java.util.concurrent.locks.LockSupport;
+
+import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 /**
  * Strategy to be used when there are multiple publisher threads claiming sequences.
  *
- * This strategy requires sufficient cores to allow multiple publishers to be concurrently claiming sequences.
+ * This strategy requires sufficient cores to allow multiple publishers to be concurrently claiming sequences and those
+ * thread a contented relatively infrequently.
  */
-public final class MultiThreadedClaimStrategyV2
+public final class MultiThreadedLowContentionClaimStrategy
     implements ClaimStrategy
 {
-    private static final int RETRIES = 1000;
-    
     private final int bufferSize;
     private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private final AtomicLongArray pendingPublication;
-    private final int pendingMask;
 
     private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
     {
@@ -55,21 +48,9 @@ public final class MultiThreadedClaimStrategyV2
      *
      * @param bufferSize for the underlying data structure.
      */
-    public MultiThreadedClaimStrategyV2(final int bufferSize, final int pendingBufferSize)
+    public MultiThreadedLowContentionClaimStrategy(final int bufferSize)
     {
         this.bufferSize = bufferSize;
-        this.pendingPublication = new AtomicLongArray(pendingBufferSize);
-        this.pendingMask = pendingBufferSize - 1;
-    }
-
-    /**
-     * Construct a new multi-threaded publisher {@link ClaimStrategy} for a given buffer size.
-     *
-     * @param bufferSize for the underlying data structure.
-     */
-    public MultiThreadedClaimStrategyV2(final int bufferSize)
-    {
-        this(bufferSize, 1024);
     }
 
     @Override
@@ -134,37 +115,13 @@ public final class MultiThreadedClaimStrategyV2
     @Override
     public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
     {
-        int counter = RETRIES;
-        while (sequence - cursor.get() > pendingPublication.length())
+        final long expectedSequence = sequence - batchSize;
+        while (expectedSequence != cursor.get())
         {
-            if (--counter == 0)
-            {
-                Thread.yield();
-                counter = RETRIES;
-            }
+            // busy spin
         }
-        
-        long expectedSequence = sequence - batchSize;
-        for (long pendingSequence = expectedSequence + 1; pendingSequence <= sequence; pendingSequence++)
-        {
-            pendingPublication.set((int) pendingSequence & pendingMask, pendingSequence);
-        }
-        
-        if (cursor.get() != expectedSequence)
-        {
-            return;
-        }
-        
-        long nextSequence = expectedSequence + 1;
-        while (cursor.compareAndSet(expectedSequence, nextSequence))
-        {
-            expectedSequence = nextSequence;
-            nextSequence++;
-            if (pendingPublication.get((int) nextSequence & pendingMask) != nextSequence)
-            {
-                break;
-            }
-        }
+
+        cursor.set(sequence);
     }
 
     private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
