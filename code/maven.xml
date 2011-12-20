@@ -44,14 +44,6 @@
                            repository.url="https://oss.sonatype.org/service/local/staging/deploy/maven2"/>
     </target>
 
-    <target name="mvn:all:release-staging" depends="all, mvn:release-staging"/>
-
-    <target name="mvn:release-snapshot">
-        <release-artifacts artifact.version="${version}-SNAPSHOT"
-                           repository.id="snapshots-repo"
-                           repository.url="https://oss.sonatype.org/content/repositories/snapshots"/>
-    </target>
-
-    <target name="mvn:all:release-snapshot" depends="all, mvn:release-snapshot"/>
+    <target name="mvn:all:release-staging" depends="all, mvn:release-staging"/>    
 
 </project>

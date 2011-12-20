@@ -1,6 +1,6 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode</groupId>
+    <groupId>com.googlecode.disruptor</groupId>
     <artifactId>disruptor</artifactId>
     <packaging>jar</packaging>
     <name>Disruptor Framework</name>
