@@ -57,6 +57,11 @@ public final class MultiThreadedClaimStrategy
      */
     public MultiThreadedClaimStrategy(final int bufferSize, final int pendingBufferSize)
     {
+        if (Integer.bitCount(pendingBufferSize) != 1)
+        {
+            throw new IllegalArgumentException("pendingBufferSize must be a power of 2, was: " + pendingBufferSize);
+        }
+        
         this.bufferSize = bufferSize;
         this.pendingPublication = new AtomicLongArray(pendingBufferSize);
         this.pendingMask = pendingBufferSize - 1;

@@ -15,9 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import static junit.framework.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +46,12 @@ public final class MultiThreadedClaimStrategyTest
 
     private static final int BUFFER_SIZE = 8;
     private final ClaimStrategy claimStrategy = new MultiThreadedClaimStrategy(BUFFER_SIZE);
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotCreateBufferWithNonPowerOf2() throws Exception
+    {
+        new MultiThreadedClaimStrategy(1024, 129);
+    }
 
     @Test
     public void shouldGetCorrectBufferSize()
