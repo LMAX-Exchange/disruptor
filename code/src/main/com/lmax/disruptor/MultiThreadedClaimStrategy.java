@@ -28,8 +28,8 @@ import com.lmax.disruptor.util.PaddedAtomicLong;
  *
  * This strategy is reasonably forgiving when the multiple publisher threads are highly contended or working in an
  * environment where there is insufficient CPUs to handle multiple publisher threads.  It requires 2 CAS operations
- * for a single publisher, compared to the MultithreadedLowContention strategy which needs only a single CAS and a
- * lazySet per publication.
+ * for a single publisher, compared to the {@link MultiThreadedLowContentionClaimStrategy} strategy which needs only a single
+ * CAS and a lazySet per publication.
  */
 public final class MultiThreadedClaimStrategy
     implements ClaimStrategy
