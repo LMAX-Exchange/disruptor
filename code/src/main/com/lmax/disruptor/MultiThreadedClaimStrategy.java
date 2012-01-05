@@ -35,7 +35,7 @@ public final class MultiThreadedClaimStrategy
     implements ClaimStrategy
 {
     private static final int RETRIES = 1000;
-    
+
     private final int bufferSize;
     private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
     private final AtomicLongArray pendingPublication;
@@ -54,6 +54,7 @@ public final class MultiThreadedClaimStrategy
      * Construct a new multi-threaded publisher {@link ClaimStrategy} for a given buffer size.
      *
      * @param bufferSize for the underlying data structure.
+     * @param pendingBufferSize number of item that can be pending for serialisation
      */
     public MultiThreadedClaimStrategy(final int bufferSize, final int pendingBufferSize)
     {
@@ -61,7 +62,7 @@ public final class MultiThreadedClaimStrategy
         {
             throw new IllegalArgumentException("pendingBufferSize must be a power of 2, was: " + pendingBufferSize);
         }
-        
+
         this.bufferSize = bufferSize;
         this.pendingPublication = new AtomicLongArray(pendingBufferSize);
         this.pendingMask = pendingBufferSize - 1;
@@ -148,18 +149,18 @@ public final class MultiThreadedClaimStrategy
                 counter = RETRIES;
             }
         }
-        
+
         long expectedSequence = sequence - batchSize;
         for (long pendingSequence = expectedSequence + 1; pendingSequence <= sequence; pendingSequence++)
         {
             pendingPublication.set((int) pendingSequence & pendingMask, pendingSequence);
         }
-        
+
         if (cursor.get() != expectedSequence)
         {
             return;
         }
-        
+
         long nextSequence = expectedSequence + 1;
         while (cursor.compareAndSet(expectedSequence, nextSequence))
         {
