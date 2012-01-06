@@ -58,6 +58,11 @@ public final class MultiThreadedClaimStrategy
      */
     public MultiThreadedClaimStrategy(final int bufferSize, final int pendingBufferSize)
     {
+        if (Integer.bitCount(bufferSize) != 1)
+        {
+            throw new IllegalArgumentException("bufferSize must be a power of 2, was: " + bufferSize);
+        }
+        
         if (Integer.bitCount(pendingBufferSize) != 1)
         {
             throw new IllegalArgumentException("pendingBufferSize must be a power of 2, was: " + pendingBufferSize);
@@ -156,11 +161,13 @@ public final class MultiThreadedClaimStrategy
             pendingPublication.set((int) pendingSequence & pendingMask, pendingSequence);
         }
 
-        if (cursor.get() != expectedSequence)
+        long cursorSequence = cursor.get();
+        if (cursorSequence >= sequence)
         {
             return;
         }
 
+        expectedSequence = Math.max(expectedSequence, cursorSequence);
         long nextSequence = expectedSequence + 1;
         while (cursor.compareAndSet(expectedSequence, nextSequence))
         {
