@@ -137,7 +137,8 @@ public final class Histogram
         {
             minValue = value;
         }
-        else if (value > maxValue)
+        
+        if (value > maxValue)
         {
             maxValue = value;
         }

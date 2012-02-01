@@ -161,6 +161,15 @@ public final class HistogramTest
     }
 
     @Test
+    public void shouldGetMinAndMaxOfSingleObservation()
+    {
+        addObservations(histogram, 10L);
+
+        assertThat(Long.valueOf(histogram.getMin()), is(Long.valueOf(10L)));
+        assertThat(Long.valueOf(histogram.getMax()), is(Long.valueOf(10L)));
+    }
+
+    @Test
     public void shouldGetTwoNinesUpperBound()
     {
         final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
