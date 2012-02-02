@@ -44,7 +44,7 @@ class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
     public EventProcessor[] getLastEventProcessorsInChain()
     {
         List<EventProcessor> lastEventProcessors = new ArrayList<EventProcessor>();
-        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorInfoByHandler.values())
+        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorInfoByEventProcessor.values())
         {
             if (eventProcessorInfo.isEndOfChain())
             {
