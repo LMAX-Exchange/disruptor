@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="maven-deployment" default="mvn:all:release-snapshot" basedir="."
+<project name="maven-deployment" default="mvn:all:release-staging" basedir="."
          xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="antlib:org.apache.maven.artifact.ant ">
@@ -41,17 +41,9 @@
     <target name="mvn:release-staging">
         <release-artifacts artifact.version="${version}"
                            repository.id="staging-repo"
-                           repository.url="http://localhost:8081/nexus/content/repositories/releases"/>
+                           repository.url="https://oss.sonatype.org/service/local/staging/deploy/maven2"/>
     </target>
 
-    <target name="mvn:all:release-staging" depends="all, mvn:release-staging"/>
-
-    <target name="mvn:release-snapshot">
-        <release-artifacts artifact.version="${version}-SNAPSHOT"
-                           repository.id="snapshots-repo"
-                           repository.url="http://localhost:8081/nexus/content/repositories/snapshots"/>
-    </target>
-
-    <target name="mvn:all:release-snapshot" depends="all, mvn:release-snapshot"/>
+    <target name="mvn:all:release-staging" depends="all, mvn:release-staging"/>    
 
 </project>

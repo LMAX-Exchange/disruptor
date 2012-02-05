@@ -1,6 +1,6 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.google.code</groupId>
+    <groupId>com.googlecode.disruptor</groupId>
     <artifactId>disruptor</artifactId>
     <packaging>jar</packaging>
     <name>Disruptor Framework</name>
@@ -20,9 +20,9 @@
     </scm>
     <developers>
         <developer>
-            <id>martin</id>
-            <name>Martin Thompson</name>
-            <email>martin@email.com</email>
+            <id>team</id>
+            <name>Lmax Disruptor Development Team</name>
+            <email>lmax-disruptor@googlegroups.com</email>
         </developer>
     </developers>
 </project>
