@@ -105,6 +105,18 @@ public final class SingleThreadedClaimStrategy
     {
         cursor.set(sequence);
     }
+    
+    @Override
+    public long checkAndIncrement(int availableCapacity, int delta, Sequence[] dependentSequences) 
+            throws InsufficientCapacityException
+    {
+        if (!hasAvailableCapacity(availableCapacity, dependentSequences))
+        {
+            throw InsufficientCapacityException.INSTANCE;
+        }
+        
+        return incrementAndGet(delta, dependentSequences);
+    }
 
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
     {

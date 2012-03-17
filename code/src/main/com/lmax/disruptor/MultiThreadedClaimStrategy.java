@@ -15,13 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.locks.LockSupport;
 
-import com.lmax.disruptor.util.MutableLong;
-import com.lmax.disruptor.util.PaddedAtomicLong;
 
 /**
  * Strategy to be used when there are multiple publisher threads claiming sequences.
@@ -31,24 +27,13 @@ import com.lmax.disruptor.util.PaddedAtomicLong;
  * for a single publisher, compared to the {@link MultiThreadedLowContentionClaimStrategy} strategy which needs only a single
  * CAS and a lazySet per publication.
  */
-public final class MultiThreadedClaimStrategy
+public final class MultiThreadedClaimStrategy extends AbstractMultithreadedClaimStrategy
     implements ClaimStrategy
 {
     private static final int RETRIES = 1000;
 
-    private final int bufferSize;
-    private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
     private final AtomicLongArray pendingPublication;
     private final int pendingMask;
-
-    private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
-    {
-        @Override
-        protected MutableLong initialValue()
-        {
-            return new MutableLong(Sequencer.INITIAL_CURSOR_VALUE);
-        }
-    };
 
     /**
      * Construct a new multi-threaded publisher {@link ClaimStrategy} for a given buffer size.
@@ -58,12 +43,13 @@ public final class MultiThreadedClaimStrategy
      */
     public MultiThreadedClaimStrategy(final int bufferSize, final int pendingBufferSize)
     {
+        super(bufferSize);
+        
         if (Integer.bitCount(pendingBufferSize) != 1)
         {
             throw new IllegalArgumentException("pendingBufferSize must be a power of 2, was: " + pendingBufferSize);
         }
 
-        this.bufferSize = bufferSize;
         this.pendingPublication = new AtomicLongArray(pendingBufferSize);
         this.pendingMask = pendingBufferSize - 1;
     }
@@ -76,65 +62,6 @@ public final class MultiThreadedClaimStrategy
     public MultiThreadedClaimStrategy(final int bufferSize)
     {
         this(bufferSize, 1024);
-    }
-
-    @Override
-    public int getBufferSize()
-    {
-        return bufferSize;
-    }
-
-    @Override
-    public long getSequence()
-    {
-        return claimSequence.get();
-    }
-
-    @Override
-    public boolean hasAvailableCapacity(final int availableCapacity, final Sequence[] dependentSequences)
-    {
-        final long wrapPoint = (claimSequence.get() + availableCapacity) - bufferSize;
-        final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-        if (wrapPoint > minGatingSequence.get())
-        {
-            long minSequence = getMinimumSequence(dependentSequences);
-            minGatingSequence.set(minSequence);
-
-            if (wrapPoint > minSequence)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public long incrementAndGet(final Sequence[] dependentSequences)
-    {
-        final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-        waitForCapacity(dependentSequences, minGatingSequence);
-
-        final long nextSequence = claimSequence.incrementAndGet();
-        waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequence);
-
-        return nextSequence;
-    }
-
-    @Override
-    public long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-    {
-        final long nextSequence = claimSequence.addAndGet(delta);
-        waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
-
-        return nextSequence;
-    }
-
-    @Override
-    public void setSequence(final long sequence, final Sequence[] dependentSequences)
-    {
-        claimSequence.lazySet(sequence);
-        waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
     }
 
     @Override
@@ -172,36 +99,6 @@ public final class MultiThreadedClaimStrategy
             {
                 break;
             }
-        }
-    }
-
-    private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
-    {
-        final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
-        {
-            long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-            {
-                LockSupport.parkNanos(1L);
-            }
-
-            minGatingSequence.set(minSequence);
-        }
-    }
-
-    private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
-    {
-        final long wrapPoint = sequence - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
-        {
-            long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-            {
-                LockSupport.parkNanos(1L);
-            }
-
-            minGatingSequence.set(minSequence);
         }
     }
 }

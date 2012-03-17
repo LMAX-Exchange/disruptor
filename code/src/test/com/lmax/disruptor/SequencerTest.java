@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 
 public final class SequencerTest
@@ -235,6 +236,12 @@ public final class SequencerTest
         BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
 
         sequencer.next(batchDescriptor, 1000L, TimeUnit.MILLISECONDS);
+    }
+    
+    @Test(expected = InsufficientCapacityException.class)
+    public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull() throws Exception
+    {
+        sequencer.tryNext(5);
     }
 
     private void fillBuffer()

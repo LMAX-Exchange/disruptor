@@ -19,8 +19,10 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.jmock.Expectations;
@@ -29,11 +31,6 @@ import org.jmock.integration.junit4.JMock;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.lmax.disruptor.ClaimStrategy;
-import com.lmax.disruptor.MultiThreadedClaimStrategy;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.Sequencer;
 
 @RunWith(JMock.class)
 public final class MultiThreadedClaimStrategyTest
@@ -209,6 +206,109 @@ public final class MultiThreadedClaimStrategyTest
         claimStrategy.serialisePublishing(sequence, cursor, 1);
 
         assertEquals(sequence, cursor.get());
+    }
+    
+    @Test(expected = InsufficientCapacityException.class)
+    public void shouldThrowExceptionIfCapacityIsNotAvailable() throws Exception
+    {
+        final Sequence dependentSequence = new Sequence();
+        final Sequence[] dependentSequences = { dependentSequence };
+
+        claimStrategy.checkAndIncrement(9, 1, dependentSequences);
+    }
+    
+    @Test
+    public void shouldSucessfullyGetNextValueIfLessThanCapacityIsAvailable() throws Exception
+    {
+        final Sequence dependentSequence = new Sequence();
+        final Sequence[] dependentSequences = { dependentSequence };
+
+        for (long i = 0; i < 8; i++)
+        {
+            assertThat(claimStrategy.checkAndIncrement(1, 1, dependentSequences), is(i));
+        }
+    }
+    
+    @Test
+    public void shouldSucessfullyGetNextValueIfLessThanCapacityIsAvailableWhenClaimingMoreThanOne() throws Exception
+    {
+        final Sequence dependentSequence = new Sequence();
+        final Sequence[] dependentSequences = { dependentSequence };
+
+        assertThat(claimStrategy.checkAndIncrement(4, 4, dependentSequences), is(3L));
+        assertThat(claimStrategy.checkAndIncrement(4, 4, dependentSequences), is(7L));
+    }
+    
+    @Test
+    public void shouldOnlyClaimWhatsAvailable() throws Exception
+    {
+        final Sequence dependentSequence = new Sequence();
+        final Sequence[] dependentSequences = { dependentSequence };
+        
+        for (int j = 0; j < 1000; j++)
+        {
+            int numThreads = BUFFER_SIZE * 2;
+            ClaimStrategy claimStrategy = new MultiThreadedClaimStrategy(BUFFER_SIZE);
+            AtomicLongArray claimed = new AtomicLongArray(numThreads);
+            CyclicBarrier barrier = new CyclicBarrier(numThreads);
+            Thread[] ts = new Thread[numThreads];
+            
+            for (int i = 0; i < numThreads; i++)
+            {
+                ts[i] = new Thread(new ClaimRunnable(claimStrategy, barrier, claimed, dependentSequences));
+            }
+            
+            for (Thread t : ts)
+            {
+                t.start();
+            }
+            
+            for (Thread t : ts)
+            {
+                t.join();
+            }
+            
+            for (int i = 0; i < BUFFER_SIZE; i++)
+            {
+                assertThat("j = " + j + ", i = " + i, claimed.get(i), is(1L));
+            }
+            
+            for (int i = BUFFER_SIZE; i < numThreads; i++)
+            {
+                assertThat("j = " + j + ", i = " + i, claimed.get(i), is(0L));
+            }
+        }
+    }
+    
+    private static class ClaimRunnable implements Runnable
+    {
+        private final CyclicBarrier barrier;
+        private final ClaimStrategy claimStrategy;
+        private AtomicLongArray claimed;
+        private final Sequence[] dependentSequences;
+
+        public ClaimRunnable(ClaimStrategy claimStrategy, CyclicBarrier barrier, 
+                             AtomicLongArray claimed, Sequence[] dependentSequences)
+        {
+            this.claimStrategy = claimStrategy;
+            this.barrier = barrier;
+            this.claimed = claimed;
+            this.dependentSequences = dependentSequences;
+        }
+        
+        @Override
+        public void run()
+        {
+            try
+            {
+                barrier.await();
+                long next = claimStrategy.checkAndIncrement(1, 1, dependentSequences);
+                claimed.incrementAndGet((int) next);
+            }
+            catch (Exception e)
+            {
+            }
+        }
     }
 
     @Test

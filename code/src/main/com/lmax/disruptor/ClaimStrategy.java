@@ -79,4 +79,17 @@ public interface ClaimStrategy
      * @param batchSize of the sequence.
      */
     void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize);
+
+    /**
+     * Atomically checks the available capacity of the ring buffer and claims the next sequence.  Will
+     * throw InsufficientCapacityException if the capacity not available.
+     * 
+     * @param availableCapacity the capacity that should be available before claiming the next slot
+     * @param delta the number of slots to claim
+     * @param gatingSequences the set of sequences to check to ensure capacity is available
+     * @return the slot after incrementing
+     * @throws InsufficientCapacityException thrown if capacity is not available
+     */
+    long checkAndIncrement(int availableCapacity, int delta, Sequence[] gatingSequences) 
+            throws InsufficientCapacityException;
 }

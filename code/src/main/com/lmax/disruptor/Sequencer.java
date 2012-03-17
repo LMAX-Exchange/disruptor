@@ -125,6 +125,25 @@ public class Sequencer
 
         return claimStrategy.incrementAndGet(gatingSequences);
     }
+    
+    /**
+     * Attempt to claim the next event in sequence for publishing.  Will return the
+     * number of the slot if there is at least <code>availableCapacity</code> slots
+     * available.  
+     * 
+     * @param availableCapacity
+     * @return the claimed sequence value
+     * @throws InsufficientCapacityException
+     */
+    public long tryNext(int availableCapacity) throws InsufficientCapacityException
+    {
+        if (null == gatingSequences)
+        {
+            throw new NullPointerException("gatingSequences must be set before claiming sequences");
+        }
+        
+        return claimStrategy.checkAndIncrement(availableCapacity, 1, gatingSequences);
+    }
 
     /**
      * Claim the next event in sequence for publishing with a timeout.
@@ -134,7 +153,10 @@ public class Sequencer
      * @param sourceUnit for the timeout period.
      * @return the claimed sequence value
      * @throws TimeoutException if the timeout period elapses
+     * @deprecated Use <code>tryNext()</code> to avoid blocking indefinitely.  Any timeout behaviour
+     * should be handled within the calling code.
      */
+    @Deprecated
     public long next(final long timeout, final TimeUnit sourceUnit) throws TimeoutException
     {
         waitForCapacity(1, timeout, sourceUnit);
@@ -169,6 +191,8 @@ public class Sequencer
      * @param sourceUnit for the timeout period.
      * @return the updated batchDescriptor.
      * @throws TimeoutException if the timeout period elapses
+     * @deprecated Use <code>tryNext()</code> to avoid blocking indefinitely.  Any timeout behaviour
+     * should be handled within the calling code.
      */
     public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit sourceUnit)
         throws TimeoutException
