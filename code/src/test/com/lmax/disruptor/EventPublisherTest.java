@@ -24,10 +24,12 @@ import com.lmax.disruptor.support.LongEvent;
 
 public class EventPublisherTest implements EventTranslator<LongEvent>
 {
+    private static final int BUFFER_SIZE = 32;
+
     @Test
     public void shouldPublishEvent()
     {
-        RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, 32);
+        RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
         ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
         EventPublisher<LongEvent> eventPublisher = new EventPublisher<LongEvent>(ringBuffer);
 
@@ -36,6 +38,26 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
         
         assertThat(Long.valueOf(ringBuffer.get(0).get()), is(Long.valueOf(0 + 29L)));
         assertThat(Long.valueOf(ringBuffer.get(1).get()), is(Long.valueOf(1 + 29L)));
+    }
+    
+    @Test
+    public void shouldTryPublishEvent() throws Exception
+    {
+        RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
+        ringBuffer.setGatingSequences(new Sequence());
+        EventPublisher<LongEvent> eventPublisher = new EventPublisher<LongEvent>(ringBuffer);
+
+        for (int i = 0; i < BUFFER_SIZE; i++)
+        {
+            assertThat(eventPublisher.tryPublishEvent(this, 1), is(true));
+        }
+
+        for (int i = 0; i < BUFFER_SIZE; i++)
+        {
+            assertThat(Long.valueOf(ringBuffer.get(i).get()), is(Long.valueOf(i + 29L)));
+        }
+
+        assertThat(eventPublisher.tryPublishEvent(this, 1), is(false));
     }
     
     @Override

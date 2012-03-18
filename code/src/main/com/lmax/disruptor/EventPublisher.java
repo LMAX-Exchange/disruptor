@@ -57,11 +57,41 @@ public class EventPublisher<E>
      * @param timeout period to wait
      * @param units for the timeout period
      * @throws TimeoutException if the timeout period has expired
+     * @deprecated Timeout based methods are a bad idea, if timeout functionality
+     * is required, then it can be implemented on top tryPublishEvent.
      */
+    @Deprecated
     public void publishEvent(final EventTranslator<E> translator, long timeout, TimeUnit units) throws TimeoutException
     {
         final long sequence = ringBuffer.next(timeout, units);
         translateAndPublish(translator, sequence);
+    }
+
+    
+    /**
+     * Attempts to publish an event to the ring buffer.  It handles
+     * claiming the next sequence, getting the current (uninitialized) 
+     * event from the ring buffer and publishing the claimed sequence
+     * after translation.  Will return false if specified capacity
+     * was not available.
+     * 
+     * @param translator The user specified translation for the event
+     * @param capacity The capacity that should be available before publishing
+     * @returns true if the value was published, false if there was insufficient
+     * capacity.
+     */
+    public boolean tryPublishEvent(EventTranslator<E> translator, int capacity)
+    {
+        try
+        {
+            final long sequence = ringBuffer.tryNext(capacity);
+            translateAndPublish(translator, sequence);
+            return true;
+        }
+        catch (InsufficientCapacityException e)
+        {
+            return false;
+        }
     }
 
     private void translateAndPublish(final EventTranslator<E> translator, final long sequence)
