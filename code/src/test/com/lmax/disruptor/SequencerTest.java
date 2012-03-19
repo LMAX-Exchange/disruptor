@@ -243,7 +243,13 @@ public final class SequencerTest
     {
         sequencer.tryNext(5);
     }
-
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRejectAvailableCapcityLessThanOne() throws Exception
+    {
+        sequencer.tryNext(0);
+    }
+    
     private void fillBuffer()
     {
         for (int i = 0; i < BUFFER_SIZE; i++)

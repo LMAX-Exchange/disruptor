@@ -142,6 +142,11 @@ public class Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
         
+        if (availableCapacity < 1)
+        {
+            throw new IllegalArgumentException("Available capacity must be greater than 0");
+        }
+        
         return claimStrategy.checkAndIncrement(availableCapacity, 1, gatingSequences);
     }
 
