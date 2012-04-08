@@ -78,10 +78,11 @@ public final class MultiThreadedClaimStrategy extends AbstractMultithreadedClaim
         }
 
         long expectedSequence = sequence - batchSize;
-        for (long pendingSequence = expectedSequence + 1; pendingSequence <= sequence; pendingSequence++)
+        for (long pendingSequence = expectedSequence + 1; pendingSequence < sequence; pendingSequence++)
         {
-            pendingPublication.set((int) pendingSequence & pendingMask, pendingSequence);
+            pendingPublication.lazySet((int) pendingSequence & pendingMask, pendingSequence);
         }
+        pendingPublication.set((int) sequence & pendingMask, sequence);
 
         long cursorSequence = cursor.get();
         if (cursorSequence >= sequence)
