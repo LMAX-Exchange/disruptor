@@ -15,18 +15,16 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.DaemonThreadFactory;
-import org.junit.Test;
+import static junit.framework.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
+import org.junit.Test;
+
+import com.lmax.disruptor.support.DaemonThreadFactory;
 
 public final class SequencerTest
 {
@@ -196,46 +194,6 @@ public final class SequencerTest
 
         doneLatch.await();
         assertEquals(sequencer.getCursor(), expectedFullSequence + 1L);
-    }
-
-    @Test
-    public void shouldNotTimeoutWhenBufferHasSufficientCapacity() throws TimeoutException
-    {
-        long sequence = sequencer.next(1000L, TimeUnit.MILLISECONDS);
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE + 1L, sequence);
-    }
-
-    @Test(expected = TimeoutException.class)
-    public void shouldThrowExceptionDueToTimeoutWhenInsufficientCapacity() throws TimeoutException
-    {
-        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        sequencer.claim(expectedFullSequence);
-        sequencer.publish(expectedFullSequence);
-
-        sequencer.next(1000L, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void shouldNotTimeoutWhenBufferHasSufficientCapacityForBatch() throws TimeoutException
-    {
-        final int batchSize = 3;
-        BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
-
-        batchDescriptor = sequencer.next(batchDescriptor, 1000L, TimeUnit.MILLISECONDS);
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE + batchSize, batchDescriptor.getEnd());
-    }
-
-    @Test(expected = TimeoutException.class)
-    public void shouldThrowExceptionDueToTimeoutWhenInsufficientCapacityForBatch() throws TimeoutException
-    {
-        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        sequencer.claim(expectedFullSequence);
-        sequencer.publish(expectedFullSequence);
-
-        final int batchSize = 3;
-        BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
-
-        sequencer.next(batchDescriptor, 1000L, TimeUnit.MILLISECONDS);
     }
     
     @Test(expected = InsufficientCapacityException.class)

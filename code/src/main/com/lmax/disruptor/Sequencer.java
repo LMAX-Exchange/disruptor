@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
@@ -151,25 +150,6 @@ public class Sequencer
     }
 
     /**
-     * Claim the next event in sequence for publishing with a timeout.
-     * If the timeout occurs the sequence will not be claimed and a {@link TimeoutException} will be thrown.
-     *
-     * @param timeout period to wait
-     * @param sourceUnit for the timeout period.
-     * @return the claimed sequence value
-     * @throws TimeoutException if the timeout period elapses
-     * @deprecated Use <code>tryNext()</code> to avoid blocking indefinitely.  Any timeout behaviour
-     * should be handled within the calling code.
-     */
-    @Deprecated
-    public long next(final long timeout, final TimeUnit sourceUnit) throws TimeoutException
-    {
-        waitForCapacity(1, timeout, sourceUnit);
-
-        return next();
-    }
-
-    /**
      * Claim the next batch of sequence numbers for publishing.
      *
      * @param batchDescriptor to be updated for the batch range.
@@ -185,26 +165,6 @@ public class Sequencer
         final long sequence = claimStrategy.incrementAndGet(batchDescriptor.getSize(), gatingSequences);
         batchDescriptor.setEnd(sequence);
         return batchDescriptor;
-    }
-
-    /**
-     * Claim the next batch of sequence numbers for publishing with a timeout.
-     * If the timeout occurs the sequence will not be claimed and a {@link TimeoutException} will be thrown.
-     *
-     * @param batchDescriptor to be updated for the batch range.
-     * @param timeout period to wait
-     * @param sourceUnit for the timeout period.
-     * @return the updated batchDescriptor.
-     * @throws TimeoutException if the timeout period elapses
-     * @deprecated Use <code>tryNext()</code> to avoid blocking indefinitely.  Any timeout behaviour
-     * should be handled within the calling code.
-     */
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor, final long timeout, final TimeUnit sourceUnit)
-        throws TimeoutException
-    {
-        waitForCapacity(batchDescriptor.getSize(), timeout, sourceUnit);
-
-        return next(batchDescriptor);
     }
 
     /**
@@ -263,21 +223,5 @@ public class Sequencer
     {
         claimStrategy.serialisePublishing(sequence, cursor, batchSize);
         waitStrategy.signalAllWhenBlocking();
-    }
-
-    private void waitForCapacity(final int capacity, final long timeout, final TimeUnit sourceUnit)
-        throws TimeoutException
-    {
-        final long timeoutMs = sourceUnit.toMillis(timeout);
-        final long startTime = System.currentTimeMillis();
-
-        while (!claimStrategy.hasAvailableCapacity(capacity, gatingSequences))
-        {
-            final long elapsedTime = System.currentTimeMillis() - startTime;
-            if (elapsedTime > timeoutMs)
-            {
-                throw TimeoutException.INSTANCE;
-            }
-        }
     }
 }
