@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="disruptor" default="all" basedir=".">
 
+    <property file="${basedir}/build.properties"/>
     <property name="dir.main.src" value="src/main"/>
     <property name="dir.main.build" value="target/main/classes"/>
 
@@ -127,7 +128,17 @@
     </target>
 
     <target name="dist" depends="build">
-        <jar destfile="${file.dist.bin}" basedir="${dir.main.build}"/>
+        <jar destfile="${file.dist.bin}" basedir="${dir.main.build}">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Bundle-Name" value="${bundle.name}"/>
+                <attribute name="Bundle-Vendor" value="${bundle.vendor}"/>
+                <attribute name="Bundle-Version" value="${version}"/>
+                <attribute name="Bundle-Description" value="${bundle.description}"/>
+                <attribute name="Import-Package" value="org.osgi.framework"/>
+                <attribute name="Export-Package" value="com.lmax.disruptor,com.lmax.disruptor.dsl,com.lmax.disruptor.collections"/>
+            </manifest>
+        </jar>
         <jar destfile="${file.dist.src}" basedir="${dir.main.src}"/>
         <jar destfile="${file.dist.api}" basedir="${dir.docs}"/>
     </target>
