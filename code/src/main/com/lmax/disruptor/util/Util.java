@@ -15,6 +15,10 @@
  */
 package com.lmax.disruptor.util;
 
+import java.lang.reflect.Field;
+
+import sun.misc.Unsafe;
+
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 
@@ -69,5 +73,25 @@ public final class Util
         }
 
         return sequences;
+    }
+
+    private static final Unsafe THE_UNSAFE;
+    static
+    {
+        try
+        {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            THE_UNSAFE = (Unsafe)theUnsafe.get(null);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Unable to load unsafe", e);
+        }        
+    }
+    
+    public static Unsafe getUnsafe()
+    {
+        return THE_UNSAFE;
     }
 }
