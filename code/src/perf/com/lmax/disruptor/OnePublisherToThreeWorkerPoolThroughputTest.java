@@ -86,7 +86,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     protected long runQueuePass() throws InterruptedException
     {
         resetCounters();
-        Future[] futures = new Future[NUM_WORKERS];
+        Future<?>[] futures = new Future[NUM_WORKERS];
         for (int i = 0; i < NUM_WORKERS; i++)
         {
             futures[i] = EXECUTOR.submit(queueWorkers[i]);

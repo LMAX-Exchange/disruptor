@@ -139,7 +139,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         handlers[2] = new ValueMutationEventHandler(Operation.AND);
     }
 
-    private final BatchEventProcessor[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
+    private final BatchEventProcessor<?>[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
     {
         batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[0]);
         batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
@@ -169,7 +169,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     protected long runQueuePass() throws InterruptedException
     {
         CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
-        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             queueProcessors[i].reset(latch);

@@ -163,7 +163,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         CountDownLatch latch = new CountDownLatch(1);
         stepThreeQueueProcessor.reset(latch);
 
-        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
         futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
         futures[2] = EXECUTOR.submit(stepThreeQueueProcessor);
@@ -186,7 +186,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         stepTwoQueueProcessor.halt();
         stepThreeQueueProcessor.halt();
 
-        for (Future future : futures)
+        for (Future<?> future : futures)
         {
             future.cancel(true);
         }

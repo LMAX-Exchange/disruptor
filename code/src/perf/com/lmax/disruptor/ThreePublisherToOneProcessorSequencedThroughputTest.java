@@ -149,12 +149,12 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
         final CountDownLatch latch = new CountDownLatch(1);
         queueProcessor.reset(latch);
 
-        Future[] futures = new Future[NUM_PUBLISHERS];
+        Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
             futures[i] = EXECUTOR.submit(valueQueuePublishers[i]);
         }
-        Future processorFuture = EXECUTOR.submit(queueProcessor);
+        Future<?> processorFuture = EXECUTOR.submit(queueProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
@@ -179,7 +179,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
         final CountDownLatch latch = new CountDownLatch(1);
         handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
 
-        Future[] futures = new Future[NUM_PUBLISHERS];
+        Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
             futures[i] = EXECUTOR.submit(valuePublishers[i]);

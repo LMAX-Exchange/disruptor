@@ -180,7 +180,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         final CountDownLatch latch = new CountDownLatch(1);
         fizzBuzzQueueProcessor.reset(latch);
 
-        Future[] futures = new Future[NUM_EVENT_PROCESSORS];
+        Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = EXECUTOR.submit(fizzQueueProcessor);
         futures[1] = EXECUTOR.submit(buzzQueueProcessor);
         futures[2] = EXECUTOR.submit(fizzBuzzQueueProcessor);
@@ -201,7 +201,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         buzzQueueProcessor.halt();
         fizzBuzzQueueProcessor.halt();
 
-        for (Future future : futures)
+        for (Future<?> future : futures)
         {
             future.cancel(true);
         }
