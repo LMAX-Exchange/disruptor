@@ -109,7 +109,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     {
         final CountDownLatch latch = new CountDownLatch(1);
         queueProcessor.reset(latch);
-        Future future = EXECUTOR.submit(queueProcessor);
+        Future<?> future = EXECUTOR.submit(queueProcessor);
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)

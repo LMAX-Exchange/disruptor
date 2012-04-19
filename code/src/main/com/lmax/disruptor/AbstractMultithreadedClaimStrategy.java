@@ -5,12 +5,11 @@ import static com.lmax.disruptor.util.Util.getMinimumSequence;
 import java.util.concurrent.locks.LockSupport;
 
 import com.lmax.disruptor.util.MutableLong;
-import com.lmax.disruptor.util.PaddedAtomicLong;
 
 public abstract class AbstractMultithreadedClaimStrategy implements ClaimStrategy
 {
     private final int bufferSize;
-    private final PaddedAtomicLong claimSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence claimSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
     {
         @Override
@@ -88,7 +87,7 @@ public abstract class AbstractMultithreadedClaimStrategy implements ClaimStrateg
     @Override
     public void setSequence(final long sequence, final Sequence[] dependentSequences)
     {
-        claimSequence.lazySet(sequence);
+        claimSequence.set(sequence);
         waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
     }
 

@@ -16,7 +16,6 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * {@link WorkProcessor} for ensuring each sequence is handled by only a single processor, effectively consuming the sequence.
@@ -34,7 +33,7 @@ public final class WorkProcessor<T>
     private final SequenceBarrier sequenceBarrier;
     private final WorkHandler<T> workHandler;
     private final ExceptionHandler exceptionHandler;
-    private final AtomicLong workSequence;
+    private final Sequence workSequence;
 
     /**
      * Construct a {@link WorkProcessor}.
@@ -50,7 +49,7 @@ public final class WorkProcessor<T>
                          final SequenceBarrier sequenceBarrier,
                          final WorkHandler<T> workHandler,
                          final ExceptionHandler exceptionHandler,
-                         final AtomicLong workSequence)
+                         final Sequence workSequence)
     {
         this.ringBuffer = ringBuffer;
         this.sequenceBarrier = sequenceBarrier;

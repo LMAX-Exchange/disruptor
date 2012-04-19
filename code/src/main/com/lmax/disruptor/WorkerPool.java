@@ -15,11 +15,10 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.PaddedAtomicLong;
-import com.lmax.disruptor.util.Util;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.lmax.disruptor.util.Util;
 
 /**
  * A pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers
@@ -30,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class WorkerPool<T>
 {
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private final PaddedAtomicLong workSequence = new PaddedAtomicLong(Sequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence workSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final WorkProcessor<?>[] workProcessors;
 

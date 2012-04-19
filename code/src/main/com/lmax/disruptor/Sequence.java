@@ -53,5 +53,25 @@ public class Sequence
     {
         return Long.toString(get());
     }
+    
+    public long incrementAndGet()
+    {
+        return addAndGet(1L);
+    }
+
+    public long addAndGet(final long increment)
+    {
+        long currentValue;
+        long newValue;
+
+        do
+        {
+            currentValue = get();
+            newValue = currentValue + increment;
+        }
+        while (!compareAndSet(currentValue, newValue));
+
+        return newValue;
+    }
 }
 
