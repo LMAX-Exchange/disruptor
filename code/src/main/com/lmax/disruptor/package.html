@@ -132,7 +132,7 @@
 
         public final static EventFactory&lt;ValueEvent&gt; EVENT_FACTORY = new EventFactory&lt;ValueEvent&gt;()
         {
-            public ValueEvent create()
+            public ValueEvent newInstance()
             {
                 return new ValueEvent();
             }
