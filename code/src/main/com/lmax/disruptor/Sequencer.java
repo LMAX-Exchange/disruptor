@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.Util;
+
 
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
@@ -223,5 +225,12 @@ public class Sequencer
     {
         claimStrategy.serialisePublishing(sequence, cursor, batchSize);
         waitStrategy.signalAllWhenBlocking();
+    }
+
+    public long remainingCapacity()
+    {
+        long consumed = Util.getMinimumSequence(gatingSequences);
+        long produced = cursor.get();
+        return getBufferSize() - (produced - consumed);
     }
 }

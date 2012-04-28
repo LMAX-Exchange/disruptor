@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -206,6 +206,18 @@ public final class SequencerTest
     public void shouldRejectAvailableCapcityLessThanOne() throws Exception
     {
         sequencer.tryNext(0);
+    }
+    
+    @Test
+    public void shouldCalculateRemainingCapacity() throws Exception
+    {
+        assertThat(sequencer.remainingCapacity(), is(4L));
+        sequencer.publish(sequencer.next());
+        assertThat(sequencer.remainingCapacity(), is(3L));
+        sequencer.publish(sequencer.next());
+        assertThat(sequencer.remainingCapacity(), is(2L));
+        sequencer.publish(sequencer.next());
+        assertThat(sequencer.remainingCapacity(), is(1L));
     }
     
     private void fillBuffer()
