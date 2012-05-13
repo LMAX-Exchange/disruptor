@@ -55,7 +55,7 @@ public class EventPublisher<E>
      * 
      * @param translator The user specified translation for the event
      * @param capacity The capacity that should be available before publishing
-     * @returns true if the value was published, false if there was insufficient
+     * @return true if the value was published, false if there was insufficient
      * capacity.
      */
     public boolean tryPublishEvent(EventTranslator<E> translator, int capacity)
