@@ -46,4 +46,10 @@ public final class MultiThreadedLowContentionClaimStrategy
 
         cursor.set(sequence);
     }
+    
+    @Override
+    public boolean isAvailable(long sequence)
+    {
+        return true;
+    }
 }

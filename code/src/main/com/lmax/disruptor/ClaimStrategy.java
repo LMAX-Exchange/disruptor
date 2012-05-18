@@ -92,4 +92,6 @@ public interface ClaimStrategy
      */
     long checkAndIncrement(int availableCapacity, int delta, Sequence[] gatingSequences) 
             throws InsufficientCapacityException;
+
+    boolean isAvailable(long sequence);
 }

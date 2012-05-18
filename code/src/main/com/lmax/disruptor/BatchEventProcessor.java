@@ -109,7 +109,7 @@ public final class BatchEventProcessor<T>
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                 while (nextSequence <= availableSequence)
                 {
-                    event = ringBuffer.get(nextSequence);
+                    event = ringBuffer.checkAndGet(nextSequence);
                     eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     nextSequence++;
                 }

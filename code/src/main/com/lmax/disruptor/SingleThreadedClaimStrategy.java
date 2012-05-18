@@ -117,6 +117,12 @@ public final class SingleThreadedClaimStrategy
         
         return incrementAndGet(delta, dependentSequences);
     }
+    
+    @Override
+    public boolean isAvailable(long sequence)
+    {
+        return true;
+    }
 
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
     {

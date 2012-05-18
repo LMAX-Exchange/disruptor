@@ -221,6 +221,11 @@ public class Sequencer
         waitStrategy.signalAllWhenBlocking();
     }
 
+    protected ClaimStrategy getClaimStrategy()
+    {
+        return claimStrategy;
+    }
+
     private void publish(final long sequence, final int batchSize)
     {
         claimStrategy.serialisePublishing(sequence, cursor, batchSize);

@@ -76,6 +76,45 @@ public final class RingBuffer<T> extends Sequencer
     {
         return (T)entries[(int)sequence & indexMask];
     }
+    
+    @SuppressWarnings("unchecked")
+    public T checkAndGet(final long sequence)
+    {
+        ClaimStrategy claimStrategy = getClaimStrategy();
+        
+        while (!claimStrategy.isAvailable(sequence))
+        {
+            // Spin
+        }
+        
+        return (T)entries[(int)sequence & indexMask];
+    }
+    
+    public void put(T t)
+    {
+        long next = next();
+        insert(next, t);
+    }
+    
+    public boolean offer(T t)
+    {
+        try
+        {
+            long next = tryNext(1);
+            insert(next, t);
+            return true;
+        }
+        catch (InsufficientCapacityException e)
+        {
+            return false;
+        }
+    }
+
+    private void insert(long sequence, T t)
+    {
+        entries[(int) sequence & indexMask] = t;
+        publish(sequence);
+    }
 
     private void fill(final EventFactory<T> eventFactory)
     {
