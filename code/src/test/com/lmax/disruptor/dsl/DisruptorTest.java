@@ -33,7 +33,7 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
-@SuppressWarnings(value = {"ThrowableResultOfMethodCallIgnored", "unchecked"})
+@SuppressWarnings(value = {"unchecked"})
 public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
@@ -372,10 +372,9 @@ public class DisruptorTest
         disruptor.publishEvent(new EventTranslator<TestEvent>()
         {
             @Override
-            public TestEvent translateTo(final TestEvent event, final long sequence)
+            public void translateTo(final TestEvent event, final long sequence)
             {
                 lastPublishedEvent = event;
-                return event;
             }
         });
 
