@@ -129,26 +129,26 @@ public class Sequencer
     
     /**
      * Attempt to claim the next event in sequence for publishing.  Will return the
-     * number of the slot if there is at least <code>availableCapacity</code> slots
+     * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.  
      * 
-     * @param availableCapacity
+     * @param requiredCapacity as slots in the data structure
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException
+     * @throws InsufficientCapacityException when the requiredCapacity is not available
      */
-    public long tryNext(int availableCapacity) throws InsufficientCapacityException
+    public long tryNext(int requiredCapacity) throws InsufficientCapacityException
     {
         if (null == gatingSequences)
         {
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
         
-        if (availableCapacity < 1)
+        if (requiredCapacity < 1)
         {
-            throw new IllegalArgumentException("Available capacity must be greater than 0");
+            throw new IllegalArgumentException("Required capacity must be greater than 0");
         }
         
-        return claimStrategy.checkAndIncrement(availableCapacity, 1, gatingSequences);
+        return claimStrategy.checkAndIncrement(requiredCapacity, 1, gatingSequences);
     }
 
     /**
