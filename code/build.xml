@@ -51,6 +51,7 @@
                includeAntRuntime="false"
                debug="true"
                nowarn="true">
+            <compilerarg value="-XDignore.symbol.file"/>
             <compilerarg value="-Xlint:unchecked"/>
             <src path="${dir.main.src}"/>
         </javac>
@@ -122,6 +123,7 @@
                  version="true"
                  use="true"
                  windowtitle="Disruptor API">
+            <arg value="-XDignore.symbol.file"/>
             <doctitle><![CDATA[<h1>Disruptor</h1>]]></doctitle>
             <bottom><![CDATA[<i>Copyright &#169; 2011 LMAX Ltd. All Rights Reserved.</i>]]></bottom>
             <link href="http://www.lmax.com/"/>
