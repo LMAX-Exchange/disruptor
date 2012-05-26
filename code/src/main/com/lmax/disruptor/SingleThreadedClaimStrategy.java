@@ -119,9 +119,8 @@ public final class SingleThreadedClaimStrategy
     }
     
     @Override
-    public boolean isAvailable(long sequence)
+    public void ensureAvailable(long sequence)
     {
-        return true;
     }
 
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)

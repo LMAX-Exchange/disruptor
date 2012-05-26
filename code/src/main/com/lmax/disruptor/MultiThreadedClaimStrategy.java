@@ -104,8 +104,7 @@ public final class MultiThreadedClaimStrategy extends AbstractMultithreadedClaim
     }
     
     @Override
-    public boolean isAvailable(long sequence)
+    public void ensureAvailable(long sequence)
     {
-        return true;
     }
 }

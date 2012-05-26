@@ -93,5 +93,12 @@ public interface ClaimStrategy
     long checkAndIncrement(int availableCapacity, int delta, Sequence[] gatingSequences) 
             throws InsufficientCapacityException;
 
-    boolean isAvailable(long sequence);
+    /**
+     * Ensure that the value at the supplied sequence is available to be read.  This allows for
+     * strategies to increment their cursor early.  This can simplify and improve performance
+     * on multithreaded claim strategies.  This method should no return until the value is available.
+     * 
+     * @param sequence The sequence to test for availability.
+     */
+    void ensureAvailable(long sequence);
 }

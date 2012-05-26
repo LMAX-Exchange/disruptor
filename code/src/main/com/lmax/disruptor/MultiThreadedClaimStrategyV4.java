@@ -16,22 +16,20 @@
 package com.lmax.disruptor;
 
 
-import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicIntegerArray;
+
+import com.lmax.disruptor.util.Util;
 
 
 /**
  * Strategy to be used when there are multiple publisher threads claiming sequences.
- *
- * This strategy is reasonably forgiving when the multiple publisher threads are highly contended or working in an
- * environment where there is insufficient CPUs to handle multiple publisher threads.  It requires 2 CAS operations
- * for a single publisher, compared to the {@link MultiThreadedLowContentionClaimStrategy} strategy which needs only a single
- * CAS and a lazySet per publication.
  */
-public final class MultiThreadedClaimStrategyV3 extends AbstractMultithreadedClaimStrategy
+public final class MultiThreadedClaimStrategyV4 extends AbstractMultithreadedClaimStrategy
     implements ClaimStrategy
 {
-    private final AtomicLongArray availableBuffer;
+    private final AtomicIntegerArray availableBuffer;
     private final int indexMask;
+    private final int indexShift;
 
     /**
      * Construct a new multi-threaded publisher {@link ClaimStrategy} for a given buffer size.
@@ -39,19 +37,32 @@ public final class MultiThreadedClaimStrategyV3 extends AbstractMultithreadedCla
      * @param bufferSize for the underlying data structure.
      * @param pendingBufferSize number of item that can be pending for serialisation
      */
-    public MultiThreadedClaimStrategyV3(final int bufferSize)
+    public MultiThreadedClaimStrategyV4(final int bufferSize)
     {
         super(bufferSize);
-        availableBuffer = new AtomicLongArray(bufferSize);
+        availableBuffer = new AtomicIntegerArray(bufferSize);
         indexMask = bufferSize - 1;
+        indexShift = Util.log2(bufferSize);
+        
+        initialiseAvailableBuffer();
+    }
+
+    private void initialiseAvailableBuffer()
+    {
+        for (int i = availableBuffer.length() - 1; i != 0; i--)
+        {
+            availableBuffer.lazySet(i, -1);
+        }
+        
         availableBuffer.set(0, -1);
     }
 
     @Override
     public void serialisePublishing(final long sequence, final Sequence cursor, final int batchSize)
     {
-        int index = ((int) sequence) & indexMask;
-        availableBuffer.lazySet(index, sequence);
+        int index = calculateIndex(sequence);
+        int flag = calculateAvailabilityFlag(sequence);
+        availableBuffer.lazySet(index, flag);
         
         long cursorSequnece;
         while ((cursorSequnece = cursor.get()) < sequence)
@@ -66,10 +77,21 @@ public final class MultiThreadedClaimStrategyV3 extends AbstractMultithreadedCla
     @Override
     public void ensureAvailable(long sequence)
     {
-        int index = ((int) sequence) & indexMask;
-        while (availableBuffer.get(index) != sequence)
+        int index = calculateIndex(sequence);
+        int flag = calculateAvailabilityFlag(sequence);
+        while (availableBuffer.get(index) != flag)
         {
             // spin
         }
+    }
+
+    private int calculateAvailabilityFlag(final long sequence)
+    {
+        return (int) (sequence >>> indexShift) & 1;
+    }
+
+    private int calculateIndex(final long sequence)
+    {
+        return ((int) sequence) & indexMask;
     }
 }

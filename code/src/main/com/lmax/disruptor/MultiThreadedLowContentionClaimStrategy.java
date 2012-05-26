@@ -48,8 +48,7 @@ public final class MultiThreadedLowContentionClaimStrategy
     }
     
     @Override
-    public boolean isAvailable(long sequence)
+    public void ensureAvailable(long sequence)
     {
-        return true;
     }
 }

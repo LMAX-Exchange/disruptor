@@ -113,7 +113,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     private final RingBuffer<ValueEvent> ringBuffer =
         new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
 //                new MultiThreadedClaimStrategy(BUFFER_SIZE),
-                                   new MultiThreadedClaimStrategyV3(BUFFER_SIZE),
+                                   new MultiThreadedClaimStrategyV4(BUFFER_SIZE),
                                    new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();

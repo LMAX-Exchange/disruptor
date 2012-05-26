@@ -94,4 +94,22 @@ public final class Util
     {
         return THE_UNSAFE;
     }
+    
+    
+    /**
+     * Calculate the log base 2 of the supplied integer, essentially reports the location
+     * of the highest bit.
+     * 
+     * @param i Value to calculate log2 for.
+     * @return The log2 value
+     */
+    public static int log2(int i)
+    {
+        int r = 0;
+        while ((i >>= 1) != 0)
+        {
+            ++r;
+        }
+        return r;
+    }
 }

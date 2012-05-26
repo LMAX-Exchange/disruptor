@@ -80,13 +80,7 @@ public final class RingBuffer<T> extends Sequencer
     @SuppressWarnings("unchecked")
     public T checkAndGet(final long sequence)
     {
-        ClaimStrategy claimStrategy = getClaimStrategy();
-        
-        while (!claimStrategy.isAvailable(sequence))
-        {
-            // Spin
-        }
-        
+        getClaimStrategy().ensureAvailable(sequence);
         return (T)entries[(int)sequence & indexMask];
     }
     
