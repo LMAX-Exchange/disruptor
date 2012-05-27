@@ -45,11 +45,8 @@ public abstract class AbstractMultithreadedClaimStrategy implements ClaimStrateg
     @Override
     public long incrementAndGet(final Sequence[] dependentSequences)
     {
-        final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-        waitForCapacity(dependentSequences, minGatingSequence);
-    
         final long nextSequence = claimSequence.incrementAndGet();
-        waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequence);
+        waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
     
         return nextSequence;
     }
@@ -89,21 +86,6 @@ public abstract class AbstractMultithreadedClaimStrategy implements ClaimStrateg
     {
         claimSequence.set(sequence);
         waitForFreeSlotAt(sequence, dependentSequences, minGatingSequenceThreadLocal.get());
-    }
-
-    private void waitForCapacity(final Sequence[] dependentSequences, final MutableLong minGatingSequence)
-    {
-        final long wrapPoint = (claimSequence.get() + 1L) - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
-        {
-            long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
-            {
-                LockSupport.parkNanos(1L);
-            }
-    
-            minGatingSequence.set(minSequence);
-        }
     }
 
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
