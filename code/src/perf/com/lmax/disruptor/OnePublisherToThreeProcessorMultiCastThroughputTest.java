@@ -125,10 +125,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                   new YieldingWaitStrategy());
+    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, 
+                new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -202,6 +201,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
+        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
@@ -213,9 +213,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            ringBuffer.get(sequence).setValue(i);
-            ringBuffer.publish(sequence);
+            long sequence = sequencer.next();
+            ringBuffer.getPreallocated(sequence).setValue(i);
+            sequencer.publish(sequence);
         }
 
         latch.await();

@@ -119,10 +119,10 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<FunctionEvent> ringBuffer =
-        new RingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY,
-                                      new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                      new YieldingWaitStrategy());
+    private final PreallocatedRingBuffer<FunctionEvent> ringBuffer =
+        new PreallocatedRingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY, 
+                new SingleProducerSequencer(BUFFER_SIZE, 
+                                            new YieldingWaitStrategy()));
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
@@ -200,6 +200,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     protected long runDisruptorPass() throws InterruptedException
     {
         CountDownLatch latch = new CountDownLatch(1);
+        Sequencer sequencer = ringBuffer.getSequencer();
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
         EXECUTOR.submit(stepOneBatchProcessor);
@@ -211,11 +212,11 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            FunctionEvent event = ringBuffer.get(sequence);
+            long sequence = sequencer.next();
+            FunctionEvent event = ringBuffer.getPreallocated(sequence);
             event.setOperandOne(i);
             event.setOperandTwo(operandTwo--);
-            ringBuffer.publish(sequence);
+            sequencer.publish(sequence);
         }
 
         latch.await();

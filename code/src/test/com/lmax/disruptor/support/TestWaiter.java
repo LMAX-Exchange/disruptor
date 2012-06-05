@@ -15,13 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.RingBuffer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+
+import com.lmax.disruptor.PreallocatedRingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
 
 public final class TestWaiter implements Callable<List<StubEvent>>
 {
@@ -29,11 +29,11 @@ public final class TestWaiter implements Callable<List<StubEvent>>
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
     private final SequenceBarrier sequenceBarrier;
-    private final RingBuffer<StubEvent> ringBuffer;
+    private final PreallocatedRingBuffer<StubEvent> ringBuffer;
 
     public TestWaiter(final CyclicBarrier cyclicBarrier,
                       final SequenceBarrier sequenceBarrier,
-                      final RingBuffer<StubEvent> ringBuffer,
+                      final PreallocatedRingBuffer<StubEvent> ringBuffer,
                       final long initialSequence,
                       final long toWaitForSequence)
     {

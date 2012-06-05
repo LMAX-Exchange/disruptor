@@ -28,8 +28,8 @@ public final class WorkProcessor<T>
     implements EventProcessor
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private final RingBuffer<T> ringBuffer;
+    private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final PreallocatedRingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final WorkHandler<T> workHandler;
     private final ExceptionHandler exceptionHandler;
@@ -43,9 +43,9 @@ public final class WorkProcessor<T>
      * @param workHandler is the delegate to which events are dispatched.
      * @param exceptionHandler to be called back when an error occurs
      * @param workSequence from which to claim the next event to be worked on.  It should always be initialised
-     * as {@link Sequencer#INITIAL_CURSOR_VALUE}
+     * as {@link SingleProducerSequencer#INITIAL_CURSOR_VALUE}
      */
-    public WorkProcessor(final RingBuffer<T> ringBuffer,
+    public WorkProcessor(final PreallocatedRingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
                          final WorkHandler<T> workHandler,
                          final ExceptionHandler exceptionHandler,

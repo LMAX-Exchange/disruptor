@@ -15,14 +15,20 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.lmax.disruptor.support.FizzBuzzEvent;
 import com.lmax.disruptor.support.FizzBuzzEventHandler;
 import com.lmax.disruptor.support.FizzBuzzQueueProcessor;
 import com.lmax.disruptor.support.FizzBuzzStep;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -134,10 +140,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<FizzBuzzEvent> ringBuffer =
-        new RingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY,
-                                      new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                      new YieldingWaitStrategy());
+    private final PreallocatedRingBuffer<FizzBuzzEvent> ringBuffer =
+            new PreallocatedRingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY, 
+                    new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -214,6 +219,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     @Override
     protected long runDisruptorPass() throws Exception
     {
+        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(1);
         fizzBuzzHandler.reset(latch, batchProcessorFizzBuzz.getSequence().get() + ITERATIONS);
 
@@ -225,9 +231,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            ringBuffer.get(sequence).setValue(i);
-            ringBuffer.publish(sequence);
+            long sequence = sequencer.next();
+            ringBuffer.getPreallocated(sequence).setValue(i);
+            sequencer.publish(sequence);
         }
 
         latch.await();

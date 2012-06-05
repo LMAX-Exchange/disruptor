@@ -16,17 +16,18 @@
 package com.lmax.disruptor;
 
 /**
- * Callback interface to be implemented for processing units of work as they become available in the {@link PreallocatedRingBuffer}
+ * Implementations translate another data representations into events claimed from the {@link PreallocatedRingBuffer}
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface WorkHandler<T>
+public interface EventTranslatorVararg<T>
 {
     /**
-     * Callback to indicate a unit of work needs to be processed.
+     * Translate a data representation into fields set in given event
      *
-     * @param event published to the {@link PreallocatedRingBuffer}
-     * @throws Exception if the {@link WorkHandler} would like the exception handled further up the chain.
+     * @param event into which the data should be translated.
+     * @param sequence that is assigned to event.
+     * @param args The array of user arguments.
      */
-    void onEvent(T event) throws Exception;
+    void translateTo(final T event, long sequence, final Object...args);
 }

@@ -34,7 +34,7 @@ public abstract class AbstractPerfTestQueueVsDisruptor
         long queueOps[] = new long[RUNS];
         long disruptorOps[] = new long[RUNS];
 
-        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
+        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "false")))
         {
             for (int i = 0; i < RUNS; i++)
             {

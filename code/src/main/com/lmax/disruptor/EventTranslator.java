@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Implementations translate another data representations into events claimed from the {@link RingBuffer}
+ * Implementations translate another data representations into events claimed from the {@link PreallocatedRingBuffer}
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -27,7 +27,6 @@ public interface EventTranslator<T>
      *
      * @param event into which the data should be translated.
      * @param sequence that is assigned to event.
-     * @return the resulting event after it has been updated.
      */
-    T translateTo(final T event, long sequence);
+    void translateTo(final T event, long sequence);
 }

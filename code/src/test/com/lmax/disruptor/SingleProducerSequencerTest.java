@@ -26,16 +26,16 @@ import org.junit.Test;
 
 import com.lmax.disruptor.support.DaemonThreadFactory;
 
-public final class SequencerTest
+public final class SingleProducerSequencerTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     private static final int BUFFER_SIZE = 4;
 
-    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE), new SleepingWaitStrategy());
+    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new SleepingWaitStrategy());
 
-    private final Sequence gatingSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence gatingSequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
 
-    public SequencerTest()
+    public SingleProducerSequencerTest()
     {
         sequencer.setGatingSequences(gatingSequence);
     }
@@ -43,14 +43,14 @@ public final class SequencerTest
     @Test
     public void shouldStartWithInitialValue()
     {
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
+        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
     }
 
     @Test
     public void shouldGetPublishFirstSequence()
     {
         final long sequence = sequencer.next();
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
+        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
         assertEquals(sequence, 0L);
 
         sequencer.publish(sequence);
@@ -77,7 +77,7 @@ public final class SequencerTest
         final long claimSequence = 3L;
 
         final long sequence = sequencer.claim(claimSequence);
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
+        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
         assertEquals(sequence, claimSequence);
 
         sequencer.forcePublish(sequence);
@@ -91,12 +91,12 @@ public final class SequencerTest
         BatchDescriptor batchDescriptor = new BatchDescriptor(batchSize);
 
         batchDescriptor = sequencer.next(batchDescriptor);
-        assertEquals(Sequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
-        assertEquals(batchDescriptor.getEnd(), Sequencer.INITIAL_CURSOR_VALUE + batchSize);
+        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
+        assertEquals(batchDescriptor.getEnd(), SingleProducerSequencer.INITIAL_CURSOR_VALUE + batchSize);
         assertEquals(batchDescriptor.getSize(), batchSize);
 
         sequencer.publish(batchDescriptor);
-        assertEquals(sequencer.getCursor(), Sequencer.INITIAL_CURSOR_VALUE + batchSize);
+        assertEquals(sequencer.getCursor(), SingleProducerSequencer.INITIAL_CURSOR_VALUE + batchSize);
     }
 
     @Test
@@ -121,7 +121,7 @@ public final class SequencerTest
         final long sequence = sequencer.next();
         sequencer.publish(sequence);
 
-        assertEquals(sequence, barrier.waitFor(Sequencer.INITIAL_CURSOR_VALUE + 1L));
+        assertEquals(sequence, barrier.waitFor(SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L));
     }
 
     @Test
@@ -131,7 +131,7 @@ public final class SequencerTest
         final SequenceBarrier barrier = sequencer.newBarrier();
         final CountDownLatch waitingLatch = new CountDownLatch(1);
         final CountDownLatch doneLatch = new CountDownLatch(1);
-        final long expectedSequence = Sequencer.INITIAL_CURSOR_VALUE + 1L;
+        final long expectedSequence = SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L;
 
         EXECUTOR.submit(new Runnable()
         {
@@ -154,7 +154,7 @@ public final class SequencerTest
         });
 
         waitingLatch.await();
-        assertEquals(gatingSequence.get(), Sequencer.INITIAL_CURSOR_VALUE);
+        assertEquals(gatingSequence.get(), SingleProducerSequencer.INITIAL_CURSOR_VALUE);
 
         sequencer.publish(sequencer.next());
 
@@ -171,7 +171,7 @@ public final class SequencerTest
         final CountDownLatch waitingLatch = new CountDownLatch(1);
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
-        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
+        final long expectedFullSequence = SingleProducerSequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
         assertEquals(sequencer.getCursor(), expectedFullSequence);
 
         EXECUTOR.submit(new Runnable()
@@ -190,7 +190,7 @@ public final class SequencerTest
         waitingLatch.await();
         assertEquals(sequencer.getCursor(), expectedFullSequence);
 
-        gatingSequence.set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
+        gatingSequence.set(SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
         assertEquals(sequencer.getCursor(), expectedFullSequence + 1L);

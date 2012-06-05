@@ -76,10 +76,9 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                   new YieldingWaitStrategy());
+    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, 
+                                   new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
@@ -112,24 +111,25 @@ public final class OnePublisherToOneProcessorUniCastBatchThroughputTest extends 
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
+        final Sequencer sequencer = ringBuffer.getSequencer();
         final CountDownLatch latch = new CountDownLatch(1);
         handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
         EXECUTOR.submit(batchEventProcessor);
 
         final int batchSize = 10;
-        final BatchDescriptor batchDescriptor = ringBuffer.newBatchDescriptor(batchSize);
+        final BatchDescriptor batchDescriptor = sequencer.newBatchDescriptor(batchSize);
 
         long start = System.currentTimeMillis();
 
         long offset = 0;
         for (long i = 0; i < ITERATIONS; i += batchSize)
         {
-            ringBuffer.next(batchDescriptor);
+            sequencer.next(batchDescriptor);
             for (long c = batchDescriptor.getStart(), end = batchDescriptor.getEnd(); c <= end; c++)
             {
                 ringBuffer.get(c).setValue(offset++);
             }
-            ringBuffer.publish(batchDescriptor);
+            sequencer.publish(batchDescriptor);
         }
 
         latch.await();

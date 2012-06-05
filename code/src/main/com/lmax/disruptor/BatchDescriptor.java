@@ -16,15 +16,15 @@
 package com.lmax.disruptor;
 
 /**
- * Used to record the batch of sequences claimed via a {@link Sequencer}.
+ * Used to record the batch of sequences claimed via a {@link SingleProducerSequencer}.
  */
 public final class BatchDescriptor
 {
     private final int size;
-    private long end = Sequencer.INITIAL_CURSOR_VALUE;
+    private long end = SingleProducerSequencer.INITIAL_CURSOR_VALUE;
 
     /**
-     * Create a holder for tracking a batch of claimed sequences in a {@link Sequencer}
+     * Create a holder for tracking a batch of claimed sequences in a {@link SingleProducerSequencer}
      * @param size of the batch to claim.
      */
     BatchDescriptor(final int size)
@@ -43,7 +43,7 @@ public final class BatchDescriptor
     }
 
     /**
-     * Set the end of the batch sequence.  To be used by the {@link Sequencer}.
+     * Set the end of the batch sequence.  To be used by the {@link SingleProducerSequencer}.
      *
      * @param end sequence in the batch.
      */

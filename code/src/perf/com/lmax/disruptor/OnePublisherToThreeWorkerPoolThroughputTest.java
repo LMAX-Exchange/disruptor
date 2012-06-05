@@ -62,8 +62,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     private final WorkerPool<ValueEvent> workerPool
         = new WorkerPool<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                     new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                     new YieldingWaitStrategy(),
+                                     new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()),
                                      new FatalExceptionHandler(),
                                      handlers);
 
@@ -120,15 +119,17 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
+        
         resetCounters();
-        RingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
+        PreallocatedRingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
+        Sequencer sequencer = ringBuffer.getSequencer();
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            ringBuffer.get(sequence).setValue(i);
-            ringBuffer.publish(sequence);
+            long sequence = sequencer.next();
+            ringBuffer.getPreallocated(sequence).setValue(i);
+            sequencer.publish(sequence);
         }
 
         workerPool.drainAndHalt();
