@@ -138,8 +138,10 @@
                 <attribute name="Bundle-Vendor" value="${bundle.vendor}"/>
                 <attribute name="Bundle-Version" value="${version}"/>
                 <attribute name="Bundle-Description" value="${bundle.description}"/>
-                <attribute name="Import-Package" value="org.osgi.framework"/>
-                <attribute name="Export-Package" value="com.lmax.disruptor,com.lmax.disruptor.dsl,com.lmax.disruptor.collections"/>
+                <attribute name="Bundle-SymbolicName" value="${bundle.symbolicname}"/>
+                <attribute name="Bundle-ManifestVersion" value="${bundle.manifestversion}"/>
+                <attribute name="Import-Package" value="org.osgi.framework,sun.misc"/>
+                <attribute name="Export-Package" value="com.lmax.disruptor;uses:=&quot;com.lmax.disruptor.util,sun.misc&quot;;version=${version},com.lmax.disruptor.dsl;uses:=&quot;com.lmax.disruptor,com.lmax.disruptor.util&quot;;version=${version},com.lmax.disruptor.collections;version=${version},com.lmax.disruptor.util;uses:=&quot;sun.misc&quot;;version=${version}"/>
             </manifest>
         </jar>
         <jar destfile="${file.dist.src}" basedir="${dir.main.src}"/>
