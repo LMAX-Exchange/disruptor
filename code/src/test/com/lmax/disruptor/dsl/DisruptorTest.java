@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -190,6 +191,7 @@ public class DisruptorTest
         disruptor.handleEventsWith(delayedEventHandler);
 
         final RingBuffer<TestEvent> ringBuffer = disruptor.start();
+        delayedEventHandler.awaitStart();
 
         final StubPublisher stubPublisher = new StubPublisher(ringBuffer);
         try
@@ -312,7 +314,7 @@ public class DisruptorTest
 
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,
                                                                  final DelayedEventHandler... dependencies)
-        throws InterruptedException
+        throws InterruptedException, BrokenBarrierException
     {
         publishEvent();
         publishEvent();
@@ -362,11 +364,16 @@ public class DisruptorTest
                                              new BlockingWaitStrategy());
     }
 
-    private TestEvent publishEvent()
+    private TestEvent publishEvent() throws InterruptedException, BrokenBarrierException
     {
         if (ringBuffer == null)
         {
             ringBuffer = disruptor.start();
+            
+            for (DelayedEventHandler eventHandler : delayedEventHandlers)
+            {
+                eventHandler.awaitStart();
+            }
         }
 
         disruptor.publishEvent(new EventTranslator<TestEvent>()
