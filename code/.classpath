@@ -13,6 +13,6 @@
 	<classpathentry kind="lib" path="lib/test/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/test/allocation.jar"/>
 	<classpathentry kind="lib" path="lib/test/caliper-0.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JDK1.7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

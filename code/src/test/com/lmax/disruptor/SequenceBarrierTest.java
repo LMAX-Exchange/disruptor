@@ -197,7 +197,9 @@ public final class SequenceBarrierTest
             }
         };
 
-        new Thread(runnable).start();
+        Thread thread = new Thread(runnable);
+        thread.start();
+        thread.join();
 
         long expectedWorkSequence = expectedNumberMessages - 1;
         long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);

@@ -20,8 +20,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 /**
  * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
  *
@@ -34,17 +32,17 @@ public final class BlockingWaitStrategy implements WaitStrategy
     private volatile int numWaiters = 0;
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = cursor.get()) < sequence)
+        if ((availableSequence = dependentSequence.get()) < sequence)
         {
             lock.lock();
             try
             {
                 ++numWaiters;
-                while ((availableSequence = cursor.get()) < sequence)
+                while ((availableSequence = dependentSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
                     processorNotifyCondition.await();
@@ -57,30 +55,22 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
         }
 
-        if (0 != dependents.length)
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
-            {
-                barrier.checkAlert();
-            }
-        }
-
         return availableSequence;
     }
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
-                        final long timeout, final TimeUnit sourceUnit)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
+                        final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = cursor.get()) < sequence)
+        if ((availableSequence = dependentSequence.get()) < sequence)
         {
             lock.lock();
             try
             {
                 ++numWaiters;
-                while ((availableSequence = cursor.get()) < sequence)
+                while ((availableSequence = dependentSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
 
@@ -94,14 +84,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             {
                 --numWaiters;
                 lock.unlock();
-            }
-        }
-
-        if (0 != dependents.length)
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
-            {
-                barrier.checkAlert();
             }
         }
 

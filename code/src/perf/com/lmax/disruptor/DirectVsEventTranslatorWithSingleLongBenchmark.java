@@ -26,6 +26,16 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
     {
         ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
         EXECUTOR.submit(batchEventProcessor);
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
     
     private static class ValueEventTranslator implements EventTranslator<ValueEvent>

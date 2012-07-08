@@ -4,7 +4,6 @@ public abstract class RingBuffer<E>
 {
     protected final Sequencer sequencer;
     protected final int indexMask;
-    protected final Object[] entries;
     
     /**
      * Construct a RingBuffer with the full option set.
@@ -24,7 +23,6 @@ public abstract class RingBuffer<E>
         }
 
         indexMask = bufferSize - 1;
-        entries = new Object[bufferSize];
     }
 
     public final SequenceBarrier newBarrier(final Sequence... sequencesToTrack)

@@ -23,6 +23,8 @@ package com.lmax.disruptor;
  */
 public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
 {
+    protected final Object[] entries;
+    
     /**
      * Construct a RingBuffer with the full option set.
      *
@@ -34,6 +36,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     public PreallocatedRingBuffer(final EventFactory<E> eventFactory, Sequencer sequencer)
     {
         super(sequencer);
+        entries = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
 

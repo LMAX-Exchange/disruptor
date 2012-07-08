@@ -2,9 +2,12 @@ package com.lmax.disruptor;
 
 public class ReferenceRingBuffer<E> extends RingBuffer<E>
 {
+    protected final Object[] entries;
+    
     public ReferenceRingBuffer(Sequencer sequencer)
     {
         super(sequencer);
+        entries = new Object[sequencer.getBufferSize()];
     }
 
     @SuppressWarnings("unchecked")

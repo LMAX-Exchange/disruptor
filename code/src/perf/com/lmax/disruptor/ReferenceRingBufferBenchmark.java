@@ -26,6 +26,12 @@ public class ReferenceRingBufferBenchmark extends SimpleBenchmark
         EXECUTOR.submit(batchEventProcessor);
     }
     
+    @Override
+    protected void setUp() throws Exception
+    {
+        System.out.println("foo");
+    }
+    
     public void timeDirect(int iterations) throws InterruptedException
     {
         final CountDownLatch latch = new CountDownLatch(1);
