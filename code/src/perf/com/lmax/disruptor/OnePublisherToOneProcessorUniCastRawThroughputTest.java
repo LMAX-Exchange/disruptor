@@ -24,9 +24,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This performance test illustrates direct use of the {@link Sequencer} without requiring a {@link RingBuffer}.
+ * This performance test illustrates direct use of the {@link SingleProducerSequencer} without requiring a {@link PreallocatedRingBuffer}.
  * <p>
- * The {@link Sequencer} can be used to sequence access to any data structure as can been seen from the use of the "values" array below.
+ * The {@link SingleProducerSequencer} can be used to sequence access to any data structure as can been seen from the use of the "values" array below.
  */
 public class OnePublisherToOneProcessorUniCastRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
@@ -39,7 +39,7 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final long[] values = new long[BUFFER_SIZE];
-    private final Sequencer sequencer = new Sequencer(new SingleThreadedClaimStrategy(BUFFER_SIZE), new YieldingWaitStrategy());
+    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier barrier = sequencer.newBarrier();
     private final RawProcessor rawProcessor = new RawProcessor(values, barrier);
     {
@@ -100,7 +100,7 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     public static final class RawProcessor implements EventProcessor
     {
         private final PaddedLong value = new PaddedLong();
-        private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+        private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
         private volatile boolean running = false;
         private final long[] values;
         private final SequenceBarrier barrier;

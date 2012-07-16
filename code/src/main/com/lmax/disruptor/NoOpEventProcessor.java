@@ -16,15 +16,15 @@
 package com.lmax.disruptor;
 
 /**
- * No operation version of a {@link EventProcessor} that simply tracks a {@link Sequencer}.
- * This is useful in tests or for pre-filling a {@link RingBuffer} from a publisher.
+ * No operation version of a {@link EventProcessor} that simply tracks a {@link SingleProducerSequencer}.
+ * This is useful in tests or for pre-filling a {@link PreallocatedRingBuffer} from a publisher.
  */
 public final class NoOpEventProcessor implements EventProcessor
 {
     private final SequencerFollowingSequence sequence;
 
     /**
-     * Construct a {@link EventProcessor} that simply tracks a {@link Sequencer}.
+     * Construct a {@link EventProcessor} that simply tracks a {@link SingleProducerSequencer}.
      *
      * @param sequencer to track.
      */
@@ -55,7 +55,7 @@ public final class NoOpEventProcessor implements EventProcessor
 
         private SequencerFollowingSequence(final Sequencer sequencer)
         {
-            super(Sequencer.INITIAL_CURSOR_VALUE);
+            super(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
             this.sequencer = sequencer;
         }
 

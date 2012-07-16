@@ -1,48 +1,9 @@
-/*
- * Copyright 2011 LMAX Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.Util;
-
-
-/**
- * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
- */
-public class Sequencer
+public interface Sequencer
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
-
-    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private Sequence[] gatingSequences;
-
-    private final ClaimStrategy claimStrategy;
-    private final WaitStrategy waitStrategy;
-
-    /**
-     * Construct a Sequencer with the selected strategies.
-     *
-     * @param claimStrategy for those claiming sequences.
-     * @param waitStrategy for those waiting on sequences.
-     */
-    public Sequencer(final ClaimStrategy claimStrategy, final WaitStrategy waitStrategy)
-    {
-        this.claimStrategy = claimStrategy;
-        this.waitStrategy = waitStrategy;
-    }
 
     /**
      * Set the sequences that will gate publishers to prevent the buffer wrapping.
@@ -52,10 +13,7 @@ public class Sequencer
      *
      * @param sequences to be to be gated on.
      */
-    public void setGatingSequences(final Sequence... sequences)
-    {
-        this.gatingSequences = sequences;
-    }
+    void setGatingSequences(final Sequence... sequences);
 
     /**
      * Create a {@link SequenceBarrier} that gates on the the cursor and a list of {@link Sequence}s
@@ -63,10 +21,7 @@ public class Sequencer
      * @param sequencesToTrack this barrier will track
      * @return the barrier gated as required
      */
-    public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
-    {
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
-    }
+    SequenceBarrier newBarrier(final Sequence... sequencesToTrack);
 
     /**
      * Create a new {@link BatchDescriptor} that is the minimum of the requested size
@@ -75,81 +30,48 @@ public class Sequencer
      * @param size for the batch
      * @return the new {@link BatchDescriptor}
      */
-    public BatchDescriptor newBatchDescriptor(final int size)
-    {
-        return new BatchDescriptor(Math.min(size, claimStrategy.getBufferSize()));
-    }
+    BatchDescriptor newBatchDescriptor(final int size);
 
     /**
      * The capacity of the data structure to hold entries.
      *
      * @return the size of the RingBuffer.
      */
-    public int getBufferSize()
-    {
-        return claimStrategy.getBufferSize();
-    }
+    int getBufferSize();
 
     /**
      * Get the value of the cursor indicating the published sequence.
      *
      * @return value of the cursor for events that have been published.
      */
-    public long getCursor()
-    {
-        return cursor.get();
-    }
+    long getCursor();
 
     /**
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent
      * method so the response should only be taken as an indication of available capacity.
      *
-     * @param availableCapacity in the buffer
+     * @param requiredCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
-    public boolean hasAvailableCapacity(final int availableCapacity)
-    {
-        return claimStrategy.hasAvailableCapacity(availableCapacity, gatingSequences);
-    }
+    boolean hasAvailableCapacity(final int requiredCapacity);
 
     /**
      * Claim the next event in sequence for publishing.
      *
      * @return the claimed sequence value
      */
-    public long next()
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
+    long next();
 
-        return claimStrategy.incrementAndGet(gatingSequences);
-    }
-    
     /**
      * Attempt to claim the next event in sequence for publishing.  Will return the
      * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.  
      * 
-     * @param requiredCapacity as slots in the data structure
+     * @param requiredCapacity
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException when the requiredCapacity is not available
+     * @throws InsufficientCapacityException
      */
-    public long tryNext(int requiredCapacity) throws InsufficientCapacityException
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-        
-        if (requiredCapacity < 1)
-        {
-            throw new IllegalArgumentException("Required capacity must be greater than 0");
-        }
-        
-        return claimStrategy.checkAndIncrement(requiredCapacity, 1, gatingSequences);
-    }
+    long tryNext(int requiredCapacity) throws InsufficientCapacityException;
 
     /**
      * Claim the next batch of sequence numbers for publishing.
@@ -157,17 +79,7 @@ public class Sequencer
      * @param batchDescriptor to be updated for the batch range.
      * @return the updated batchDescriptor.
      */
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor)
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
-        final long sequence = claimStrategy.incrementAndGet(batchDescriptor.getSize(), gatingSequences);
-        batchDescriptor.setEnd(sequence);
-        return batchDescriptor;
-    }
+    BatchDescriptor next(final BatchDescriptor batchDescriptor);
 
     /**
      * Claim a specific sequence when only one publisher is involved.
@@ -175,37 +87,21 @@ public class Sequencer
      * @param sequence to be claimed.
      * @return sequence just claimed.
      */
-    public long claim(final long sequence)
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
-        claimStrategy.setSequence(sequence, gatingSequences);
-
-        return sequence;
-    }
+    long claim(final long sequence);
 
     /**
      * Publish an event and make it visible to {@link EventProcessor}s
      *
      * @param sequence to be published
      */
-    public void publish(final long sequence)
-    {
-        publish(sequence, 1);
-    }
+    void publish(final long sequence);
 
     /**
      * Publish the batch of events in sequence.
      *
      * @param batchDescriptor to be published.
      */
-    public void publish(final BatchDescriptor batchDescriptor)
-    {
-        publish(batchDescriptor.getEnd(), batchDescriptor.getSize());
-    }
+    void publish(final BatchDescriptor batchDescriptor);
 
     /**
      * Force the publication of a cursor sequence.
@@ -215,22 +111,20 @@ public class Sequencer
      *
      * @param sequence which is to be forced for publication.
      */
-    public void forcePublish(final long sequence)
-    {
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
-    }
+    void forcePublish(final long sequence);
 
-    private void publish(final long sequence, final int batchSize)
-    {
-        claimStrategy.serialisePublishing(sequence, cursor, batchSize);
-        waitStrategy.signalAllWhenBlocking();
-    }
+    /**
+     * Get the remaining capacity for this sequencer.
+     * 
+     * @return The number of slots remaining.
+     */
+    long remainingCapacity();
 
-    public long remainingCapacity()
-    {
-        long consumed = Util.getMinimumSequence(gatingSequences);
-        long produced = cursor.get();
-        return getBufferSize() - (produced - consumed);
-    }
+    /**
+     * Spin until the entry pointed to by this sequence is available to be read.
+     * 
+     * @param sequence
+     */
+    void ensureAvailable(long sequence);
+
 }

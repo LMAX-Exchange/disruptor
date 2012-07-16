@@ -140,10 +140,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                   new BusySpinWaitStrategy());
+    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                new SingleProducerSequencer(BUFFER_SIZE, new BusySpinWaitStrategy()));
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
@@ -262,6 +261,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private void runDisruptorPass() throws InterruptedException
     {
+        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(1);
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
@@ -271,9 +271,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            ringBuffer.get(sequence).setValue(System.nanoTime());
-            ringBuffer.publish(sequence);
+            long sequence = sequencer.next();
+            ringBuffer.getPreallocated(sequence).setValue(System.nanoTime());
+            sequencer.publish(sequence);
 
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() - pauseStart))

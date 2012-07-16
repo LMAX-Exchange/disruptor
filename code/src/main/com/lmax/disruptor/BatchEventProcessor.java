@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
+ * Convenience class for handling the batching semantics of consuming entries from a {@link PreallocatedRingBuffer}
  * and delegating the available events to a {@link EventHandler}.
  *
  * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
@@ -34,7 +34,7 @@ public final class BatchEventProcessor<T>
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
-    private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when

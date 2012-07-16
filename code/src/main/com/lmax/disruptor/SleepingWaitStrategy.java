@@ -18,8 +18,6 @@ package com.lmax.disruptor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 /**
  * Sleeping strategy that initially spins, then uses a Thread.yield(), and eventually for the minimum number of nanos
  * the OS and JVM will allow while the {@link com.lmax.disruptor.EventProcessor}s are waiting on a barrier.
@@ -31,33 +29,23 @@ public final class SleepingWaitStrategy implements WaitStrategy
     private static final int RETRIES = 200;
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
         int counter = RETRIES;
 
-        if (0 == dependents.length)
+        while ((availableSequence = dependentSequence.get()) < sequence)
         {
-            while ((availableSequence = cursor.get()) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
-            }
-        }
-        else
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
-            }
+            counter = applyWaitMethod(barrier, counter);
         }
 
         return availableSequence;
     }
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
-                        final long timeout, final TimeUnit sourceUnit)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
+                        final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
         final long timeoutMs = sourceUnit.toMillis(timeout);
@@ -65,30 +53,14 @@ public final class SleepingWaitStrategy implements WaitStrategy
         long availableSequence;
         int counter = RETRIES;
 
-        if (0 == dependents.length)
+        while ((availableSequence = dependentSequence.get()) < sequence)
         {
-            while ((availableSequence = cursor.get()) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
+            counter = applyWaitMethod(barrier, counter);
 
-                final long elapsedTime = System.currentTimeMillis() - startTime;
-                if (elapsedTime > timeoutMs)
-                {
-                    break;
-                }
-            }
-        }
-        else
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
+            final long elapsedTime = System.currentTimeMillis() - startTime;
+            if (elapsedTime > timeoutMs)
             {
-                counter = applyWaitMethod(barrier, counter);
-
-                final long elapsedTime = System.currentTimeMillis() - startTime;
-                if (elapsedTime > timeoutMs)
-                {
-                    break;
-                }
+                break;
             }
         }
 

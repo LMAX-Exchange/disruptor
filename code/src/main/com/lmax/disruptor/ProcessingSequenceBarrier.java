@@ -23,8 +23,7 @@ import java.util.concurrent.TimeUnit;
 final class ProcessingSequenceBarrier implements SequenceBarrier
 {
     private final WaitStrategy waitStrategy;
-    private final Sequence cursorSequence;
-    private final Sequence[] dependentSequences;
+    private final Sequence dependentSequence;
     private volatile boolean alerted = false;
 
     public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
@@ -32,8 +31,14 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
                                      final Sequence[] dependentSequences)
     {
         this.waitStrategy = waitStrategy;
-        this.cursorSequence = cursorSequence;
-        this.dependentSequences = dependentSequences;
+        if (0 == dependentSequences.length)
+        {
+            dependentSequence = cursorSequence;
+        }
+        else
+        {
+            dependentSequence = new FixedSequenceGroup(dependentSequences);
+        }
     }
 
     @Override
@@ -42,7 +47,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequences, this);
+        return waitStrategy.waitFor(sequence, dependentSequence, this);
     }
 
     @Override
@@ -51,13 +56,13 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequences, this, timeout, units);
+        return waitStrategy.waitFor(sequence, dependentSequence, this, timeout, units);
     }
 
     @Override
     public long getCursor()
     {
-        return cursorSequence.get();
+        return dependentSequence.get();
     }
 
     @Override

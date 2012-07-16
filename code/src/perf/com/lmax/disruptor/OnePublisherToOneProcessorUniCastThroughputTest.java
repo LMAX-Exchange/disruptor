@@ -16,6 +16,7 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,10 +79,9 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                   new SingleThreadedClaimStrategy(BUFFER_SIZE),
-                                   new YieldingWaitStrategy());
+    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, 
+                new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
@@ -135,11 +135,12 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
 
+        Sequencer sequencer = ringBuffer.getSequencer();
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            ringBuffer.get(sequence).setValue(i);
-            ringBuffer.publish(sequence);
+            long next = sequencer.next();
+            ringBuffer.getPreallocated(next).setValue(i);
+            sequencer.publish(next);
         }
 
         latch.await();

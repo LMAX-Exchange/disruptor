@@ -34,14 +34,15 @@ import java.util.concurrent.TimeUnit;
 public final class SequenceBarrierTest
 {
     private Mockery context = new Mockery();
-    private RingBuffer<StubEvent> ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 64);
+    private final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 64);
     private EventProcessor eventProcessor1 = context.mock(EventProcessor.class, "ep1");
     private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
     private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
+    private final Sequencer sequencer = ringBuffer.getSequencer();
 
     public SequenceBarrierTest()
     {
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(sequencer).getSequence());
     }
 
     @Test
@@ -95,10 +96,10 @@ public final class SequenceBarrierTest
         {
             public void run()
             {
-                long sequence = ringBuffer.next();
-                StubEvent event = ringBuffer.get(sequence);
+                long sequence = sequencer.next();
+                StubEvent event = ringBuffer.getPreallocated(sequence);
                 event.setValue((int) sequence);
-                ringBuffer.publish(sequence);
+                sequencer.publish(sequence);
 
                 for (StubEventProcessor stubWorker : workers)
                 {
@@ -196,7 +197,9 @@ public final class SequenceBarrierTest
             }
         };
 
-        new Thread(runnable).start();
+        Thread thread = new Thread(runnable);
+        thread.start();
+        thread.join();
 
         long expectedWorkSequence = expectedNumberMessages - 1;
         long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);
@@ -221,16 +224,16 @@ public final class SequenceBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            long sequence = ringBuffer.next();
-            StubEvent event = ringBuffer.get(sequence);
+            long sequence = sequencer.next();
+            StubEvent event = ringBuffer.getPreallocated(sequence);
             event.setValue((int) i);
-            ringBuffer.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
     private static final class StubEventProcessor implements EventProcessor
     {
-        private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+        private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
 
         public void setSequence(long sequence)
         {

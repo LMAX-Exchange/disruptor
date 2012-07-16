@@ -29,12 +29,11 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Test
     public void shouldPublishEvent()
     {
-        RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
-        EventPublisher<LongEvent> eventPublisher = new EventPublisher<LongEvent>(ringBuffer);
+        PreallocatedRingBuffer<LongEvent> ringBuffer = new PreallocatedRingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer.getSequencer()).getSequence());
 
-        eventPublisher.publishEvent(this);
-        eventPublisher.publishEvent(this);
+        ringBuffer.publishEvent(this);
+        ringBuffer.publishEvent(this);
         
         assertThat(Long.valueOf(ringBuffer.get(0).get()), is(Long.valueOf(0 + 29L)));
         assertThat(Long.valueOf(ringBuffer.get(1).get()), is(Long.valueOf(1 + 29L)));
@@ -43,13 +42,12 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Test
     public void shouldTryPublishEvent() throws Exception
     {
-        RingBuffer<LongEvent> ringBuffer = new RingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
+        PreallocatedRingBuffer<LongEvent> ringBuffer = new PreallocatedRingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
         ringBuffer.setGatingSequences(new Sequence());
-        EventPublisher<LongEvent> eventPublisher = new EventPublisher<LongEvent>(ringBuffer);
 
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            assertThat(eventPublisher.tryPublishEvent(this, 1), is(true));
+            assertThat(ringBuffer.tryPublishEvent(this, 1), is(true));
         }
 
         for (int i = 0; i < BUFFER_SIZE; i++)
@@ -57,7 +55,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
             assertThat(Long.valueOf(ringBuffer.get(i).get()), is(Long.valueOf(i + 29L)));
         }
 
-        assertThat(eventPublisher.tryPublishEvent(this, 1), is(false));
+        assertThat(ringBuffer.tryPublishEvent(this, 1), is(false));
     }
     
     @Override

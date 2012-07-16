@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Callback interface to be implemented for processing events as they become available in the {@link RingBuffer}
+ * Callback interface to be implemented for processing events as they become available in the {@link PreallocatedRingBuffer}
  *
  * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propigated out of the handler.
  *
@@ -25,11 +25,11 @@ package com.lmax.disruptor;
 public interface EventHandler<T>
 {
     /**
-     * Called when a publisher has published an event to the {@link RingBuffer}
+     * Called when a publisher has published an event to the {@link PreallocatedRingBuffer}
      *
-     * @param event published to the {@link RingBuffer}
+     * @param event published to the {@link PreallocatedRingBuffer}
      * @param sequence of the event being processed
-     * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
+     * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link PreallocatedRingBuffer}
      * @throws Exception if the EventHandler would like the exception handled further up the chain.
      */
     void onEvent(T event, long sequence, boolean endOfBatch) throws Exception;

@@ -17,8 +17,6 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 /**
  * Yielding strategy that uses a Thread.yield() for {@link com.lmax.disruptor.EventProcessor}s waiting on a barrier
  * after an initially spinning.
@@ -30,33 +28,23 @@ public final class YieldingWaitStrategy implements WaitStrategy
     private static final int SPIN_TRIES = 100;
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
         int counter = SPIN_TRIES;
 
-        if (0 == dependents.length)
+        while ((availableSequence = dependentSequence.get()) < sequence)
         {
-            while ((availableSequence = cursor.get()) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
-            }
+            counter = applyWaitMethod(barrier, counter);
         }
-        else
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
-            }
-        }
-
+        
         return availableSequence;
     }
 
     @Override
-    public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier,
-                        final long timeout, final TimeUnit sourceUnit)
+    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
+                        final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {
         final long timeoutMs = sourceUnit.toMillis(timeout);
@@ -64,30 +52,14 @@ public final class YieldingWaitStrategy implements WaitStrategy
         long availableSequence;
         int counter = SPIN_TRIES;
 
-        if (0 == dependents.length)
+        while ((availableSequence = dependentSequence.get()) < sequence)
         {
-            while ((availableSequence = cursor.get()) < sequence)
-            {
-                counter = applyWaitMethod(barrier, counter);
+            counter = applyWaitMethod(barrier, counter);
 
-                final long elapsedTime = System.currentTimeMillis() - startTime;
-                if (elapsedTime > timeoutMs)
-                {
-                    break;
-                }
-            }
-        }
-        else
-        {
-            while ((availableSequence = getMinimumSequence(dependents)) < sequence)
+            final long elapsedTime = System.currentTimeMillis() - startTime;
+            if (elapsedTime > timeoutMs)
             {
-                counter = applyWaitMethod(barrier, counter);
-
-                final long elapsedTime = System.currentTimeMillis() - startTime;
-                if (elapsedTime > timeoutMs)
-                {
-                    break;
-                }
+                break;
             }
         }
 

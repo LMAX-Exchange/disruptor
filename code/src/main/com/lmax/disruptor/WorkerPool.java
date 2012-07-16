@@ -29,14 +29,14 @@ import com.lmax.disruptor.util.Util;
 public final class WorkerPool<T>
 {
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private final Sequence workSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private final RingBuffer<T> ringBuffer;
+    private final Sequence workSequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final PreallocatedRingBuffer<T> ringBuffer;
     private final WorkProcessor<?>[] workProcessors;
 
     /**
      * Create a worker pool to enable an array of {@link WorkHandler}s to consume published sequences.
      *
-     * This option requires a pre-configured {@link RingBuffer} which must have {@link RingBuffer#setGatingSequences(Sequence...)}
+     * This option requires a pre-configured {@link PreallocatedRingBuffer} which must have {@link PreallocatedRingBuffer#setGatingSequences(Sequence...)}
      * called before the work pool is started.
      *
      * @param ringBuffer of events to be consumed.
@@ -44,7 +44,7 @@ public final class WorkerPool<T>
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers to distribute the work load across.
      */
-    public WorkerPool(final RingBuffer<T> ringBuffer,
+    public WorkerPool(final PreallocatedRingBuffer<T> ringBuffer,
                       final SequenceBarrier sequenceBarrier,
                       final ExceptionHandler exceptionHandler,
                       final WorkHandler<T>... workHandlers)
@@ -64,23 +64,21 @@ public final class WorkerPool<T>
     }
 
     /**
-     * Construct a work pool with an internal {@link RingBuffer} for convenience.
+     * Construct a work pool with an internal {@link PreallocatedRingBuffer} for convenience.
      *
-     * This option does not require {@link RingBuffer#setGatingSequences(Sequence...)} to be called before the work pool is started.
+     * This option does not require {@link PreallocatedRingBuffer#setGatingSequences(Sequence...)} to be called before the work pool is started.
      *
-     * @param eventFactory for filling the {@link RingBuffer}
-     * @param claimStrategy for the {@link RingBuffer}
-     * @param waitStrategy for the {@link RingBuffer}
+     * @param eventFactory for filling the {@link PreallocatedRingBuffer}
+     * @param sequencer for the {@link PreallocatedRingBuffer}
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers to distribute the work load across.
      */
     public WorkerPool(final EventFactory<T> eventFactory,
-                      final ClaimStrategy claimStrategy,
-                      final WaitStrategy waitStrategy,
+                      final Sequencer sequencer,
                       final ExceptionHandler exceptionHandler,
                       final WorkHandler<T>... workHandlers)
     {
-        ringBuffer = new RingBuffer<T>(eventFactory, claimStrategy, waitStrategy);
+        ringBuffer = new PreallocatedRingBuffer<T>(eventFactory, sequencer);
         final SequenceBarrier barrier = ringBuffer.newBarrier();
         final int numWorkers = workHandlers.length;
         workProcessors = new WorkProcessor[numWorkers];
@@ -117,10 +115,10 @@ public final class WorkerPool<T>
      * Start the worker pool processing events in sequence.
      *
      * @param executor providing threads for running the workers.
-     * @return the {@link RingBuffer} used for the work queue.
+     * @return the {@link PreallocatedRingBuffer} used for the work queue.
      * @throws IllegalStateException is the pool has already been started and not halted yet
      */
-    public RingBuffer<T> start(final Executor executor)
+    public PreallocatedRingBuffer<T> start(final Executor executor)
     {
         if (!started.compareAndSet(false, true))
         {
@@ -140,7 +138,7 @@ public final class WorkerPool<T>
     }
 
     /**
-     * Wait for the {@link RingBuffer} to drain of published events then halt the workers.
+     * Wait for the {@link PreallocatedRingBuffer} to drain of published events then halt the workers.
      */
     public void drainAndHalt()
     {
