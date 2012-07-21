@@ -31,12 +31,12 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private static final int SPIN_TRIES = 10000;
     private final long spinTimeoutNanos;
     private final long yieldTimeoutNanos;
-    private LockingStrategy lockingStrategy;
+    private BlockingStrategy lockingStrategy;
 
     public PhasedBackoffWaitStrategy(long spinTimeoutMillis,
                                      long yieldTimeoutMillis,
                                      TimeUnit units,
-                                     LockingStrategy lockingStrategy)
+                                     BlockingStrategy lockingStrategy)
     {
         this.spinTimeoutNanos = units.toNanos(spinTimeoutMillis);
         this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeoutMillis);
@@ -85,7 +85,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 return availableSequence;
             }
             
-            if (--counter == 0)
+            if (0 == --counter)
             {
                 if (0 == startTime)
                 {
@@ -115,7 +115,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         lockingStrategy.signalAllWhenBlocking();
     }
     
-    private interface LockingStrategy
+    private interface BlockingStrategy
     {
         long waitOnLock(long sequence,
                         Sequence dependentSequence,
@@ -127,7 +127,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         void signalAllWhenBlocking();
     }
     
-    private static class LockBlockingStrategy implements LockingStrategy
+    private static class LockBlockingStrategy implements BlockingStrategy
     {
         private final Lock lock = new ReentrantLock();
         private final Condition processorNotifyCondition = lock.newCondition();
@@ -180,7 +180,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         }
     }
     
-    private static class SleepBlockingStrategy implements LockingStrategy
+    private static class SleepBlockingStrategy implements BlockingStrategy
     {
         public long waitOnLock(final long sequence,
                                 final Sequence dependentSequence,
