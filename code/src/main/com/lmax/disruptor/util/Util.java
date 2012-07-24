@@ -90,6 +90,11 @@ public final class Util
         }        
     }
     
+    /**
+     * Get a handle on the Unsafe instance, used for accessing low-level concurrency
+     * and memory constructs.
+     * @return The Unsafe
+     */
     public static Unsafe getUnsafe()
     {
         return THE_UNSAFE;

@@ -18,7 +18,7 @@ public class ReferenceRingBuffer<E> extends RingBuffer<E> implements ReferencePu
     }
 
     /**
-     * @see com.lmax.disruptor.ReferencePublisher#put(E)
+     * @see com.lmax.disruptor.ReferencePublisher#put
      */
     @Override
     public void put(E event)
@@ -29,7 +29,7 @@ public class ReferenceRingBuffer<E> extends RingBuffer<E> implements ReferencePu
     }
 
     /**
-     * @see com.lmax.disruptor.ReferencePublisher#offer(E)
+     * @see com.lmax.disruptor.ReferencePublisher#offer
      */
     @Override
     public boolean offer(E event)
