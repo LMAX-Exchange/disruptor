@@ -107,7 +107,7 @@
     <target name="througput:single-test"
             depends="test:prepare, build"
             description="Run the throughput performance tests">
-        <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/ThreePublisherToOneProcessorSequencedThroughputTest.java"/>
+        <perform-tests source.dir="${dir.perf.src}" test.type="perf" include.pattern="**/OnePublisherToOneProcessorUniCastThroughputTest.java"/>
     </target>
 
     <target name="throughput:multihreaded-test"

@@ -19,7 +19,7 @@ import org.junit.Assert;
 
 public abstract class AbstractPerfTestQueueVsDisruptor
 {
-    public static final int RUNS = 3;
+    public static final int RUNS = 20;
 
     protected void testImplementations()
         throws Exception
@@ -36,23 +36,28 @@ public abstract class AbstractPerfTestQueueVsDisruptor
 
         if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "false")))
         {
+            System.out.println("Starting Queue tests");
             for (int i = 0; i < RUNS; i++)
             {
                 System.gc();
                 queueOps[i] = runQueuePass();
-                System.out.println("Completed BlockingQueue run " + i);
+                System.out.format("Run %d, BlockingQueue=%,d ops/sec%n", i, Long.valueOf(queueOps[i]));
             }
-
+        }
+        else
+        {
+            System.out.println("Skipping Queue tests");
         }
 
+        System.out.println("Starting Disruptor tests");
         for (int i = 0; i < RUNS; i++)
         {
             System.gc();
             disruptorOps[i] = runDisruptorPass();
-            System.out.println("Completed Disruptor run " + i);
+            System.out.format("Run %d, Disruptor=%,d ops/sec%n", i, Long.valueOf(disruptorOps[i]));
         }
 
-        printResults(getClass().getSimpleName(), disruptorOps, queueOps);
+//        printResults(getClass().getSimpleName(), disruptorOps, queueOps);
 
         for (int i = 0; i < RUNS; i++)
         {
