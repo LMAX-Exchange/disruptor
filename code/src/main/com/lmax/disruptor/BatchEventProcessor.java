@@ -114,7 +114,7 @@ public final class BatchEventProcessor<T>
                     nextSequence++;
                 }
 
-                sequence.set(nextSequence - 1L);
+                sequence.set(availableSequence);
             }
             catch (final AlertException ex)
             {
