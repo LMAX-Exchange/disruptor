@@ -29,7 +29,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
     private static final int RETRIES = 200;
 
     @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;

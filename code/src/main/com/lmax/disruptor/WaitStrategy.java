@@ -26,13 +26,14 @@ public interface WaitStrategy
      * Wait for the given sequence to be available
      *
      * @param sequence to be waited on.
+     * @param cursor TODO
      * @param dependentSequence on which to wait.
      * @param barrier the processor is waiting on.
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
      */
-    long waitFor(long sequence, Sequence dependentSequence, SequenceBarrier barrier)
+    long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
         throws AlertException, InterruptedException;
 
     /**

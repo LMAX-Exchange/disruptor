@@ -25,12 +25,14 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final WaitStrategy waitStrategy;
     private final Sequence dependentSequence;
     private volatile boolean alerted = false;
+    private Sequence cursorSequence;
 
     public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
                                      final Sequence cursorSequence,
                                      final Sequence[] dependentSequences)
     {
         this.waitStrategy = waitStrategy;
+        this.cursorSequence = cursorSequence;
         if (0 == dependentSequences.length)
         {
             dependentSequence = cursorSequence;
@@ -47,7 +49,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(sequence, dependentSequence, this);
+        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequence, this);
     }
 
     @Override

@@ -18,7 +18,8 @@ public class WaitStrategyTestUtil
         SequenceUpdater sequenceUpdater = new SequenceUpdater(sleepTimeMillis, waitStrategy);
         EXECUTOR.execute(sequenceUpdater);
         sequenceUpdater.waitForStartup();
-        long sequence = waitStrategy.waitFor(0, sequenceUpdater.sequence, new DummySequenceBarrier());
+        Sequence cursor = new Sequence();
+        long sequence = waitStrategy.waitFor(0, cursor, sequenceUpdater.sequence, new DummySequenceBarrier());
         
         assertThat(sequence, is(0L));
     }

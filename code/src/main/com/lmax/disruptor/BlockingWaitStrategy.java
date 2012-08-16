@@ -32,17 +32,17 @@ public final class BlockingWaitStrategy implements WaitStrategy
     private volatile int numWaiters = 0;
 
     @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, Sequence cursorSequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = dependentSequence.get()) < sequence)
+        if ((availableSequence = cursorSequence.get()) < sequence)
         {
             lock.lock();
             try
             {
                 ++numWaiters;
-                while ((availableSequence = dependentSequence.get()) < sequence)
+                while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
                     processorNotifyCondition.await();
@@ -54,12 +54,20 @@ public final class BlockingWaitStrategy implements WaitStrategy
                 lock.unlock();
             }
         }
+        
+        while ((availableSequence = dependentSequence.get()) < sequence)
+        {
+            barrier.checkAlert();
+        }
 
         return availableSequence;
     }
 
     @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
+    public long waitFor(final long sequence,
+                        final Sequence dependentSequence,
+                        final SequenceBarrier barrier,
+                        final long timeout,
                         final TimeUnit sourceUnit)
         throws AlertException, InterruptedException
     {

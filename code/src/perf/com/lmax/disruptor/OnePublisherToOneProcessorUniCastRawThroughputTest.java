@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This performance test illustrates direct use of the {@link SingleProducerSequencer} without requiring a {@link PreallocatedRingBuffer}.
@@ -39,7 +40,9 @@ public class OnePublisherToOneProcessorUniCastRawThroughputTest extends Abstract
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final long[] values = new long[BUFFER_SIZE];
-    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
+    private final WaitStrategy strategy = PhasedBackoffWaitStrategy.withSleep(1, 1, TimeUnit.MILLISECONDS);
+//    private final WaitStrategy strategy = new YieldingWaitStrategy();
+    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, strategy);
     private final SequenceBarrier barrier = sequencer.newBarrier();
     private final RawProcessor rawProcessor = new RawProcessor(values, barrier);
     {

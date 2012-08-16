@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public final class BusySpinWaitStrategy implements WaitStrategy
 {
     @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;

@@ -60,7 +60,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
     
     @Override
-    public long waitFor(long sequence, Sequence dependentSequence, SequenceBarrier barrier) 
+    public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier) 
         throws AlertException, InterruptedException
     {
         return waitFor(sequence, dependentSequence, barrier, Long.MAX_VALUE, TimeUnit.SECONDS);
