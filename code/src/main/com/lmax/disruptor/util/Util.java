@@ -16,6 +16,8 @@
 package com.lmax.disruptor.util;
 
 import java.lang.reflect.Field;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
 import sun.misc.Unsafe;
 
@@ -98,6 +100,25 @@ public final class Util
     public static Unsafe getUnsafe()
     {
         return THE_UNSAFE;
+    }
+    
+    /**
+     * Gets the address value for the memory that backs a direct byte buffer.
+     * @param buffer
+     * @return The system address for the buffers
+     */
+    public static long getAddressFromDirectByteBuffer(ByteBuffer buffer)
+    {
+        try
+        {            
+            Field addressField = Buffer.class.getDeclaredField("address");
+            addressField.setAccessible(true);
+            return addressField.getLong(buffer);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Unable to address field from ByteBuffer", e);
+        }
     }
     
     

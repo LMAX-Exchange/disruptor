@@ -15,7 +15,12 @@
  */
 package com.lmax.disruptor.util;
 
-import com.lmax.disruptor.Sequence;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.nio.ByteBuffer;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -23,6 +28,8 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.lmax.disruptor.Sequence;
 
 @RunWith(JMock.class)
 public final class UtilTest
@@ -79,5 +86,12 @@ public final class UtilTest
         final Sequence[] sequences = new Sequence[0];
 
         Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
+    }
+    
+    @Test
+    public void shouldGetByteBufferAddress() throws Exception
+    {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(16);
+        assertThat(Util.getAddressFromDirectByteBuffer(buffer), is(not(0L)));
     }
 }
