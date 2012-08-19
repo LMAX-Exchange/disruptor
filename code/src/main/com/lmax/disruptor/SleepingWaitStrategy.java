@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -38,30 +37,6 @@ public final class SleepingWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             counter = applyWaitMethod(barrier, counter);
-        }
-
-        return availableSequence;
-    }
-
-    @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
-                        final TimeUnit sourceUnit)
-        throws AlertException, InterruptedException
-    {
-        final long timeoutMs = sourceUnit.toMillis(timeout);
-        final long startTime = System.currentTimeMillis();
-        long availableSequence;
-        int counter = RETRIES;
-
-        while ((availableSequence = dependentSequence.get()) < sequence)
-        {
-            counter = applyWaitMethod(barrier, counter);
-
-            final long elapsedTime = System.currentTimeMillis() - startTime;
-            if (elapsedTime > timeoutMs)
-            {
-                break;
-            }
         }
 
         return availableSequence;

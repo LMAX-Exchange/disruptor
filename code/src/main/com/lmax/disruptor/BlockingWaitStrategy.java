@@ -15,7 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -45,7 +46,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await();
+                    processorNotifyCondition.await(1, MILLISECONDS);
                 }
             }
             finally
@@ -58,41 +59,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
-        }
-
-        return availableSequence;
-    }
-
-    @Override
-    public long waitFor(final long sequence,
-                        final Sequence dependentSequence,
-                        final SequenceBarrier barrier,
-                        final long timeout,
-                        final TimeUnit sourceUnit)
-        throws AlertException, InterruptedException
-    {
-        long availableSequence;
-        if ((availableSequence = dependentSequence.get()) < sequence)
-        {
-            lock.lock();
-            try
-            {
-                ++numWaiters;
-                while ((availableSequence = dependentSequence.get()) < sequence)
-                {
-                    barrier.checkAlert();
-
-                    if (!processorNotifyCondition.await(timeout, sourceUnit))
-                    {
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                --numWaiters;
-                lock.unlock();
-            }
         }
 
         return availableSequence;

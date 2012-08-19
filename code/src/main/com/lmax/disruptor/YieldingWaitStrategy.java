@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Yielding strategy that uses a Thread.yield() for {@link com.lmax.disruptor.EventProcessor}s waiting on a barrier
@@ -39,30 +38,6 @@ public final class YieldingWaitStrategy implements WaitStrategy
             counter = applyWaitMethod(barrier, counter);
         }
         
-        return availableSequence;
-    }
-
-    @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
-                        final TimeUnit sourceUnit)
-        throws AlertException, InterruptedException
-    {
-        final long timeoutMs = sourceUnit.toMillis(timeout);
-        final long startTime = System.currentTimeMillis();
-        long availableSequence;
-        int counter = SPIN_TRIES;
-
-        while ((availableSequence = dependentSequence.get()) < sequence)
-        {
-            counter = applyWaitMethod(barrier, counter);
-
-            final long elapsedTime = System.currentTimeMillis() - startTime;
-            if (elapsedTime > timeoutMs)
-            {
-                break;
-            }
-        }
-
         return availableSequence;
     }
 

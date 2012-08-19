@@ -179,14 +179,11 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     
     public void put(byte[] data, int offset, int length)
     {
-        if (offset + length > data.length)
-        {
-            throw new IllegalArgumentException("Index out of bounds: data.length = " + data.length + ", offset = " + offset + ", lenth = " + length);
-        }
+        checkArray(data, offset, length);
         
+        int end = offset + length;
         int current = offset;
         int remaining = length;
-        int end = offset + length;
         long lastSequence = -1;
         do 
         {
@@ -211,11 +208,13 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         return unsafe.getInt(dataAddress + SIZE_OFFSET);
     }
 
-
-    public void getData(int i, byte[] read, int j, int length)
+    public void getData(long sequence, byte[] data, int offset, int length)
     {
-        // TODO Auto-generated method stub
-        
+        checkArray(data, offset, length);
+        long chunkAddress = calculateAddress(sequence);
+        int bodySize = unsafe.getInt(chunkAddress + SIZE_OFFSET);
+        int toCopy = Math.min(bodySize, length);
+        unsafe.copyMemory(null, chunkAddress + BODY_OFFSET, data, BYTE_ARRAY_OFFSET, toCopy);
     }
 
     private void publish(final long sequence, final int batchSize)
@@ -354,5 +353,13 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private int calculateIndex(final long sequence)
     {
         return ((int) sequence) & indexMask;
+    }
+
+    private void checkArray(byte[] data, int offset, int length)
+    {
+        if (offset + length > data.length)
+        {
+            throw new IllegalArgumentException("Index out of bounds: data.length = " + data.length + ", offset = " + offset + ", lenth = " + length);
+        }
     }
 }

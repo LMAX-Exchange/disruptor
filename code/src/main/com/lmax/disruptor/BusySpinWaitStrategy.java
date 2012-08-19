@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Busy Spin strategy that uses a busy spin loop for {@link com.lmax.disruptor.EventProcessor}s waiting on a barrier.
@@ -34,29 +33,6 @@ public final class BusySpinWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
-        }
-
-        return availableSequence;
-    }
-
-    @Override
-    public long waitFor(final long sequence, final Sequence dependentSequence, final SequenceBarrier barrier, final long timeout,
-                        final TimeUnit sourceUnit)
-        throws AlertException, InterruptedException
-    {
-        final long timeoutMs = sourceUnit.toMillis(timeout);
-        final long startTime = System.currentTimeMillis();
-        long availableSequence;
-
-        while ((availableSequence = dependentSequence.get()) < sequence)
-        {
-            barrier.checkAlert();
-
-            final long elapsedTime = System.currentTimeMillis() - startTime;
-            if (elapsedTime > timeoutMs)
-            {
-                break;
-            }
         }
 
         return availableSequence;

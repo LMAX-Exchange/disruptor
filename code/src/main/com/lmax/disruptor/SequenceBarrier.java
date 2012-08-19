@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Coordination barrier for tracking the cursor for publishers and sequence of
@@ -32,18 +31,6 @@ public interface SequenceBarrier
      * @throws InterruptedException if the thread needs awaking on a condition variable.
      */
     long waitFor(long sequence) throws AlertException, InterruptedException;
-
-    /**
-     * Wait for the given sequence to be available for consumption with a time out.
-     *
-     * @param sequence to wait for
-     * @param timeout value
-     * @param units for the timeout value
-     * @return the sequence up to which is available
-     * @throws AlertException if a status change has occurred for the Disruptor
-     * @throws InterruptedException if the thread needs awaking on a condition variable.
-     */
-    long waitFor(long sequence, long timeout, TimeUnit units) throws AlertException, InterruptedException;
 
     /**
      * Delegate a call to the {@link SingleProducerSequencer#getCursor()}

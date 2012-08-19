@@ -66,7 +66,6 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         return waitFor(sequence, dependentSequence, barrier, Long.MAX_VALUE, TimeUnit.SECONDS);
     }
 
-    @Override
     public long waitFor(final long sequence,
                         final Sequence dependentSequence,
                         final SequenceBarrier barrier,
@@ -96,7 +95,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
-                        return lockingStrategy.waitOnLock(sequence, dependentSequence, barrier, timeout, sourceUnit);
+                        return lockingStrategy.waitOnLock(sequence, dependentSequence, barrier);
                     }
                     else if (timeDelta > spinTimeoutNanos)
                     {
@@ -119,9 +118,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     {
         long waitOnLock(long sequence,
                         Sequence dependentSequence,
-                        SequenceBarrier barrier,
-                        long timeout,
-                        TimeUnit sourceUnit)
+                        SequenceBarrier barrier)
                 throws AlertException, InterruptedException;
         
         void signalAllWhenBlocking();
@@ -134,8 +131,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         private volatile int numWaiters = 0;
 
         @Override
-        public long waitOnLock(long sequence, Sequence dependentSequence, SequenceBarrier barrier, long timeout,
-                               TimeUnit sourceUnit) throws AlertException, InterruptedException
+        public long waitOnLock(long sequence, Sequence dependentSequence, SequenceBarrier barrier) throws AlertException, InterruptedException
         {
             long availableSequence;
             lock.lock();
@@ -145,7 +141,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 while ((availableSequence = dependentSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    boolean timedOut = !processorNotifyCondition.await(timeout, sourceUnit);
+                    boolean timedOut = !processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
                     
                     if (timedOut)
                     {
@@ -184,24 +180,14 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     {
         public long waitOnLock(final long sequence,
                                 final Sequence dependentSequence,
-                                final SequenceBarrier barrier,
-                                final long timeout,
-                                final TimeUnit sourceUnit)
+                                final SequenceBarrier barrier)
                 throws AlertException, InterruptedException
         {
-            final long timeoutMs = sourceUnit.toMillis(timeout);
-            final long startTime = System.currentTimeMillis();
             long availableSequence;
 
             while ((availableSequence = dependentSequence.get()) < sequence)
             {
                 LockSupport.parkNanos(1);
-
-                final long elapsedTime = System.currentTimeMillis() - startTime;
-                if (elapsedTime > timeoutMs)
-                {
-                    break;
-                }
             }
 
             return availableSequence;

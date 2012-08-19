@@ -62,34 +62,6 @@ public class PreallocatedRingBufferTest
     }
 
     @Test
-    public void shouldClaimAndGetWithTimeout() throws Exception
-    {
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
-
-        StubEvent expectedEvent = new StubEvent(2701);
-
-        long claimSequence = sequencer.next();
-        StubEvent oldEvent = ringBuffer.getPreallocated(claimSequence);
-        oldEvent.copy(expectedEvent);
-        sequencer.publish(claimSequence);
-
-        long sequence = sequenceBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
-        assertEquals(0, sequence);
-
-        StubEvent event = ringBuffer.get(sequence);
-        assertEquals(expectedEvent, event);
-
-        assertEquals(0L, ringBuffer.getCursor());
-    }
-
-    @Test
-    public void shouldGetWithTimeout() throws Exception
-    {
-        long sequence = sequenceBarrier.waitFor(0, 5, TimeUnit.MILLISECONDS);
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequence);
-    }
-
-    @Test
     public void shouldClaimAndGetInSeparateThread() throws Exception
     {
         Future<List<StubEvent>> messages = getMessages(0, 0);
