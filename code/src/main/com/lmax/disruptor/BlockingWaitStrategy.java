@@ -21,6 +21,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
@@ -47,7 +48,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
                 while ((availableSequence = cursor.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await();
+                    processorNotifyCondition.await(1, MILLISECONDS);
                 }
             }
             finally
