@@ -63,16 +63,6 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier) 
         throws AlertException, InterruptedException
     {
-        return waitFor(sequence, dependentSequence, barrier, Long.MAX_VALUE, TimeUnit.SECONDS);
-    }
-
-    public long waitFor(final long sequence,
-                        final Sequence dependentSequence,
-                        final SequenceBarrier barrier,
-                        final long timeout,
-                        final TimeUnit sourceUnit)
-        throws AlertException, InterruptedException
-    {
         long availableSequence;
         long startTime = 0;
         int counter = SPIN_TRIES;
@@ -95,7 +85,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
-                        return lockingStrategy.waitOnLock(sequence, dependentSequence, barrier);
+                        return lockingStrategy.waitOnLock(sequence, cursor, dependentSequence, barrier);
                     }
                     else if (timeDelta > spinTimeoutNanos)
                     {
@@ -117,8 +107,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private interface BlockingStrategy
     {
         long waitOnLock(long sequence,
-                        Sequence dependentSequence,
-                        SequenceBarrier barrier)
+                        Sequence cursorSequence,
+                        Sequence dependentSequence, SequenceBarrier barrier)
                 throws AlertException, InterruptedException;
         
         void signalAllWhenBlocking();
@@ -131,31 +121,34 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         private volatile int numWaiters = 0;
 
         @Override
-        public long waitOnLock(long sequence, Sequence dependentSequence, SequenceBarrier barrier) throws AlertException, InterruptedException
+        public long waitOnLock(long sequence,
+                               Sequence cursorSequence, 
+                               Sequence dependentSequence,
+                               SequenceBarrier barrier) throws AlertException, InterruptedException
         {
             long availableSequence;
             lock.lock();
             try
             {
                 ++numWaiters;
-                while ((availableSequence = dependentSequence.get()) < sequence)
+                while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    boolean timedOut = !processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
-                    
-                    if (timedOut)
-                    {
-                        return availableSequence;
-                    }
-                }
-                
-                return availableSequence;
+                    processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
+                }                
             }
             finally
             {
                 --numWaiters;
                 lock.unlock();
             }
+            
+            while ((availableSequence = dependentSequence.get()) < sequence)
+            {
+                barrier.checkAlert();
+            }
+            
+            return availableSequence;
         }
 
         @Override
@@ -179,8 +172,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private static class SleepBlockingStrategy implements BlockingStrategy
     {
         public long waitOnLock(final long sequence,
-                                final Sequence dependentSequence,
-                                final SequenceBarrier barrier)
+                                Sequence cursorSequence,
+                                final Sequence dependentSequence, final SequenceBarrier barrier)
                 throws AlertException, InterruptedException
         {
             long availableSequence;

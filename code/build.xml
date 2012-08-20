@@ -33,6 +33,9 @@
     </target>
 
     <target name="main:prepare">
+    	
+    	<echo message="${java.version}"/>
+    	
         <mkdir dir="${dir.main.build}"/>
         <mkdir dir="${dir.dist}"/>
         <mkdir dir="${dir.docs}"/>
