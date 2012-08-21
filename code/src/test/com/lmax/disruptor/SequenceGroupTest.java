@@ -23,10 +23,10 @@ import static junit.framework.Assert.assertTrue;
 public final class SequenceGroupTest
 {
     @Test
-    public void shouldReturnMaxSequenceWhenEmptyGroup()
+    public void shouldReturnInitialCursorValueWhenEmptyGroup()
     {
         final SequenceGroup sequenceGroup = new SequenceGroup();
-        assertEquals(Long.MAX_VALUE, sequenceGroup.get());
+        assertEquals(RingBuffer.INITIAL_CURSOR_VALUE, sequenceGroup.get());
     }
 
     @Test
