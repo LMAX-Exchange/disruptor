@@ -47,7 +47,8 @@ public final class SequenceGroup extends Sequence
     @Override
     public long get()
     {
-        return sequencesRef.get().length != 0 ? Util.getMinimumSequence(sequencesRef.get()) : RingBuffer.INITIAL_CURSOR_VALUE;
+        Sequence[] sequences = sequencesRef.get();
+        return sequences.length != 0 ? Util.getMinimumSequence(sequences) : RingBuffer.INITIAL_CURSOR_VALUE;
     }
 
     /**
