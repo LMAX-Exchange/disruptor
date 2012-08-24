@@ -15,13 +15,12 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.util.Util.getMinimumSequence;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
@@ -32,7 +31,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
 {
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
-    private volatile int numWaiters = 0;
+    private final Sequence numWaiters = new Sequence(0);
 
     @Override
     public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
@@ -44,16 +43,16 @@ public final class BlockingWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                ++numWaiters;
+                numWaiters.set(numWaiters.get() + 1);
                 while ((availableSequence = cursor.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await(1, MILLISECONDS);
+                    processorNotifyCondition.await();
                 }
             }
             finally
             {
-                --numWaiters;
+                numWaiters.set(numWaiters.get() - 1);
                 lock.unlock();
             }
         }
@@ -80,7 +79,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                ++numWaiters;
+                numWaiters.set(numWaiters.get() + 1);
                 while ((availableSequence = cursor.get()) < sequence)
                 {
                     barrier.checkAlert();
@@ -93,7 +92,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
             finally
             {
-                --numWaiters;
+                numWaiters.set(numWaiters.get() - 1);
                 lock.unlock();
             }
         }
@@ -112,7 +111,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        if (0 != numWaiters)
+        if (!numWaiters.compareAndSet(0, 0))
         {
             lock.lock();
             try
