@@ -16,11 +16,21 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventTranslatorTwoArg;
 
 public final class StubEvent
 {
     private int value;
     private String testString;
+    public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR = new EventTranslatorTwoArg<StubEvent, Integer, String>()
+    {
+        @Override
+        public void translateTo(StubEvent event, long sequence, Integer arg0, String arg1)
+        {
+            event.setValue(arg0);
+            event.setTestString(arg1);
+        }
+    }; 
 
     public StubEvent(int i)
     {

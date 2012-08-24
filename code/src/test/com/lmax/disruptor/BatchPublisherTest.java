@@ -19,6 +19,7 @@ import com.lmax.disruptor.support.StubEvent;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 
 public final class BatchPublisherTest
@@ -40,7 +41,7 @@ public final class BatchPublisherTest
 
         assertThat(Long.valueOf(batchDescriptor.getStart()), is(Long.valueOf(0L)));
         assertThat(Long.valueOf(batchDescriptor.getEnd()), is(Long.valueOf(4L)));
-        assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(SingleProducerSequencer.INITIAL_CURSOR_VALUE)));
+        assertFalse(ringBuffer.getSequencer().isAvailable(0));
 
         sequencer.publish(batchDescriptor);
 

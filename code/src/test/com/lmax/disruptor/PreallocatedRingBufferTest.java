@@ -27,8 +27,7 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class PreallocatedRingBufferTest
 {
@@ -138,6 +137,21 @@ public class PreallocatedRingBufferTest
         assertEquals(expectedEvent, event);
 
         assertEquals(expectedSequence, ringBuffer.getCursor());
+    }
+    
+    @Test
+    public void shouldPreventWrapping() throws Exception
+    {
+        Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+        final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 4);
+        ringBuffer.setGatingSequences(sequence);
+        
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, 0, "0");
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, 1, "1");
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, 2, "2");
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, 3, "3");
+            
+        assertFalse(ringBuffer.tryPublishEvent(StubEvent.TRANSLATOR, 1, 3, "3"));        
     }
 
     @Test

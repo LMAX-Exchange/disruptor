@@ -178,12 +178,12 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A, B> boolean tryPublishEvent(EventTranslator<E> translator, int capacity, final A arg0, final B arg1)
+    public <A, B> boolean tryPublishEvent(EventTranslatorTwoArg<E, A, B> translator, int capacity, final A arg0, final B arg1)
     {
         try
         {
             final long sequence = sequencer.tryNext(capacity);
-            translateAndPublish(translator, sequence);
+            translateAndPublish(translator, sequence, arg0, arg1);
             return true;
         }
         catch (InsufficientCapacityException e)

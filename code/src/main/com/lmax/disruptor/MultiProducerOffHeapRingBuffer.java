@@ -37,8 +37,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private static final int PREV_OFFSET = SIZE_OFFSET + 4;
     private static final int BODY_OFFSET = PREV_OFFSET + 8;
     private final WaitStrategy waitStrategy;
-    private final Sequence cursor = new Sequence(MultiProducerOffHeapRingBuffer.INITIAL_CURSOR_VALUE);
-    private final Sequence claimSequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
     private Sequence[] gatingSequences;
     private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
     {
@@ -108,7 +107,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
-        return hasAvailableCapacity(claimSequence.get(), requiredCapacity, gatingSequences);
+        return hasAvailableCapacity(cursor.get(), requiredCapacity, gatingSequences);
     }
 
     @Override
@@ -159,7 +158,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        claimSequence.set(sequence);
+        cursor.set(sequence);
         waitForFreeSlotAt(sequence, gatingSequences, minGatingSequenceThreadLocal.get());
 
         return sequence;
@@ -226,15 +225,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         }
         while (sequence != batchSequence);
         
-        long cursorSequnece;
-        while ((cursorSequnece = cursor.get()) < sequence)
-        {
-            if (cursor.compareAndSet(cursorSequnece, sequence))
-            {
-                break;
-            }
-        }
-        
         waitStrategy.signalAllWhenBlocking();
     }
 
@@ -272,6 +262,14 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     }
     
     @Override
+    public boolean isAvailable(long sequence)
+    {
+        int offset = calculateOffset(sequence);
+        long sequenceAddress = address + offset;
+        return unsafe.getLongVolatile(null, sequenceAddress) == sequence;
+    }
+    
+    @Override
     public String toString()
     {
         return "MultiProducerOffHeapRingBuffer [address=" + address + ", bufferSize=" + bufferSize + ", chunkSize=" + chunkSize + ", buffer=" +
@@ -281,22 +279,23 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private long checkAndIncrement(int requiredCapacity, int delta, Sequence[] dependentSequences) 
             throws InsufficientCapacityException
     {
-        for (;;)
+        
+        long current;
+        long next;
+        
+        do
         {
-            long sequence = claimSequence.get();
-            if (hasAvailableCapacity(sequence, requiredCapacity, gatingSequences))
-            {
-                long nextSequence = sequence + delta;
-                if (claimSequence.compareAndSet(sequence, nextSequence))
-                {
-                    return nextSequence;
-                }
-            }
-            else
+            current = cursor.get();
+            next = cursor.get() + delta;
+            
+            if (!hasAvailableCapacity(current, delta, gatingSequences))
             {
                 throw InsufficientCapacityException.INSTANCE;
             }
         }
+        while (!cursor.compareAndSet(current, next));
+
+        return next;    
     }
     
     private boolean hasAvailableCapacity(long sequence, final int requiredCapacity, final Sequence[] dependentSequences)
@@ -319,10 +318,27 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
 
     private long incrementAndGet(final int delta, final Sequence[] dependentSequences)
     {
-        final long nextSequence = claimSequence.addAndGet(delta);
-        waitForFreeSlotAt(nextSequence, dependentSequences, minGatingSequenceThreadLocal.get());
+        long current;
+        long next;
+        
+        do
+        {
+            current = cursor.get();
+            next = cursor.get() + delta;
+            
+            if (!hasAvailableCapacity(current, delta, gatingSequences))
+            {
+                LockSupport.parkNanos(1);
+                continue;
+            }
+            else if (cursor.compareAndSet(current, next))
+            {
+                break;
+            }
+        }
+        while (true);
     
-        return nextSequence;
+        return next;
     }
     
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)

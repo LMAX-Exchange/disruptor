@@ -127,4 +127,12 @@ public interface Sequencer
      */
     void ensureAvailable(long sequence);
 
+    /**
+     * Determine if the entry referenced by sequence is available
+     * 
+     * @param sequence
+     * @return true if the entry is available 
+     */
+    boolean isAvailable(long sequence);
+
 }

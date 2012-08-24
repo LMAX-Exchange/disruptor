@@ -179,6 +179,12 @@ public class SingleProducerSequencer implements Sequencer
     {
     }
     
+    @Override
+    public boolean isAvailable(long sequence)
+    {
+        return sequence <= cursor.get();
+    }
+    
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
     {
         final long wrapPoint = sequence - bufferSize;
@@ -225,8 +231,8 @@ public class SingleProducerSequencer implements Sequencer
     private long incrementAndGet(final int delta, final Sequence[] dependentSequences)
     {
         long nextSequence = claimSequence.get() + delta;
-        claimSequence.set(nextSequence);
         waitForFreeSlotAt(nextSequence, dependentSequences);
+        claimSequence.set(nextSequence);
 
         return nextSequence;
     }
