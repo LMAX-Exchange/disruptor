@@ -18,6 +18,8 @@ package com.lmax.disruptor.util;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 
 import sun.misc.Unsafe;
 
@@ -82,9 +84,17 @@ public final class Util
     {
         try
         {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            THE_UNSAFE = (Unsafe)theUnsafe.get(null);
+            final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>()
+            {
+                public Unsafe run() throws Exception
+                {
+                    Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+                    theUnsafe.setAccessible(true);
+                    return (Unsafe) theUnsafe.get(null);                    
+                }
+            };
+            
+            THE_UNSAFE = AccessController.doPrivileged(action);
         }
         catch (Exception e)
         {
