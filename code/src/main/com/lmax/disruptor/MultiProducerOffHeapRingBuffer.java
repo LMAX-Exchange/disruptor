@@ -204,8 +204,8 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
             
             long next = next();
             long chunkAddress = calculateAddress(next);
-            UNSAFE.putInt(chunkAddress + SIZE_OFFSET, toCopy);
-            UNSAFE.putLong(chunkAddress + PREV_OFFSET, lastSequence);
+            setBodySize(chunkAddress, dataLength);
+            setPreviousSequence(chunkAddress, lastSequence);
             UNSAFE.copyMemory(data, BYTE_ARRAY_OFFSET + current, null, chunkAddress + BODY_OFFSET, toCopy);
             publish(next);
             
@@ -218,16 +218,20 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     public int getEntrySize(long sequence)
     {
         long dataAddress = calculateAddress(sequence);
-        return UNSAFE.getInt(dataAddress + SIZE_OFFSET);
+        return getBodySize(dataAddress);
     }
 
-    public void getData(long sequence, byte[] data, int offset, int length)
+    public void getBody(long sequence, byte[] data, int offset, int length)
     {
         checkArray(data, offset, length);
         long chunkAddress = calculateAddress(sequence);
-        int bodySize = UNSAFE.getInt(chunkAddress + SIZE_OFFSET);
+        int bodySize = getBodySize(chunkAddress);
         int toCopy = Math.min(bodySize, length);
-        UNSAFE.copyMemory(null, chunkAddress + BODY_OFFSET, data, BYTE_ARRAY_OFFSET, toCopy);
+        UNSAFE.copyMemory(null, chunkAddress + BODY_OFFSET, data, BYTE_ARRAY_OFFSET + offset, toCopy);
+    }
+
+    public void getHeader(long sequence, byte[] header, int offset, int length)
+    {
     }
 
     private void publish(final long sequence, final int batchSize)
@@ -289,6 +293,17 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         return "MultiProducerOffHeapRingBuffer [address=" + address + ", bufferSize=" + bufferSize + ", chunkSize=" + chunkSize + ", buffer=" +
                buffer + "]";
     }
+    
+    public final int getBodySize()
+    {
+        return bodySize;
+    }
+
+    public long getPreviousSequence(long sequence)
+    {
+        long chunkAddress = calculateAddress(sequence);
+        return getPreviousSequence0(chunkAddress);
+    }
    
     private boolean hasAvailableCapacity(long sequence, final int requiredCapacity, final Sequence[] dependentSequences)
     {
@@ -336,6 +351,26 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private int calculateIndex(final long sequence)
     {
         return ((int) sequence) & indexMask;
+    }
+
+    private void setBodySize(long chunkAddress, int dataLength)
+    {
+        UNSAFE.putInt(chunkAddress + SIZE_OFFSET, dataLength);
+    }
+    
+    private int getBodySize(long chunkAddress)
+    {
+        return UNSAFE.getInt(chunkAddress + SIZE_OFFSET);
+    }
+
+    private void setPreviousSequence(long chunkAddress, long lastSequence)
+    {
+        UNSAFE.putLong(chunkAddress + PREV_OFFSET, lastSequence);
+    }
+
+    private long getPreviousSequence0(long chunkAddress)
+    {
+        return UNSAFE.getLong(chunkAddress + PREV_OFFSET);
     }
 
     private void checkArray(byte[] data, int offset, int length)
