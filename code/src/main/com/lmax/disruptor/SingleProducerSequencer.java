@@ -64,12 +64,6 @@ public class SingleProducerSequencer implements Sequencer
     }
 
     @Override
-    public BatchDescriptor newBatchDescriptor(final int size)
-    {
-        return new BatchDescriptor(Math.min(size, bufferSize));
-    }
-
-    @Override
     public int getBufferSize()
     {
         return bufferSize;
@@ -115,19 +109,6 @@ public class SingleProducerSequencer implements Sequencer
     }
 
     @Override
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor)
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
-        final long sequence = incrementAndGet(batchDescriptor.getSize(), gatingSequences);
-        batchDescriptor.setEnd(sequence);
-        return batchDescriptor;
-    }
-
-    @Override
     public long claim(final long sequence)
     {
         if (null == gatingSequences)
@@ -144,23 +125,12 @@ public class SingleProducerSequencer implements Sequencer
     @Override
     public void publish(final long sequence)
     {
-        publish(sequence, 1);
-    }
-
-    @Override
-    public void publish(final BatchDescriptor batchDescriptor)
-    {
-        publish(batchDescriptor.getEnd(), batchDescriptor.getSize());
-    }
-
-    @Override
-    public void forcePublish(final long sequence)
-    {
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
 
-    private void publish(final long sequence, final int batchSize)
+    @Override
+    public void forcePublish(final long sequence)
     {
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();

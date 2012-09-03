@@ -24,15 +24,6 @@ public interface Sequencer
     SequenceBarrier newBarrier(final Sequence... sequencesToTrack);
 
     /**
-     * Create a new {@link BatchDescriptor} that is the minimum of the requested size
-     * and the buffer size.
-     *
-     * @param size for the batch
-     * @return the new {@link BatchDescriptor}
-     */
-    BatchDescriptor newBatchDescriptor(final int size);
-
-    /**
      * The capacity of the data structure to hold entries.
      *
      * @return the size of the RingBuffer.
@@ -74,14 +65,6 @@ public interface Sequencer
     long tryNext(int requiredCapacity) throws InsufficientCapacityException;
 
     /**
-     * Claim the next batch of sequence numbers for publishing.
-     *
-     * @param batchDescriptor to be updated for the batch range.
-     * @return the updated batchDescriptor.
-     */
-    BatchDescriptor next(final BatchDescriptor batchDescriptor);
-
-    /**
      * Claim a specific sequence when only one publisher is involved.
      *
      * @param sequence to be claimed.
@@ -95,13 +78,6 @@ public interface Sequencer
      * @param sequence to be published
      */
     void publish(final long sequence);
-
-    /**
-     * Publish the batch of events in sequence.
-     *
-     * @param batchDescriptor to be published.
-     */
-    void publish(final BatchDescriptor batchDescriptor);
 
     /**
      * Force the publication of a cursor sequence.

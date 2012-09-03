@@ -49,6 +49,11 @@ public class Sequence
         return unsafe.getLongVolatile(paddedValue, valueOffset);
     }
 
+    public long getNonVolatile()
+    {
+        return paddedValue[7];
+    }
+
     public void set(final long value)
     {
         unsafe.putOrderedLong(paddedValue, valueOffset, value);

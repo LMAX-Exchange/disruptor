@@ -31,20 +31,20 @@ import com.lmax.disruptor.util.Util;
  */
 public class MultiProducerOffHeapRingBuffer implements Sequencer
 {
-    private static final Unsafe unsafe = Util.getUnsafe();
-    private static final long BYTE_ARRAY_OFFSET = unsafe.arrayBaseOffset(byte[].class);
+    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final long BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
     private static final int SIZE_OFFSET = 8;
     private static final int PREV_OFFSET = SIZE_OFFSET + 4;
     private static final int BODY_OFFSET = PREV_OFFSET + 8;
     private final WaitStrategy waitStrategy;
-    private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private Sequence[] gatingSequences;
     private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
     {
         @Override
         protected MutableLong initialValue()
         {
-            return new MutableLong(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+            return new MutableLong(Sequencer.INITIAL_CURSOR_VALUE);
         }
     };
 
@@ -84,12 +84,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
     {
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
-    }
-
-    @Override
-    public BatchDescriptor newBatchDescriptor(final int size)
-    {
-        return new BatchDescriptor(Math.min(size, bufferSize));
     }
 
     @Override
@@ -138,19 +132,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     }
 
     @Override
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor)
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
-        final long sequence = incrementAndGet(batchDescriptor.getSize(), gatingSequences);
-        batchDescriptor.setEnd(sequence);
-        return batchDescriptor;
-    }
-
-    @Override
     public long claim(final long sequence)
     {
         if (null == gatingSequences)
@@ -170,12 +151,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         publish(sequence, 1);
     }
 
-    @Override
-    public void publish(final BatchDescriptor batchDescriptor)
-    {
-        publish(batchDescriptor.getEnd(), batchDescriptor.getSize());
-    }
-    
     public void put(byte[] data, int offset, int length)
     {
         checkArray(data, offset, length);
@@ -190,9 +165,9 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
             
             long next = next();
             long chunkAddress = calculateAddress(next);
-            unsafe.putInt(chunkAddress + SIZE_OFFSET, toCopy);
-            unsafe.putLong(chunkAddress + PREV_OFFSET, lastSequence);
-            unsafe.copyMemory(data, BYTE_ARRAY_OFFSET + current, null, chunkAddress + BODY_OFFSET, toCopy);
+            UNSAFE.putInt(chunkAddress + SIZE_OFFSET, toCopy);
+            UNSAFE.putLong(chunkAddress + PREV_OFFSET, lastSequence);
+            UNSAFE.copyMemory(data, BYTE_ARRAY_OFFSET + current, null, chunkAddress + BODY_OFFSET, toCopy);
             publish(next);
             
             lastSequence = next;
@@ -204,16 +179,16 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     public int getEntrySize(long sequence)
     {
         long dataAddress = calculateAddress(sequence);
-        return unsafe.getInt(dataAddress + SIZE_OFFSET);
+        return UNSAFE.getInt(dataAddress + SIZE_OFFSET);
     }
 
     public void getData(long sequence, byte[] data, int offset, int length)
     {
         checkArray(data, offset, length);
         long chunkAddress = calculateAddress(sequence);
-        int bodySize = unsafe.getInt(chunkAddress + SIZE_OFFSET);
+        int bodySize = UNSAFE.getInt(chunkAddress + SIZE_OFFSET);
         int toCopy = Math.min(bodySize, length);
-        unsafe.copyMemory(null, chunkAddress + BODY_OFFSET, data, BYTE_ARRAY_OFFSET, toCopy);
+        UNSAFE.copyMemory(null, chunkAddress + BODY_OFFSET, data, BYTE_ARRAY_OFFSET, toCopy);
     }
 
     private void publish(final long sequence, final int batchSize)
@@ -239,7 +214,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private void setAvailable(final long sequence)
     {
         int offset = calculateOffset(sequence);
-        unsafe.putOrderedLong(null, address + offset, sequence);
+        UNSAFE.putOrderedLong(null, address + offset, sequence);
     }
 
     @Override
@@ -255,7 +230,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     {
         int offset = calculateOffset(sequence);
         long sequenceAddress = address + offset;
-        while (unsafe.getLongVolatile(null, sequenceAddress) != sequence)
+        while (UNSAFE.getLongVolatile(null, sequenceAddress) != sequence)
         {
             // spin.
         }
@@ -266,7 +241,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     {
         int offset = calculateOffset(sequence);
         long sequenceAddress = address + offset;
-        return unsafe.getLongVolatile(null, sequenceAddress) == sequence;
+        return UNSAFE.getLongVolatile(null, sequenceAddress) == sequence;
     }
     
     @Override

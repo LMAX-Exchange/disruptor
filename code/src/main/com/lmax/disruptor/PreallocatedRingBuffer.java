@@ -106,16 +106,6 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
     }
     
-    public void publishEvents(BatchDescriptor batchDescriptor, EventTranslator<E> translator)
-    {
-        sequencer.next(batchDescriptor);
-        for (long c = batchDescriptor.getStart(), end = batchDescriptor.getEnd(); c <= end; c++)
-        {
-            translator.translateTo(getPreallocated(c), c);
-        }
-        sequencer.publish(batchDescriptor);
-    }
-    
     /**
      * Allows one user supplied argument.
      * 

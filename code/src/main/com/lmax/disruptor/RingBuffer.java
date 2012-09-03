@@ -43,11 +43,6 @@ public abstract class RingBuffer<E>
     {
         return sequencer;
     }
-    
-    public BatchDescriptor newBatchDescriptor(int batchSize)
-    {
-        return sequencer.newBatchDescriptor(batchSize);
-    }
 
     public int getBufferSize()
     {

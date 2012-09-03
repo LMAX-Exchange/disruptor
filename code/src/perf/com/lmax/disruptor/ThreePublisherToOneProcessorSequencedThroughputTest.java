@@ -90,8 +90,8 @@ import java.util.concurrent.*;
 public final class ThreePublisherToOneProcessorSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PUBLISHERS = 3;
-    private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 100L;
+    private static final int BUFFER_SIZE = 1024 * 64;
+    private static final long ITERATIONS = 1000L * 1000L * 20L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
@@ -112,7 +112,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
 
     private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
         new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY, 
-                new MultiProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
+                new MultiProducerSequencer(BUFFER_SIZE, new BusySpinWaitStrategy()));
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();

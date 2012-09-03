@@ -17,10 +17,10 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
-import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.locks.LockSupport;
 
-import com.lmax.disruptor.util.MutableLong;
+import sun.misc.Unsafe;
+
 import com.lmax.disruptor.util.Util;
 
 
@@ -29,22 +29,19 @@ import com.lmax.disruptor.util.Util;
  */
 public class MultiProducerSequencer implements Sequencer
 {
+    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final long base = UNSAFE.arrayBaseOffset(int[].class);
+    private static final long scale = UNSAFE.arrayIndexScale(int[].class);
+    
     private final WaitStrategy waitStrategy;
     private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
-    private Sequence[] gatingSequences;
-    private final ThreadLocal<MutableLong> minGatingSequenceThreadLocal = new ThreadLocal<MutableLong>()
-    {
-        @Override
-        protected MutableLong initialValue()
-        {
-            return new MutableLong(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
-        }
-    };
-
-    private final AtomicIntegerArray availableBuffer;
+    private final Sequence wrapPointCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private final int[] availableBuffer;
     private final int bufferSize;
     private final int indexMask;
     private final int indexShift;
+    
+    private Sequence[] gatingSequences;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -56,7 +53,7 @@ public class MultiProducerSequencer implements Sequencer
     {
         this.bufferSize = bufferSize;
         this.waitStrategy = waitStrategy;
-        availableBuffer = new AtomicIntegerArray(bufferSize);
+        availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
         
@@ -65,12 +62,12 @@ public class MultiProducerSequencer implements Sequencer
 
     private void initialiseAvailableBuffer()
     {
-        for (int i = availableBuffer.length() - 1; i != 0; i--)
+        for (int i = availableBuffer.length - 1; i != 0; i--)
         {
-            availableBuffer.lazySet(i, -1);
+            setAvailableBufferValue(i, 0);
         }
         
-        availableBuffer.set(0, -1);
+        setAvailableBufferValue(0, -1);
     }
 
     @Override
@@ -83,12 +80,6 @@ public class MultiProducerSequencer implements Sequencer
     public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
     {
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
-    }
-
-    @Override
-    public BatchDescriptor newBatchDescriptor(final int size)
-    {
-        return new BatchDescriptor(Math.min(size, bufferSize));
     }
 
     @Override
@@ -108,7 +99,7 @@ public class MultiProducerSequencer implements Sequencer
     {
         return hasAvailableCapacity(cursor.get(), requiredCapacity, gatingSequences);
     }
-
+    
     @Override
     public long next()
     {
@@ -117,7 +108,34 @@ public class MultiProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
         
-        return incrementAndGet(1, gatingSequences);    
+        long current;
+        long next;
+        
+        do
+        {
+            current = cursor.get();
+            next = current + 1;
+            
+            if (next > wrapPointCache.get())
+            {
+                long wrapPoint = getMinimumSequence(gatingSequences) + bufferSize;
+                wrapPointCache.set(wrapPoint);
+        
+                if (next > wrapPoint)
+                {
+                    LockSupport.parkNanos(1);
+                    continue;
+                }
+            }
+
+            else if (cursor.compareAndSet(current, next))
+            {
+                break;
+            }
+        }
+        while (true);
+        
+        return next;    
     }
     
     @Override
@@ -139,29 +157,22 @@ public class MultiProducerSequencer implements Sequencer
         do
         {
             current = cursor.get();
-            next = cursor.get() + 1;
-            
-            if (!hasAvailableCapacity(current, 1, gatingSequences))
+            next = current + 1;
+
+            if (next > wrapPointCache.get())
             {
-                throw InsufficientCapacityException.INSTANCE;
+                long wrapPoint = getMinimumSequence(gatingSequences) + bufferSize;
+                wrapPointCache.set(wrapPoint);
+        
+                if (next > wrapPoint)
+                {
+                    throw InsufficientCapacityException.INSTANCE;
+                }
             }
         }
         while (!cursor.compareAndSet(current, next));
 
         return next;    
-    }
-
-    @Override
-    public BatchDescriptor next(final BatchDescriptor batchDescriptor)
-    {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
-        final long sequence = incrementAndGet(batchDescriptor.getSize(), gatingSequences);
-        batchDescriptor.setEnd(sequence);
-        return batchDescriptor;
     }
 
     @Override
@@ -173,7 +184,7 @@ public class MultiProducerSequencer implements Sequencer
         }
 
         cursor.set(sequence);
-        waitForFreeSlotAt(sequence, gatingSequences, minGatingSequenceThreadLocal.get());
+        waitForFreeSlotAt(sequence, gatingSequences);
 
         return sequence;
     }
@@ -181,24 +192,7 @@ public class MultiProducerSequencer implements Sequencer
     @Override
     public void publish(final long sequence)
     {
-        publish(sequence, 1);
-    }
-
-    @Override
-    public void publish(final BatchDescriptor batchDescriptor)
-    {
-        publish(batchDescriptor.getEnd(), batchDescriptor.getSize());
-    }
-
-    private void publish(final long sequence, final int batchSize)
-    {
-        long batchSequence = sequence - batchSize;
-        do
-        {            
-            setAvailable(++batchSequence);
-        }
-        while (sequence != batchSequence);
-        
+        setAvailable(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
 
@@ -212,9 +206,13 @@ public class MultiProducerSequencer implements Sequencer
 
     private void setAvailable(final long sequence)
     {
-        int index = calculateIndex(sequence);
-        int flag = calculateAvailabilityFlag(sequence);
-        availableBuffer.lazySet(index, flag);
+        setAvailableBufferValue(calculateIndex(sequence), calculateAvailabilityFlag(sequence));
+    }
+
+    private void setAvailableBufferValue(int index, int flag)
+    {
+        long bufferAddress = (index * scale) + base;
+        UNSAFE.putOrderedInt(availableBuffer, bufferAddress, flag);
     }
 
     @Override
@@ -230,7 +228,8 @@ public class MultiProducerSequencer implements Sequencer
     {
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
-        while (availableBuffer.get(index) != flag)
+        long bufferAddress = (index * scale) + base;
+        while (UNSAFE.getIntVolatile(availableBuffer, bufferAddress) != flag)
         {
             // spin
         }
@@ -241,19 +240,19 @@ public class MultiProducerSequencer implements Sequencer
     {
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
-        return availableBuffer.get(index) == flag;
+        long bufferAddress = (index * scale) + base;
+        return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
-    
+        
     private boolean hasAvailableCapacity(long sequence, final int requiredCapacity, final Sequence[] dependentSequences)
     {
-        final long wrapPoint = (sequence + requiredCapacity) - bufferSize;
-        final MutableLong minGatingSequence = minGatingSequenceThreadLocal.get();
-        if (wrapPoint > minGatingSequence.get())
+        final long desiredSequence = sequence + requiredCapacity;
+        if (desiredSequence > wrapPointCache.get())
         {
-            long minSequence = getMinimumSequence(dependentSequences);
-            minGatingSequence.set(minSequence);
+            long wrapPoint = getMinimumSequence(dependentSequences) + bufferSize;
+            wrapPointCache.set(wrapPoint);
     
-            if (wrapPoint > minSequence)
+            if (desiredSequence > wrapPoint)
             {
                 return false;
             }
@@ -262,35 +261,10 @@ public class MultiProducerSequencer implements Sequencer
         return true;
     }
 
-    private long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-    {
-        long current;
-        long next;
-        
-        do
-        {
-            current = cursor.get();
-            next = cursor.get() + delta;
-            
-            if (!hasAvailableCapacity(current, delta, gatingSequences))
-            {
-                LockSupport.parkNanos(1);
-                continue;
-            }
-            else if (cursor.compareAndSet(current, next))
-            {
-                break;
-            }
-        }
-        while (true);
-    
-        return next;
-    }
-    
-    private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
+    private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
     {
         final long wrapPoint = sequence - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
+        if (wrapPoint > wrapPointCache.get())
         {
             long minSequence;
             while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
@@ -298,13 +272,13 @@ public class MultiProducerSequencer implements Sequencer
                 LockSupport.parkNanos(1L);
             }
     
-            minGatingSequence.set(minSequence);
+            wrapPointCache.set(minSequence);
         }
     }    
 
     private int calculateAvailabilityFlag(final long sequence)
     {
-        return (int) (sequence >>> indexShift) & 1;
+        return (int) (sequence >>> indexShift);
     }
 
     private int calculateIndex(final long sequence)

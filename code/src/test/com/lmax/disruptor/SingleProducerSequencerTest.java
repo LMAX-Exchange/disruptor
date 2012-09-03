@@ -85,21 +85,6 @@ public final class SingleProducerSequencerTest
     }
 
     @Test
-    public void shouldPublishSequenceBatch()
-    {
-        final int batchSize = 3;
-        BatchDescriptor batchDescriptor = new BatchDescriptor(batchSize);
-
-        batchDescriptor = sequencer.next(batchDescriptor);
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
-        assertEquals(batchDescriptor.getEnd(), SingleProducerSequencer.INITIAL_CURSOR_VALUE + batchSize);
-        assertEquals(batchDescriptor.getSize(), batchSize);
-
-        sequencer.publish(batchDescriptor);
-        assertEquals(sequencer.getCursor(), SingleProducerSequencer.INITIAL_CURSOR_VALUE + batchSize);
-    }
-
-    @Test
     public void shouldWaitOnSequence()
         throws AlertException, InterruptedException
     {
