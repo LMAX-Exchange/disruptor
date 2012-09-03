@@ -54,6 +54,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     private final int bodySize;
     private final int chunkSize;
     private final Object buffer;
+    private final Sequence wrapPointCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     private MultiProducerOffHeapRingBuffer(Object buffer, long address, int bufferSize, int chunkSize, WaitStrategy waitStrategy)
     {
@@ -107,28 +108,66 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
     @Override
     public long next()
     {
-        if (null == gatingSequences)
+        long current;
+        long next;
+        
+        do
         {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
+            current = cursor.get();
+            next = current + 1;
+            
+            if (next > wrapPointCache .get())
+            {
+                long wrapPoint = getMinimumSequence(gatingSequences, current) + bufferSize;
+                wrapPointCache.set(wrapPoint);
+        
+                if (next > wrapPoint)
+                {
+                    LockSupport.parkNanos(1);
+                    continue;
+                }
+            }
 
-        return incrementAndGet(1, gatingSequences);    
+            else if (cursor.compareAndSet(current, next))
+            {
+                break;
+            }
+        }
+        while (true);
+        
+        return next;    
     }
     
     @Override
-    public long tryNext(int requiredCapacity) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
         if (null == gatingSequences)
         {
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
         
-        if (requiredCapacity < 1)
-        {
-            throw new IllegalArgumentException("Available capacity must be greater than 0");
-        }
+        long current;
+        long next;
         
-        return checkAndIncrement(requiredCapacity, 1, gatingSequences);
+        do
+        {
+            current = cursor.get();
+            next = current + 1;
+
+            if (next > wrapPointCache.get())
+            {
+                long wrapPoint = getMinimumSequence(gatingSequences, current) + bufferSize;
+                wrapPointCache.set(wrapPoint);
+        
+                if (next > wrapPoint)
+                {
+                    throw InsufficientCapacityException.INSTANCE;
+                }
+            }
+        }
+        while (!cursor.compareAndSet(current, next));
+
+        return next;    
     }
 
     @Override
@@ -151,13 +190,13 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         publish(sequence, 1);
     }
 
-    public void put(byte[] data, int offset, int length)
+    public void put(byte[] data, int dataOffset, int dataLength)
     {
-        checkArray(data, offset, length);
+        checkArray(data, dataOffset, dataLength);
         
-        int end = offset + length;
-        int current = offset;
-        int remaining = length;
+        int end = dataOffset + dataLength;
+        int current = dataOffset;
+        int remaining = dataLength;
         long lastSequence = -1;
         do 
         {
@@ -250,29 +289,7 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         return "MultiProducerOffHeapRingBuffer [address=" + address + ", bufferSize=" + bufferSize + ", chunkSize=" + chunkSize + ", buffer=" +
                buffer + "]";
     }
-
-    private long checkAndIncrement(int requiredCapacity, int delta, Sequence[] dependentSequences) 
-            throws InsufficientCapacityException
-    {
-        
-        long current;
-        long next;
-        
-        do
-        {
-            current = cursor.get();
-            next = cursor.get() + delta;
-            
-            if (!hasAvailableCapacity(current, delta, gatingSequences))
-            {
-                throw InsufficientCapacityException.INSTANCE;
-            }
-        }
-        while (!cursor.compareAndSet(current, next));
-
-        return next;    
-    }
-    
+   
     private boolean hasAvailableCapacity(long sequence, final int requiredCapacity, final Sequence[] dependentSequences)
     {
         final long wrapPoint = (sequence + requiredCapacity) - bufferSize;
@@ -291,31 +308,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         return true;
     }
 
-    private long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-    {
-        long current;
-        long next;
-        
-        do
-        {
-            current = cursor.get();
-            next = cursor.get() + delta;
-            
-            if (!hasAvailableCapacity(current, delta, gatingSequences))
-            {
-                LockSupport.parkNanos(1);
-                continue;
-            }
-            else if (cursor.compareAndSet(current, next))
-            {
-                break;
-            }
-        }
-        while (true);
-    
-        return next;
-    }
-    
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences, final MutableLong minGatingSequence)
     {
         final long wrapPoint = sequence - bufferSize;

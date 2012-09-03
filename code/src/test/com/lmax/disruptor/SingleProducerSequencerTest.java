@@ -184,13 +184,12 @@ public final class SingleProducerSequencerTest
     @Test(expected = InsufficientCapacityException.class)
     public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull() throws Exception
     {
-        sequencer.tryNext(5);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRejectAvailableCapcityLessThanOne() throws Exception
-    {
-        sequencer.tryNext(0);
+        for (int i = 0; i < 4; i++)
+        {            
+            long sequence = sequencer.next();
+            sequencer.publish(sequence);
+        }
+        sequencer.tryNext();
     }
     
     @Test

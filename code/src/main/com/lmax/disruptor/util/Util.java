@@ -51,8 +51,11 @@ public final class Util
      */
     public static long getMinimumSequence(final Sequence[] sequences)
     {
-        long minimum = Long.MAX_VALUE;
-
+        return getMinimumSequence(sequences, Long.MAX_VALUE);
+    }
+    
+    public static long getMinimumSequence(final Sequence[] sequences, long minimum)
+    {
         for (Sequence sequence : sequences)
         {
             long value = sequence.get();

@@ -93,19 +93,19 @@ public class SingleProducerSequencer implements Sequencer
     }
     
     @Override
-    public long tryNext(int requiredCapacity) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
         if (null == gatingSequences)
         {
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
         
-        if (requiredCapacity < 1)
+        if (!hasAvailableCapacity(1, gatingSequences))
         {
-            throw new IllegalArgumentException("Available capacity must be greater than 0");
+            throw InsufficientCapacityException.INSTANCE;
         }
         
-        return checkAndIncrement(requiredCapacity, 1, gatingSequences);
+        return incrementAndGet(1, gatingSequences);
     }
 
     @Override
@@ -168,17 +168,6 @@ public class SingleProducerSequencer implements Sequencer
 
             minGatingSequence.set(minSequence);
         }
-    }
-    
-    private long checkAndIncrement(int requiredCapacity, int delta, Sequence[] dependentSequences) 
-            throws InsufficientCapacityException
-    {
-        if (!hasAvailableCapacity(requiredCapacity, dependentSequences))
-        {
-            throw InsufficientCapacityException.INSTANCE;
-        }
-        
-        return incrementAndGet(delta, dependentSequences);
     }
     
     private boolean hasAvailableCapacity(final int requiredCapacity, final Sequence[] dependentSequences)

@@ -58,11 +58,10 @@ public interface Sequencer
      * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.  
      * 
-     * @param requiredCapacity
      * @return the claimed sequence value
      * @throws InsufficientCapacityException
      */
-    long tryNext(int requiredCapacity) throws InsufficientCapacityException;
+    long tryNext() throws InsufficientCapacityException;
 
     /**
      * Claim a specific sequence when only one publisher is involved.

@@ -139,16 +139,11 @@ public class MultiProducerSequencer implements Sequencer
     }
     
     @Override
-    public long tryNext(int requiredCapacity) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
         if (null == gatingSequences)
         {
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-        
-        if (requiredCapacity < 1)
-        {
-            throw new IllegalArgumentException("Available capacity must be greater than 0");
         }
         
         long current;

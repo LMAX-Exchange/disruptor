@@ -96,7 +96,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(capacity);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence);
             return true;
         }
@@ -133,7 +133,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(capacity);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0);
             return true;
         }
@@ -172,7 +172,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(capacity);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1);
             return true;
         }
@@ -215,7 +215,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(capacity);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1, arg2);
             return true;
         }
@@ -252,7 +252,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(capacity);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, args);
             return true;
         }

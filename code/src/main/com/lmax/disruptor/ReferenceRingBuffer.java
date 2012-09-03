@@ -36,7 +36,7 @@ public class ReferenceRingBuffer<E> extends RingBuffer<E> implements ReferencePu
     {
         try
         {
-            long sequence = sequencer.tryNext(1);
+            long sequence = sequencer.tryNext();
             entries[(int) sequence & indexMask] = event;
             sequencer.publish(sequence);
             return true;
