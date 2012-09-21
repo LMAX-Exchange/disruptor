@@ -1,3 +1,4 @@
+/bin
+/target
+/out
 .DS_Store
-code/out
-code/.idea/workspace.xml
