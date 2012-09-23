@@ -53,25 +53,25 @@
 <li>Fix various generics warnings.</li>
 <li>Change Sequence implementation to work around IBM JDK bug and improve performance by ~10%.</li>
 <li>Add a remainingCapacity() call to the Sequencer class.</li>
-</ul><p><a href="http://code.google.com/p/disruptor/wiki/ChangeLog">Full Changelog...</a>
-<a href="http://code.google.com/p/disruptor/downloads/list">Download here...</a></p>
+</ul><p><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Full Changelog...</a>
+<a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download here...</a></p>
 
 <h2>Read This First</h2>
 
 <p>To understand the problem the Disruptor is trying to solve, and to get a feel for why this concurrency framework is so fast, read the 
 <a href="http://lmax-exchange.github.com/disruptor/files/Disruptor-1.0.pdf">Technical Paper</a>.  It also contains detailed performance results.</p>
 
-<p>And now for some words from our sponsors...LMAX are recruiting once again.  If you are interested in working with a great team, with some amazing technology, and think you can add something to the mix then please check out our <a href="http://www.lmaxtrader.co.uk/about-lmax/careers">jobs page</a>.</p>
+<p>And now for some words from our sponsors...LMAX are recruiting once again.  If you are interested in working with a great team, with some amazing technology, and think you can add something to the mix then please check out our <a href="http://www.lmax.com/careers">jobs page</a>.</p>
 
 <h2>What is the Disruptor?</h2>
 
-<p><a href="http://www.LMAXtrader.co.uk">LMAX</a> aims to be the fastest trading platform in the world.  Clearly, in order to achieve this we needed to do something special to achieve very low-latency and high-throughput with our Java platform. Performance testing showed that using queues to pass data between stages of the system was introducing latency, so we focused on optimising this area.</p>
+<p><a href="http://www.lmax.com">LMAX</a> aims to be the fastest trading platform in the world.  Clearly, in order to achieve this we needed to do something special to achieve very low-latency and high-throughput with our Java platform. Performance testing showed that using queues to pass data between stages of the system was introducing latency, so we focused on optimising this area.</p>
 
 <p>The Disruptor is the result of our research and testing.  We found that cache misses at the CPU-level, and locks requiring kernel arbitration are both extremely costly, so we created a framework which has "mechanical sympathy" for the hardware it's running on, and that's lock-free.</p>
 
 <p>This is not a specialist solution, it's not designed to work only for a financial application.  The Disruptor is a general-purpose mechanism for solving a difficult problem in concurrent programming.</p>
 
-<p>It works in a different way to more conventional approaches, so you use it a little differently than you might be used to.  For example, applying the pattern to your system is not as simple as replacing all your queues with the <a href="http://mechanitis.blogspot.com/2011/06/dissecting-disruptor-whats-so-special.html">magic ring buffer</a>.  We've got <a href="CodeExampleDisruptor2x">code samples</a> to guide you, a growing number of [[Blogs And Articles|blogs and articles]] giving an overview of how it works, the <a href="http://disruptor.googlecode.com/files/Disruptor-1.0.pdf">technical paper</a> goes into some detail as you'd expect, and the performance tests give examples of how to use the Disruptor:</p>
+<p>It works in a different way to more conventional approaches, so you use it a little differently than you might be used to.  For example, applying the pattern to your system is not as simple as replacing all your queues with the <a href="http://mechanitis.blogspot.com/2011/06/dissecting-disruptor-whats-so-special.html">magic ring buffer</a>.  We've got <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Code-Example-Disruptor2x">code samples</a> to guide you, a growing number of <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Blogs-And-Articles">Blogs And Articles</a> giving an overview of how it works, the <a href="http://disruptor.googlecode.com/files/Disruptor-1.0.pdf">technical paper</a> goes into some detail as you'd expect, and the performance tests give examples of how to use the Disruptor:</p>
 
 <pre><code>    ${MY_PROJECTS_HOME}/disruptor-read-only/code/src/perf/
 </code></pre>
@@ -89,12 +89,12 @@
 <h2>Great  What do I do next?</h2>
 
 <ul>
-<li>[[Getting Started|Getting started]] – how to check out the code, build it and run the performance tests</li>
-<li>Read the <a href="http://code.google.com/p/disruptor/downloads/list">API documentation</a>
+<li><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started">Getting Started</a> – how to check out the code, build it and run the performance tests</li>
+<li>Read the <a href="https://github.com/LMAX-Exchange/disruptor/downloads">API documentation</a>
 </li>
 <li>
-<a href="http://code.google.com/p/disruptor/downloads/list">Download</a> the latest jar</li>
-<li>Take a look at the [[Change Log|changelog]]</li>
+<a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download</a> the latest jar</li>
+<li>Take a look at the <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Change Log</a></li>
 <li>Check out our [[Frequently Asked Questions|FAQ]]</li>
 </ul>
         </section>
