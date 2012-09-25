@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -29,83 +29,76 @@
         <hr>
 
         <section id="main_content">
-          <h2>Disruptor 2.10.3 Released (22-Aug-2012 - rev 593)</h2>
+          <h2>Disruptor 2.10.3 Released (22-Aug-2012)</h2>
 
-<ul>
-<li>Bug fix, race condition in SequenceGroup when removing Sequences and getting current value</li>
-</ul><h2>Disruptor 2.10.2 Released (21-Aug-2012 - rev 588)</h2>
+          <ul>
+            <li>Bug fix, race condition in SequenceGroup when removing Sequences and getting current value</li>
+          </ul>
 
-<ul>
-<li>Bug fix, potential race condition in BlockingWaitStrategy.</li>
-<li>Bug fix set initial SequenceGroup value to -1 (Issue #27).</li>
-<li>Deprecate timeout methods that will be removed in version 3.</li>
-</ul><h2>Disruptor 2.10.1 Released (6-June-2012 - rev 560)</h2>
+          <p><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Full Changelog...</a>
+          <a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download here...</a></p>
 
-<ul>
-<li>Bug fix, correct OSGI metadata.</li>
-<li>Remove unnecessary code in wait strategies.</li>
-</ul><h2>Disruptor 2.10 Released (13-May-2012 - rev 546)</h2>
+          <h2>Discussion, Blogs &amp; Other Useful Links</h2>
 
-<ul>
-<li>Remove deprecated timeout methods.</li>
-<li>Added OSGI metadata to jar file.</li>
-<li>Removed PaddedAtomicLong and use Sequence in all places.</li>
-<li>Fix various generics warnings.</li>
-<li>Change Sequence implementation to work around IBM JDK bug and improve performance by ~10%.</li>
-<li>Add a remainingCapacity() call to the Sequencer class.</li>
-</ul><p><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Full Changelog...</a>
-<a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download here...</a></p>
+          <ul>
+            <li><a href="http://groups.google.com/group/lmax-disruptor">Disruptor Google Group</a></li>
+            <li><a href="http://bad-concurrency.blogspot.com">Bad Concurrency</a> (Michael Barker)</li>
+            <!--<li><a href="http://mechanical-sympathy.blogspot.com">Mechanical Sympathy</a> (Martin Thompson)</li>-->
+            <li><a href="http://http://blogs.lmax.com/">LMAX</a> (Planet)</li>
+            <li><a href="http://www.lmax.com">LMAX Exchange</a></li>
+            <li><a href="http://www.infoq.com/presentations/LMAX">Disruptor presentation @ QCon SF</a></li>
+            <li><a href="http://disruptor.googlecode.com/files/Disruptor-1.0.pdf">Disruptor Technical Paper</a></li>
+            <li><a href="http://martinfowler.com/articles/lmax.html">Martin Fowler's Technical Review</a></li>
+            <li><a href="https://github.com/odeheurles/Disruptor-net">.NET Disruptor Port</a></li>
+          </ul>
 
-<h2>Read This First</h2>
+          <h2>Read This First</h2>
 
-<p>To understand the problem the Disruptor is trying to solve, and to get a feel for why this concurrency framework is so fast, read the 
-<a href="http://lmax-exchange.github.com/disruptor/files/Disruptor-1.0.pdf">Technical Paper</a>.  It also contains detailed performance results.</p>
+          <p>To understand the problem the Disruptor is trying to solve, and to get a feel for why this concurrency framework is so fast, read the 
+            <a href="http://lmax-exchange.github.com/disruptor/files/Disruptor-1.0.pdf">Technical Paper</a>.  It also contains detailed performance results.</p>
 
-<p>And now for some words from our sponsors... LMAX are recruiting once again.  If you are interested in working with a great team, with some amazing technology, and think you can add something to the mix then please check out our <a href="http://www.lmax.com/careers">jobs page</a>.</p>
+            <p>And now for some words from our sponsors... LMAX are recruiting once again.  If you are interested in working with a great team, with some amazing technology, and think you can add something to the mix then please check out our <a href="http://www.lmax.com/careers">jobs page</a>.</p>
 
-<h2>What is the Disruptor?</h2>
+            <h2>What is the Disruptor?</h2>
 
-<p><a href="http://www.lmax.com">LMAX</a> aims to be the fastest trading platform in the world.  Clearly, in order to achieve this we needed to do something special to achieve very low-latency and high-throughput with our Java platform. Performance testing showed that using queues to pass data between stages of the system was introducing latency, so we focused on optimising this area.</p>
+            <p><a href="http://www.lmax.com">LMAX</a> aims to be the fastest trading platform in the world.  Clearly, in order to achieve this we needed to do something special to achieve very low-latency and high-throughput with our Java platform. Performance testing showed that using queues to pass data between stages of the system was introducing latency, so we focused on optimising this area.</p>
 
-<p>The Disruptor is the result of our research and testing.  We found that cache misses at the CPU-level, and locks requiring kernel arbitration are both extremely costly, so we created a framework which has "mechanical sympathy" for the hardware it's running on, and that's lock-free.</p>
+            <p>The Disruptor is the result of our research and testing.  We found that cache misses at the CPU-level, and locks requiring kernel arbitration are both extremely costly, so we created a framework which has "mechanical sympathy" for the hardware it's running on, and that's lock-free.</p>
 
-<p>This is not a specialist solution, it's not designed to work only for a financial application.  The Disruptor is a general-purpose mechanism for solving a difficult problem in concurrent programming.</p>
+            <p>This is not a specialist solution, it's not designed to work only for a financial application.  The Disruptor is a general-purpose mechanism for solving a difficult problem in concurrent programming.</p>
 
-<p>It works in a different way to more conventional approaches, so you use it a little differently than you might be used to.  For example, applying the pattern to your system is not as simple as replacing all your queues with the <a href="http://mechanitis.blogspot.com/2011/06/dissecting-disruptor-whats-so-special.html">magic ring buffer</a>.  We've got <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Code-Example-Disruptor2x">code samples</a> to guide you, a growing number of <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Blogs-And-Articles">blogs and articles</a> giving an overview of how it works, the <a href="http://disruptor.googlecode.com/files/Disruptor-1.0.pdf">technical paper</a> goes into some detail as you'd expect, and the performance tests give examples of how to use the Disruptor:</p>
+            <p>It works in a different way to more conventional approaches, so you use it a little differently than you might be used to.  For example, applying the pattern to your system is not as simple as replacing all your queues with the <a href="http://mechanitis.blogspot.com/2011/06/dissecting-disruptor-whats-so-special.html">magic ring buffer</a>.  We've got <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Code-Example-Disruptor2x">code samples</a> to guide you, a growing number of <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Blogs-And-Articles">blogs and articles</a> giving an overview of how it works, the <a href="http://disruptor.googlecode.com/files/Disruptor-1.0.pdf">technical paper</a> goes into some detail as you'd expect, and the performance tests give examples of how to use the Disruptor:</p>
 
-<pre><code>    ${MY_PROJECTS_HOME}/disruptor-read-only/code/src/perf/
-</code></pre>
+            <p>If you prefer real, live people explaining things instead of a dry paper or content-heavy website, there's always the <a href="http://www.infoq.com/presentations/LMAX">presentation Mike and Martin gave</a> at QCon San Francisco.  If you fancy a natter with the folks involved head over to our <a href="http://groups.google.com/group/lmax-disruptor">Discussion Group</a>. Martin will also witter on occasionally about performance in his <a href="http://mechanical-sympathy.blogspot.com/">Mechanical Sympathy</a> blog.  Martin Fowler has also done a great <a href="http://martinfowler.com/articles/lmax.html">review</a> of the Disruptor's application at LMAX.</p>
 
-<p>If you prefer real, live people explaining things instead of a dry paper or content-heavy website, there's always the <a href="http://www.infoq.com/presentations/LMAX">presentation Mike and Martin gave</a> at QCon San Francisco.  If you fancy a natter with the folks involved head over to our <a href="http://groups.google.com/group/lmax-disruptor">Discussion Group</a>. Martin will also witter on occasionally about performance in his <a href="http://mechanical-sympathy.blogspot.com/">Mechanical Sympathy</a> blog.  Martin Fowler has also done a great <a href="http://martinfowler.com/articles/lmax.html">review</a> of the Disruptor's application at LMAX.</p>
+            <h2>What's the big deal?</h2>
 
-<h2>What's the big deal?</h2>
+            <p>It's fast.  Very fast.</p>
 
-<p>It's fast.  Very fast.</p>
+            <p><img src="http://lmax-exchange.github.com/disruptor/images/latency-histogram.png"/></p>
 
-<p><img src="http://lmax-exchange.github.com/disruptor/images/latency-histogram.png"/></p>
+            <p>Note that this is a log-log scale, not linear.  If we tried to plot the comparisons on a linear scale, we'd run out of space very quickly.  We have <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Performance-Results">performance results</a> of the test that produced these results, plus others of throughput testing.</p>
 
-<p>Note that this is a log-log scale, not linear.  If we tried to plot the comparisons on a linear scale, we'd run out of space very quickly.  We have <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Performance-Results">Performance Results</a> of the test that produced these results, plus others of throughput testing.</p>
+            <h2>Great  What do I do next?</h2>
 
-<h2>Great  What do I do next?</h2>
+            <ul>
+              <li><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started">Getting Started</a> – how to check out the code, build it and run the performance tests</li>
+              <li>Read the <a href="https://github.com/LMAX-Exchange/disruptor/downloads">API documentation</a>
+              </li>
+              <li>
+                <a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download</a> the latest jar</li>
+                <li>Take a look at the <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Change Log</a></li>
+                <li>Check out our <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Frequently-Asked-Questions">Frequently Asked Questions</a></li>
+              </ul>
+            </section>
 
-<ul>
-<li><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started">Getting Started</a> – how to check out the code, build it and run the performance tests</li>
-<li>Read the <a href="https://github.com/LMAX-Exchange/disruptor/downloads">API documentation</a>
-</li>
-<li>
-<a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download</a> the latest jar</li>
-<li>Take a look at the <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Change Log</a></li>
-<li>Check out our <a href="https://github.com/LMAX-Exchange/disruptor/wiki/Frequently-Asked-Questions">Frequently Asked Questions</a></li>
-</ul>
-        </section>
+            <footer>
+              Disruptor is maintained by <a href="https://github.com/LMAX-Exchange">LMAX-Exchange</a><br>
+              This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+            </footer>
 
-        <footer>
-          Disruptor is maintained by <a href="https://github.com/LMAX-Exchange">LMAX-Exchange</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
 
-        
-      </div>
-    </div>
-  </body>
-</html>
+          </div>
+        </div>
+      </body>
+      </html>
