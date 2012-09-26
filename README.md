@@ -11,17 +11,17 @@ Michael Barker <mikeb01@gmail.com>
 Changelog
 ==========
 
-## 2.10.3 Released (22-Aug-2012)
+### 2.10.3 Released (22-Aug-2012)
 
 - Bug fix, race condition in SequenceGroup when removing Sequences and getting current value
 
-## 2.10.2 Released (21-Aug-2012)
+### 2.10.2 Released (21-Aug-2012)
 
 - Bug fix, potential race condition in BlockingWaitStrategy.
 - Bug fix set initial SequenceGroup value to -1 (Issue #27).
 - Deprecate timeout methods that will be removed in version 3.
 
-## 2.10.1 (6-June-2012)
+### 2.10.1 (6-June-2012)
 
 - Bug fix, correct OSGI metadata.
 - Remove unnecessary code in wait strategies.
@@ -47,7 +47,7 @@ Changelog
 - Fix for bug where EventProcessors weren't being added as gating sequences to the ring buffer.
 - Fix range tracking bug in Histogram
 
-## 2.7.1  (21-Dec-2011)
+### 2.7.1  (21-Dec-2011)
 
 - Artefacts made available via maven central repository. (groupId:com.googlecode.disruptor, artifactId:disruptor) See UsingDisruptorInYourProject for details.
 
@@ -68,7 +68,7 @@ Changelog
 - SequenceBarrier now checks alert status on every call whether it is blocking or not.
 - Added scripts in preparation for publishing binaries to maven repository.
 
-## 2.5.1
+### 2.5.1
 
 - Bugfix for supporting SequenceReportingEventHandler from DSL. ([issue 9](https://github.com/LMAX-Exchange/disruptor/issues#issue/9))
 - Bugfix for multi-threaded publishing to multiple ring buffers ([issue 10](https://github.com/LMAX-Exchange/disruptor/issues#issue/10))
@@ -86,11 +86,11 @@ Changelog
 - Significantly improved performance to WaitStrategy.Option.BLOCKING
 - Introduced SequenceGroup to allow dynamic registration of EventProcessors.
 
-## 2.0.2
+### 2.0.2
 
 - Rework of "False Sharing" prevention which makes the performance much more predictable across all platforms. Special thanks to Jeff Hain for helping focus in on a solution.
 
-## 2.0.1
+### 2.0.1
 
 - Renaming mistake for publishEventAtSequence should have been claimEventAtSequence
 - Fixed bug in YieldingStrategy that was busy spinning more than yielding and introduced SleepingStrategy
@@ -110,11 +110,11 @@ Changelog
 - WaitStrategy.YIELDING initially spins for a short period to reduce latency
 - Major performance improvement giving more than a 2X increase for throughput across most use cases.
 
-## 1.2.2
+### 1.2.2
 
 - ProducerBarrier change to yield after busy spinning for a while.  This may help the situation when the the number of producers exceeds the number of cores.
 
-## 1.2.1
+### 1.2.1
 
 - Bug fix for setting the sequence in the ForceFillProducerBarrier.
 - Code syntax tidy up.
@@ -124,7 +124,7 @@ Changelog
 - Bug fix for regression introduced inlining multi-thread producer commit tracking code.  This was a critical bug for the multi-threaded producer scenario.
 - Added new ProducerBarrier method for claiming a batch of sequences.  This feature can give a significant throughput increase.
 
-### 1.1.0
+## 1.1.0
 
 - Off by one regression bug in ProducerBarrier introduced in 1.0.9.
 - Clarified the algorithm for initial cursor value in the ClaimStrategy.
