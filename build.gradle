@@ -1,0 +1,159 @@
+apply plugin: 'java'
+apply plugin: 'osgi'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'com.googlecode.disruptor'
+archivesBaseName = 'disruptor'
+version = new Version(major: 3)
+
+ext {
+    fullName = 'Disruptor Framework'
+    fullDescription = 'Disruptor - Concurrent Programming Framework'
+    teamName = 'LMAX Disruptor Development Team'
+    siteUrl = 'http://lmax-exchange.github.com/disruptor'
+    sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
+}
+
+sourceSets {
+    perf.java.srcDir 'src/perftest/java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1'
+    perfCompile 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5'
+}
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+
+tasks.withType(Compile) {
+    options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked'
+    options.debug = true
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.warnings = false
+}
+
+compilePerfJava {
+    classpath += sourceSets.main.runtimeClasspath
+}
+
+def perfTests = [Test: '**/*', Throughput: '**/*ThroughputTest.class', ThroughputMultiThreaded: '**/Three*ThroughputTest.class', Latency: '**/*LatencyTest.class']
+
+def createPerfTest = { type, pattern ->
+    task("perf$type", type: Test, dependsOn: ['classes', 'perfClasses'], group: 'Performance test') {
+        testClassesDir = sourceSets.perf.output.classesDir
+        classpath = sourceSets.perf.runtimeClasspath + sourceSets.main.runtimeClasspath
+        include pattern
+        testLogging.showStandardStreams = true
+    }
+}
+
+perfTests.each(createPerfTest)
+
+tasks.addRule('Pattern: perfTestSingle<ClassName>') { taskName ->
+    if (taskName.startsWith('perfTestSingle')) {
+        def type = taskName - 'perf'
+        def pattern = "**/${taskName - 'perfTestSingle'}.class"
+        createPerfTest(type, pattern)
+    }
+}
+
+javadoc {
+    title = '<h1>Disruptor</h1>'
+
+    options.addStringOption('XDignore.symbol.file', '-quiet')
+    options.author = true
+    options.bottom = "<i>Copyright &#169; 2011 - ${Calendar.instance[Calendar.YEAR]} LMAX Ltd. All Rights Reserved.</i>"
+    options.use = true
+    options.version = true
+    options.windowTitle = 'Disruptor API'
+}
+
+jar {
+    manifest.attributes('Built-By': System.properties['user.name'],
+                        'Bundle-Name': fullName,
+                        'Bundle-Vendor': teamName,
+                        'Bundle-Description': fullDescription,
+                        'Bundle-SymbolicName': 'com.lmax.disruptor',
+                        'Bundle-DocURL': siteUrl)
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+def projectPom = {
+    name = fullName
+    description = fullDescription
+    url = siteUrl
+
+    scm {
+        url = "scm:$sourceUrl"
+        connection = "scm:$sourceUrl"
+    }
+
+    licenses {
+        license {
+            name = 'The Apache Software License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution = 'repo'
+        }
+    }
+
+    developers {
+        developer {
+            id = 'team'
+            name = teamName
+            email = 'lmax-disruptor@googlegroups.com'
+        }
+    }
+}
+
+install {
+    repositories.mavenInstaller.pom.project(projectPom)
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        beforeDeployment { deployment -> signing.signPom(deployment) }
+ 
+        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+            authentication(userName: sonatypeUsername, password: sonatypePassword)
+        }
+ 
+        pom.project(projectPom)        
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    version.release = taskGraph.hasTask(uploadArchives)
+}
+
+class Version {
+    int major, minor = 0, revision = 0
+    boolean release
+    
+    String toString() {
+        "$major.$minor.$revision${release ? '' : '-SNAPSHOT'}"
+    }
+}

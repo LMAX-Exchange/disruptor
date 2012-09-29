@@ -1,4 +1,7 @@
 /bin
+/build
+/.gradle
 /target
 /out
 .DS_Store
+*~
