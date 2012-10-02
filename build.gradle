@@ -129,21 +129,21 @@ install {
     repositories.mavenInstaller.pom.project(projectPom)
 }
 
-signing {
-    sign configurations.archives
-}
+//signing {
+//    sign configurations.archives
+//}
 
-uploadArchives {
-    repositories.mavenDeployer {
-        beforeDeployment { deployment -> signing.signPom(deployment) }
- 
-        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-            authentication(userName: sonatypeUsername, password: sonatypePassword)
-        }
- 
-        pom.project(projectPom)        
-    }
-}
+//uploadArchives {
+//    repositories.mavenDeployer {
+//        beforeDeployment { deployment -> signing.signPom(deployment) }
+//
+//        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+//            authentication(userName: sonatypeUsername, password: sonatypePassword)
+//        }
+//
+//        pom.project(projectPom)
+//    }
+//}
 
 gradle.taskGraph.whenReady { taskGraph ->
     version.release = taskGraph.hasTask(uploadArchives)
