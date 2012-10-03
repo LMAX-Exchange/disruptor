@@ -13,6 +13,9 @@ ext {
     teamName = 'LMAX Disruptor Development Team'
     siteUrl = 'http://lmax-exchange.github.com/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
+
+    if (!project.hasProperty('sonatypeUsername')) sonatypeUsername = ''
+    if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
 
 sourceSets {
@@ -129,21 +132,22 @@ install {
     repositories.mavenInstaller.pom.project(projectPom)
 }
 
-//signing {
-//    sign configurations.archives
-//}
+signing {
+    required { version.release }
+    sign configurations.archives
+}
 
-//uploadArchives {
-//    repositories.mavenDeployer {
-//        beforeDeployment { deployment -> signing.signPom(deployment) }
-//
-//        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-//            authentication(userName: sonatypeUsername, password: sonatypePassword)
-//        }
-//
-//        pom.project(projectPom)
-//    }
-//}
+uploadArchives {
+    repositories.mavenDeployer {
+        beforeDeployment { deployment -> signing.signPom(deployment) }
+
+        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+            authentication(userName: sonatypeUsername, password: sonatypePassword)
+        }
+
+        pom.project(projectPom)
+    }
+}
 
 gradle.taskGraph.whenReady { taskGraph ->
     version.release = taskGraph.hasTask(uploadArchives)

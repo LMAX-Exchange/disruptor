@@ -249,6 +249,40 @@ public class Disruptor<T>
     }
 
     /**
+     * Get the value of the cursor indicating the published sequence.
+     *
+     * @return value of the cursor for events that have been published.
+     * @see com.lmax.disruptor.Sequencer#getCursor()
+     */
+    public long getCursor()
+    {
+        return ringBuffer.getCursor();
+    }
+
+    /**
+     * The capacity of the data structure to hold entries.
+     *
+     * @return the size of the RingBuffer.
+     * @see com.lmax.disruptor.Sequencer#getBufferSize()
+     */
+    public long getBufferSize()
+    {
+        return ringBuffer.getBufferSize();
+    }
+
+    /**
+     * Get the event for a given sequence in the RingBuffer.
+     *
+     * @param sequence for the event.
+     * @return event for the sequence.
+     * @see RingBuffer#get(long)
+     */
+    public T get(final long sequence)
+    {
+        return ringBuffer.get(sequence);
+    }
+
+    /**
      * Get the {@link SequenceBarrier} used by a specific handler. Note that the {@link SequenceBarrier}
      * may be shared by multiple event handlers.
      *
