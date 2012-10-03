@@ -4,3 +4,7 @@
 /out
 .DS_Store
 *~
+/out
+/.idea/workspace.xml
+/.idea/scopes
+/.idea/tasks.xml
