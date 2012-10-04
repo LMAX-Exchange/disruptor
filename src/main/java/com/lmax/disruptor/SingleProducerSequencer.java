@@ -30,7 +30,8 @@ class SingleProducerSequencer implements Sequencer
 {
     /** Set to -1 as sequence starting point */
     private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+//    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private long cursor = Sequencer.INITIAL_CURSOR_VALUE;
     private Sequence[] gatingSequences;
 
     private final WaitStrategy waitStrategy;
@@ -64,7 +65,8 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long getCursor()
     {
-        return cursor.get();
+//        return cursor.get();
+        return cursor;
     }
 
     @Override
@@ -81,9 +83,9 @@ class SingleProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        long nextSequence = cursor.get() + 1;
+        long nextSequence = cursor + 1;
         waitForFreeSlotAt(nextSequence, gatingSequences);
-        cursor.set(nextSequence);
+        cursor = nextSequence;
         
         return nextSequence;
     }
@@ -101,8 +103,8 @@ class SingleProducerSequencer implements Sequencer
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = cursor.get() + 1;
-        cursor.set(nextSequence);
+        long nextSequence = cursor + 1;
+        cursor = nextSequence;
         
         return nextSequence;
     }
@@ -115,7 +117,7 @@ class SingleProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        cursor.set(sequence);
+        cursor = sequence;
         waitForFreeSlotAt(sequence, gatingSequences);
 
         return sequence;
@@ -125,7 +127,7 @@ class SingleProducerSequencer implements Sequencer
     public long remainingCapacity()
     {
         long consumed = Util.getMinimumSequence(gatingSequences);
-        long produced = cursor.get();
+        long produced = cursor;
         return getBufferSize() - (produced - consumed);
     }
     
@@ -146,7 +148,7 @@ class SingleProducerSequencer implements Sequencer
 
     private boolean hasAvailableCapacity(final int requiredCapacity, final Sequence[] dependentSequences)
     {
-        final long wrapPoint = (cursor.get() + requiredCapacity) - bufferSize;
+        final long wrapPoint = (cursor + requiredCapacity) - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
             long minSequence = getMinimumSequence(dependentSequences);
