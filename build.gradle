@@ -3,6 +3,8 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+defaultTasks 'build'
+
 group = 'com.googlecode.disruptor'
 archivesBaseName = 'disruptor'
 version = new Version(major: 3)
