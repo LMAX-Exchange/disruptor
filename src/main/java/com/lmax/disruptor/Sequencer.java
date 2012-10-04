@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-public interface Sequencer
+interface Sequencer
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -14,14 +14,6 @@ public interface Sequencer
      * @param sequences to be to be gated on.
      */
     void setGatingSequences(final Sequence... sequences);
-
-    /**
-     * Create a {@link SequenceBarrier} that gates on the the cursor and a list of {@link Sequence}s
-     *
-     * @param sequencesToTrack this barrier will track
-     * @return the barrier gated as required
-     */
-    SequenceBarrier newBarrier(final Sequence... sequencesToTrack);
 
     /**
      * The capacity of the data structure to hold entries.
@@ -72,42 +64,9 @@ public interface Sequencer
     long claim(final long sequence);
 
     /**
-     * Publish an event and make it visible to {@link EventProcessor}s
-     *
-     * @param sequence to be published
-     */
-    void publish(final long sequence);
-
-    /**
-     * Force the publication of a cursor sequence.
-     *
-     * Only use this method when forcing a sequence and you are sure only one publisher exists.
-     * This will cause the cursor to advance to this sequence.
-     *
-     * @param sequence which is to be forced for publication.
-     */
-    void forcePublish(final long sequence);
-
-    /**
      * Get the remaining capacity for this sequencer.
      *
      * @return The number of slots remaining.
      */
     long remainingCapacity();
-
-    /**
-     * Spin until the entry pointed to by this sequence is available to be read.
-     *
-     * @param sequence
-     */
-    void ensureAvailable(long sequence);
-
-    /**
-     * Determine if the entry referenced by sequence is available
-     *
-     * @param sequence
-     * @return true if the entry is available
-     */
-    boolean isAvailable(long sequence);
-
 }

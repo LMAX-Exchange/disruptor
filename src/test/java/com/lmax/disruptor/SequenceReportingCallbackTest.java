@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
 import static org.junit.Assert.assertEquals;
 
 public class SequenceReportingCallbackTest
@@ -31,7 +32,7 @@ public class SequenceReportingCallbackTest
     public void shouldReportProgressByUpdatingSequenceViaCallback()
         throws Exception
     {
-        final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
+        final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
         final SequenceReportingEventHandler<StubEvent> handler = new TestSequenceReportingEventHandler();
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, handler);
@@ -42,7 +43,7 @@ public class SequenceReportingCallbackTest
         thread.start();
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
-        ringBuffer.getSequencer().publish(ringBuffer.getSequencer().next());
+        ringBuffer.publish(ringBuffer.next());
 
         callbackLatch.await();
         assertEquals(0L, batchEventProcessor.getSequence().get());

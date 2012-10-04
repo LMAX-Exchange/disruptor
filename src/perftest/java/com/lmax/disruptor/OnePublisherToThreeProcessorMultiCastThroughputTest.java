@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
@@ -126,8 +128,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
-        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -201,7 +202,6 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
-        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
@@ -213,9 +213,9 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             ringBuffer.getPreallocated(sequence).setValue(i);
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
         }
 
         latch.await();

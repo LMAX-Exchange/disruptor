@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
 import static com.lmax.disruptor.support.Actions.countDown;
 import static org.junit.Assert.assertEquals;
 
@@ -38,7 +39,7 @@ public final class BatchEventProcessorTest
     private final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
     private final CountDownLatch latch = new CountDownLatch(1);
 
-    private final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
+    private final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     @SuppressWarnings("unchecked") private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
     private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, eventHandler);
@@ -71,8 +72,7 @@ public final class BatchEventProcessorTest
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
 
-        Sequencer sequencer = ringBuffer.getSequencer();
-        sequencer.publish(sequencer.next());
+        ringBuffer.publish(ringBuffer.next());
 
         latch.await();
 
@@ -98,10 +98,9 @@ public final class BatchEventProcessorTest
             }
         });
 
-        Sequencer sequencer = ringBuffer.getSequencer();
-        sequencer.publish(sequencer.next());
-        sequencer.publish(sequencer.next());
-        sequencer.publish(sequencer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
 
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
@@ -149,8 +148,7 @@ public final class BatchEventProcessorTest
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
 
-        Sequencer sequencer = ringBuffer.getSequencer();
-        sequencer.publish(sequencer.next());
+        ringBuffer.publish(ringBuffer.next());
 
         latch.await();
 

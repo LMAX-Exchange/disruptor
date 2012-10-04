@@ -69,16 +69,14 @@ public final class WorkerPool<T>
      * This option does not require {@link PreallocatedRingBuffer#setGatingSequences(Sequence...)} to be called before the work pool is started.
      *
      * @param eventFactory for filling the {@link PreallocatedRingBuffer}
-     * @param sequencer for the {@link PreallocatedRingBuffer}
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers to distribute the work load across.
      */
     public WorkerPool(final EventFactory<T> eventFactory,
-                      final Sequencer sequencer,
                       final ExceptionHandler exceptionHandler,
                       final WorkHandler<T>... workHandlers)
     {
-        ringBuffer = new PreallocatedRingBuffer<T>(eventFactory, sequencer);
+        ringBuffer = PreallocatedRingBuffer.createMultiProducer(eventFactory, 1024, new BlockingWaitStrategy());
         final SequenceBarrier barrier = ringBuffer.newBarrier();
         final int numWorkers = workHandlers.length;
         workProcessors = new WorkProcessor[numWorkers];

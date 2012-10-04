@@ -62,7 +62,6 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
     private final WorkerPool<ValueEvent> workerPool
         = new WorkerPool<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                     new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()),
                                      new FatalExceptionHandler(),
                                      handlers);
 
@@ -122,14 +121,13 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
 
         resetCounters();
         PreallocatedRingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
-        Sequencer sequencer = ringBuffer.getSequencer();
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             ringBuffer.getPreallocated(sequence).setValue(i);
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
         }
 
         workerPool.drainAndHalt();

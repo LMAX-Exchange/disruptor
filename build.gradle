@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'eclipse'
 
 group = 'com.googlecode.disruptor'
 archivesBaseName = 'disruptor'
@@ -27,8 +28,8 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1'
-    perfCompile 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5'
+    testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5'
+    perfCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5'
 }
 
 sourceCompatibility = 1.6

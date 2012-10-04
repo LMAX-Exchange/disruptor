@@ -21,36 +21,82 @@ package com.lmax.disruptor;
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
+public final class PreallocatedRingBuffer<E> implements RingBuffer<E>
 {
-    protected final Object[] entries;
+    private final int indexMask;
+    private final Object[] entries;
+    private final Sequence cursor;
+    private final int bufferSize;
+    private final Publisher publisher;
+    private final Sequencer sequencer;
+    private final WaitStrategy waitStrategy;
 
     /**
      * Construct a RingBuffer with the full option set.
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
+     * @param waitStrategy 
      *
      * @throws IllegalArgumentException if bufferSize is not a power of 2
      */
-    public PreallocatedRingBuffer(final EventFactory<E> eventFactory, Sequencer sequencer)
+    private PreallocatedRingBuffer(final EventFactory<E> eventFactory, 
+                                   Sequence cursor, 
+                                   Sequencer sequencer, 
+                                   Publisher publisher, 
+                                   WaitStrategy waitStrategy)
     {
-        super(sequencer);
-        entries = new Object[sequencer.getBufferSize()];
+        this.sequencer = sequencer;
+        this.waitStrategy = waitStrategy;
+        this.bufferSize = sequencer.getBufferSize();
+        this.cursor = cursor;
+        if (Integer.bitCount(bufferSize) != 1)
+        {
+            throw new IllegalArgumentException("bufferSize must be a power of 2");
+        }
+
+        indexMask = bufferSize - 1;
+        this.publisher = publisher;
+        this.entries = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
-
-    /**
-     * Construct a RingBuffer with default implementations of:
-     * {@link MultiProducerSequencer} and {@link BlockingWaitStrategy}
-     *
-     * @param eventFactory to newInstance entries for filling the RingBuffer
-     * @param bufferSize of the RingBuffer that will be rounded up to the next power of 2
-     */
-    public PreallocatedRingBuffer(final EventFactory<E> eventFactory, final int bufferSize)
+    
+    public static <E> PreallocatedRingBuffer<E> createMultiProducer(EventFactory<E> factory, 
+                                                                    int bufferSize, 
+                                                                    WaitStrategy waitStrategy)
     {
-        this(eventFactory,
-             new MultiProducerSequencer(bufferSize, new BlockingWaitStrategy()));
+        MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
+        MultiProducerPublisher publisher = new MultiProducerPublisher(bufferSize, waitStrategy);
+        
+        PreallocatedRingBuffer<E> ringBuffer = 
+                new PreallocatedRingBuffer<E>(factory, sequencer.getCursorSequence(), 
+                                              sequencer, publisher, waitStrategy);
+        
+        return ringBuffer;
+    }
+    
+    public static <E> PreallocatedRingBuffer<E> createMultiProducer(EventFactory<E> factory, int bufferSize)
+    {
+        return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy());
+    }
+    
+    public static <E> PreallocatedRingBuffer<E> createSingleProducer(EventFactory<E> factory, 
+                                                                     int bufferSize, 
+                                                                     WaitStrategy waitStrategy)
+    {
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
+        SingleProducerPublisher publisher = new SingleProducerPublisher(waitStrategy);
+        
+        PreallocatedRingBuffer<E> ringBuffer = 
+                new PreallocatedRingBuffer<E>(factory, publisher.getCursorSequence(), 
+                                              sequencer, publisher, waitStrategy);
+        
+        return ringBuffer;
+    }
+    
+    public static <E> PreallocatedRingBuffer<E> createSingleProducer(EventFactory<E> factory, int bufferSize)
+    {
+        return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy());
     }
 
     /**
@@ -62,9 +108,37 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     @SuppressWarnings("unchecked")
     public E get(final long sequence)
     {
-        sequencer.ensureAvailable(sequence);
+        publisher.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
     }
+    
+    @Override
+    public long next()
+    {
+        return sequencer.next();
+    }
+    
+    public final void setGatingSequences(Sequence... gatingSequences)
+    {
+        sequencer.setGatingSequences(gatingSequences);
+    }
+    
+    @Override
+    public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
+    {
+        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
+    }
+
+    public final long getCursor()
+    {
+        return cursor.get();
+    }
+    
+    public int getBufferSize()
+    {
+        return bufferSize;
+    }
+
 
     /**
      * Publishes an event to the ring buffer.  It handles
@@ -275,6 +349,12 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
     {
         return (E)entries[(int)sequence & indexMask];
     }
+    
+    @Override
+    public void publish(long sequence)
+    {
+        publisher.publish(sequence);
+    }
 
     private void translateAndPublish(final EventTranslator<E> translator, final long sequence)
     {
@@ -284,7 +364,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
         finally
         {
-            sequencer.publish(sequence);
+            publisher.publish(sequence);
         }
     }
 
@@ -298,7 +378,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
         finally
         {
-            sequencer.publish(sequence);
+            publisher.publish(sequence);
         }
     }
 
@@ -313,7 +393,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
         finally
         {
-            sequencer.publish(sequence);
+            publisher.publish(sequence);
         }
     }
 
@@ -329,7 +409,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
         finally
         {
-            sequencer.publish(sequence);
+            publisher.publish(sequence);
         }
     }
 
@@ -343,7 +423,7 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         }
         finally
         {
-            sequencer.publish(sequence);
+            publisher.publish(sequence);
         }
     }
 
@@ -353,5 +433,15 @@ public final class PreallocatedRingBuffer<E> extends RingBuffer<E>
         {
             entries[i] = eventFactory.newInstance();
         }
+    }
+
+    public void claim(long sequence)
+    {
+        sequencer.claim(sequence);
+    }
+
+    public void forcePublish(long sequence)
+    {
+        publisher.forcePublish(sequence);
     }
 }

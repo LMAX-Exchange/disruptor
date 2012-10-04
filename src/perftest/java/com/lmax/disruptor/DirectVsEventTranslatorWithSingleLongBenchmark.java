@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,9 +17,7 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
     private final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
-            new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                    new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
-    private final Sequencer sequencer = ringBuffer.getSequencer();
+            createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final ValueEventTranslator translator = new ValueEventTranslator();
@@ -56,14 +56,14 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
 
         for (int i = 0; i < iterations; i++)
         {
-            long next = sequencer.next();
+            long next = ringBuffer.next();
             try
             {
                 ringBuffer.getPreallocated(next).setValue(i);
             }
             finally
             {
-                sequencer.publish(next);
+                ringBuffer.publish(next);
             }
         }
 

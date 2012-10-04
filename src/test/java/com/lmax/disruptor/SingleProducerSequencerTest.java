@@ -47,17 +47,6 @@ public final class SingleProducerSequencerTest
     }
 
     @Test
-    public void shouldGetPublishFirstSequence()
-    {
-        final long sequence = sequencer.next();
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
-        assertEquals(sequence, 0L);
-
-        sequencer.publish(sequence);
-        assertEquals(sequence, sequencer.getCursor());
-    }
-
-    @Test
     public void shouldIndicateAvailableCapacity()
     {
         assertTrue(sequencer.hasAvailableCapacity(1));
@@ -72,82 +61,6 @@ public final class SingleProducerSequencerTest
     }
 
     @Test
-    public void shouldForceClaimSequence()
-    {
-        final long claimSequence = 3L;
-
-        final long sequence = sequencer.claim(claimSequence);
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
-        assertEquals(sequence, claimSequence);
-
-        sequencer.forcePublish(sequence);
-        assertEquals(claimSequence, sequencer.getCursor());
-    }
-
-    @Test
-    public void shouldWaitOnSequence()
-        throws AlertException, InterruptedException
-    {
-        final SequenceBarrier barrier = sequencer.newBarrier();
-        final long sequence = sequencer.next();
-        sequencer.publish(sequence);
-
-        assertEquals(sequence, barrier.waitFor(sequence));
-    }
-
-    @Test
-    public void shouldWaitOnSequenceShowingBatchingEffect()
-        throws AlertException, InterruptedException
-    {
-        final SequenceBarrier barrier = sequencer.newBarrier();
-        sequencer.publish(sequencer.next());
-        sequencer.publish(sequencer.next());
-
-        final long sequence = sequencer.next();
-        sequencer.publish(sequence);
-
-        assertEquals(sequence, barrier.waitFor(SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L));
-    }
-
-    @Test
-    public void shouldSignalWaitingProcessorWhenSequenceIsPublished()
-        throws InterruptedException
-    {
-        final SequenceBarrier barrier = sequencer.newBarrier();
-        final CountDownLatch waitingLatch = new CountDownLatch(1);
-        final CountDownLatch doneLatch = new CountDownLatch(1);
-        final long expectedSequence = SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L;
-
-        EXECUTOR.submit(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    waitingLatch.countDown();
-                    assertEquals(expectedSequence, barrier.waitFor(expectedSequence));
-                }
-                catch (Exception e)
-                {
-                    // will not happen
-                }
-
-                gatingSequence.set(expectedSequence);
-                doneLatch.countDown();
-            }
-        });
-
-        waitingLatch.await();
-        assertEquals(gatingSequence.get(), SingleProducerSequencer.INITIAL_CURSOR_VALUE);
-
-        sequencer.publish(sequencer.next());
-
-        doneLatch.await();
-        assertEquals(gatingSequence.get(), expectedSequence);
-    }
-
-    @Test
     public void shouldHoldUpPublisherWhenBufferIsFull()
         throws InterruptedException
     {
@@ -156,8 +69,8 @@ public final class SingleProducerSequencerTest
         final CountDownLatch waitingLatch = new CountDownLatch(1);
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
-        final long expectedFullSequence = SingleProducerSequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        assertEquals(sequencer.getCursor(), expectedFullSequence);
+        final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
+        assertThat(sequencer.getCursor(), is(expectedFullSequence));
 
         EXECUTOR.submit(new Runnable()
         {
@@ -166,7 +79,7 @@ public final class SingleProducerSequencerTest
             {
                 waitingLatch.countDown();
 
-                sequencer.publish(sequencer.next());
+                sequencer.next();
 
                 doneLatch.countDown();
             }
@@ -175,7 +88,7 @@ public final class SingleProducerSequencerTest
         waitingLatch.await();
         assertEquals(sequencer.getCursor(), expectedFullSequence);
 
-        gatingSequence.set(SingleProducerSequencer.INITIAL_CURSOR_VALUE + 1L);
+        gatingSequence.set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
         assertEquals(sequencer.getCursor(), expectedFullSequence + 1L);
@@ -186,8 +99,7 @@ public final class SingleProducerSequencerTest
     {
         for (int i = 0; i < 4; i++)
         {
-            long sequence = sequencer.next();
-            sequencer.publish(sequence);
+            sequencer.next();
         }
         sequencer.tryNext();
     }
@@ -196,11 +108,11 @@ public final class SingleProducerSequencerTest
     public void shouldCalculateRemainingCapacity() throws Exception
     {
         assertThat(sequencer.remainingCapacity(), is(4L));
-        sequencer.publish(sequencer.next());
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(), is(3L));
-        sequencer.publish(sequencer.next());
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(), is(2L));
-        sequencer.publish(sequencer.next());
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(), is(1L));
     }
 
@@ -208,8 +120,7 @@ public final class SingleProducerSequencerTest
     {
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            final long sequence = sequencer.next();
-            sequencer.publish(sequence);
+            sequencer.next();
         }
     }
 }

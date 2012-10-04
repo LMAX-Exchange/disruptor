@@ -28,7 +28,7 @@ public final class NoOpEventProcessor implements EventProcessor
      *
      * @param sequencer to track.
      */
-    public NoOpEventProcessor(final Sequencer sequencer)
+    public NoOpEventProcessor(final RingBuffer<?> sequencer)
     {
         sequence = new SequencerFollowingSequence(sequencer);
     }
@@ -51,9 +51,9 @@ public final class NoOpEventProcessor implements EventProcessor
 
     private static final class SequencerFollowingSequence extends Sequence
     {
-        private final Sequencer sequencer;
+        private final RingBuffer<?> sequencer;
 
-        private SequencerFollowingSequence(final Sequencer sequencer)
+        private SequencerFollowingSequence(final RingBuffer<?> sequencer)
         {
             super(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
             this.sequencer = sequencer;

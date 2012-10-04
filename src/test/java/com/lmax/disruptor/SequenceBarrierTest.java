@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -34,15 +35,14 @@ import java.util.concurrent.TimeUnit;
 public final class SequenceBarrierTest
 {
     private Mockery context = new Mockery();
-    private final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 64);
+    private final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 64);
     private EventProcessor eventProcessor1 = context.mock(EventProcessor.class, "ep1");
     private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
     private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
-    private final Sequencer sequencer = ringBuffer.getSequencer();
 
     public SequenceBarrierTest()
     {
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(sequencer).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -96,10 +96,10 @@ public final class SequenceBarrierTest
         {
             public void run()
             {
-                long sequence = sequencer.next();
+                long sequence = ringBuffer.next();
                 StubEvent event = ringBuffer.getPreallocated(sequence);
                 event.setValue((int) sequence);
-                sequencer.publish(sequence);
+                ringBuffer.publish(sequence);
 
                 for (StubEventProcessor stubWorker : workers)
                 {
@@ -224,10 +224,10 @@ public final class SequenceBarrierTest
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             StubEvent event = ringBuffer.getPreallocated(sequence);
             event.setValue((int) i);
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
         }
     }
 

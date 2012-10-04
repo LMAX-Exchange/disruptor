@@ -53,7 +53,7 @@ public class Disruptor<T>
      */
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
     {
-        this(new PreallocatedRingBuffer<T>(eventFactory, ringBufferSize), executor);
+        this(PreallocatedRingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
     }
 
     /**
@@ -70,7 +70,7 @@ public class Disruptor<T>
                      final ProducerType claimStrategy,
                      final WaitStrategy waitStrategy)
     {
-        this(new PreallocatedRingBuffer<T>(eventFactory, claimStrategy.createSequencer(ringBufferSize, waitStrategy)),
+        this(PreallocatedRingBuffer.createMultiProducer(eventFactory, ringBufferSize, waitStrategy),
              executor);
     }
 

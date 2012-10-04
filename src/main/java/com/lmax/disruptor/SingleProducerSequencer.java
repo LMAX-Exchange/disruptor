@@ -26,12 +26,10 @@ import com.lmax.disruptor.util.Util;
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-public class SingleProducerSequencer implements Sequencer
+class SingleProducerSequencer implements Sequencer
 {
     /** Set to -1 as sequence starting point */
     private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private final PaddedLong claimSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-
     private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
     private Sequence[] gatingSequences;
 
@@ -55,12 +53,6 @@ public class SingleProducerSequencer implements Sequencer
     public void setGatingSequences(final Sequence... sequences)
     {
         this.gatingSequences = sequences;
-    }
-
-    @Override
-    public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
-    {
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
     }
 
     @Override
@@ -89,7 +81,11 @@ public class SingleProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        return incrementAndGet(1, gatingSequences);
+        long nextSequence = cursor.get() + 1;
+        waitForFreeSlotAt(nextSequence, gatingSequences);
+        cursor.set(nextSequence);
+        
+        return nextSequence;
     }
 
     @Override
@@ -105,7 +101,10 @@ public class SingleProducerSequencer implements Sequencer
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        return incrementAndGet(1, gatingSequences);
+        long nextSequence = cursor.get() + 1;
+        cursor.set(nextSequence);
+        
+        return nextSequence;
     }
 
     @Override
@@ -116,24 +115,10 @@ public class SingleProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        claimSequence.set(sequence);
+        cursor.set(sequence);
         waitForFreeSlotAt(sequence, gatingSequences);
 
         return sequence;
-    }
-
-    @Override
-    public void publish(final long sequence)
-    {
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
-    }
-
-    @Override
-    public void forcePublish(final long sequence)
-    {
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
     }
 
     @Override
@@ -143,18 +128,7 @@ public class SingleProducerSequencer implements Sequencer
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
     }
-
-    @Override
-    public void ensureAvailable(long sequence)
-    {
-    }
-
-    @Override
-    public boolean isAvailable(long sequence)
-    {
-        return sequence <= cursor.get();
-    }
-
+    
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
     {
         final long wrapPoint = sequence - bufferSize;
@@ -163,7 +137,7 @@ public class SingleProducerSequencer implements Sequencer
             long minSequence;
             while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
             {
-                LockSupport.parkNanos(1L);
+                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
             minGatingSequence.set(minSequence);
@@ -172,7 +146,7 @@ public class SingleProducerSequencer implements Sequencer
 
     private boolean hasAvailableCapacity(final int requiredCapacity, final Sequence[] dependentSequences)
     {
-        final long wrapPoint = (claimSequence.get() + requiredCapacity) - bufferSize;
+        final long wrapPoint = (cursor.get() + requiredCapacity) - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
             long minSequence = getMinimumSequence(dependentSequences);
@@ -185,14 +159,5 @@ public class SingleProducerSequencer implements Sequencer
         }
 
         return true;
-    }
-
-    private long incrementAndGet(final int delta, final Sequence[] dependentSequences)
-    {
-        long nextSequence = claimSequence.get() + delta;
-        waitForFreeSlotAt(nextSequence, dependentSequences);
-        claimSequence.set(nextSequence);
-
-        return nextSequence;
     }
 }

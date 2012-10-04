@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -141,8 +143,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final PreallocatedRingBuffer<FizzBuzzEvent> ringBuffer =
-            new PreallocatedRingBuffer<FizzBuzzEvent>(FizzBuzzEvent.EVENT_FACTORY,
-                    new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
+            createSingleProducer(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -219,7 +220,6 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     @Override
     protected long runDisruptorPass() throws Exception
     {
-        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(1);
         fizzBuzzHandler.reset(latch, batchProcessorFizzBuzz.getSequence().get() + ITERATIONS);
 
@@ -231,9 +231,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             ringBuffer.getPreallocated(sequence).setValue(i);
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
         }
 
         latch.await();

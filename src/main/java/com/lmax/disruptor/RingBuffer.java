@@ -1,53 +1,18 @@
 package com.lmax.disruptor;
 
-public abstract class RingBuffer<E>
+public interface RingBuffer<E>
 {
-    protected final Sequencer sequencer;
-    protected final int indexMask;
+    SequenceBarrier newBarrier(final Sequence... sequencesToTrack);
 
-    /**
-     * Construct a RingBuffer with the full option set.
-     *
-     * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
-     *
-     * @throws IllegalArgumentException if bufferSize is not a power of 2
-     */
-    public RingBuffer(Sequencer sequencer)
-    {
-        this.sequencer = sequencer;
-        int bufferSize = sequencer.getBufferSize();
-        if (Integer.bitCount(bufferSize) != 1)
-        {
-            throw new IllegalArgumentException("bufferSize must be a power of 2");
-        }
+    void setGatingSequences(Sequence... gatingSequences);
 
-        indexMask = bufferSize - 1;
-    }
+    long getCursor();
+    
+    int getBufferSize();
+    
+    long next();
 
-    public final SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
-    {
-        return sequencer.newBarrier(sequencesToTrack);
-    }
-
-    public final void setGatingSequences(Sequence... gatingSequences)
-    {
-        sequencer.setGatingSequences(gatingSequences);
-    }
-
-    public final long getCursor()
-    {
-        return sequencer.getCursor();
-    }
-
-    public Sequencer getSequencer()
-    {
-        return sequencer;
-    }
-
-    public int getBufferSize()
-    {
-        return sequencer.getBufferSize();
-    }
-
-    public abstract E get(long sequence);
+    E get(long sequence);
+    
+    void publish(long sequence);
 }

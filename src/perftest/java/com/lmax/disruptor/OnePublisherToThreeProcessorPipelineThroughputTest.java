@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+
 import com.lmax.disruptor.support.FunctionEvent;
 import com.lmax.disruptor.support.FunctionEventHandler;
 import com.lmax.disruptor.support.FunctionQueueProcessor;
@@ -120,9 +122,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final PreallocatedRingBuffer<FunctionEvent> ringBuffer =
-        new PreallocatedRingBuffer<FunctionEvent>(FunctionEvent.EVENT_FACTORY,
-                new SingleProducerSequencer(BUFFER_SIZE,
-                                            new YieldingWaitStrategy()));
+        createSingleProducer(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
@@ -200,7 +200,6 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     protected long runDisruptorPass() throws InterruptedException
     {
         CountDownLatch latch = new CountDownLatch(1);
-        Sequencer sequencer = ringBuffer.getSequencer();
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
         EXECUTOR.submit(stepOneBatchProcessor);
@@ -212,11 +211,11 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             FunctionEvent event = ringBuffer.getPreallocated(sequence);
             event.setOperandOne(i);
             event.setOperandTwo(operandTwo--);
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
         }
 
         latch.await();

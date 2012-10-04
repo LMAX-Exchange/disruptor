@@ -29,7 +29,7 @@ import com.lmax.disruptor.util.Util;
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-public class MultiProducerOffHeapRingBuffer implements Sequencer
+public class MultiProducerOffHeapRingBuffer implements Sequencer, Publisher
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
@@ -81,7 +81,6 @@ public class MultiProducerOffHeapRingBuffer implements Sequencer
         this.gatingSequences = sequences;
     }
 
-    @Override
     public SequenceBarrier newBarrier(final Sequence... sequencesToTrack)
     {
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);

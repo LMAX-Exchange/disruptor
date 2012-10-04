@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -25,12 +26,12 @@ import com.lmax.disruptor.support.LongEvent;
 public class EventPublisherTest implements EventTranslator<LongEvent>
 {
     private static final int BUFFER_SIZE = 32;
+    private PreallocatedRingBuffer<LongEvent> ringBuffer = createMultiProducer(LongEvent.FACTORY, BUFFER_SIZE);
 
     @Test
     public void shouldPublishEvent()
     {
-        PreallocatedRingBuffer<LongEvent> ringBuffer = new PreallocatedRingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer.getSequencer()).getSequence());
+        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
 
         ringBuffer.publishEvent(this);
         ringBuffer.publishEvent(this);
@@ -42,7 +43,6 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Test
     public void shouldTryPublishEvent() throws Exception
     {
-        PreallocatedRingBuffer<LongEvent> ringBuffer = new PreallocatedRingBuffer<LongEvent>(LongEvent.FACTORY, BUFFER_SIZE);
         ringBuffer.setGatingSequences(new Sequence());
 
         for (int i = 0; i < BUFFER_SIZE; i++)

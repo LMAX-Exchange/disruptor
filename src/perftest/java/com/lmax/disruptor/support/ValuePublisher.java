@@ -18,7 +18,6 @@ package com.lmax.disruptor.support;
 import java.util.concurrent.CyclicBarrier;
 
 import com.lmax.disruptor.PreallocatedRingBuffer;
-import com.lmax.disruptor.Sequencer;
 
 public final class ValuePublisher implements Runnable
 {
@@ -36,17 +35,16 @@ public final class ValuePublisher implements Runnable
     @Override
     public void run()
     {
-        Sequencer sequencer = ringBuffer.getSequencer();
         try
         {
             cyclicBarrier.await();
 
             for (long i = 0; i < iterations; i++)
             {
-                long sequence = sequencer.next();
+                long sequence = ringBuffer.next();
                 ValueEvent event = ringBuffer.getPreallocated(sequence);
                 event.setValue(i);
-                sequencer.publish(sequence);
+                ringBuffer.publish(sequence);
             }
         }
         catch (Exception ex)

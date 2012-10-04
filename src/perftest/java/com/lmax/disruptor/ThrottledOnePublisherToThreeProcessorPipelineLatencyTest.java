@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.concurrent.*;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -141,8 +142,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
-        new PreallocatedRingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                new SingleProducerSequencer(BUFFER_SIZE, new BusySpinWaitStrategy()));
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
@@ -261,7 +261,6 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private void runDisruptorPass() throws InterruptedException
     {
-        Sequencer sequencer = ringBuffer.getSequencer();
         CountDownLatch latch = new CountDownLatch(1);
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
@@ -271,9 +270,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long sequence = sequencer.next();
+            long sequence = ringBuffer.next();
             ringBuffer.getPreallocated(sequence).setValue(System.nanoTime());
-            sequencer.publish(sequence);
+            ringBuffer.publish(sequence);
 
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() - pauseStart))

@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,7 +30,7 @@ public final class LifecycleAwareTest
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 
-    private final PreallocatedRingBuffer<StubEvent> ringBuffer = new PreallocatedRingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, 16);
+    private final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LifecycleAwareEventHandler handler = new LifecycleAwareEventHandler();
     private final BatchEventProcessor<StubEvent> batchEventProcessor =

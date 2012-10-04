@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,10 +17,8 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
     private static final int BUFFER_SIZE = 1024 * 8;
     private final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    private final PreallocatedRingBuffer<byte[]> ringBuffer =
-            new PreallocatedRingBuffer<byte[]>(new ByteArrayFactory(),
-                    new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy()));
-    private final Sequencer sequencer = ringBuffer.getSequencer();
+    private final PreallocatedRingBuffer<byte[]> ringBuffer = 
+            createSingleProducer(new ByteArrayFactory(), BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ByteArrayEventHandler handler = new ByteArrayEventHandler();
     private final ByteArrayEventTranslator translator = new ByteArrayEventTranslator();
@@ -38,14 +38,14 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
 
         for (int i = 0; i < iterations; i++)
         {
-            long next = sequencer.next();
+            long next = ringBuffer.next();
             try
             {
                 System.arraycopy(data, 0, ringBuffer.getPreallocated(next), 0, data.length);
             }
             finally
             {
-                sequencer.publish(next);
+                ringBuffer.publish(next);
             }
         }
 
