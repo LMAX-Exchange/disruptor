@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
 
 defaultTasks 'build'
 
@@ -23,6 +24,8 @@ ext {
 sourceSets {
     perf.java.srcDir 'src/perftest/java'
 }
+
+eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
 repositories {
     mavenCentral()
