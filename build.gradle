@@ -55,6 +55,7 @@ def perfTests = [Test: '**/*', Throughput: '**/*ThroughputTest.class', Throughpu
 
 def createPerfTest = { type, pattern ->
     task("perf$type", type: Test, dependsOn: ['classes', 'perfClasses'], group: 'Performance test') {
+        outputs.upToDateWhen { false }    // always run perf tests, even if no inputs have changed
         testClassesDir = sourceSets.perf.output.classesDir
         classpath = sourceSets.perf.runtimeClasspath + sourceSets.main.runtimeClasspath
         include pattern
