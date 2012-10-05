@@ -136,11 +136,15 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
 
+        Sequencer sequencer = ringBuffer.getSequencer();
+        Publisher publisher = ringBuffer.getPublisher();
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long next = ringBuffer.next();
+            long next = sequencer.next();
+//            long next = ringBuffer.next();
             ringBuffer.getPreallocated(next).setValue(i);
-            ringBuffer.publish(next);
+            publisher.publish(next);
+//            ringBuffer.publish(next);
         }
 
         latch.await();
@@ -149,6 +153,10 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
         Assert.assertEquals(expectedResult, handler.getValue());
 
+//        SingleProducerSequencer producerSequencer = (SingleProducerSequencer) sequencer;
+        
+//        System.out.println("Backoff count: " + producerSequencer.getBackoffCount());
+        
         return opsPerSecond;
     }
 }

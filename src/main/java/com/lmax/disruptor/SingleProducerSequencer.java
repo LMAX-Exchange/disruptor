@@ -30,13 +30,14 @@ class SingleProducerSequencer implements Sequencer
 {
     /** Set to -1 as sequence starting point */
     private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-//    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private long cursor = Sequencer.INITIAL_CURSOR_VALUE;
     private Sequence[] gatingSequences;
 
+    @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
 
     private final int bufferSize;
+    private long backoffCounter;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -65,7 +66,6 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long getCursor()
     {
-//        return cursor.get();
         return cursor;
     }
 
@@ -129,6 +129,11 @@ class SingleProducerSequencer implements Sequencer
         long consumed = Util.getMinimumSequence(gatingSequences);
         long produced = cursor;
         return getBufferSize() - (produced - consumed);
+    }
+    
+    long getBackoffCount()
+    {
+        return backoffCounter;
     }
     
     private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)

@@ -444,4 +444,14 @@ public final class PreallocatedRingBuffer<E> implements RingBuffer<E>
     {
         publisher.forcePublish(sequence);
     }
+
+    Sequencer getSequencer()
+    {
+        return sequencer;
+    }
+    
+    Publisher getPublisher()
+    {
+        return publisher;
+    }
 }
