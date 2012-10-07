@@ -7,7 +7,6 @@ apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see 
 defaultTasks 'build'
 
 group = 'com.googlecode.disruptor'
-archivesBaseName = 'disruptor'
 version = new Version(major: 3)
 
 ext {
