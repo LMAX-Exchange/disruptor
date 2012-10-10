@@ -28,7 +28,7 @@ import com.lmax.disruptor.support.DaemonThreadFactory;
 
 public final class SingleProducerSequencerTest
 {
-    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private static final int BUFFER_SIZE = 4;
 
     private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new SleepingWaitStrategy());

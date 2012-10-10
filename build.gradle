@@ -103,6 +103,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task javaVersion << {
+    println ant.properties['java.version']
+}
+
 artifacts {
     archives sourcesJar, javadocJar
 }
@@ -153,6 +157,15 @@ uploadArchives {
 
         pom.project(projectPom)
     }
+}
+
+task listJars << {
+    configurations.perfCompile.each { File file -> println file.name }
+}
+
+task tempLibs(type:Sync) {
+    from configurations.perfCompile
+    into('templib')
 }
 
 gradle.taskGraph.whenReady { taskGraph ->

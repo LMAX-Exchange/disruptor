@@ -17,8 +17,10 @@ package com.lmax.disruptor.support;
 
 import java.util.concurrent.ThreadFactory;
 
-public final class DaemonThreadFactory implements ThreadFactory
+public enum DaemonThreadFactory implements ThreadFactory
 {
+    INSTANCE;
+    
     @Override
     public Thread newThread(final Runnable r)
     {

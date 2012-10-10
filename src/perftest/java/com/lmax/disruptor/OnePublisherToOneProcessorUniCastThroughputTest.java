@@ -69,9 +69,9 @@ import java.util.concurrent.*;
  */
 public final class OnePublisherToOneProcessorUniCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int BUFFER_SIZE = 1024 * 8;
+    private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,9 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         {
             long next = sequencer.next();
 //            long next = ringBuffer.next();
+            
             ringBuffer.getPreallocated(next).setValue(i);
+            
             publisher.publish(next);
 //            ringBuffer.publish(next);
         }
@@ -158,5 +160,11 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 //        System.out.println("Backoff count: " + producerSequencer.getBackoffCount());
         
         return opsPerSecond;
+    }
+    
+    public static void main(String[] args) throws Exception
+    {
+        OnePublisherToOneProcessorUniCastThroughputTest test = new OnePublisherToOneProcessorUniCastThroughputTest();
+        test.shouldCompareDisruptorVsQueues();
     }
 }

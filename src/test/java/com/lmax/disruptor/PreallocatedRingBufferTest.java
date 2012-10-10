@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 
 public class PreallocatedRingBufferTest
 {
-    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private final PreallocatedRingBuffer<StubEvent> ringBuffer = PreallocatedRingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {

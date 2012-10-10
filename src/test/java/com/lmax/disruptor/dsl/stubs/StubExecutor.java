@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class StubExecutor implements Executor
 {
-    private final DaemonThreadFactory threadFactory = new DaemonThreadFactory();
+    private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
     private final Collection<Thread> threads = new CopyOnWriteArrayList<Thread>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
