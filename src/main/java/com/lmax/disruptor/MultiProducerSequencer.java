@@ -50,7 +50,14 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public void setGatingSequences(final Sequence... sequences)
     {
-        this.gatingSequences = sequences;
+        if (sequences.length == 0)
+        {
+            this.gatingSequences = new Sequence[] { cursor };
+        }
+        else
+        {
+            this.gatingSequences = sequences;
+        }
     }
 
     @Override
