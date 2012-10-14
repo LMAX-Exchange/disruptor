@@ -16,7 +16,7 @@ ext {
     siteUrl = 'http://lmax-exchange.github.com/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
 
-    javaCompilerExecutable = System.getenv()['JAVA_HOME'] ? System.getenv()['JAVA_HOME'] + '/bin/javac' : 'javac'
+    javaCompilerExecutable = System.env['JAVA_HOME'] ? System.env['JAVA_HOME'] + '/bin/javac' : 'javac'
 
     if (!project.hasProperty('sonatypeUsername')) sonatypeUsername = ''
     if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
@@ -160,7 +160,7 @@ uploadArchives {
     }
 }
 
-task buildAll(dependsOn: ['build', 'perfClasses'])
+task buildAll(dependsOn: [build, perfClasses])
 
 task listJars << {
     configurations.perfCompile.each { file -> println file.name }
