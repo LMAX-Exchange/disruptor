@@ -161,10 +161,10 @@ uploadArchives {
 task buildAll(dependsOn: ['build', 'perfClasses'])
 
 task listJars << {
-    configurations.perfCompile.each { File file -> println file.name }
+    configurations.perfCompile.each { file -> println file.name }
 }
 
-task tempLibs(type:Sync) {
+task tempLibs(type: Sync) {
     from configurations.perfCompile
     into('templib')
 }
