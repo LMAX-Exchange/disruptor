@@ -47,7 +47,7 @@ tasks.withType(Compile) {
 }
 
 compilePerfJava {
-    classpath += sourceSets.main.runtimeClasspath
+    classpath += (sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath)
 }
 
 def perfTests = [Test: '**/*', Throughput: '**/*ThroughputTest.class', ThroughputMultiThreaded: '**/Three*ThroughputTest.class', Latency: '**/*LatencyTest.class']
