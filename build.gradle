@@ -16,6 +16,8 @@ ext {
     siteUrl = 'http://lmax-exchange.github.com/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
 
+    javaCompilerExecutable = System.getenv()['JAVA_HOME'] ? System.getenv()['JAVA_HOME'] + '/bin/javac' : 'javac'
+
     if (!project.hasProperty('sonatypeUsername')) sonatypeUsername = ''
     if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
@@ -42,7 +44,7 @@ tasks.withType(Compile) {
     options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked'
     options.debug = true
     options.fork = true
-    options.forkOptions.executable = 'javac'
+    options.forkOptions.executable = javaCompilerExecutable
     options.warnings = false
 }
 
