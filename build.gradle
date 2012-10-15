@@ -104,10 +104,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-task javaVersion << {
-    println ant.properties['java.version']
-}
-
 artifacts {
     archives sourcesJar, javadocJar
 }
