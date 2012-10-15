@@ -162,6 +162,8 @@ uploadArchives {
 
 task buildAll(dependsOn: [build, perfClasses])
 
+build.dependsOn perfClasses
+
 task listJars << {
     configurations.perfCompile.each { file -> println file.name }
 }
