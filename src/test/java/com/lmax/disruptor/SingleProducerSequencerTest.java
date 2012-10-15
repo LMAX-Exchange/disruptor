@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 
 import org.junit.Test;
 
-import com.lmax.disruptor.support.DaemonThreadFactory;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public final class SingleProducerSequencerTest
 {

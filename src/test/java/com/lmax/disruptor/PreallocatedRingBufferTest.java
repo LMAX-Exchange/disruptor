@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.lmax.disruptor.support.DaemonThreadFactory;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
 import org.junit.Test;

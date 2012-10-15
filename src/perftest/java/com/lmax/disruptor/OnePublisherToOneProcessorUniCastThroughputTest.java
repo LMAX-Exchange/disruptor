@@ -18,6 +18,7 @@ package com.lmax.disruptor;
 import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
 
 import com.lmax.disruptor.support.*;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
