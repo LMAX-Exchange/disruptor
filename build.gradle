@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
 
-defaultTasks 'buildAll'
+defaultTasks 'build'
 
 group = 'com.googlecode.disruptor'
 version = new Version(major: 3)
@@ -159,8 +159,6 @@ uploadArchives {
         pom.project(projectPom)
     }
 }
-
-task buildAll(dependsOn: [build, perfClasses])
 
 build.dependsOn perfClasses
 
