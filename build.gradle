@@ -6,7 +6,7 @@ apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see 
 
 defaultTasks 'build'
 
-group = 'com.googlecode.disruptor'
+group = 'com.lmax'
 version = new Version(major: 3)
 
 ext {
@@ -90,7 +90,6 @@ jar {
                         'Bundle-Name': fullName,
                         'Bundle-Vendor': teamName,
                         'Bundle-Description': fullDescription,
-                        'Bundle-SymbolicName': 'com.lmax.disruptor',
                         'Bundle-DocURL': siteUrl)
 }
 
