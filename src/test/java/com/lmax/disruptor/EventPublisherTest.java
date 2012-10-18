@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -26,7 +26,7 @@ import com.lmax.disruptor.support.LongEvent;
 public class EventPublisherTest implements EventTranslator<LongEvent>
 {
     private static final int BUFFER_SIZE = 32;
-    private PreallocatedRingBuffer<LongEvent> ringBuffer = createMultiProducer(LongEvent.FACTORY, BUFFER_SIZE);
+    private RingBuffer<LongEvent> ringBuffer = createMultiProducer(LongEvent.FACTORY, BUFFER_SIZE);
 
     @Test
     public void shouldPublishEvent()

@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 
 import com.lmax.disruptor.support.*;
 import org.junit.Test;
@@ -112,7 +112,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+    private final RingBuffer<ValueEvent> ringBuffer =
         createMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();

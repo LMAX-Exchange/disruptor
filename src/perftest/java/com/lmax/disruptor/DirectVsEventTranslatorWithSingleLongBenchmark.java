@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +16,7 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
     private static final int BUFFER_SIZE = 1024 * 8;
     private final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+    private final RingBuffer<ValueEvent> ringBuffer =
             createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();

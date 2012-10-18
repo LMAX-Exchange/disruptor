@@ -29,7 +29,7 @@ public final class WorkProcessor<T>
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
-    private final PreallocatedRingBuffer<T> ringBuffer;
+    private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final WorkHandler<T> workHandler;
     private final ExceptionHandler exceptionHandler;
@@ -45,7 +45,7 @@ public final class WorkProcessor<T>
      * @param workSequence from which to claim the next event to be worked on.  It should always be initialised
      * as {@link SingleProducerSequencer#INITIAL_CURSOR_VALUE}
      */
-    public WorkProcessor(final PreallocatedRingBuffer<T> ringBuffer,
+    public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
                          final WorkHandler<T> workHandler,
                          final ExceptionHandler exceptionHandler,

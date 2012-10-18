@@ -17,15 +17,15 @@ package com.lmax.disruptor.support;
 
 import java.util.concurrent.CyclicBarrier;
 
-import com.lmax.disruptor.PreallocatedRingBuffer;
+import com.lmax.disruptor.RingBuffer;
 
 public final class ValuePublisher implements Runnable
 {
     private final CyclicBarrier cyclicBarrier;
-    private final PreallocatedRingBuffer<ValueEvent> ringBuffer;
+    private final RingBuffer<ValueEvent> ringBuffer;
     private final long iterations;
 
-    public ValuePublisher(final CyclicBarrier cyclicBarrier, final PreallocatedRingBuffer<ValueEvent> ringBuffer, final long iterations)
+    public ValuePublisher(final CyclicBarrier cyclicBarrier, final RingBuffer<ValueEvent> ringBuffer, final long iterations)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.ringBuffer = ringBuffer;

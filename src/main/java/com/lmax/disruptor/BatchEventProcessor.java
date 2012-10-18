@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Convenience class for handling the batching semantics of consuming entries from a {@link PreallocatedRingBuffer}
+ * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available events to a {@link EventHandler}.
  *
  * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread

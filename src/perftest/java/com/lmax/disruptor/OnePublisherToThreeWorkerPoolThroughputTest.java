@@ -120,7 +120,7 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
     {
 
         resetCounters();
-        PreallocatedRingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
+        RingBuffer<ValueEvent> ringBuffer = workerPool.start(EXECUTOR);
         long start = System.currentTimeMillis();
 
         for (long i = 0; i < ITERATIONS; i++)

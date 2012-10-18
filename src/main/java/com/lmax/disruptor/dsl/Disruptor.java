@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Disruptor<T>
 {
-    private final PreallocatedRingBuffer<T> ringBuffer;
+    private final RingBuffer<T> ringBuffer;
     private final Executor executor;
     private final EventProcessorRepository<T> eventProcessorRepository = new EventProcessorRepository<T>();
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -53,7 +53,7 @@ public class Disruptor<T>
      */
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
     {
-        this(PreallocatedRingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
+        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
     }
 
     /**
@@ -70,11 +70,11 @@ public class Disruptor<T>
                      final ProducerType claimStrategy,
                      final WaitStrategy waitStrategy)
     {
-        this(PreallocatedRingBuffer.createMultiProducer(eventFactory, ringBufferSize, waitStrategy),
+        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize, waitStrategy),
              executor);
     }
 
-    private Disruptor(final PreallocatedRingBuffer<T> ringBuffer, final Executor executor)
+    private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)
     {
         this.ringBuffer = ringBuffer;
         this.executor = executor;
@@ -195,7 +195,7 @@ public class Disruptor<T>
      *
      * @return the configured ring buffer.
      */
-    public PreallocatedRingBuffer<T> start()
+    public RingBuffer<T> start()
     {
         EventProcessor[] gatingProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
         ringBuffer.setGatingSequences(Util.getSequencesFor(gatingProcessors));

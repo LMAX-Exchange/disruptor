@@ -24,16 +24,16 @@ import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
 import org.junit.Test;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class PreallocatedRingBufferTest
+public class RingBufferTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
-    private final PreallocatedRingBuffer<StubEvent> ringBuffer = PreallocatedRingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
+    private final RingBuffer<StubEvent> ringBuffer = RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {
         ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
@@ -143,7 +143,7 @@ public class PreallocatedRingBufferTest
     public void shouldPreventWrapping() throws Exception
     {
         Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-        final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 4);
+        final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 4);
         ringBuffer.setGatingSequences(sequence);
 
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 0, "0");
@@ -160,7 +160,7 @@ public class PreallocatedRingBufferTest
         final int ringBufferSize = 4;
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
-        final PreallocatedRingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, ringBufferSize);
+        final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, ringBufferSize);
         final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newBarrier());
         ringBuffer.setGatingSequences(processor.getSequence());
 

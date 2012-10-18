@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 import com.lmax.disruptor.support.*;
 import com.lmax.disruptor.util.DaemonThreadFactory;
@@ -82,7 +82,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+    private final RingBuffer<ValueEvent> ringBuffer =
         createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();

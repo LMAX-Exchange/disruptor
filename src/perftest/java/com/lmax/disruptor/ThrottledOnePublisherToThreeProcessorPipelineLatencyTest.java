@@ -23,7 +23,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.concurrent.*;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -141,7 +141,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final PreallocatedRingBuffer<ValueEvent> ringBuffer =
+    private final RingBuffer<ValueEvent> ringBuffer =
         createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();

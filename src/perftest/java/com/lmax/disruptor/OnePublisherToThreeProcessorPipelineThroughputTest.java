@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.PreallocatedRingBuffer.createSingleProducer;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 import com.lmax.disruptor.support.FunctionEvent;
 import com.lmax.disruptor.support.FunctionEventHandler;
@@ -121,7 +121,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final PreallocatedRingBuffer<FunctionEvent> ringBuffer =
+    private final RingBuffer<FunctionEvent> ringBuffer =
         createSingleProducer(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();

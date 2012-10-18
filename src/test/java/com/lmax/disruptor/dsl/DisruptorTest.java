@@ -190,7 +190,7 @@ public class DisruptorTest
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
         disruptor.handleEventsWith(delayedEventHandler);
 
-        final PreallocatedRingBuffer<TestEvent> ringBuffer = disruptor.start();
+        final RingBuffer<TestEvent> ringBuffer = disruptor.start();
         delayedEventHandler.awaitStart();
 
         final StubPublisher stubPublisher = new StubPublisher(ringBuffer);

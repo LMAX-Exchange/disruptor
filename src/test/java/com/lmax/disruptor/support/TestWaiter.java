@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 
-import com.lmax.disruptor.PreallocatedRingBuffer;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
 
 public final class TestWaiter implements Callable<List<StubEvent>>
@@ -29,11 +29,11 @@ public final class TestWaiter implements Callable<List<StubEvent>>
     private final long initialSequence;
     private final CyclicBarrier cyclicBarrier;
     private final SequenceBarrier sequenceBarrier;
-    private final PreallocatedRingBuffer<StubEvent> ringBuffer;
+    private final RingBuffer<StubEvent> ringBuffer;
 
     public TestWaiter(final CyclicBarrier cyclicBarrier,
                       final SequenceBarrier sequenceBarrier,
-                      final PreallocatedRingBuffer<StubEvent> ringBuffer,
+                      final RingBuffer<StubEvent> ringBuffer,
                       final long initialSequence,
                       final long toWaitForSequence)
     {

@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * EventProcessors waitFor events to become available for consumption from the {@link PreallocatedRingBuffer}
+ * EventProcessors waitFor events to become available for consumption from the {@link RingBuffer}
  *
  * An EventProcessor will be associated with a Thread for execution.
  */
