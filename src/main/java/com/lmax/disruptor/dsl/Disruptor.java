@@ -252,7 +252,6 @@ public class Disruptor<T>
      * Get the value of the cursor indicating the published sequence.
      *
      * @return value of the cursor for events that have been published.
-     * @see com.lmax.disruptor.Sequencer#getCursor()
      */
     public long getCursor()
     {

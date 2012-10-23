@@ -33,7 +33,7 @@ public interface SequenceBarrier
     long waitFor(long sequence) throws AlertException, InterruptedException;
 
     /**
-     * Delegate a call to the {@link SingleProducerSequencer#getCursor()}
+     * Get the current cursor value that can be read.
      *
      * @return value of the cursor for entries that have been published.
      */
