@@ -26,13 +26,11 @@ import com.lmax.disruptor.util.Util;
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-class SingleProducerSequencer implements Sequencer
+class SingleProducerSequencer extends AbstractSequencer
 {
     /** Set to -1 as sequence starting point */
     private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private long cursor = Sequencer.INITIAL_CURSOR_VALUE;
-    private Sequence[] gatingSequences;
-
+    private long nextValue = Sequencer.INITIAL_CURSOR_VALUE;
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
 
@@ -52,40 +50,51 @@ class SingleProducerSequencer implements Sequencer
     }
 
     @Override
-    public void setGatingSequences(final Sequence... sequences)
-    {
-        this.gatingSequences = sequences;
-    }
-
-    @Override
     public int getBufferSize()
     {
         return bufferSize;
     }
-
-    @Override
-    public long getCursor()
+    
+    long getNextValue()
     {
-        return cursor;
+        return nextValue;
     }
 
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
-        return hasAvailableCapacity(requiredCapacity, gatingSequences);
+        final long wrapPoint = (this.nextValue + requiredCapacity) - bufferSize;
+        if (wrapPoint > minGatingSequence.get())
+        {
+            long minSequence = getMinimumSequence(gatingSequences, nextValue);
+            minGatingSequence.set(minSequence);
+        
+            if (wrapPoint > minSequence)
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     @Override
     public long next()
     {
-        if (null == gatingSequences)
+        long nextSequence = nextValue + 1;
+        final long wrapPoint = nextSequence - bufferSize;
+        if (wrapPoint > minGatingSequence.get())
         {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
+            long minSequence;
+            while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
+            {
+                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
+            }
+        
+            minGatingSequence.set(minSequence);
         }
-
-        long nextSequence = cursor + 1;
-        waitForFreeSlotAt(nextSequence, gatingSequences);
-        cursor = nextSequence;
+        
+        nextValue = nextSequence;
         
         return nextSequence;
     }
@@ -93,18 +102,13 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
         if (!hasAvailableCapacity(1, gatingSequences))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = cursor + 1;
-        cursor = nextSequence;
+        long nextSequence = nextValue + 1;
+        nextValue = nextSequence;
         
         return nextSequence;
     }
@@ -117,8 +121,8 @@ class SingleProducerSequencer implements Sequencer
             throw new NullPointerException("gatingSequences must be set before claiming sequences");
         }
 
-        cursor = sequence;
-        waitForFreeSlotAt(sequence, gatingSequences);
+        nextValue = sequence;
+        waitForFreeSlotAt(sequence);
 
         return sequence;
     }
@@ -126,8 +130,8 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long remainingCapacity()
     {
-        long consumed = Util.getMinimumSequence(gatingSequences);
-        long produced = cursor;
+        long consumed = Util.getMinimumSequence(gatingSequences, nextValue);
+        long produced = nextValue;
         return getBufferSize() - (produced - consumed);
     }
     
@@ -136,13 +140,13 @@ class SingleProducerSequencer implements Sequencer
         return backoffCounter;
     }
     
-    private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
+    private void waitForFreeSlotAt(final long sequence)
     {
         final long wrapPoint = sequence - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
             long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+            while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
@@ -153,10 +157,10 @@ class SingleProducerSequencer implements Sequencer
 
     private boolean hasAvailableCapacity(final int requiredCapacity, final Sequence[] dependentSequences)
     {
-        final long wrapPoint = (cursor + requiredCapacity) - bufferSize;
+        final long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
         if (wrapPoint > minGatingSequence.get())
         {
-            long minSequence = getMinimumSequence(dependentSequences);
+            long minSequence = getMinimumSequence(dependentSequences, nextValue);
             minGatingSequence.set(minSequence);
 
             if (wrapPoint > minSequence)

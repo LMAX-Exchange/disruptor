@@ -25,10 +25,11 @@ interface Sequencer
      *
      * This method must be called prior to claiming sequences otherwise
      * a NullPointerException will be thrown.
+     * @param cursor 
      *
      * @param sequences to be to be gated on.
      */
-    void setGatingSequences(final Sequence... sequences);
+    void setGatingSequences(Sequence cursor, final Sequence... sequences);
 
     /**
      * The capacity of the data structure to hold entries.
@@ -36,13 +37,6 @@ interface Sequencer
      * @return the size of the RingBuffer.
      */
     int getBufferSize();
-
-    /**
-     * Get the value of the cursor indicating the published sequence.
-     *
-     * @return value of the cursor for events that have been published.
-     */
-    long getCursor();
 
     /**
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent

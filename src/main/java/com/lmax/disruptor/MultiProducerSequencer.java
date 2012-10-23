@@ -25,15 +25,13 @@ import com.lmax.disruptor.util.Util;
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-class MultiProducerSequencer implements Sequencer
+class MultiProducerSequencer extends AbstractSequencer
 {
     private final int bufferSize;
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
     private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
     private final Sequence wrapPointCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-
-    private Sequence[] gatingSequences;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -48,28 +46,9 @@ class MultiProducerSequencer implements Sequencer
     }
 
     @Override
-    public void setGatingSequences(final Sequence... sequences)
-    {
-        if (sequences.length == 0)
-        {
-            this.gatingSequences = new Sequence[] { cursor };
-        }
-        else
-        {
-            this.gatingSequences = sequences;
-        }
-    }
-
-    @Override
     public int getBufferSize()
     {
         return bufferSize;
-    }
-
-    @Override
-    public long getCursor()
-    {
-        return cursor.get();
     }
     
     Sequence getCursorSequence()
@@ -83,7 +62,7 @@ class MultiProducerSequencer implements Sequencer
         final long desiredSequence = cursor.get() + requiredCapacity;
         if (desiredSequence > wrapPointCache.get())
         {
-            long wrapPoint = getMinimumSequence(gatingSequences) + bufferSize;
+            long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
             wrapPointCache.set(wrapPoint);
         
             if (desiredSequence > wrapPoint)
@@ -98,11 +77,6 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public long next()
     {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
         long current;
         long next;
 
@@ -113,7 +87,7 @@ class MultiProducerSequencer implements Sequencer
 
             if (next > wrapPointCache.get())
             {
-                long wrapPoint = getMinimumSequence(gatingSequences) + bufferSize;
+                long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
                 wrapPointCache.set(wrapPoint);
 
                 if (next > wrapPoint)
@@ -136,11 +110,6 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
         long current;
         long next;
 
@@ -151,7 +120,7 @@ class MultiProducerSequencer implements Sequencer
 
             if (next > wrapPointCache.get())
             {
-                long wrapPoint = getMinimumSequence(gatingSequences) + bufferSize;
+                long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
                 wrapPointCache.set(wrapPoint);
 
                 if (next > wrapPoint)
@@ -168,11 +137,6 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public long claim(final long sequence)
     {
-        if (null == gatingSequences)
-        {
-            throw new NullPointerException("gatingSequences must be set before claiming sequences");
-        }
-
         cursor.set(sequence);
         waitForFreeSlotAt(sequence, gatingSequences);
 
@@ -182,7 +146,7 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public long remainingCapacity()
     {
-        long consumed = Util.getMinimumSequence(gatingSequences);
+        long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
     }
@@ -193,7 +157,7 @@ class MultiProducerSequencer implements Sequencer
         if (wrapPoint > wrapPointCache.get())
         {
             long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences)))
+            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences, cursor.get())))
             {
                 LockSupport.parkNanos(1L);
             }

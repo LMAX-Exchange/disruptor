@@ -31,19 +31,19 @@ public final class SingleProducerSequencerTest
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private static final int BUFFER_SIZE = 4;
 
-    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new SleepingWaitStrategy());
-
+    private final SingleProducerSequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new SleepingWaitStrategy());
+    private final Sequence cursor = new Sequence();
     private final Sequence gatingSequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
 
     public SingleProducerSequencerTest()
     {
-        sequencer.setGatingSequences(gatingSequence);
+        sequencer.setGatingSequences(cursor, gatingSequence);
     }
 
     @Test
     public void shouldStartWithInitialValue()
     {
-        assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, sequencer.getCursor());
+        assertEquals(0, sequencer.next());
     }
 
     @Test
@@ -53,7 +53,7 @@ public final class SingleProducerSequencerTest
     }
 
     @Test
-    public void voidShouldIndicateNoAvailableCapacity()
+    public void voidSthouldIndicateNoAvailableCapacity()
     {
         fillBuffer();
 
@@ -70,7 +70,7 @@ public final class SingleProducerSequencerTest
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
         final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        assertThat(sequencer.getCursor(), is(expectedFullSequence));
+        assertThat(sequencer.getNextValue(), is(expectedFullSequence));
 
         EXECUTOR.submit(new Runnable()
         {
@@ -79,19 +79,20 @@ public final class SingleProducerSequencerTest
             {
                 waitingLatch.countDown();
 
-                sequencer.next();
+                long next = sequencer.next();
+                cursor.set(next);
 
                 doneLatch.countDown();
             }
         });
 
         waitingLatch.await();
-        assertEquals(sequencer.getCursor(), expectedFullSequence);
+        assertThat(sequencer.getNextValue(), is(expectedFullSequence));
 
         gatingSequence.set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
-        assertEquals(sequencer.getCursor(), expectedFullSequence + 1L);
+        assertThat(sequencer.getNextValue(), is(expectedFullSequence + 1L));
     }
 
     @Test(expected = InsufficientCapacityException.class)
@@ -120,7 +121,8 @@ public final class SingleProducerSequencerTest
     {
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            sequencer.next();
+            long next = sequencer.next();
+            cursor.set(next);
         }
     }
 }

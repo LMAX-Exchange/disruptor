@@ -56,9 +56,9 @@ public final class Util
 
     public static long getMinimumSequence(final Sequence[] sequences, long minimum)
     {
-        for (Sequence sequence : sequences)
+        for (int i = 0, n = sequences.length; i < n; i++)
         {
-            long value = sequence.get();
+            long value = sequences[i].get();
             minimum = minimum < value ? minimum : value;
         }
 

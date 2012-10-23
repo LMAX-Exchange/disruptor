@@ -136,18 +136,14 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
+        
+        final RingBuffer<ValueEvent> rb = ringBuffer;
 
-        Sequencer sequencer = ringBuffer.getSequencer();
-        Publisher publisher = ringBuffer.getPublisher();
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long next = sequencer.next();
-//            long next = ringBuffer.next();
-            
-            ringBuffer.getPreallocated(next).setValue(i);
-            
-            publisher.publish(next);
-//            ringBuffer.publish(next);
+            long next = rb.next();
+            rb.getPreallocated(next).setValue(i);
+            rb.publish(next);
         }
 
         latch.await();

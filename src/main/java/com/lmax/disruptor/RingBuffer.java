@@ -119,7 +119,7 @@ public final class RingBuffer<E>
     
     public final void setGatingSequences(Sequence... gatingSequences)
     {
-        sequencer.setGatingSequences(gatingSequences);
+        sequencer.setGatingSequences(cursor, gatingSequences);
     }
     
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
@@ -135,6 +135,11 @@ public final class RingBuffer<E>
     public int getBufferSize()
     {
         return bufferSize;
+    }
+    
+    public boolean hasAvilableCapacity(final int requiredCapacity)
+    {
+        return sequencer.hasAvailableCapacity(requiredCapacity);
     }
 
 
