@@ -50,8 +50,6 @@ abstract class AbstractSequencer implements Sequencer
         }
         while (!sequenceUpdater.compareAndSet(this, gatingSequences, tempGatingSequences));
         
-        this.gatingSequences = tempGatingSequences;
-        
         cursorSequence = cursor.get();
         for (Sequence sequence : tempGatingSequences)
         {
