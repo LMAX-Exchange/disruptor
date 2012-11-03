@@ -43,13 +43,6 @@ class SingleProducerPublisher implements Publisher
         return sequence <= cursor.get();
     }
 
-    @Override
-    public void forcePublish(long sequence)
-    {
-        cursor.set(sequence);
-        waitStrategy.signalAllWhenBlocking();
-    }
-
     Sequence getCursorSequence()
     {
         return cursor;

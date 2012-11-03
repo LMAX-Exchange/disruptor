@@ -159,7 +159,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     private final BatchEventProcessor<ValueEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<ValueEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setGatingSequences(stepThreeBatchProcessor.getSequence());
+        ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

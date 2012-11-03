@@ -88,13 +88,6 @@ class MultiProducerPublisher implements Publisher
         long bufferAddress = (index * scale) + base;
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
-
-    @Override
-    public void forcePublish(long sequence)
-    {
-        setAvailable(sequence);
-        waitStrategy.signalAllWhenBlocking();
-    }
     
     private int calculateAvailabilityFlag(final long sequence)
     {

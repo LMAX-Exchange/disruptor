@@ -15,20 +15,25 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static junit.framework.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.lmax.disruptor.util.DaemonThreadFactory;
-import com.lmax.disruptor.support.StubEvent;
-import com.lmax.disruptor.support.TestWaiter;
 import org.junit.Test;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import com.lmax.disruptor.support.StubEvent;
+import com.lmax.disruptor.support.TestWaiter;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class RingBufferTest
 {
@@ -36,7 +41,7 @@ public class RingBufferTest
     private final RingBuffer<StubEvent> ringBuffer = RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.addGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test
@@ -121,30 +126,11 @@ public class RingBufferTest
     }
 
     @Test
-    public void shouldSetAtSpecificSequence() throws Exception
-    {
-        long expectedSequence = 5;
-
-        ringBuffer.claim(expectedSequence);
-        StubEvent expectedEvent = ringBuffer.getPreallocated(expectedSequence);
-        expectedEvent.setValue((int) expectedSequence);
-        ringBuffer.forcePublish(expectedSequence);
-
-        long sequence = sequenceBarrier.waitFor(expectedSequence);
-        assertEquals(expectedSequence, sequence);
-
-        StubEvent event = ringBuffer.get(sequence);
-        assertEquals(expectedEvent, event);
-
-        assertEquals(expectedSequence, ringBuffer.getCursor());
-    }
-
-    @Test
     public void shouldPreventWrapping() throws Exception
     {
         Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
         final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 4);
-        ringBuffer.setGatingSequences(sequence);
+        ringBuffer.addGatingSequences(sequence);
 
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 0, "0");
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 1, "1");
@@ -162,7 +148,7 @@ public class RingBufferTest
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
         final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, ringBufferSize);
         final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newBarrier());
-        ringBuffer.setGatingSequences(processor.getSequence());
+        ringBuffer.addGatingSequences(processor.getSequence());
 
         Thread thread = new Thread(new Runnable()
         {
@@ -192,7 +178,106 @@ public class RingBufferTest
 
         assertTrue(publisherComplete.get());
     }
+    
+    @Test
+    public void shouldPublishEvent() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        ringBuffer.publishEvent(new EventTranslator<Object[]>()
+        {
+            public void translateTo(final Object[] event, long sequence)
+            {
+                event[0] = sequence;
+            }
+        });
+        
+        assertThat(ringBuffer.get(0)[0], is((Object) 0L));
+    }
 
+    @Test
+    public void shouldPublishEventOneArg() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorOneArg<Object[], String> translator = 
+                new EventTranslatorOneArg<Object[], String>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, String arg0)
+            {
+                event[0] = arg0 + sequence;
+            }
+        };
+        
+        ringBuffer.publishEvent(translator, "Foo");
+        ringBuffer.tryPublishEvent(translator, 1, "Foo");
+        
+        assertThat(ringBuffer.get(0)[0], is((Object) "Foo0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "Foo1"));
+    }
+
+    @Test
+    public void shouldPublishEventTwoArg() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorTwoArg<Object[], String, String> translator = 
+                new EventTranslatorTwoArg<Object[], String, String>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, String arg0, String arg1)
+            {
+                event[0] = arg0 + arg1 + sequence;
+            }
+        };
+        
+        ringBuffer.publishEvent(translator, "Foo", "Bar");
+        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar");
+        
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBar0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBar1"));
+    }
+
+    @Test
+    public void shouldPublishEventThreeArg() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorThreeArg<Object[], String, String, String> translator = 
+                new EventTranslatorThreeArg<Object[], String, String, String>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, String arg0, String arg1, String arg2)
+            {
+                event[0] = arg0 + arg1 + arg2 + sequence;
+            }
+        };
+        
+        ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz");
+        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz");
+        
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBaz0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBaz1"));
+    }
+
+    @Test
+    public void shouldPublishEventVarArg() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorVararg<Object[]> translator = 
+                new EventTranslatorVararg<Object[]>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, Object...args)
+            {
+                event[0] = (String)args[0] + args[1] + args[2] + args[3] + sequence;
+            }
+        };
+        
+        ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz", "Bam");
+        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz", "Bam");
+        
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBazBam0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBazBam1"));
+    }
+    
     private Future<List<StubEvent>> getMessages(final long initial, final long toWaitFor)
         throws InterruptedException, BrokenBarrierException
     {
@@ -240,6 +325,22 @@ public class RingBufferTest
             }
 
             sequence.set(sequence.get() + 1L);
+        }
+    }
+    
+    private static class ArrayFactory implements EventFactory<Object[]>
+    {
+        private final int size;
+
+        public ArrayFactory(int size)
+        {
+            this.size = size;
+        }
+        
+        @Override
+        public Object[] newInstance()
+        {
+            return new Object[size];
         }
     }
 }

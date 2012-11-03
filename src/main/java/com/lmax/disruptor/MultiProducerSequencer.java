@@ -25,12 +25,12 @@ import com.lmax.disruptor.util.Util;
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-class MultiProducerSequencer extends AbstractSequencer
+class MultiProducerSequencer implements Sequencer
 {
     private final int bufferSize;
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
-    private final Sequence cursor = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final Sequence wrapPointCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     /**
@@ -57,7 +57,7 @@ class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public boolean hasAvailableCapacity(final int requiredCapacity)
+    public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
     {
         final long desiredSequence = cursor.get() + requiredCapacity;
         if (desiredSequence > wrapPointCache.get())
@@ -73,9 +73,15 @@ class MultiProducerSequencer extends AbstractSequencer
         
         return true;
     }
+    
+    @Override
+    public void claim(long sequence)
+    {
+        cursor.set(sequence);
+    }
 
     @Override
-    public long next()
+    public long next(Sequence[] gatingSequences)
     {
         long current;
         long next;
@@ -108,7 +114,7 @@ class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long tryNext() throws InsufficientCapacityException
+    public long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException
     {
         long current;
         long next;
@@ -135,34 +141,10 @@ class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long claim(final long sequence)
-    {
-        cursor.set(sequence);
-        waitForFreeSlotAt(sequence, gatingSequences);
-
-        return sequence;
-    }
-
-    @Override
-    public long remainingCapacity()
+    public long remainingCapacity(Sequence[] gatingSequences)
     {
         long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
-    }
-    
-    private void waitForFreeSlotAt(final long sequence, final Sequence[] dependentSequences)
-    {
-        final long wrapPoint = sequence - bufferSize;
-        if (wrapPoint > wrapPointCache.get())
-        {
-            long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(dependentSequences, cursor.get())))
-            {
-                LockSupport.parkNanos(1L);
-            }
-
-            wrapPointCache.set(minSequence);
-        }
     }
 }

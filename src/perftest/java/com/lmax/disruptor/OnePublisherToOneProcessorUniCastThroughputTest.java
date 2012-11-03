@@ -88,7 +88,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     {
-        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,10 +151,6 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         batchEventProcessor.halt();
 
         Assert.assertEquals(expectedResult, handler.getValue());
-
-//        SingleProducerSequencer producerSequencer = (SingleProducerSequencer) sequencer;
-        
-//        System.out.println("Backoff count: " + producerSequencer.getBackoffCount());
         
         return opsPerSecond;
     }

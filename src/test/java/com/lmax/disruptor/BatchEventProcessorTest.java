@@ -44,7 +44,7 @@ public final class BatchEventProcessorTest
     @SuppressWarnings("unchecked") private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
     private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, eventHandler);
     {
-        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
     @Test(expected = NullPointerException.class)

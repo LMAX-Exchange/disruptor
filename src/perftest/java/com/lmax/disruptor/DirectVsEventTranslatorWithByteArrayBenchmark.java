@@ -26,7 +26,7 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
             new BatchEventProcessor<byte[]>(ringBuffer, sequenceBarrier, handler);
     private final byte[] data = new byte[128];
     {
-        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
         EXECUTOR.submit(batchEventProcessor);
         Arrays.fill(data, (byte) 'a');
     }

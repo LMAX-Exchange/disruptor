@@ -198,7 +198,7 @@ public class Disruptor<T>
     public RingBuffer<T> start()
     {
         EventProcessor[] gatingProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
-        ringBuffer.setGatingSequences(Util.getSequencesFor(gatingProcessors));
+        ringBuffer.addGatingSequences(Util.getSequencesFor(gatingProcessors));
 
         checkOnlyStartedOnce();
         for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorRepository)

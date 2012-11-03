@@ -28,7 +28,7 @@ public final class WorkProcessor<T>
     implements EventProcessor
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final WorkHandler<T> workHandler;

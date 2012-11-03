@@ -125,7 +125,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
             valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS);
         }
 
-        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

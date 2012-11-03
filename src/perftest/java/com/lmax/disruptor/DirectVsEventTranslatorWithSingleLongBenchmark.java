@@ -24,7 +24,7 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
     private final BatchEventProcessor<ValueEvent> batchEventProcessor =
             new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     {
-        ringBuffer.setGatingSequences(batchEventProcessor.getSequence());
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
         EXECUTOR.submit(batchEventProcessor);
         try
         {

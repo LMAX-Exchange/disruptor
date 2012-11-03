@@ -145,7 +145,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
         batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[2]);
 
-        ringBuffer.setGatingSequences(batchEventProcessors[0].getSequence(),
+        ringBuffer.addGatingSequences(batchEventProcessors[0].getSequence(),
                                       batchEventProcessors[1].getSequence(),
                                       batchEventProcessors[2].getSequence());
     }

@@ -55,7 +55,7 @@ public final class NoOpEventProcessor implements EventProcessor
 
         private SequencerFollowingSequence(final RingBuffer<?> sequencer)
         {
-            super(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+            super(Sequencer.INITIAL_CURSOR_VALUE);
             this.sequencer = sequencer;
         }
 

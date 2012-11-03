@@ -162,7 +162,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
             new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
     {
-        ringBuffer.setGatingSequences(batchProcessorFizzBuzz.getSequence());
+        ringBuffer.addGatingSequences(batchProcessorFizzBuzz.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

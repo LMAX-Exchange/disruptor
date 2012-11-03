@@ -42,7 +42,7 @@ public final class SequenceBarrierTest
 
     public SequenceBarrierTest()
     {
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.addGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
     }
 
     @Test

@@ -15,6 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import static java.util.Arrays.copyOf;
+
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
 /**
  * Ring based store of reusable entries containing the data representing
  * an event being exchanged between event publisher and {@link EventProcessor}s.
@@ -23,6 +27,9 @@ package com.lmax.disruptor;
  */
 public final class RingBuffer<E>
 {
+    @SuppressWarnings("rawtypes")
+    private static final AtomicReferenceFieldUpdater<RingBuffer, Sequence[]> sequenceUpdater = 
+            AtomicReferenceFieldUpdater.newUpdater(RingBuffer.class, Sequence[].class, "gatingSequences");
     private final int indexMask;
     private final Object[] entries;
     private final Sequence cursor;
@@ -30,6 +37,7 @@ public final class RingBuffer<E>
     private final Publisher publisher;
     private final Sequencer sequencer;
     private final WaitStrategy waitStrategy;
+    protected volatile Sequence[] gatingSequences = new Sequence[0];
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -114,12 +122,56 @@ public final class RingBuffer<E>
     
     public long next()
     {
-        return sequencer.next();
+        return sequencer.next(gatingSequences);
     }
     
-    public final void setGatingSequences(Sequence... gatingSequences)
+    /**
+     * Initialises the cursor to a specific value.  This can only be applied before any
+     * gating sequences are specified otherwise an IllegalStateException is thrown.
+     * 
+     * @param sequence The sequence to initialise too.
+     * @throws IllegalStateException If any gating sequences have already been specified.
+     */
+    public void initialiseTo(long sequence)
     {
-        sequencer.setGatingSequences(cursor, gatingSequences);
+        if (gatingSequences.length != 0)
+        {
+            throw new IllegalStateException("Can only initialise the cursor if no gating sequences have been added");
+        }
+        
+        sequencer.claim(sequence);
+        publisher.publish(sequence);
+    }
+    
+    public final void addGatingSequences(Sequence... gatingSequences)
+    {
+        addGatingSequences(cursor, gatingSequences);
+    }
+    
+    private void addGatingSequences(final Sequence cursor, final Sequence... sequences)
+    {
+        Sequence[] tempGatingSequences = null;
+        long cursorSequence;
+        
+        do
+        {            
+            tempGatingSequences = copyOf(gatingSequences, gatingSequences.length + sequences.length);
+            cursorSequence = cursor.get();
+            
+            int index = gatingSequences.length;
+            for (Sequence sequence : sequences)
+            {
+                sequence.set(cursorSequence);
+                tempGatingSequences[index++] = sequence;
+            }
+        }
+        while (!sequenceUpdater.compareAndSet(this, gatingSequences, tempGatingSequences));
+        
+        cursorSequence = cursor.get();
+        for (Sequence sequence : tempGatingSequences)
+        {
+            sequence.set(cursorSequence);
+        }
     }
     
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
@@ -139,7 +191,7 @@ public final class RingBuffer<E>
     
     public boolean hasAvilableCapacity(final int requiredCapacity)
     {
-        return sequencer.hasAvailableCapacity(requiredCapacity);
+        return sequencer.hasAvailableCapacity(gatingSequences, requiredCapacity);
     }
 
 
@@ -153,7 +205,7 @@ public final class RingBuffer<E>
      */
     public void publishEvent(final EventTranslator<E> translator)
     {
-        final long sequence = sequencer.next();
+        final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence);
     }
 
@@ -173,7 +225,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext();
+            final long sequence = sequencer.tryNext(gatingSequences);
             translateAndPublish(translator, sequence);
             return true;
         }
@@ -192,7 +244,7 @@ public final class RingBuffer<E>
      */
     public <A> void publishEvent(final EventTranslatorOneArg<E, A> translator, final A arg0)
     {
-        final long sequence = sequencer.next();
+        final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0);
     }
 
@@ -210,7 +262,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext();
+            final long sequence = sequencer.tryNext(gatingSequences);
             translateAndPublish(translator, sequence, arg0);
             return true;
         }
@@ -230,7 +282,7 @@ public final class RingBuffer<E>
      */
     public <A, B> void publishEvent(final EventTranslatorTwoArg<E, A, B> translator, final A arg0, final B arg1)
     {
-        final long sequence = sequencer.next();
+        final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1);
     }
 
@@ -249,7 +301,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext();
+            final long sequence = sequencer.tryNext(gatingSequences);
             translateAndPublish(translator, sequence, arg0, arg1);
             return true;
         }
@@ -271,7 +323,7 @@ public final class RingBuffer<E>
     public <A, B, C> void publishEvent(final EventTranslatorThreeArg<E, A, B, C> translator,
                                        final A arg0, final B arg1, final C arg2)
     {
-        final long sequence = sequencer.next();
+        final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1, arg2);
     }
 
@@ -292,7 +344,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext();
+            final long sequence = sequencer.tryNext(gatingSequences);
             translateAndPublish(translator, sequence, arg0, arg1, arg2);
             return true;
         }
@@ -311,7 +363,7 @@ public final class RingBuffer<E>
      */
     public void publishEvent(final EventTranslatorVararg<E> translator, final Object...args)
     {
-        final long sequence = sequencer.next();
+        final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, args);
     }
 
@@ -329,7 +381,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext();
+            final long sequence = sequencer.tryNext(gatingSequences);
             translateAndPublish(translator, sequence, args);
             return true;
         }
@@ -435,25 +487,5 @@ public final class RingBuffer<E>
         {
             entries[i] = eventFactory.newInstance();
         }
-    }
-
-    public void claim(long sequence)
-    {
-        sequencer.claim(sequence);
-    }
-
-    public void forcePublish(long sequence)
-    {
-        publisher.forcePublish(sequence);
-    }
-
-    Sequencer getSequencer()
-    {
-        return sequencer;
-    }
-    
-    Publisher getPublisher()
-    {
-        return publisher;
     }
 }

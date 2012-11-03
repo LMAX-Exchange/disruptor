@@ -139,7 +139,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
     {
-        ringBuffer.setGatingSequences(stepThreeBatchProcessor.getSequence());
+        ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

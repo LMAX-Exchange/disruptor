@@ -31,7 +31,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Test
     public void shouldPublishEvent()
     {
-        ringBuffer.setGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        ringBuffer.addGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
 
         ringBuffer.publishEvent(this);
         ringBuffer.publishEvent(this);
@@ -43,7 +43,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Test
     public void shouldTryPublishEvent() throws Exception
     {
-        ringBuffer.setGatingSequences(new Sequence());
+        ringBuffer.addGatingSequences(new Sequence());
 
         for (int i = 0; i < BUFFER_SIZE; i++)
         {

@@ -22,6 +22,4 @@ interface Publisher
     boolean isAvailable(long sequence);
 
     void ensureAvailable(long sequence);
-
-    void forcePublish(long sequence);
 }

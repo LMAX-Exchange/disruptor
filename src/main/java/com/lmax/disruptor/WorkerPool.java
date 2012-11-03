@@ -29,14 +29,14 @@ import com.lmax.disruptor.util.Util;
 public final class WorkerPool<T>
 {
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private final Sequence workSequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence workSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final WorkProcessor<?>[] workProcessors;
 
     /**
      * Create a worker pool to enable an array of {@link WorkHandler}s to consume published sequences.
      *
-     * This option requires a pre-configured {@link RingBuffer} which must have {@link RingBuffer#setGatingSequences(Sequence...)}
+     * This option requires a pre-configured {@link RingBuffer} which must have {@link RingBuffer#addGatingSequences(Sequence...)}
      * called before the work pool is started.
      *
      * @param ringBuffer of events to be consumed.
@@ -66,7 +66,7 @@ public final class WorkerPool<T>
     /**
      * Construct a work pool with an internal {@link RingBuffer} for convenience.
      *
-     * This option does not require {@link RingBuffer#setGatingSequences(Sequence...)} to be called before the work pool is started.
+     * This option does not require {@link RingBuffer#addGatingSequences(Sequence...)} to be called before the work pool is started.
      *
      * @param eventFactory for filling the {@link RingBuffer}
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
@@ -90,7 +90,7 @@ public final class WorkerPool<T>
                                                      workSequence);
         }
 
-        ringBuffer.setGatingSequences(getWorkerSequences());
+        ringBuffer.addGatingSequences(getWorkerSequences());
     }
 
     /**
