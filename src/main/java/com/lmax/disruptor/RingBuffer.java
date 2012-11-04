@@ -159,24 +159,24 @@ public final class RingBuffer<E>
                                          final Sequence cursor,
                                          final Sequence... sequencesToAdd)
     {
-        Sequence[] tempGatingSequences = null;
+        Sequence[] updatedSequences = null;
         long cursorSequence;
         Sequence[] currentSequences;
         
         do
         {
             currentSequences = updater.get(holder);
-            tempGatingSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
+            updatedSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
             cursorSequence = cursor.get();
             
             int index = currentSequences.length;
             for (Sequence sequence : sequencesToAdd)
             {
                 sequence.set(cursorSequence);
-                tempGatingSequences[index++] = sequence;
+                updatedSequences[index++] = sequence;
             }
         }
-        while (!updater.compareAndSet(holder, currentSequences, tempGatingSequences));
+        while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
         
         cursorSequence = cursor.get();
         for (Sequence sequence : sequencesToAdd)
@@ -185,6 +185,13 @@ public final class RingBuffer<E>
         }
     }
     
+    /**
+     * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
+     * are available to be read from the ring buffer.
+     * 
+     * @param sequencesToTrack
+     * @return
+     */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
     {
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
