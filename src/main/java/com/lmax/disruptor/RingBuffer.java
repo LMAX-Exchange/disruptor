@@ -143,32 +143,43 @@ public final class RingBuffer<E>
         publisher.publish(sequence);
     }
     
+    /**
+     * Add the specified gating sequences to this instance of the Disruptor.  They will
+     * safely and atomically added to the list of gating sequences.
+     * 
+     * @param gatingSequences The sequences to add.
+     */
     public final void addGatingSequences(Sequence... gatingSequences)
     {
-        addGatingSequences(cursor, gatingSequences);
+        addSequences(this, sequenceUpdater, cursor, gatingSequences);
     }
     
-    private void addGatingSequences(final Sequence cursor, final Sequence... sequences)
+    private static <T> void addSequences(final T holder,
+                                         AtomicReferenceFieldUpdater<T, Sequence[]> updater,
+                                         final Sequence cursor,
+                                         final Sequence... sequencesToAdd)
     {
         Sequence[] tempGatingSequences = null;
         long cursorSequence;
+        Sequence[] currentSequences;
         
         do
-        {            
-            tempGatingSequences = copyOf(gatingSequences, gatingSequences.length + sequences.length);
+        {
+            currentSequences = updater.get(holder);
+            tempGatingSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
             cursorSequence = cursor.get();
             
-            int index = gatingSequences.length;
-            for (Sequence sequence : sequences)
+            int index = currentSequences.length;
+            for (Sequence sequence : sequencesToAdd)
             {
                 sequence.set(cursorSequence);
                 tempGatingSequences[index++] = sequence;
             }
         }
-        while (!sequenceUpdater.compareAndSet(this, gatingSequences, tempGatingSequences));
+        while (!updater.compareAndSet(holder, currentSequences, tempGatingSequences));
         
         cursorSequence = cursor.get();
-        for (Sequence sequence : tempGatingSequences)
+        for (Sequence sequence : sequencesToAdd)
         {
             sequence.set(cursorSequence);
         }
