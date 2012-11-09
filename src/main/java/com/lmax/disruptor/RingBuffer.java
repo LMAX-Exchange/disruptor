@@ -146,10 +146,16 @@ public final class RingBuffer<E>
     }
 
     /**
-     * Get the event for a given sequence in the RingBuffer.
+     * <p>Get the event for a given sequence in the RingBuffer.  This method will wait until the
+     * value is published before returning.  This method should only be used by {@link EventProcessor}s
+     * that are reading values out of the ring buffer.  Publishing code should use the 
+     * {@link RingBuffer#getPreallocated(long)} call to get a handle onto the preallocated event.
+     * 
+     * <p>The call implements the appropriate load fence to ensure that the data within the event
+     * is visible after this call completes.
      *
      * @param sequence for the event
-     * @return event for the sequence
+     * @return the published event that
      */
     @SuppressWarnings("unchecked")
     public E get(final long sequence)
