@@ -158,6 +158,22 @@ public final class RingBuffer<E>
         return (E)entries[(int)sequence & indexMask];
     }
     
+    /**
+     * Increment and return the next sequence for the ring buffer.  Calls of this
+     * method should ensure that they always publish the sequence afterward.  E.g.
+     * <pre>
+     * long sequence = ringBuffer.next();
+     * try {
+     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     // Do some work with the event.
+     * } finally {
+     *     ringBuffer.publish(sequence);
+     * }
+     * </pre>
+     * @see RingBuffer#publish(long)
+     * @see RingBuffer#getPreallocated(long)
+     * @return The next sequence to publish to.
+     */
     public long next()
     {
         return sequencer.next(gatingSequences);
@@ -236,16 +252,34 @@ public final class RingBuffer<E>
         return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
     }
 
+    /**
+     * Get the current cursor value for the ring buffer.  The cursor value is
+     * the last value that was published, or the highest available sequence
+     * that can be consumed.
+     */
     public final long getCursor()
     {
         return cursor.get();
     }
-    
+
+    /**
+     * The size of the buffer.
+     */
     public int getBufferSize()
     {
         return bufferSize;
     }
     
+    /**
+     * Given specified <tt>requiredCapacity</tt> determines if that amount of space
+     * is available.  Note, you can not assume that if this method returns <tt>true</tt>
+     * that a call to {@link RingBuffer#next()} will not block.  Especially true if this
+     * ring buffer is set up to handle multiple producers.
+     * 
+     * @param requiredCapacity The capacity to check for.
+     * @return <tt>true</tt> If the specified <tt>requiredCapacity</tt> is available
+     * <tt>false</tt> if now.
+     */
     public boolean hasAvilableCapacity(final int requiredCapacity)
     {
         return sequencer.hasAvailableCapacity(gatingSequences, requiredCapacity);
@@ -254,7 +288,7 @@ public final class RingBuffer<E>
 
     /**
      * Publishes an event to the ring buffer.  It handles
-     * claiming the next sequence, getting the current (uninitialized)
+     * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
      *
