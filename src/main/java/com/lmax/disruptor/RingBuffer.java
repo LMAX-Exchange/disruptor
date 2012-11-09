@@ -504,6 +504,8 @@ public final class RingBuffer<E>
     
     public void publish(long sequence)
     {
+        assert (sequence - bufferSize) <= sequencer.getWrapPoint();
+        
         publisher.publish(sequence);
     }
 

@@ -74,8 +74,10 @@ class MultiProducerPublisher implements Publisher
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
         long bufferAddress = (index * scale) + base;
+        
         while (UNSAFE.getIntVolatile(availableBuffer, bufferAddress) != flag)
         {
+            assert UNSAFE.getIntVolatile(availableBuffer, bufferAddress) <= flag;
             // spin
         }
     }

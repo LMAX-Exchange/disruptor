@@ -147,4 +147,10 @@ class MultiProducerSequencer implements Sequencer
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
     }
+    
+    @Override
+    public long getWrapPoint()
+    {
+        return wrapPointCache.get();
+    }
 }

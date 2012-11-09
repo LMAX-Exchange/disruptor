@@ -126,6 +126,12 @@ class SingleProducerSequencer implements Sequencer
         nextValue = sequence;
     }
     
+    @Override
+    public long getWrapPoint()
+    {
+        return minGatingSequence.get();
+    }
+    
     long getBackoffCount()
     {
         return backoffCounter;

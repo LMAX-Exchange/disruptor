@@ -71,4 +71,6 @@ interface Sequencer
      * @param sequence The sequence to initialise too.
      */
     void claim(long sequence);
+
+    long getWrapPoint();
 }
