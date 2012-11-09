@@ -189,7 +189,7 @@ public final class RingBuffer<E>
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer.
      * 
-     * @param sequencesToTrack
+     * @param sequencesToTrack 
      * @return
      */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
