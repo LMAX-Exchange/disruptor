@@ -46,18 +46,23 @@ public final class RingBuffer<E>
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
      * @param waitStrategy 
      *
-     * @throws IllegalArgumentException if bufferSize is not a power of 2
+     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
-    private RingBuffer(final EventFactory<E> eventFactory, 
-                                   Sequence cursor, 
-                                   Sequencer sequencer, 
-                                   Publisher publisher, 
-                                   WaitStrategy waitStrategy)
+    private RingBuffer(EventFactory<E> eventFactory, 
+                       Sequence cursor, 
+                       Sequencer sequencer, 
+                       Publisher publisher, 
+                       WaitStrategy waitStrategy)
     {
         this.sequencer = sequencer;
         this.waitStrategy = waitStrategy;
         this.bufferSize = sequencer.getBufferSize();
         this.cursor = cursor;
+        
+        if (bufferSize < 1)
+        {
+            throw new IllegalArgumentException("bufferSize must not be less than 1");
+        }
         if (Integer.bitCount(bufferSize) != 1)
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
@@ -69,25 +74,51 @@ public final class RingBuffer<E>
         fill(eventFactory);
     }
     
+    /**
+     * Create a new multiple producer RingBuffer with the specified wait strategy.
+     * 
+     * @see MultiProducerSequencer
+     * @param factory used to create the events within the ring buffer.
+     * @param bufferSize number of elements to create within the ring buffer.
+     * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory, 
-                                                                    int bufferSize, 
-                                                                    WaitStrategy waitStrategy)
+                                                        int bufferSize, 
+                                                        WaitStrategy waitStrategy)
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
         MultiProducerPublisher publisher = new MultiProducerPublisher(bufferSize, waitStrategy);
         
         RingBuffer<E> ringBuffer = 
                 new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
-                                              sequencer, publisher, waitStrategy);
+                                  sequencer, publisher, waitStrategy);
         
         return ringBuffer;
     }
     
+    /**
+     * Create a new multiple producer RingBuffer using the default wait strategy  {@link BlockingWaitStrategy}.
+     * 
+     * @see MultiProducerSequencer
+     * @param factory used to create the events within the ring buffer.
+     * @param bufferSize number of elements to create within the ring buffer.
+     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 and not a power of 2
+     */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory, int bufferSize)
     {
         return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy());
     }
     
+    /**
+     * Create a new single producer RingBuffer with the specified wait strategy.
+     * 
+     * @see SingleProducerSequencer
+     * @param factory used to create the events within the ring buffer.
+     * @param bufferSize number of elements to create within the ring buffer.
+     * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory, 
                                                                      int bufferSize, 
                                                                      WaitStrategy waitStrategy)
@@ -95,13 +126,20 @@ public final class RingBuffer<E>
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
         SingleProducerPublisher publisher = new SingleProducerPublisher(waitStrategy);
         
-        RingBuffer<E> ringBuffer = 
-                new RingBuffer<E>(factory, publisher.getCursorSequence(), 
-                                              sequencer, publisher, waitStrategy);
+        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, publisher.getCursorSequence(), 
+                                                     sequencer, publisher, waitStrategy);
         
         return ringBuffer;
     }
     
+    /**
+     * Create a new single producer RingBuffer using the default wait strategy  {@link BlockingWaitStrategy}.
+     * 
+     * @see MultiProducerSequencer
+     * @param factory used to create the events within the ring buffer.
+     * @param bufferSize number of elements to create within the ring buffer.
+     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 and not a power of 2
+     */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory, int bufferSize)
     {
         return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy());
@@ -187,10 +225,11 @@ public final class RingBuffer<E>
     
     /**
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
-     * are available to be read from the ring buffer.
+     * are available to be read from the ring buffer given a list of sequences to track.
      * 
+     * @see SequenceBarrier
      * @param sequencesToTrack 
-     * @return
+     * @return A sequence barrier that will track the specified sequences.
      */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
     {
