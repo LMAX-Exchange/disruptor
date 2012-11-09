@@ -102,13 +102,12 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException
     {
-        if (!hasAvailableCapacity(1, gatingSequences))
+        if (!hasAvailableCapacity(gatingSequences, 1))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = nextValue + 1;
-        nextValue = nextSequence;
+        long nextSequence = ++nextValue;
         
         return nextSequence;
     }
@@ -130,22 +129,5 @@ class SingleProducerSequencer implements Sequencer
     long getBackoffCount()
     {
         return backoffCounter;
-    }
-
-    private boolean hasAvailableCapacity(final int requiredCapacity, final Sequence[] dependentSequences)
-    {
-        final long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
-        {
-            long minSequence = getMinimumSequence(dependentSequences, nextValue);
-            minGatingSequence.set(minSequence);
-
-            if (wrapPoint > minSequence)
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
