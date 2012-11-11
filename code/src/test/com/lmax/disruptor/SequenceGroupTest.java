@@ -15,10 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import org.junit.Test;
+import static junit.framework.Assert.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
 public final class SequenceGroupTest
 {
@@ -38,6 +37,15 @@ public final class SequenceGroupTest
         sequenceGroup.add(sequence);
 
         assertEquals(sequence.get(), sequenceGroup.get());
+    }
+    
+    @Test
+    public void shouldNotFailIfTryingToRemoveNotExistingSequence() throws Exception
+    {
+        SequenceGroup group = new SequenceGroup();
+        group.add(new Sequence());
+        group.add(new Sequence());
+        group.remove(new Sequence());
     }
 
     @Test
@@ -71,6 +79,24 @@ public final class SequenceGroupTest
         final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
 
+        sequenceGroup.add(sequenceSeven);
+        sequenceGroup.add(sequenceThree);
+
+        assertEquals(sequenceThree.get(), sequenceGroup.get());
+
+        assertTrue(sequenceGroup.remove(sequenceThree));
+        assertEquals(sequenceSeven.get(), sequenceGroup.get());
+        assertEquals(1, sequenceGroup.size());
+    }
+
+    @Test
+    public void shouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
+    {
+        final Sequence sequenceThree = new Sequence(3L);
+        final Sequence sequenceSeven = new Sequence(7L);
+        final SequenceGroup sequenceGroup = new SequenceGroup();
+
+        sequenceGroup.add(sequenceThree);
         sequenceGroup.add(sequenceSeven);
         sequenceGroup.add(sequenceThree);
 

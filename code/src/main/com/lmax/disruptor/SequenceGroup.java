@@ -94,37 +94,45 @@ public final class SequenceGroup extends Sequence
      */
     public boolean remove(final Sequence sequence)
     {
-        boolean found = false;
+        boolean found;
+        int numToRemove;
         Sequence[] oldSequences;
         Sequence[] newSequences;
+        
         do
         {
+            found = false;
             oldSequences = sequencesRef.get();
+            
+            numToRemove = 0;
+            for (Sequence oldSequence : oldSequences)
+            {
+                if (oldSequence == sequence)
+                {
+                    numToRemove++;
+                }
+            }
+            
+            if (0 == numToRemove)
+            {
+                break;
+            }
+            
             final int oldSize = oldSequences.length;
-            newSequences = new Sequence[oldSize - 1];
+            newSequences = new Sequence[oldSize - numToRemove];
 
-            int pos = 0;
-            for (int i = 0; i < oldSize; i++)
+            for (int i = 0, pos = 0; i < oldSize; i++)
             {
                 final Sequence testSequence = oldSequences[i];
-                if (sequence == testSequence && !found)
-                {
-                    found = true;
-                }
-                else
+                if (sequence != testSequence)
                 {
                     newSequences[pos++] = testSequence;
                 }
             }
-
-            if (!found)
-            {
-                break;
-            }
         }
         while (!sequencesRef.compareAndSet(oldSequences, newSequences));
 
-        return found;
+        return numToRemove != 0;
     }
 
     /**
