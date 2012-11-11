@@ -30,7 +30,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
 {
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
-    private volatile int numWaiters = 0;
 
     @Override
     public long waitFor(final long sequence, Sequence cursorSequence, final Sequence dependentSequence, final SequenceBarrier barrier)
@@ -42,7 +41,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                ++numWaiters;
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
@@ -51,7 +49,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
             finally
             {
-                --numWaiters;
                 lock.unlock();
             }
         }
@@ -67,17 +64,14 @@ public final class BlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        if (0 != numWaiters)
+        lock.lock();
+        try
         {
-            lock.lock();
-            try
-            {
-                processorNotifyCondition.signalAll();
-            }
-            finally
-            {
-                lock.unlock();
-            }
+            processorNotifyCondition.signalAll();
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 }
