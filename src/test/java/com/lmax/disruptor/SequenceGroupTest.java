@@ -15,9 +15,12 @@
  */
 package com.lmax.disruptor;
 
-import static junit.framework.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.lmax.disruptor.support.TestEvent;
 
 public final class SequenceGroupTest
 {
@@ -122,5 +125,23 @@ public final class SequenceGroupTest
 
         assertEquals(expectedSequence, sequenceThree.get());
         assertEquals(expectedSequence, sequenceSeven.get());
+    }
+    
+    @Test
+    public void shouldAddWhileRunning() throws Exception
+    {
+        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, 32);
+        final Sequence sequenceThree = new Sequence(3L);
+        final Sequence sequenceSeven = new Sequence(7L);
+        final SequenceGroup sequenceGroup = new SequenceGroup();
+        sequenceGroup.add(sequenceSeven);
+        
+        for (int i = 0; i < 11; i++)
+        {
+            ringBuffer.publish(ringBuffer.next());
+        }
+        
+        sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
+        assertThat(sequenceThree.get(), is(10L));
     }
 }

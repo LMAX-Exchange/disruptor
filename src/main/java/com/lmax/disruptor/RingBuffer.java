@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static java.util.Arrays.copyOf;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -211,38 +210,7 @@ public final class RingBuffer<E>
      */
     public final void addGatingSequences(Sequence... gatingSequences)
     {
-        addSequences(this, sequenceUpdater, cursor, gatingSequences);
-    }
-    
-    private static <T> void addSequences(final T holder,
-                                         AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-                                         final Sequence cursor,
-                                         final Sequence... sequencesToAdd)
-    {
-        Sequence[] updatedSequences = null;
-        long cursorSequence;
-        Sequence[] currentSequences;
-        
-        do
-        {
-            currentSequences = updater.get(holder);
-            updatedSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
-            cursorSequence = cursor.get();
-            
-            int index = currentSequences.length;
-            for (Sequence sequence : sequencesToAdd)
-            {
-                sequence.set(cursorSequence);
-                updatedSequences[index++] = sequence;
-            }
-        }
-        while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
-        
-        cursorSequence = cursor.get();
-        for (Sequence sequence : sequencesToAdd)
-        {
-            sequence.set(cursorSequence);
-        }
+        SequenceGroups.addSequences(this, sequenceUpdater, this, gatingSequences);
     }
     
     /**

@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.Util;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.lmax.disruptor.util.Util;
 
 /**
  * {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
@@ -28,7 +28,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class SequenceGroup extends Sequence
 {
-    private final AtomicReference<Sequence[]> sequencesRef;
+    private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER = 
+            AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
+    private volatile Sequence[] sequences = new Sequence[0];
 
     /**
      * Default Constructor
@@ -36,7 +38,6 @@ public final class SequenceGroup extends Sequence
     public SequenceGroup()
     {
         super(-1);
-        sequencesRef = new AtomicReference<Sequence[]>(new Sequence[0]);
     }
 
     /**
@@ -47,7 +48,7 @@ public final class SequenceGroup extends Sequence
     @Override
     public long get()
     {
-        return Util.getMinimumSequence(sequencesRef.get());
+        return Util.getMinimumSequence(sequences);
     }
 
     /**
@@ -58,7 +59,7 @@ public final class SequenceGroup extends Sequence
     @Override
     public void set(final long value)
     {
-        final Sequence[] sequences = sequencesRef.get();
+        final Sequence[] sequences = this.sequences;
         for (int i = 0, size = sequences.length; i < size; i++)
         {
             sequences[i].set(value);
@@ -66,7 +67,8 @@ public final class SequenceGroup extends Sequence
     }
 
     /**
-     * Add a {@link Sequence} into this aggregate.
+     * Add a {@link Sequence} into this aggregate.  This should only be used during
+     * initialisation.  Use {@see SequenceGroup#addWhileRunning(RingBuffer, Sequence)}
      *
      * @param sequence to be added to the aggregate.
      */
@@ -76,13 +78,13 @@ public final class SequenceGroup extends Sequence
         Sequence[] newSequences;
         do
         {
-            oldSequences = sequencesRef.get();
+            oldSequences = sequences;
             final int oldSize = oldSequences.length;
             newSequences = new Sequence[oldSize + 1];
             System.arraycopy(oldSequences, 0, newSequences, 0, oldSize);
             newSequences[oldSize] = sequence;
         }
-        while (!sequencesRef.compareAndSet(oldSequences, newSequences));
+        while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
     }
 
     /**
@@ -93,15 +95,13 @@ public final class SequenceGroup extends Sequence
      */
     public boolean remove(final Sequence sequence)
     {
-        boolean found;
         int numToRemove;
         Sequence[] oldSequences;
         Sequence[] newSequences;
         
         do
         {
-            found = false;
-            oldSequences = sequencesRef.get();
+            oldSequences = sequences;
             
             numToRemove = 0;
             for (Sequence oldSequence : oldSequences)
@@ -129,7 +129,7 @@ public final class SequenceGroup extends Sequence
                 }
             }
         }
-        while (!sequencesRef.compareAndSet(oldSequences, newSequences));
+        while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
 
         return numToRemove != 0;
     }
@@ -141,6 +141,20 @@ public final class SequenceGroup extends Sequence
      */
     public int size()
     {
-        return sequencesRef.get().length;
+        return sequences.length;
+    }
+
+    /**
+     * Adds a sequence to the sequence group after threads have started to publish to
+     * the Disruptor.  It will set the sequences to cursor value of the ringBuffer
+     * just after adding them.  This should prevent any nasty rewind/wrapping effects. 
+     * 
+     * @param ringBuffer The ringBuffer that the owner of this sequence group will
+     * be pulling it's events from.
+     * @param sequence The sequence to add.
+     */
+    public void addWhileRunning(RingBuffer<?> ringBuffer, Sequence sequence)
+    {
+        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, ringBuffer, sequence);
     }
 }
