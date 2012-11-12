@@ -31,7 +31,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
 {
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
-    private final Sequence numWaiters = new Sequence(0);
 
     @Override
     public long waitFor(final long sequence, final Sequence cursor, final Sequence[] dependents, final SequenceBarrier barrier)
@@ -43,7 +42,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                numWaiters.set(numWaiters.get() + 1);
                 while ((availableSequence = cursor.get()) < sequence)
                 {
                     barrier.checkAlert();
@@ -52,7 +50,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
             finally
             {
-                numWaiters.set(numWaiters.get() - 1);
                 lock.unlock();
             }
         }
@@ -79,7 +76,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                numWaiters.set(numWaiters.get() + 1);
                 while ((availableSequence = cursor.get()) < sequence)
                 {
                     barrier.checkAlert();
@@ -92,7 +88,6 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
             finally
             {
-                numWaiters.set(numWaiters.get() - 1);
                 lock.unlock();
             }
         }
@@ -111,17 +106,14 @@ public final class BlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        if (!numWaiters.compareAndSet(0, 0))
+        lock.lock();
+        try
         {
-            lock.lock();
-            try
-            {
-                processorNotifyCondition.signalAll();
-            }
-            finally
-            {
-                lock.unlock();
-            }
+            processorNotifyCondition.signalAll();
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 }
