@@ -301,7 +301,7 @@ public final class RingBuffer<E>
 
     /**
      * Attempts to publish an event to the ring buffer.  It handles
-     * claiming the next sequence, getting the current (uninitialized)
+     * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.  Will return false if specified capacity
      * was not available.
@@ -495,6 +495,12 @@ public final class RingBuffer<E>
         return (E)entries[(int)sequence & indexMask];
     }
     
+    /**
+     * Publish the specified sequence.  This action marks this particular
+     * message as being available to be read.
+     * 
+     * @param sequence the sequence to publish.
+     */
     public void publish(long sequence)
     {
         assert (sequence - bufferSize) <= sequencer.getWrapPoint();
