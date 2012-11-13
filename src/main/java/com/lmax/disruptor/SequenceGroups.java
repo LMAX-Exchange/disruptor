@@ -52,4 +52,47 @@ class SequenceGroups
         }
     }
 
+    static <T> boolean removeSequence(final T holder, 
+                                      final AtomicReferenceFieldUpdater<T, Sequence[]> sequenceUpdater,
+                                      final Sequence sequence)
+    {
+        int numToRemove;
+        Sequence[] oldSequences;
+        Sequence[] newSequences;
+        
+        do
+        {
+            oldSequences = sequenceUpdater.get(holder);
+            
+            numToRemove = 0;
+            for (Sequence oldSequence : oldSequences)
+            {
+                if (oldSequence == sequence)
+                {
+                    numToRemove++;
+                }
+            }
+            
+            if (0 == numToRemove)
+            {
+                break;
+            }
+            
+            final int oldSize = oldSequences.length;
+            newSequences = new Sequence[oldSize - numToRemove];
+    
+            for (int i = 0, pos = 0; i < oldSize; i++)
+            {
+                final Sequence testSequence = oldSequences[i];
+                if (sequence != testSequence)
+                {
+                    newSequences[pos++] = testSequence;
+                }
+            }
+        }
+        while (!sequenceUpdater.compareAndSet(holder, oldSequences, newSequences));
+    
+        return numToRemove != 0;
+    }
+
 }

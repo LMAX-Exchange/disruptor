@@ -68,8 +68,9 @@ public final class SequenceGroup extends Sequence
 
     /**
      * Add a {@link Sequence} into this aggregate.  This should only be used during
-     * initialisation.  Use {@see SequenceGroup#addWhileRunning(RingBuffer, Sequence)}
+     * initialisation.  Use {@link SequenceGroup#addWhileRunning(RingBuffer, Sequence)}
      *
+     * @see SequenceGroup#addWhileRunning(RingBuffer, Sequence)
      * @param sequence to be added to the aggregate.
      */
     public void add(final Sequence sequence)
@@ -95,43 +96,7 @@ public final class SequenceGroup extends Sequence
      */
     public boolean remove(final Sequence sequence)
     {
-        int numToRemove;
-        Sequence[] oldSequences;
-        Sequence[] newSequences;
-        
-        do
-        {
-            oldSequences = sequences;
-            
-            numToRemove = 0;
-            for (Sequence oldSequence : oldSequences)
-            {
-                if (oldSequence == sequence)
-                {
-                    numToRemove++;
-                }
-            }
-            
-            if (0 == numToRemove)
-            {
-                break;
-            }
-            
-            final int oldSize = oldSequences.length;
-            newSequences = new Sequence[oldSize - numToRemove];
-
-            for (int i = 0, pos = 0; i < oldSize; i++)
-            {
-                final Sequence testSequence = oldSequences[i];
-                if (sequence != testSequence)
-                {
-                    newSequences[pos++] = testSequence;
-                }
-            }
-        }
-        while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
-
-        return numToRemove != 0;
+        return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
     }
 
     /**
