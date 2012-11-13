@@ -64,14 +64,7 @@ class SequenceGroups
         {
             oldSequences = sequenceUpdater.get(holder);
             
-            numToRemove = 0;
-            for (Sequence oldSequence : oldSequences)
-            {
-                if (oldSequence == sequence)
-                {
-                    numToRemove++;
-                }
-            }
+            numToRemove = countMatching(oldSequences, sequence);
             
             if (0 == numToRemove)
             {
@@ -95,4 +88,16 @@ class SequenceGroups
         return numToRemove != 0;
     }
 
+    private static <T> int countMatching(T[] values, final T toMatch)
+    {
+        int numToRemove = 0;
+        for (T value : values)
+        {
+            if (value == toMatch) // Specificly uses identity
+            {
+                numToRemove++;
+            }
+        }
+        return numToRemove;
+    }
 }
