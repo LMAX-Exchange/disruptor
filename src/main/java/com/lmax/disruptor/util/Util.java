@@ -54,6 +54,14 @@ public final class Util
         return getMinimumSequence(sequences, Long.MAX_VALUE);
     }
 
+    /**
+     * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
+     *
+     * @param sequences to compare.
+     * @param minimum an initial default minimum.  If the array is empty this value will be
+     * returned.
+     * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
+     */
     public static long getMinimumSequence(final Sequence[] sequences, long minimum)
     {
         for (int i = 0, n = sequences.length; i < n; i++)
