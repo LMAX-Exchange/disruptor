@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+import com.lmax.disruptor.util.Util;
+
 /**
  * Ring based store of reusable entries containing the data representing
  * an event being exchanged between event publisher and {@link EventProcessor}s.
@@ -27,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 public final class RingBuffer<E>
 {
     @SuppressWarnings("rawtypes")
-    private static final AtomicReferenceFieldUpdater<RingBuffer, Sequence[]> sequenceUpdater = 
+    private static final AtomicReferenceFieldUpdater<RingBuffer, Sequence[]> SEQUENCE_UPDATER = 
             AtomicReferenceFieldUpdater.newUpdater(RingBuffer.class, Sequence[].class, "gatingSequences");
     private final int indexMask;
     private final Object[] entries;
@@ -210,7 +212,30 @@ public final class RingBuffer<E>
      */
     public final void addGatingSequences(Sequence... gatingSequences)
     {
-        SequenceGroups.addSequences(this, sequenceUpdater, this, gatingSequences);
+        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
+    }
+
+    /**
+     * Get the minimum sequence value from all of the gating sequences
+     * added to this ringBuffer.
+     * 
+     * @return The minimum gating sequence or the cursor sequence if
+     * no sequences have been added.
+     */
+    public long getMinimumGatingSequence()
+    {
+        return Util.getMinimumSequence(gatingSequences, cursor.get());
+    }
+
+    /**
+     * Remove the specified sequence from this ringBuffer.
+     * 
+     * @param sequence to be removed.
+     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     */
+    public boolean removeGatingSequence(Sequence sequence)
+    {
+        return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
     }
     
     /**

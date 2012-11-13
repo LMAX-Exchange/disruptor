@@ -278,6 +278,28 @@ public class RingBufferTest
         assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBazBam1"));
     }
     
+    @Test
+    public void shouldAddAndRemoveSequences() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 16);
+
+        Sequence sequenceThree = new Sequence(-1);
+        Sequence sequenceSeven = new Sequence(-1);
+        ringBuffer.addGatingSequences(sequenceThree, sequenceSeven);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            ringBuffer.publish(ringBuffer.next());
+        }
+        
+        sequenceThree.set(3);
+        sequenceSeven.set(7);
+        
+        assertThat(ringBuffer.getMinimumGatingSequence(), is(3L));
+        assertTrue(ringBuffer.removeGatingSequence(sequenceThree));
+        assertThat(ringBuffer.getMinimumGatingSequence(), is(7L));
+    }
+    
     private Future<List<StubEvent>> getMessages(final long initial, final long toWaitFor)
         throws InterruptedException, BrokenBarrierException
     {
