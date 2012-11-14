@@ -38,7 +38,6 @@ public class EventProcessorRepositoryTest
     private SequenceBarrier barrier1;
     private SequenceBarrier barrier2;
 
-    @SuppressWarnings({"unchecked"})
     @Before
     public void setUp() throws Exception
     {
