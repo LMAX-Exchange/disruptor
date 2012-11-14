@@ -6,7 +6,7 @@ A High Performance Inter-Thread Messaging Library
 Maintainer
 ==========
 
-Michael Barker <mikeb01@gmail.com>
+[Michael Barker] (https://github.com/mikeb01)
 
 Changelog
 ==========
