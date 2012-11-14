@@ -11,7 +11,7 @@ Maintainer
 Changelog
 ==========
 
-### 2.10.4 Released (22-Aug-2012)
+### 2.10.4 Released (13-Nov-2012)
 
 - Fix for removing non-existent sequences from a SequenceGroup (Issue #30)
 - Remove numWaiters optimisation from BlockingWaitStrategy
