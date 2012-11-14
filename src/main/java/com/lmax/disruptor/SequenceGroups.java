@@ -93,7 +93,7 @@ class SequenceGroups
         int numToRemove = 0;
         for (T value : values)
         {
-            if (value == toMatch) // Specificly uses identity
+            if (value == toMatch) // Specifically uses identity
             {
                 numToRemove++;
             }
