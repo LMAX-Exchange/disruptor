@@ -187,9 +187,10 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 class Version {
     int major, minor = 0, revision = 0
+    String stage
     boolean release
     
     String toString() {
-        "$major.$minor.$revision${release ? '' : '-SNAPSHOT'}"
+        "$major.$minor.$revision${stage ? '-' + stage : ''}${release ? '' : '-SNAPSHOT'}"
     }
 }
