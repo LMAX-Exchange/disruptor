@@ -159,7 +159,7 @@ public final class RingBuffer<E>
      * @return the published event that
      */
     @SuppressWarnings("unchecked")
-    public E get(final long sequence)
+    public E get(long sequence)
     {
         publisher.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
@@ -236,7 +236,7 @@ public final class RingBuffer<E>
      * 
      * @param gatingSequences The sequences to add.
      */
-    public final void addGatingSequences(Sequence... gatingSequences)
+    public void addGatingSequences(Sequence... gatingSequences)
     {
         SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
     }
@@ -305,7 +305,7 @@ public final class RingBuffer<E>
      * @return <tt>true</tt> If the specified <tt>requiredCapacity</tt> is available
      * <tt>false</tt> if now.
      */
-    public boolean hasAvilableCapacity(final int requiredCapacity)
+    public boolean hasAvilableCapacity(int requiredCapacity)
     {
         return sequencer.hasAvailableCapacity(gatingSequences, requiredCapacity);
     }
@@ -319,7 +319,7 @@ public final class RingBuffer<E>
      *
      * @param translator The user specified translation for the event
      */
-    public void publishEvent(final EventTranslator<E> translator)
+    public void publishEvent(EventTranslator<E> translator)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence);
@@ -358,7 +358,8 @@ public final class RingBuffer<E>
      * @param translator The user specified translation for the event
      * @param arg0 A user supplied argument.
      */
-    public <A> void publishEvent(final EventTranslatorOneArg<E, A> translator, final A arg0)
+    public <A> void publishEvent(EventTranslatorOneArg<E, A> translator, 
+                                 A arg0)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0);
@@ -374,7 +375,8 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, int capacity, A arg0)
+    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, 
+                                       int capacity, A arg0)
     {
         try
         {
@@ -396,7 +398,8 @@ public final class RingBuffer<E>
      * @param arg0 A user supplied argument.
      * @param arg1 A user supplied argument.
      */
-    public <A, B> void publishEvent(final EventTranslatorTwoArg<E, A, B> translator, final A arg0, final B arg1)
+    public <A, B> void publishEvent(EventTranslatorTwoArg<E, A, B> translator, 
+                                    A arg0, B arg1)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1);
@@ -413,7 +416,8 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A, B> boolean tryPublishEvent(EventTranslatorTwoArg<E, A, B> translator, int capacity, final A arg0, final B arg1)
+    public <A, B> boolean tryPublishEvent(EventTranslatorTwoArg<E, A, B> translator, 
+                                          int capacity, A arg0, B arg1)
     {
         try
         {
@@ -436,8 +440,8 @@ public final class RingBuffer<E>
      * @param arg1 A user supplied argument.
      * @param arg2 A user supplied argument.
      */
-    public <A, B, C> void publishEvent(final EventTranslatorThreeArg<E, A, B, C> translator,
-                                       final A arg0, final B arg1, final C arg2)
+    public <A, B, C> void publishEvent(EventTranslatorThreeArg<E, A, B, C> translator,
+                                       A arg0, B arg1, C arg2)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1, arg2);
@@ -455,8 +459,8 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A, B, C> boolean tryPublishEvent(EventTranslatorThreeArg<E, A, B, C> translator, int capacity,
-                                             final A arg0, final B arg1, final C arg2)
+    public <A, B, C> boolean tryPublishEvent(EventTranslatorThreeArg<E, A, B, C> translator, 
+                                             int capacity, A arg0, B arg1, C arg2)
     {
         try
         {
@@ -477,7 +481,8 @@ public final class RingBuffer<E>
      * @param translator The user specified translation for the event
      * @param args User supplied arguments.
      */
-    public void publishEvent(final EventTranslatorVararg<E> translator, final Object...args)
+    public void publishEvent(EventTranslatorVararg<E> translator,
+                             Object...args)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, args);
@@ -493,7 +498,8 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, int capacity, final Object...args)
+    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, 
+                                   int capacity, Object...args)
     {
         try
         {
@@ -516,7 +522,7 @@ public final class RingBuffer<E>
      * @return event for the sequence
      */
     @SuppressWarnings("unchecked")
-    public E getPreallocated(final long sequence)
+    public E getPreallocated(long sequence)
     {
         return (E)entries[(int)sequence & indexMask];
     }
@@ -534,7 +540,7 @@ public final class RingBuffer<E>
         publisher.publish(sequence);
     }
 
-    private void translateAndPublish(final EventTranslator<E> translator, final long sequence)
+    private void translateAndPublish(EventTranslator<E> translator, long sequence)
     {
         try
         {
@@ -546,9 +552,9 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A> void translateAndPublish(final EventTranslatorOneArg<E, A> translator,
-                                         final long sequence,
-                                         final A arg0)
+    private <A> void translateAndPublish(EventTranslatorOneArg<E, A> translator,
+                                         long sequence,
+                                         A arg0)
     {
         try
         {
@@ -560,10 +566,10 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A, B> void translateAndPublish(final EventTranslatorTwoArg<E, A, B> translator,
-                                            final long sequence,
-                                            final A arg0,
-                                            final B arg1)
+    private <A, B> void translateAndPublish(EventTranslatorTwoArg<E, A, B> translator,
+                                            long sequence,
+                                            A arg0,
+                                            B arg1)
     {
         try
         {
@@ -575,11 +581,11 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A, B, C> void translateAndPublish(final EventTranslatorThreeArg<E, A, B, C> translator,
-                                               final long sequence,
-                                               final A arg0,
-                                               final B arg1,
-                                               final C arg2)
+    private <A, B, C> void translateAndPublish(EventTranslatorThreeArg<E, A, B, C> translator,
+                                               long sequence,
+                                               A arg0,
+                                               B arg1,
+                                               C arg2)
     {
         try
         {
@@ -591,9 +597,9 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A> void translateAndPublish(final EventTranslatorVararg<E> translator,
-                                         final long sequence,
-                                         final Object...args)
+    private <A> void translateAndPublish(EventTranslatorVararg<E> translator,
+                                         long sequence,
+                                         Object...args)
     {
         try
         {
@@ -605,7 +611,7 @@ public final class RingBuffer<E>
         }
     }
 
-    private void fill(final EventFactory<E> eventFactory)
+    private void fill(EventFactory<E> eventFactory)
     {
         for (int i = 0; i < entries.length; i++)
         {
