@@ -19,6 +19,14 @@ import com.lmax.disruptor.util.Util;
 
 import sun.misc.Unsafe;
 
+/**
+ * <p>Concurrent sequence class used for tracking the progress of
+ * the ring buffer and event processors.  Support a number
+ * of concurrent operations including CAS and order writes.
+ * 
+ * <p>Also attempts to be more efficient with regards to false
+ * sharing by adding padding around the volatile field.
+ */
 public class Sequence
 {
     private static final Unsafe unsafe;
@@ -34,34 +42,42 @@ public class Sequence
 
     private final long[] paddedValue = new long[15];
 
+    /**
+     * Create a sequence initialised to -1.
+     */
     public Sequence()
     {
         setOrdered(-1);
     }
 
+    /**
+     * Create a sequence with a specified initial value.
+     * 
+     * @param initialValue The initial value for this sequence.
+     */
     public Sequence(final long initialValue)
     {
         setOrdered(initialValue);
     }
 
+    /**
+     * Performance a volatile read of this sequence's value.
+     * 
+     * @return The current value of the sequence.
+     */
     public long get()
     {
         return unsafe.getLongVolatile(paddedValue, valueOffset);
     }
 
-    public long getNonVolatile()
-    {
-        return paddedValue[7];
-    }
-
-    public void set(final long value)
+    public void setOrdered(final long value)
     {
         unsafe.putOrderedLong(paddedValue, valueOffset, value);
     }
 
-    private void setOrdered(final long value)
+    public void setVolatile(final long value)
     {
-        unsafe.putOrderedLong(paddedValue, valueOffset, value);
+        unsafe.putLongVolatile(paddedValue, valueOffset, value);
     }
 
     public boolean compareAndSet(final long expectedValue, final long newValue)

@@ -96,7 +96,7 @@ public final class WorkProcessor<T>
                 {
                     processedSequence = false;
                     nextSequence = workSequence.incrementAndGet();
-                    sequence.set(nextSequence - 1L);
+                    sequence.setOrdered(nextSequence - 1L);
                 }
 
                 sequenceBarrier.waitFor(nextSequence);

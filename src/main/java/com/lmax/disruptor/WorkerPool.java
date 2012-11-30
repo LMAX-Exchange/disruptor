@@ -124,11 +124,11 @@ public final class WorkerPool<T>
         }
 
         final long cursor = ringBuffer.getCursor();
-        workSequence.set(cursor);
+        workSequence.setOrdered(cursor);
 
         for (WorkProcessor<?> processor : workProcessors)
         {
-            processor.getSequence().set(cursor);
+            processor.getSequence().setOrdered(cursor);
             executor.execute(processor);
         }
 

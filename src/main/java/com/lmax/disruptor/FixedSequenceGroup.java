@@ -49,7 +49,7 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
-    public void set(long value)
+    public void setOrdered(long value)
     {
         throw new UnsupportedOperationException();
     }

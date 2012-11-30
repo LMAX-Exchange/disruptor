@@ -121,7 +121,7 @@ public final class SequenceGroupTest
         sequenceGroup.add(sequenceThree);
 
         final long expectedSequence = 11L;
-        sequenceGroup.set(expectedSequence);
+        sequenceGroup.setOrdered(expectedSequence);
 
         assertEquals(expectedSequence, sequenceThree.get());
         assertEquals(expectedSequence, sequenceSeven.get());

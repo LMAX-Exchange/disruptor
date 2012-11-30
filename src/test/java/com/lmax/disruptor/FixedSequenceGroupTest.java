@@ -32,9 +32,9 @@ public class FixedSequenceGroupTest
         Sequence group = new FixedSequenceGroup(new Sequence[] { sequence1, sequnece2 });
 
         assertThat(group.get(), is(34L));
-        sequence1.set(35);
+        sequence1.setOrdered(35);
         assertThat(group.get(), is(35L));
-        sequence1.set(48);
+        sequence1.setOrdered(48);
         assertThat(group.get(), is(47L));
     }
 }
