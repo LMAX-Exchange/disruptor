@@ -16,9 +16,8 @@
 package com.lmax.disruptor;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static junit.framework.Assert.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -138,6 +137,19 @@ public class RingBufferTest
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 3, "3");
 
         assertFalse(ringBuffer.tryPublishEvent(StubEvent.TRANSLATOR, 1, 3, "3"));
+    }
+    
+    @Test(expected = InsufficientCapacityException.class)
+    public void shouldThrowExceptionIfBufferIsFull() throws Exception
+    {
+        ringBuffer.addGatingSequences(new Sequence(-1));
+        
+        for (int i = 0; i < ringBuffer.getBufferSize(); i++)
+        {
+            ringBuffer.publish(ringBuffer.next());
+        }
+        
+        ringBuffer.tryNext();
     }
 
     @Test

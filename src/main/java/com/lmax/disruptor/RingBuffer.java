@@ -187,6 +187,32 @@ public final class RingBuffer<E>
     }
     
     /**
+     * <p>Increment and return the next sequence for the ring buffer.  Calls of this
+     * method should ensure that they always publish the sequence afterward.  E.g.
+     * <pre>
+     * long sequence = ringBuffer.next();
+     * try {
+     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     // Do some work with the event.
+     * } finally {
+     *     ringBuffer.publish(sequence);
+     * }
+     * </pre>
+     * <p>This method will not block if there is not space available in the ring
+     * buffer, instead it will throw an {@link InsufficientCapacityException}.
+     * 
+     * 
+     * @see RingBuffer#publish(long)
+     * @see RingBuffer#getPreallocated(long)
+     * @return The next sequence to publish to.
+     * @throws InsufficientCapacityException 
+     */
+    public long tryNext() throws InsufficientCapacityException
+    {
+        return sequencer.tryNext(gatingSequences);
+    }
+    
+    /**
      * Initialises the cursor to a specific value.  This can only be applied before any
      * gating sequences are specified otherwise an IllegalStateException is thrown.
      * 
