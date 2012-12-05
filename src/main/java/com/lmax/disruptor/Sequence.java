@@ -47,7 +47,7 @@ public class Sequence
      */
     public Sequence()
     {
-        setOrdered(-1);
+        this(-1L);
     }
 
     /**
@@ -57,7 +57,7 @@ public class Sequence
      */
     public Sequence(final long initialValue)
     {
-        setOrdered(initialValue);
+        unsafe.putOrderedLong(paddedValue, valueOffset, initialValue);
     }
 
     /**
