@@ -11,3 +11,5 @@
 classes
 code
 templib
+SConstruct
+.*dblite

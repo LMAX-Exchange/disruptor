@@ -70,31 +70,59 @@ public class Sequence
         return unsafe.getLongVolatile(paddedValue, valueOffset);
     }
 
+    /**
+     * Perform an ordered write of this sequence.  The intent is
+     * a Store/Store barrier between this write and any previous
+     * store.
+     * 
+     * @param value The new value for the sequence.
+     */
     public void setOrdered(final long value)
     {
         unsafe.putOrderedLong(paddedValue, valueOffset, value);
     }
 
+    /**
+     * Performs a volatile write of this sequence.  The intent is
+     * a Store/Store barrier between this write and any previous
+     * write and a Store/Load barrier between this write and any
+     * subsequent volatile read.
+     * 
+     * @param value The new value for the sequence.
+     */
     public void setVolatile(final long value)
     {
         unsafe.putLongVolatile(paddedValue, valueOffset, value);
     }
 
+    /**
+     * Perform a compare and set operation on the sequence.
+     * 
+     * @param expectedValue The expected current value.
+     * @param newValue The value to update to.
+     * @return true if the operation succeeds, false otherwise.
+     */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
         return unsafe.compareAndSwapLong(paddedValue, valueOffset, expectedValue, newValue);
     }
 
-    public String toString()
-    {
-        return Long.toString(get());
-    }
-
+    /**
+     * Atomically increment the sequence by one.
+     * 
+     * @return The value after the increment
+     */
     public long incrementAndGet()
     {
         return addAndGet(1L);
     }
 
+    /**
+     * Atomically add the supplied value.
+     * 
+     * @param increment The value to add to the sequence.
+     * @return The value after the increment.
+     */
     public long addAndGet(final long increment)
     {
         long currentValue;
@@ -108,5 +136,10 @@ public class Sequence
         while (!compareAndSet(currentValue, newValue));
 
         return newValue;
+    }
+
+    public String toString()
+    {
+        return Long.toString(get());
     }
 }
