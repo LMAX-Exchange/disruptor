@@ -97,7 +97,7 @@ import com.lmax.disruptor.support.ValuePublisher;
  */
 public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
-    private static final int NUM_PUBLISHERS = 1;
+    private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 1L;
     private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2);
@@ -132,7 +132,7 @@ public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS);
+            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS);
         }
 
         ringBuffer.addGatingSequences(workProcessors[0].getSequence(), workProcessors[1].getSequence());
