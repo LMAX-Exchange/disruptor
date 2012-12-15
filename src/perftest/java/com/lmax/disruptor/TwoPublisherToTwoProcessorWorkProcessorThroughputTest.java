@@ -30,69 +30,21 @@ import com.lmax.disruptor.support.ValuePublisher;
 
 /**
  * <pre>
+ * Sequence a series of events from multiple publishers going to multiple work processors.
  *
- * Sequence a series of events from multiple publishers going to one event processor.
- *
- * +----+
- * | P1 |------+
- * +----+      |
- *             v
- * +----+    +-----+
- * | P1 |--->| EP1 |
- * +----+    +-----+
- *             ^
- * +----+      |
- * | P3 |------+
- * +----+
- *
- *
- * Queue Based:
- * ============
- *
- * +----+  put
- * | P1 |------+
- * +----+      |
- *             v   take
- * +----+    +====+    +-----+
- * | P2 |--->| Q1 |<---| EP1 |
- * +----+    +====+    +-----+
- *             ^
- * +----+      |
- * | P3 |------+
- * +----+
+ * +----+                  +-----+
+ * | P1 |---+          +-->| WP1 |
+ * +----+   |  +-----+ |   +-----+ 
+ *          +->| RB1 |-+         
+ * +----+   |  +-----+ |   +-----+
+ * | P2 |---+          +-->| WP2 |
+ * +----+                  +-----+
  *
  * P1  - Publisher 1
  * P2  - Publisher 2
- * P3  - Publisher 3
- * Q1  - Queue 1
- * EP1 - EventProcessor 1
- *
- *
- * Disruptor:
- * ==========
- *             track to prevent wrap
- *             +--------------------+
- *             |                    |
- *             |                    v
- * +----+    +====+    +====+    +-----+
- * | P1 |--->| RB |<---| SB |    | EP1 |
- * +----+    +====+    +====+    +-----+
- *             ^   get    ^         |
- * +----+      |          |         |
- * | P2 |------+          +---------+
- * +----+      |            waitFor
- *             |
- * +----+      |
- * | P3 |------+
- * +----+
- *
- * P1  - Publisher 1
- * P2  - Publisher 2
- * P3  - Publisher 3
  * RB  - RingBuffer
- * SB  - SequenceBarrier
- * EP1 - EventProcessor 1
- *
+ * WP1 - EventProcessor 1
+ * WP2 - EventProcessor 2
  * </pre>
  */
 public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends AbstractPerfTestQueueVsDisruptor
