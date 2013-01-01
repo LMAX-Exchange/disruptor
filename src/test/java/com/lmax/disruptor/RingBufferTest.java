@@ -139,17 +139,31 @@ public class RingBufferTest
         assertFalse(ringBuffer.tryPublishEvent(StubEvent.TRANSLATOR, 1, 3, "3"));
     }
     
-    @Test(expected = InsufficientCapacityException.class)
+    @Test
     public void shouldThrowExceptionIfBufferIsFull() throws Exception
     {
-        ringBuffer.addGatingSequences(new Sequence(-1));
+        ringBuffer.addGatingSequences(new Sequence(ringBuffer.getBufferSize()));
         
-        for (int i = 0; i < ringBuffer.getBufferSize(); i++)
+        try
         {
-            ringBuffer.publish(ringBuffer.next());
+            for (int i = 0; i < ringBuffer.getBufferSize(); i++)
+            {
+                ringBuffer.publish(ringBuffer.tryNext());
+            }
+        }
+        catch (Exception e)
+        {
+            fail("Should not of thrown exception");
         }
         
-        ringBuffer.tryNext();
+        try
+        {   
+            ringBuffer.tryNext();
+            fail("Exception should have been thrown");
+        }
+        catch (InsufficientCapacityException e)
+        {
+        }
     }
 
     @Test
