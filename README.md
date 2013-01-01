@@ -11,6 +11,21 @@ Maintainer
 Changelog
 ==========
 
+## 3.0.0-beta1 Released (2-Jan-2013)
+
+- Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
+- Introduce new multi-producer publisher algorithm (faster and more scalable).
+- Introduce more flexible EventPusblisher interface that allow for static definition of translators 
+that can handle local values.
+- Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow 
+messages to be sent and the ring buffer to wrap if there are no gating sequences defined.
+- Remove batch writes to the ring buffer.
+- Remove timeout read methods.
+- Switch to gradle build.
+- API change, add getPreallocated method, this should be used instead of get for publishing.
+- Change maven dependency group id to com.lmax.
+- Added PhasedBackoffStrategy 
+
 ### 2.10.3 Released (22-Aug-2012)
 
 - Bug fix, race condition in SequenceGroup when removing Sequences and getting current value
