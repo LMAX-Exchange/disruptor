@@ -164,7 +164,7 @@ public class Disruptor<T>
      *
      * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
      *                   that will form the barrier for subsequent handlers or processors.
-     * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over hte specified event processors.
+     * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over the specified event processors.
      * @see #after(com.lmax.disruptor.EventHandler[])
      */
     public EventHandlerGroup<T> after(final EventProcessor... processors)
