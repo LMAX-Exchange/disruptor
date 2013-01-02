@@ -79,7 +79,7 @@ public final class SingleProducerSequencerTest
                 waitingLatch.countDown();
 
                 long next = sequencer.next(gatingSequences);
-                cursor.setOrdered(next);
+                cursor.set(next);
 
                 doneLatch.countDown();
             }
@@ -88,7 +88,7 @@ public final class SingleProducerSequencerTest
         waitingLatch.await();
         assertThat(sequencer.getNextValue(), is(expectedFullSequence));
 
-        gatingSequences[0].setOrdered(Sequencer.INITIAL_CURSOR_VALUE + 1L);
+        gatingSequences[0].set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
         assertThat(sequencer.getNextValue(), is(expectedFullSequence + 1L));
@@ -121,7 +121,7 @@ public final class SingleProducerSequencerTest
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
             long next = sequencer.next(gatingSequences);
-            cursor.setOrdered(next);
+            cursor.set(next);
         }
     }
 }

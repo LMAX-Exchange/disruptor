@@ -28,7 +28,7 @@ class SingleProducerPublisher implements Publisher
     @Override
     public void publish(long sequence)
     {
-        cursor.setOrdered(sequence);
+        cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
 

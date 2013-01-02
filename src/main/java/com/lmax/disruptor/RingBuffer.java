@@ -18,6 +18,7 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.Util;
 
 /**
@@ -28,6 +29,7 @@ import com.lmax.disruptor.util.Util;
  */
 public final class RingBuffer<E>
 {
+    public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
     @SuppressWarnings("rawtypes")
     private static final AtomicReferenceFieldUpdater<RingBuffer, Sequence[]> SEQUENCE_UPDATER = 
             AtomicReferenceFieldUpdater.newUpdater(RingBuffer.class, Sequence[].class, "gatingSequences");
@@ -145,6 +147,28 @@ public final class RingBuffer<E>
     {
         return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy());
     }
+    
+    /**
+     * Create a new Ring Buffer with the specified producer type (SINGLE or MULTI)
+     * 
+     * @param producerType producer type to use {@link ProducerType}.
+     * @param factory used to create events within the ring buffer.
+     * @param bufferSize number of elements to create within the ring buffer.
+     * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     */
+    public static <E> RingBuffer<E> create(ProducerType producerType, EventFactory<E> factory, int bufferSize, WaitStrategy waitStrategy)
+    {
+        switch (producerType)
+        {
+        case SINGLE:
+            return createSingleProducer(factory, bufferSize, waitStrategy);
+        case MULTI:
+            return createMultiProducer(factory, bufferSize, waitStrategy);
+        default:
+            throw new IllegalStateException(producerType.toString());
+        }
+    }
 
     /**
      * <p>Get the event for a given sequence in the RingBuffer.  This method will wait until the
@@ -213,19 +237,15 @@ public final class RingBuffer<E>
     }
     
     /**
-     * Initialises the cursor to a specific value.  This can only be applied before any
-     * gating sequences are specified otherwise an IllegalStateException is thrown.
+     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth not
+     * that it is a racy thing to do and should only be used in controlled circumstances.  E.g. during
+     * initialisation.
      * 
-     * @param sequence The sequence to initialise too.
+     * @param sequence The sequence to reset too.
      * @throws IllegalStateException If any gating sequences have already been specified.
      */
-    public void initialiseTo(long sequence)
+    public void resetTo(long sequence)
     {
-        if (gatingSequences.length != 0)
-        {
-            throw new IllegalStateException("Can only initialise the cursor if no gating sequences have been added");
-        }
-        
         sequencer.claim(sequence);
         publisher.publish(sequence);
     }
@@ -305,7 +325,7 @@ public final class RingBuffer<E>
      * @return <tt>true</tt> If the specified <tt>requiredCapacity</tt> is available
      * <tt>false</tt> if now.
      */
-    public boolean hasAvilableCapacity(int requiredCapacity)
+    public boolean hasAvailableCapacity(int requiredCapacity)
     {
         return sequencer.hasAvailableCapacity(gatingSequences, requiredCapacity);
     }

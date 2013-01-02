@@ -29,6 +29,7 @@ import sun.misc.Unsafe;
  */
 public class Sequence
 {
+    static final long INITIAL_VALUE = -1L;
     private static final Unsafe unsafe;
     private static final long valueOffset;
 
@@ -47,7 +48,7 @@ public class Sequence
      */
     public Sequence()
     {
-        this(-1L);
+        this(INITIAL_VALUE);
     }
 
     /**
@@ -77,7 +78,7 @@ public class Sequence
      * 
      * @param value The new value for the sequence.
      */
-    public void setOrdered(final long value)
+    public void set(final long value)
     {
         unsafe.putOrderedLong(paddedValue, valueOffset, value);
     }

@@ -61,16 +61,16 @@ public class Disruptor<T>
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
-     * @param claimStrategy  the claim strategy to use for the ring buffer.
+     * @param producerType   the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
      */
     public Disruptor(final EventFactory<T> eventFactory,
                      final int ringBufferSize,
                      final Executor executor,
-                     final ProducerType claimStrategy,
+                     final ProducerType producerType,
                      final WaitStrategy waitStrategy)
     {
-        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize, waitStrategy),
+        this(RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
              executor);
     }
 

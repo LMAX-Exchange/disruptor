@@ -68,7 +68,7 @@ public class SequenceReportingCallbackTest
         @Override
         public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            sequenceCallback.setOrdered(sequence);
+            sequenceCallback.set(sequence);
             callbackLatch.countDown();
         }
     }

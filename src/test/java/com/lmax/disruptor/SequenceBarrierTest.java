@@ -237,7 +237,7 @@ public final class SequenceBarrierTest
 
         public void setSequence(long sequence)
         {
-            this.sequence.setOrdered(sequence);
+            this.sequence.set(sequence);
         }
 
         @Override

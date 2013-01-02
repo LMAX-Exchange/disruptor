@@ -63,7 +63,7 @@ class MultiProducerSequencer implements Sequencer
         if (desiredSequence > wrapPointCache.get())
         {
             long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-            wrapPointCache.setOrdered(wrapPoint);
+            wrapPointCache.set(wrapPoint);
         
             if (desiredSequence > wrapPoint)
             {
@@ -77,7 +77,7 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public void claim(long sequence)
     {
-        cursor.setOrdered(sequence);
+        cursor.set(sequence);
     }
 
     @Override
@@ -94,7 +94,7 @@ class MultiProducerSequencer implements Sequencer
             if (next > wrapPointCache.get())
             {
                 long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-                wrapPointCache.setOrdered(wrapPoint);
+                wrapPointCache.set(wrapPoint);
 
                 if (next > wrapPoint)
                 {
@@ -127,7 +127,7 @@ class MultiProducerSequencer implements Sequencer
             if (next > wrapPointCache.get())
             {
                 long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-                wrapPointCache.setOrdered(wrapPoint);
+                wrapPointCache.set(wrapPoint);
 
                 if (next > wrapPoint)
                 {

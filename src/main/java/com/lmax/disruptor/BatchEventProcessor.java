@@ -114,7 +114,7 @@ public final class BatchEventProcessor<T>
                     nextSequence++;
                 }
 
-                sequence.setOrdered(availableSequence);
+                sequence.set(availableSequence);
             }
             catch (final AlertException ex)
             {
@@ -126,7 +126,7 @@ public final class BatchEventProcessor<T>
             catch (final Throwable ex)
             {
                 exceptionHandler.handleEventException(ex, nextSequence, event);
-                sequence.setOrdered(nextSequence);
+                sequence.set(nextSequence);
                 nextSequence++;
             }
         }

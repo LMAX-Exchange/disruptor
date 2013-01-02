@@ -318,8 +318,8 @@ public class RingBufferTest
             ringBuffer.publish(ringBuffer.next());
         }
         
-        sequenceThree.setOrdered(3);
-        sequenceSeven.setOrdered(7);
+        sequenceThree.set(3);
+        sequenceSeven.set(7);
         
         assertThat(ringBuffer.getMinimumGatingSequence(), is(3L));
         assertTrue(ringBuffer.removeGatingSequence(sequenceThree));
@@ -372,7 +372,7 @@ public class RingBufferTest
                 throw new RuntimeException(ex);
             }
 
-            sequence.setOrdered(sequence.get() + 1L);
+            sequence.set(sequence.get() + 1L);
         }
     }
     
