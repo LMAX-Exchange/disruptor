@@ -100,7 +100,7 @@ public final class WorkProcessor<T>
                 }
 
                 sequenceBarrier.waitFor(nextSequence);
-                event = ringBuffer.get(nextSequence);
+                event = ringBuffer.getPublished(nextSequence);
                 workHandler.onEvent(event);
 
                 processedSequence = true;

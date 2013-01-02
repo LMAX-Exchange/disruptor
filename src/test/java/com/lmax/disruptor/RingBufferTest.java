@@ -58,7 +58,7 @@ public class RingBufferTest
         long sequence = sequenceBarrier.waitFor(0);
         assertEquals(0, sequence);
 
-        StubEvent event = ringBuffer.get(sequence);
+        StubEvent event = ringBuffer.getPublished(sequence);
         assertEquals(expectedEvent, event);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -97,7 +97,7 @@ public class RingBufferTest
 
         for (int i = 0; i < numMessages; i++)
         {
-            assertEquals(i, ringBuffer.get(i).getValue());
+            assertEquals(i, ringBuffer.getPublished(i).getValue());
         }
     }
 
@@ -120,7 +120,7 @@ public class RingBufferTest
 
         for (int i = offset; i < numMessages + offset; i++)
         {
-            assertEquals(i, ringBuffer.get(i).getValue());
+            assertEquals(i, ringBuffer.getPublished(i).getValue());
         }
     }
 
@@ -217,7 +217,7 @@ public class RingBufferTest
             }
         });
         
-        assertThat(ringBuffer.get(0)[0], is((Object) 0L));
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) 0L));
     }
 
     @Test
@@ -237,8 +237,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo");
         ringBuffer.tryPublishEvent(translator, 1, "Foo");
         
-        assertThat(ringBuffer.get(0)[0], is((Object) "Foo0"));
-        assertThat(ringBuffer.get(1)[0], is((Object) "Foo1"));
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo1"));
     }
 
     @Test
@@ -258,8 +258,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar");
         ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar");
         
-        assertThat(ringBuffer.get(0)[0], is((Object) "FooBar0"));
-        assertThat(ringBuffer.get(1)[0], is((Object) "FooBar1"));
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBar0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBar1"));
     }
 
     @Test
@@ -279,8 +279,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz");
         ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz");
         
-        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBaz0"));
-        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBaz1"));
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBaz0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBaz1"));
     }
 
     @Test
@@ -300,8 +300,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz", "Bam");
         ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz", "Bam");
         
-        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBazBam0"));
-        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBazBam1"));
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBazBam0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
     }
     
     @Test

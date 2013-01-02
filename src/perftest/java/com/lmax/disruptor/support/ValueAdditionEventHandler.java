@@ -25,6 +25,7 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
     private final PaddedLong value = new PaddedLong();
     private long count;
     private CountDownLatch latch;
+    private long localSequence = -1;
 
     public long getValue()
     {
@@ -43,6 +44,15 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
     {
         value.set(value.get() + event.getValue());
 
+        if (localSequence + 1 == sequence)
+        {
+            localSequence = sequence;
+        }
+        else
+        {
+            System.err.println("Expected: " + (localSequence + 1) + "found: " + sequence);
+        }
+        
         if (count == sequence)
         {
             latch.countDown();

@@ -11,7 +11,7 @@ Maintainer
 Changelog
 ==========
 
-## 3.0.0-beta1 Released (2-Jan-2013)
+## 3.0.0.beta3 Released (3-Jan-2013)
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
 - Introduce new multi-producer publisher algorithm (faster and more scalable).
@@ -25,6 +25,7 @@ messages to be sent and the ring buffer to wrap if there are no gating sequences
 - API change, add getPreallocated method, this should be used instead of get for publishing.
 - Change maven dependency group id to com.lmax.
 - Added PhasedBackoffStrategy 
+- Remove explicit claim/forcePublish and supply a resetTo method
 
 ### 2.10.3 Released (22-Aug-2012)
 

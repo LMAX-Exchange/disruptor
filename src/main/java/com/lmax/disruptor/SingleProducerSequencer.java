@@ -35,7 +35,6 @@ class SingleProducerSequencer implements Sequencer
     private final WaitStrategy waitStrategy;
 
     private final int bufferSize;
-    private long backoffCounter;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -63,8 +62,10 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
     {
-        final long wrapPoint = (this.nextValue + requiredCapacity) - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
+        final long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
+        long l = minGatingSequence.get();
+        
+        if (wrapPoint > l)
         {
             long minSequence = getMinimumSequence(gatingSequences, nextValue);
             minGatingSequence.set(minSequence);
@@ -74,6 +75,10 @@ class SingleProducerSequencer implements Sequencer
                 return false;
             }
         }
+//        else if (cachedMinGatingSequence > nextValue)
+//        {
+//            minGatingSequence.set(nextValue);
+//        }
         
         return true;
     }
@@ -130,10 +135,5 @@ class SingleProducerSequencer implements Sequencer
     public long getWrapPoint()
     {
         return minGatingSequence.get();
-    }
-    
-    long getBackoffCount()
-    {
-        return backoffCounter;
     }
 }

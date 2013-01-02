@@ -180,10 +180,10 @@ public final class RingBuffer<E>
      * is visible after this call completes.
      *
      * @param sequence for the event
-     * @return the published event that
+     * @return the event that visibily published by the producer
      */
     @SuppressWarnings("unchecked")
-    public E get(long sequence)
+    public E getPublished(long sequence)
     {
         publisher.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
@@ -534,7 +534,7 @@ public final class RingBuffer<E>
     }
 
     /**
-     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #get(long)} in that
+     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #getPublished(long)} in that
      * is does not wait until the publisher indicates that object is available.  This method should only be used
      * by the publishing thread to get a handle on the preallocated event in order to fill it with data.
      *

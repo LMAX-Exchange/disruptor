@@ -274,11 +274,11 @@ public class Disruptor<T>
      *
      * @param sequence for the event.
      * @return event for the sequence.
-     * @see RingBuffer#get(long)
+     * @see RingBuffer#getPublished(long)
      */
     public T get(final long sequence)
     {
-        return ringBuffer.get(sequence);
+        return ringBuffer.getPublished(sequence);
     }
 
     /**
