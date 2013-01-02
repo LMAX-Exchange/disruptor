@@ -17,7 +17,11 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -324,6 +328,42 @@ public class RingBufferTest
         assertThat(ringBuffer.getMinimumGatingSequence(), is(3L));
         assertTrue(ringBuffer.removeGatingSequence(sequenceThree));
         assertThat(ringBuffer.getMinimumGatingSequence(), is(7L));
+    }
+    
+    @Test
+    public void shouldHandleResetToAndNotWrapUnecessarilySingleProducer() throws Exception
+    {
+        assertHandleResetAndNotWrap(RingBuffer.createSingleProducer(StubEvent.EVENT_FACTORY, 4));
+    }
+    
+    @Test
+    public void shouldHandleResetToAndNotWrapUnecessarilyMultiProducer() throws Exception
+    {
+        assertHandleResetAndNotWrap(RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 4));
+    }
+
+    private void assertHandleResetAndNotWrap(RingBuffer<StubEvent> rb)
+    {
+        Sequence sequence = new Sequence();
+        rb.addGatingSequences(sequence);
+        
+        for (int i = 0; i < 128; i++)
+        {
+            rb.publish(rb.next());
+            sequence.incrementAndGet();
+        }
+        
+        assertThat(rb.getCursor(), is(127L));
+        
+        rb.resetTo(31);
+        sequence.set(31);
+        
+        for (int i = 0; i < 4; i++)
+        {
+            rb.publish(rb.next());
+        }
+        
+        assertThat(rb.hasAvailableCapacity(1), is(false));
     }
     
     private Future<List<StubEvent>> getMessages(final long initial, final long toWaitFor)

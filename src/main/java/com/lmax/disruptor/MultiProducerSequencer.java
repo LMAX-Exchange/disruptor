@@ -31,7 +31,7 @@ class MultiProducerSequencer implements Sequencer
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
     private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private final Sequence wrapPointCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -59,13 +59,20 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
     {
-        final long desiredSequence = cursor.get() + requiredCapacity;
-        if (desiredSequence > wrapPointCache.get())
-        {
-            long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-            wrapPointCache.set(wrapPoint);
+        return hasAvailableCapacity(gatingSequences, requiredCapacity, cursor.get());
+    }
+
+    private boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity, long cursorValue)
+    {
+        long wrapPoint = (cursorValue + requiredCapacity) - bufferSize;
+        long cachedGatingSequence = gatingSequenceCache.get();
         
-            if (desiredSequence > wrapPoint)
+        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > cursorValue)
+        {
+            long minSequence = getMinimumSequence(gatingSequences, cursorValue);
+            gatingSequenceCache.set(minSequence);
+        
+            if (wrapPoint > minSequence)
             {
                 return false;
             }
@@ -91,10 +98,13 @@ class MultiProducerSequencer implements Sequencer
             current = cursor.get();
             next = current + 1;
 
-            if (next > wrapPointCache.get())
+            long wrapPoint = next - bufferSize;
+            long cachedGatingSequence = gatingSequenceCache.get();
+
+            if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
             {
-                long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-                wrapPointCache.set(wrapPoint);
+                long gatingSequence = getMinimumSequence(gatingSequences, current);
+                gatingSequenceCache.set(gatingSequence);
 
                 if (next > wrapPoint)
                 {
@@ -124,15 +134,9 @@ class MultiProducerSequencer implements Sequencer
             current = cursor.get();
             next = current + 1;
 
-            if (next > wrapPointCache.get())
+            if (!hasAvailableCapacity(gatingSequences, 1, current))
             {
-                long wrapPoint = getMinimumSequence(gatingSequences, cursor.get()) + bufferSize;
-                wrapPointCache.set(wrapPoint);
-
-                if (next > wrapPoint)
-                {
-                    throw InsufficientCapacityException.INSTANCE;
-                }
+                throw InsufficientCapacityException.INSTANCE;
             }
         }
         while (!cursor.compareAndSet(current, next));
@@ -149,8 +153,8 @@ class MultiProducerSequencer implements Sequencer
     }
     
     @Override
-    public long getWrapPoint()
+    public long getCachedGatingSequence()
     {
-        return wrapPointCache.get();
+        return gatingSequenceCache.get();
     }
 }

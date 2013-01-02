@@ -72,5 +72,5 @@ interface Sequencer
      */
     void claim(long sequence);
 
-    long getWrapPoint();
+    long getCachedGatingSequence();
 }

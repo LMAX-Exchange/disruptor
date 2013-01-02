@@ -133,7 +133,8 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     protected long runDisruptorPass() throws InterruptedException
     {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.reset(latch, batchEventProcessor.getSequence().get() + ITERATIONS);
+        long expectedCount = batchEventProcessor.getSequence().get() + ITERATIONS;
+        handler.reset(latch, expectedCount);
         EXECUTOR.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
         
@@ -148,11 +149,20 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
 
         latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        waitForEventProcessorSequence(expectedCount);
         batchEventProcessor.halt();
 
         Assert.assertEquals(expectedResult, handler.getValue());
         
         return opsPerSecond;
+    }
+
+    private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
+    {
+        while (batchEventProcessor.getSequence().get() != expectedCount)
+        {
+            Thread.sleep(1);
+        }
     }
     
     public static void main(String[] args) throws Exception

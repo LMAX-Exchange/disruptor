@@ -29,7 +29,7 @@ import com.lmax.disruptor.util.Util;
 class SingleProducerSequencer implements Sequencer
 {
     /** Set to -1 as sequence starting point */
-    private final PaddedLong minGatingSequence = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
+    private final PaddedLong gatingSequenceCache = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
     private long nextValue = Sequencer.INITIAL_CURSOR_VALUE;
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
@@ -62,23 +62,19 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
     {
-        final long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
-        long l = minGatingSequence.get();
+        long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
+        long cachedGatingSequence = gatingSequenceCache.get();
         
-        if (wrapPoint > l)
+        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence = getMinimumSequence(gatingSequences, nextValue);
-            minGatingSequence.set(minSequence);
+            gatingSequenceCache.set(minSequence);
         
             if (wrapPoint > minSequence)
             {
                 return false;
             }
         }
-//        else if (cachedMinGatingSequence > nextValue)
-//        {
-//            minGatingSequence.set(nextValue);
-//        }
         
         return true;
     }
@@ -87,8 +83,10 @@ class SingleProducerSequencer implements Sequencer
     public long next(Sequence[] gatingSequences)
     {
         long nextSequence = nextValue + 1;
-        final long wrapPoint = nextSequence - bufferSize;
-        if (wrapPoint > minGatingSequence.get())
+        long wrapPoint = nextSequence - bufferSize;
+        long cachedGatingSequence = gatingSequenceCache.get();
+        
+        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence;
             while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
@@ -96,7 +94,7 @@ class SingleProducerSequencer implements Sequencer
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
         
-            minGatingSequence.set(minSequence);
+            gatingSequenceCache.set(minSequence);
         }
         
         nextValue = nextSequence;
@@ -132,8 +130,8 @@ class SingleProducerSequencer implements Sequencer
     }
     
     @Override
-    public long getWrapPoint()
+    public long getCachedGatingSequence()
     {
-        return minGatingSequence.get();
+        return gatingSequenceCache.get();
     }
 }

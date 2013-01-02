@@ -555,7 +555,7 @@ public final class RingBuffer<E>
      */
     public void publish(long sequence)
     {
-        assert (sequence - bufferSize) <= sequencer.getWrapPoint();
+        assert sequence > sequencer.getCachedGatingSequence();
         
         publisher.publish(sequence);
     }
