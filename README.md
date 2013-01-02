@@ -11,7 +11,7 @@ Maintainer
 Changelog
 ==========
 
-## 3.0.0.beta3 Released (3-Jan-2013)
+## 3.0.0.beta1 Released (3-Jan-2013)
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
 - Introduce new multi-producer publisher algorithm (faster and more scalable).
