@@ -15,17 +15,19 @@ Changelog
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
 - Introduce new multi-producer publisher algorithm (faster and more scalable).
-- Introduce more flexible EventPusblisher interface that allow for static definition of translators 
+- Introduce more flexible EventPublisher interface that allow for static definition of translators 
 that can handle local values.
 - Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow 
 messages to be sent and the ring buffer to wrap if there are no gating sequences defined.
 - Remove batch writes to the ring buffer.
 - Remove timeout read methods.
-- Switch to gradle build.
-- API change, add getPreallocated method, this should be used instead of get for publishing.
+- Switch to gradle build and layout the source maven style.
+- API change, remove RingBuffer.get, add RingBuffer.getPreallocated for producers and
+RingBuffer.getPublished for consumers.
 - Change maven dependency group id to com.lmax.
-- Added PhasedBackoffStrategy 
-- Remove explicit claim/forcePublish and supply a resetTo method
+- Added PhasedBackoffStrategy.
+- Remove explicit claim/forcePublish and supply a resetTo method.
+- Added better handling of cases when the gating sequence is ahead of the cursor value.
 
 ### 2.10.3 Released (22-Aug-2012)
 
