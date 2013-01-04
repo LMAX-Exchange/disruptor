@@ -251,6 +251,30 @@ public final class RingBuffer<E>
     }
     
     /**
+     * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
+     * is another deliberatly racy call, that should only be done in controlled circumstances, e.g. initialisation.
+     * 
+     * @param sequence The sequence to claim.
+     * @return The preallocated event.
+     */
+    public E claimAndGetPreallocated(long sequence)
+    {
+        sequencer.claim(sequence);
+        return getPreallocated(sequence);
+    }
+    
+    /**
+     * Determines if a particular entry has been published.
+     * 
+     * @param sequence The sequence to identify the entry.
+     * @return If the value has been published or not.
+     */
+    public boolean isPublished(long sequence)
+    {
+        return publisher.isAvailable(sequence);
+    }
+    
+    /**
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      * 
