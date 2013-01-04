@@ -44,7 +44,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await(1, MILLISECONDS);
+                    processorNotifyCondition.await();
                 }
             }
             finally
