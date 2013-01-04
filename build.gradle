@@ -154,7 +154,7 @@ install {
 }
 
 signing {
-    required { version.release }
+    required { version.release && gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 
