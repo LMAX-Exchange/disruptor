@@ -26,8 +26,8 @@ import java.util.Arrays;
  * when high performance is required.
  * 
  * The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
- * are [10,20,30,40,50] then there will be six buckets, accessible by index 0-5. Any value
- * &lt;=10 will fall into the first interval bar, values between 10 and 20 will fall into the
+ * are [10,20,30,40,50] then there will be five buckets, accessible by index 0-4. Any value
+ * 0-10 will fall into the first interval bar, values 11-20 will fall into the
  * second bar, and so on.
  */
 public final class Histogram
@@ -261,20 +261,28 @@ public final class Histogram
      *
      * The mean is calculated by summing the mid points of each interval multiplied by the count
      * for that interval, then dividing by the total count of observations.  The max and min are
-     * considered for adjusting the top and bottom bin when calculating the mid point.
+     * considered for adjusting the top and bottom bin when calculating the mid point, this
+     * minimises skew if the observed values are very far away from the possible histogram values.
      *
      * @return the mean of all recorded observations.
      */
     public BigDecimal getMean()
     {
+        // early exit to avoid divide by zero later
         if (0L == getCount())
         {
             return BigDecimal.ZERO;
         }
 
+        // precalculate the initial lower bound; needed in the loop
         long lowerBound = counts[0] > 0L ? minValue : 0L;
+        // use BigDecimal to avoid precision errors
         BigDecimal total = BigDecimal.ZERO;
 
+        // midpoint is calculated as the average between the lower and upper bound
+        // (after taking into account the min & max values seen)
+        // then, simply multiply midpoint by the count of values at the interval (intervalTotal)
+        // and add to running total (total)
         for (int i = 0, size = upperBounds.length; i < size; i++)
         {
             if (0L != counts[i])
@@ -286,6 +294,7 @@ public final class Histogram
                 total = total.add(intervalTotal);
             }
 
+            // and recalculate the lower bound for the next time around the loop
             lowerBound = Math.max(upperBounds[i] + 1L, minValue);
         }
 
