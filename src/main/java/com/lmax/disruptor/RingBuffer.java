@@ -16,6 +16,8 @@
 package com.lmax.disruptor;
 
 
+import static com.lmax.disruptor.util.Util.isPowerOfTwo;
+
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import com.lmax.disruptor.dsl.ProducerType;
@@ -66,7 +68,8 @@ public final class RingBuffer<E>
         {
             throw new IllegalArgumentException("bufferSize must not be less than 1");
         }
-        if (Integer.bitCount(bufferSize) != 1)
+        
+        if (!isPowerOfTwo(bufferSize))
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
@@ -76,7 +79,7 @@ public final class RingBuffer<E>
         this.entries   = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
-    
+
     /**
      * Create a new multiple producer RingBuffer with the specified wait strategy.
      * 

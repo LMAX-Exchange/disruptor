@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor.util;
 
+import static java.lang.Integer.bitCount;
+
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -158,5 +160,16 @@ public final class Util
             ++r;
         }
         return r;
+    }
+
+    /**
+     * Determines if <code>i</code> is a power of 2.
+     * 
+     * @param i 
+     * @return true if i is a power of 2
+     */
+    public static boolean isPowerOfTwo(int i)
+    {
+        return bitCount(i) == 1;
     }
 }
