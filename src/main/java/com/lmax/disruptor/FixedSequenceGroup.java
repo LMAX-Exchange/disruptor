@@ -19,10 +19,18 @@ import java.util.Arrays;
 
 import com.lmax.disruptor.util.Util;
 
+/**
+ * Hides a group of Sequences behind a single Sequence
+ */
 public final class FixedSequenceGroup extends Sequence
 {
     private final Sequence[] sequences;
 
+    /**
+     * Constructor
+     *
+     * @param sequences the list of sequences to be tracked under this sequence group
+     */
     public FixedSequenceGroup(Sequence[] sequences)
     {
         this.sequences = Arrays.copyOf(sequences, sequences.length);

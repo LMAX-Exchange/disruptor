@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.lmax.disruptor.util.Util;
 
 /**
- * A pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers
- * which are implemented the {@link WorkHandler} interface.
+ * WorkerPool contains a pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers.
+ * Each of the {@link WorkProcessor}s manage and calls a {@link WorkHandler} to process the events.
  *
  * @param <T> event to be processed by a pool of workers
  */
@@ -31,6 +31,7 @@ public final class WorkerPool<T>
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final Sequence workSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
+    // WorkProcessors are created to wrap each of the provided WorkHandlers
     private final WorkProcessor<?>[] workProcessors;
 
     /**
@@ -114,7 +115,7 @@ public final class WorkerPool<T>
      *
      * @param executor providing threads for running the workers.
      * @return the {@link RingBuffer} used for the work queue.
-     * @throws IllegalStateException is the pool has already been started and not halted yet
+     * @throws IllegalStateException if the pool has already been started and not halted yet
      */
     public RingBuffer<T> start(final Executor executor)
     {
@@ -155,7 +156,7 @@ public final class WorkerPool<T>
     }
 
     /**
-     * Halt all workers immediately at then end of their current cycle.
+     * Halt all workers immediately at the end of their current cycle.
      */
     public void halt()
     {

@@ -22,9 +22,11 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
+ * Phased wait strategy for waiting {@link EventProcessor}s on a barrier.<p/>
  *
- * This strategy can be used when throughput and low-latency are not as important as CPU resource.
+ * This strategy can be used when throughput and low-latency are not as important as CPU resource.<p/>
+ *
+ * Spins, then yields, then blocks on the configured BlockingStrategy.
  */
 public final class PhasedBackoffWaitStrategy implements WaitStrategy
 {
@@ -43,6 +45,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         this.lockingStrategy = lockingStrategy;
     }
 
+    /**
+     * Block with wait/notifyAll semantics
+     */
     public static PhasedBackoffWaitStrategy withLock(long spinTimeoutMillis,
                                                      long yieldTimeoutMillis,
                                                      TimeUnit units)
@@ -51,6 +56,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                                              units, new LockBlockingStrategy());
     }
 
+    /**
+     * Block by sleeping in a loop
+     */
     public static PhasedBackoffWaitStrategy withSleep(long spinTimeoutMillis,
                                                       long yieldTimeoutMillis,
                                                       TimeUnit units)

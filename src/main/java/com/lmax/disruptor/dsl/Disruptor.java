@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A DSL-style API for setting up the disruptor pattern around a ring buffer.
+ * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
  *
  * <p>A simple example of setting up the disruptor with two event handlers that must process events in order:</p>
  *
@@ -74,6 +74,9 @@ public class Disruptor<T>
              executor);
     }
 
+    /**
+     * Private constructor helper
+     */
     private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)
     {
         this.ringBuffer = ringBuffer;
@@ -115,7 +118,8 @@ public class Disruptor<T>
     }
 
     /**
-     * Specify an exception handler to be used for any future event handlers.
+     * Specify an exception handler to be used for any future event handlers.<p/>
+     *
      * Note that only event handlers set up after calling this method will use the exception handler.
      *
      * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
@@ -188,9 +192,11 @@ public class Disruptor<T>
     }
 
     /**
-     * Starts the event processors and returns the fully configured ring buffer.
+     * Starts the event processors and returns the fully configured ring buffer.<p/>
+     * 
      * The ring buffer is set up to prevent overwriting any entry that is yet to
-     * be processed by the slowest event processor.
+     * be processed by the slowest event processor.<p/>
+     *
      * This method must only be called once after all event processors have been added.
      *
      * @return the configured ring buffer.
@@ -238,7 +244,7 @@ public class Disruptor<T>
     }
 
     /**
-     * The the {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
+     * The {@link RingBuffer} used by this Disruptor.  This is useful for creating custom
      * event processors if the behaviour of {@link BatchEventProcessor} is not suitable.
      *
      * @return the ring buffer used by this Disruptor.
@@ -293,6 +299,9 @@ public class Disruptor<T>
         return eventProcessorRepository.getBarrierFor(handler);
     }
 
+    /**
+     * Confirms if all messages have been consumed by all event processors
+     */
     private boolean hasBacklog()
     {
         final long cursor = ringBuffer.getCursor();

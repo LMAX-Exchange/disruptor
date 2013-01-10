@@ -62,7 +62,7 @@ public class Sequence
     }
 
     /**
-     * Performance a volatile read of this sequence's value.
+     * Perform a volatile read of this sequence's value.
      * 
      * @return The current value of the sequence.
      */

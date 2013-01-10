@@ -21,10 +21,10 @@ package com.lmax.disruptor;
 public interface ExceptionHandler
 {
     /**
-     * Strategy for handling uncaught exceptions when processing an event.
+     * Strategy for handling uncaught exceptions when processing an event.<p/>
      *
-     * If the strategy wishes to suspend further processing by the {@link BatchEventProcessor}
-     * then is should throw a {@link RuntimeException}.
+     * If the strategy wishes to terminate further processing by the {@link BatchEventProcessor}
+     * then it should throw a {@link RuntimeException}.<p/>
      *
      * @param ex the exception that propagated from the {@link EventHandler}.
      * @param sequence of the event which cause the exception.

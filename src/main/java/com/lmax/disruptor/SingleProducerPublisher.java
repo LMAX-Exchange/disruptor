@@ -15,6 +15,11 @@
  */
 package com.lmax.disruptor;
 
+/**
+ * A Publisher optimised for publishing events from a single thread.<p/>
+ *
+ * Generally not safe for use from multiple threads as it does not implement any barriers.
+ */
 class SingleProducerPublisher implements Publisher
 {
     private final WaitStrategy waitStrategy;

@@ -21,6 +21,11 @@ import com.lmax.disruptor.SequenceBarrier;
 
 import java.util.*;
 
+/**
+ * Provides a repository mechanism to associate {@link EventHandler}s with {@link EventProcessor}s
+ *
+ * @param T the type of the {@link EventHandler}
+ */
 class EventProcessorRepository<T> implements Iterable<EventProcessorInfo<T>>
 {
     private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();

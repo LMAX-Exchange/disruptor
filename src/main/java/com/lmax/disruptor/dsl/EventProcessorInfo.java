@@ -19,6 +19,13 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.SequenceBarrier;
 
+/**
+ * Wrapper class to tie together a particular event processing stage<p/>
+ *
+ * Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to
+ * 
+ * @param T the type of the configured {@link EventHandler}
+ */
 class EventProcessorInfo<T>
 {
     private final EventProcessor eventprocessor;
@@ -53,6 +60,9 @@ class EventProcessorInfo<T>
         return endOfChain;
     }
 
+    /**
+     * 
+     */
     public void markAsUsedInBarrier()
     {
         endOfChain = false;
