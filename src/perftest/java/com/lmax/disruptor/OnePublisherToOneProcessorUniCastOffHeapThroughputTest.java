@@ -15,18 +15,23 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static com.lmax.disruptor.dsl.ProducerType.SINGLE;
-import static com.lmax.disruptor.support.ValueEvent.EVENT_FACTORY;
 
-import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.support.*;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.*;
+import com.lmax.disruptor.support.PerfTestUtil;
+import com.lmax.disruptor.support.ValueAdditionEntryHandler;
+import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
+import com.lmax.disruptor.support.ValueEntry;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -81,7 +86,8 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
+    private final ValueAdditionQueueProcessor queueProcessor = 
+            new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +176,8 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     
     public static void main(String[] args) throws Exception
     {
-        OnePublisherToOneProcessorUniCastOffHeapThroughputTest test = new OnePublisherToOneProcessorUniCastOffHeapThroughputTest();
+        OnePublisherToOneProcessorUniCastOffHeapThroughputTest test = 
+                new OnePublisherToOneProcessorUniCastOffHeapThroughputTest();
         test.shouldCompareDisruptorVsQueues();
     }
 }
