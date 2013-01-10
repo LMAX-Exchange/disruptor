@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.ProducerType;
+
 
 public class OffHeapRingBuffer<T extends RingBufferEntry>
 {
@@ -24,11 +26,10 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         this.factory        = factory;
     }
     
-    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newInstance(int             size, 
-                                                                               int             chunkSize, 
-                                                                               EntryFactory<T> factory)
+    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newMultiProducer(WaitStrategy    waitStrategy, 
+                                                                                    EntryFactory<T> factory, 
+                                                                                    int size, int chunkSize)
     {
-        BlockingWaitStrategy waitStrategy = new BlockingWaitStrategy();
         MultiProducerSequencer sequencer  = new MultiProducerSequencer(size, waitStrategy);
 
         Memory memory = ByteArrayMemory.newInstance(size, chunkSize);
@@ -36,16 +37,32 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         return new OffHeapRingBuffer<T>(sequencer.getCursorSequence(), sequencer, waitStrategy, memory, factory);
     }
     
-    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newSingleProducer(int             size, 
-                                                                                     int             chunkSize, 
-                                                                                     EntryFactory<T> factory)
+    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newSingleProducer(WaitStrategy    waitStrategy, 
+                                                                                     EntryFactory<T> factory, 
+                                                                                     int size, int chunkSize)
     {
-        BlockingWaitStrategy waitStrategy = new BlockingWaitStrategy();
         SingleProducerSequencer sequencer = new SingleProducerSequencer(size, waitStrategy);
 
         Memory memory = ByteArrayMemory.newInstance(size, chunkSize);
         
         return new OffHeapRingBuffer<T>(new Sequence(), sequencer, waitStrategy, memory, factory);
+    }
+    
+    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newInstance(ProducerType    producerType,
+                                                                               WaitStrategy    waitStrategy,
+                                                                               EntryFactory<T> factory,
+                                                                               int size, int chunkSize)
+    {
+        switch (producerType)
+        {
+        case SINGLE:
+            return newSingleProducer(waitStrategy, factory, size, chunkSize);
+        case MULTI:
+            return newMultiProducer(waitStrategy, factory, size, chunkSize);
+        default:
+            throw new IllegalStateException(producerType.toString());
+        }
+        
     }
     
     private long next()

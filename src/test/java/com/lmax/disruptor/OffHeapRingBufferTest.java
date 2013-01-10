@@ -15,12 +15,14 @@ import com.lmax.disruptor.util.Bits;
 
 public class OffHeapRingBufferTest
 {
+    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newMultiProducer(new BlockingWaitStrategy(), 
+                                                                                  SimpleDataEntry.FACTORY, 
+                                                                                  32, 256);
+    
     @Test
     public void shouldPublishSingleEntry() throws Exception
     {
         byte[] data = "This is some test data".getBytes();
-        
-        OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newInstance(32, 256, SimpleDataEntry.FACTORY);
         
         assertInsertAndGet(ringBuffer.createProducer(), ringBuffer, data, 0);
     }
@@ -28,8 +30,6 @@ public class OffHeapRingBufferTest
     @Test
     public void shouldPublishMultipleEntries() throws Exception
     {
-        OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newInstance(32, 256, SimpleDataEntry.FACTORY);
-        
         Producer<SimpleData> producer = ringBuffer.createProducer();
         
         for (int i = 0; i < 1000; i++)
@@ -42,8 +42,6 @@ public class OffHeapRingBufferTest
     @Test
     public void shouldNotifyHandler() throws Exception
     {
-        OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newInstance(32, 256, SimpleDataEntry.FACTORY);
-        
         final byte[] input = "Some more test data passed between threads".getBytes();
         final CountDownLatch latch = new CountDownLatch(1);        
         final byte[] output = new byte[input.length];
