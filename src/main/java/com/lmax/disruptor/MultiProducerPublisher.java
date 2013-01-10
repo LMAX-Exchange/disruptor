@@ -19,6 +19,11 @@ import sun.misc.Unsafe;
 
 import com.lmax.disruptor.util.Util;
 
+/**
+ * A Publisher optimised for use from multiple threads.<p/>
+ *
+ * Suitable for use for publishing from multiple threads.
+ */
 class MultiProducerPublisher implements Publisher
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
@@ -26,6 +31,7 @@ class MultiProducerPublisher implements Publisher
     private static final long scale = UNSAFE.arrayIndexScale(int[].class);
     
     private final WaitStrategy waitStrategy;
+    // int[] tracks the state of each ringbuffer slot
     private final int[] availableBuffer;
     private final int indexMask;
     private final int indexShift;

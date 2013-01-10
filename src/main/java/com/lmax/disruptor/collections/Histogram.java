@@ -20,10 +20,10 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * Histogram for tracking the frequency of observations of values below interval upper bounds.
+ * Histogram for tracking the frequency of observations of values below interval upper bounds.<p/>
  *
  * This class is useful for recording timings across a large number of observations
- * when high performance is required.
+ * when high performance is required.<p/>
  * 
  * The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
  * are [10,20,30,40,50] then there will be five buckets, accessible by index 0-4. Any value
@@ -172,7 +172,8 @@ public final class Histogram
     }
 
     /**
-     * Add observations from another Histogram into this one.
+     * Add observations from another Histogram into this one.<p/>
+     *
      * Histograms must have the same intervals.
      *
      * @param histogram from which to add the observation counts.
@@ -257,7 +258,7 @@ public final class Histogram
     }
 
     /**
-     * Calculate the mean of all recorded observations.
+     * Calculate the mean of all recorded observations.<p/>
      *
      * The mean is calculated by summing the mid points of each interval multiplied by the count
      * for that interval, then dividing by the total count of observations.  The max and min are
@@ -322,7 +323,7 @@ public final class Histogram
     }
 
     /**
-     * Get the interval upper bound for a given factor of the observation population.
+     * Get the interval upper bound for a given factor of the observation population.<p/>
      *
      * Note this does not get the actual percentile measurement, it only gets the bucket
      *

@@ -24,6 +24,8 @@ import com.lmax.disruptor.util.Util;
 
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
+ *
+ * Suitable for use for sequencing across multiple publisher threads.
  */
 class MultiProducerSequencer implements Sequencer
 {

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available events to a {@link EventHandler}.
+ * and delegating the available events to an {@link EventHandler}.
  *
  * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
  * is started and just before the thread is shutdown.
@@ -88,6 +88,8 @@ public final class BatchEventProcessor<T>
 
     /**
      * It is ok to have another thread rerun this method after a halt().
+     * 
+     * @throws IllegalStateException if this object instance is already running in a thread
      */
     @Override
     public void run()
@@ -136,6 +138,9 @@ public final class BatchEventProcessor<T>
         running.set(false);
     }
 
+    /**
+     * Notifies the EventHandler when this processor is starting up
+     */
     private void notifyStart()
     {
         if (eventHandler instanceof LifecycleAware)
@@ -151,6 +156,9 @@ public final class BatchEventProcessor<T>
         }
     }
 
+    /**
+     * Notifies the EventHandler immediately prior to this processor shutting down
+     */
     private void notifyShutdown()
     {
         if (eventHandler instanceof LifecycleAware)
