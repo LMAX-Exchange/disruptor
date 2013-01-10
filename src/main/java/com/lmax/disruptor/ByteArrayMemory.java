@@ -64,6 +64,16 @@ public class ByteArrayMemory implements Memory
     }
 
     @Override
+    public long getVolatileLong(int index, int offset)
+    {
+        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
+        assert 0 <= offset && (offset + Bits.sizeofLong()) <= chunkSize : 
+            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        
+        return UNSAFE.getLongVolatile(array, addressOffsetOf(index, offset));
+    }
+
+    @Override
     public void putLong(int index, int offset, long value)
     {
         assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
@@ -71,6 +81,16 @@ public class ByteArrayMemory implements Memory
             format("offset: %d, chunkSize: %d", offset, chunkSize);
         
         UNSAFE.putLong(array, addressOffsetOf(index, offset), value);
+    }
+
+    @Override
+    public void putOrderedLong(int index, int offset, long value)
+    {
+        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
+        assert 0 <= offset && (offset + Bits.sizeofLong()) <= chunkSize : 
+            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        
+        UNSAFE.putOrderedLong(array, addressOffsetOf(index, offset), value);
     }
 
     @Override

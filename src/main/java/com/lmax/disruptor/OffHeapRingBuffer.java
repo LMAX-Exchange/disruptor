@@ -1,14 +1,20 @@
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
 import com.lmax.disruptor.dsl.ProducerType;
 
 
 public class OffHeapRingBuffer<T extends RingBufferEntry>
 {
-    private final Sequencer sequencer;
+    @SuppressWarnings("rawtypes")
+    private static final AtomicReferenceFieldUpdater<OffHeapRingBuffer, Sequence[]> SEQUENCE_UPDATER = 
+            AtomicReferenceFieldUpdater.newUpdater(OffHeapRingBuffer.class, Sequence[].class, "gatingSequences");
+    
+    private final Sequencer       sequencer;
     private final EntryFactory<T> factory;
-    private final Sequence cursorSequence;
-    private final WaitStrategy waitStrategy;
+    private final Sequence        cursorSequence;
+    private final WaitStrategy    waitStrategy;
     
     private volatile Sequence[] gatingSequences = new Sequence[0];
     private volatile Memory     memory;
@@ -62,7 +68,6 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         default:
             throw new IllegalStateException(producerType.toString());
         }
-        
     }
     
     private long next()
@@ -180,5 +185,10 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         {
             return ringBuffer.getPublished(entry, sequence);
         }
+    }
+
+    public void addGatingSequences(Sequence...sequencesToAdd)
+    {
+        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursorSequence, sequencesToAdd);
     }
 }

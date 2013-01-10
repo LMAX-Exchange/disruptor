@@ -2,7 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Bits;
 
-public abstract class RingBufferEntryBase
+public abstract class RingBufferEntryBase implements RingBufferEntry
 {
     private static final int SEQUENCE_OFFSET = 0;
     protected static final int BASE_OFFSET = SEQUENCE_OFFSET + Bits.sizeofLong();
@@ -18,11 +18,11 @@ public abstract class RingBufferEntryBase
 
     public long getSequence()
     {
-        return memory.getLong(index, SEQUENCE_OFFSET);
+        return memory.getVolatileLong(index, SEQUENCE_OFFSET);
     }
 
     public void setSequence(long value)
     {
-        memory.putLong(index, SEQUENCE_OFFSET, value);
+        memory.putOrderedLong(index, SEQUENCE_OFFSET, value);
     }
 }
