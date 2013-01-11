@@ -15,11 +15,33 @@
  */
 package com.lmax.disruptor;
 
+/**
+ * The Publisher interface allows different strategies for tracking the slots in the RingBuffer
+ */
 interface Publisher
 {
+	/**
+	 * Publishes a sequence to the buffer. Call when the event has been filled.
+	 *
+	 * @param sequence 
+	 */
     void publish(long sequence);
 
+    /**
+     * Confirms if a sequence is published and the event is available for use; non-blocking.
+     *
+     * @param sequence of the buffer to check
+     * @return true if the sequence is available for use, false if not
+     */
     boolean isAvailable(long sequence);
 
+    /**
+     * Ensure a given sequence has been published and the event is now available.<p/>
+     *
+     * Blocks if the sequence is not available yet.
+     *
+     * @param sequence of the event to wait for
+     */
     void ensureAvailable(long sequence);
+
 }
