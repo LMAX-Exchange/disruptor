@@ -130,10 +130,4 @@ class SingleProducerSequencer implements Sequencer
     {
         nextValue = sequence;
     }
-    
-    @Override
-    public long getCachedGatingSequence()
-    {
-        return gatingSequenceCache.get();
-    }
 }

@@ -153,10 +153,4 @@ class MultiProducerSequencer implements Sequencer
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
     }
-    
-    @Override
-    public long getCachedGatingSequence()
-    {
-        return gatingSequenceCache.get();
-    }
 }
