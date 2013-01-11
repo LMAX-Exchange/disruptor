@@ -1,5 +1,8 @@
 package com.lmax.disruptor;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -13,7 +16,7 @@ import com.lmax.disruptor.util.Bits;
 public class ByteArrayMemoryTest
 {
     private static final int OFFSET = 1;
-    private static final int INDEX = 0;
+    private static final int INDEX  = 0;
     
     @Test
     public void shouldPutAndGetForLongs() throws Exception
@@ -33,10 +36,40 @@ public class ByteArrayMemoryTest
         assertPutAndGet(new ByteArrayValidator());
     }
     
+    @Test
+    public void shouldPutAndGetForDoubles() throws Exception
+    {
+        assertPutAndGet(new DoubleValidator());
+    }
+    
+    @Test
+    public void shouldPutAndGetForFloats() throws Exception
+    {
+        assertPutAndGet(new FloatValidator());
+    }
+    
+    @Test
+    public void shouldPutAndGetForShorts() throws Exception
+    {
+        assertPutAndGet(new ShortValidator());
+    }
+    
+    @Test
+    public void shouldPutAndGetForChars() throws Exception
+    {
+        assertPutAndGet(new CharValidator());
+    }    
+    
+    @Test
+    public void shouldPutAndGetForBytes() throws Exception
+    {
+        assertPutAndGet(new ByteValidator());
+    }    
+    
     private static class ByteArrayValidator implements TypeValidator
     {
         private static final int BYTE_ARRAY_SIZE = 16;
-        byte[][] input;
+        byte[][]   input;
         byte[][][] values;
 
         @Override
@@ -51,8 +84,10 @@ public class ByteArrayMemoryTest
         {
             memory.putBytes(index, offset, input[i], 0, input[i].length);
             System.arraycopy(input[i], 0, values[index][offset], 0, values[index][offset].length);
+            byte[] stored = new byte[16];
+            int amountRead = memory.getBytes(index, offset, BYTE_ARRAY_SIZE, stored);
             
-            byte[] stored = memory.getBytes(index, offset, BYTE_ARRAY_SIZE);
+            assertThat(amountRead, is(BYTE_ARRAY_SIZE));
             
             return Arrays.equals(stored, input[i]);
         }
@@ -73,7 +108,7 @@ public class ByteArrayMemoryTest
     
     private static class LongValidator implements TypeValidator
     {
-        long[] input;
+        long[]   input;
         long[][] values;
         
         @Override
@@ -107,7 +142,7 @@ public class ByteArrayMemoryTest
     
     private static class IntValidator implements TypeValidator
     {
-        int[] input;
+        int[]   input;
         int[][] values;
         
         @Override
@@ -136,6 +171,176 @@ public class ByteArrayMemoryTest
         public int getTypeSize()
         {
             return Bits.sizeofInt();
+        }
+    }
+    
+    private static class DoubleValidator implements TypeValidator
+    {
+        double[]   input;
+        double[][] values;
+        
+        @Override
+        public void init(Random r, int numberOfPuts, int size, int chunkSize)
+        {
+            input  = Randoms.generateArray(r, new double[numberOfPuts]);
+            values = new double[size][chunkSize];
+        }
+        
+        @Override
+        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        {
+            memory.putDouble(index, offset, input[i]);
+            values[index][offset] = input[i];
+            
+            return memory.getDouble(index, offset) == input[i];            
+        }
+        
+        @Override
+        public boolean validateGetAt(Memory memory, int index, int offset)
+        {
+            return memory.getDouble(index, offset) == values[index][offset];
+        }
+        
+        @Override
+        public int getTypeSize()
+        {
+            return Bits.sizeofDouble();
+        }
+    }
+    
+    private static class FloatValidator implements TypeValidator
+    {
+        float[]   input;
+        float[][] values;
+        
+        @Override
+        public void init(Random r, int numberOfPuts, int size, int chunkSize)
+        {
+            input  = Randoms.generateArray(r, new float[numberOfPuts]);
+            values = new float[size][chunkSize];
+        }
+        
+        @Override
+        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        {
+            memory.putFloat(index, offset, input[i]);
+            values[index][offset] = input[i];
+            
+            return memory.getFloat(index, offset) == input[i];            
+        }
+        
+        @Override
+        public boolean validateGetAt(Memory memory, int index, int offset)
+        {
+            return memory.getFloat(index, offset) == values[index][offset];
+        }
+        
+        @Override
+        public int getTypeSize()
+        {
+            return Bits.sizeofFloat();
+        }
+    }
+    
+    private static class ShortValidator implements TypeValidator
+    {
+        short[]   input;
+        short[][] values;
+        
+        @Override
+        public void init(Random r, int numberOfPuts, int size, int chunkSize)
+        {
+            input  = Randoms.generateArray(r, new short[numberOfPuts]);
+            values = new short[size][chunkSize];
+        }
+        
+        @Override
+        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        {
+            memory.putShort(index, offset, input[i]);
+            values[index][offset] = input[i];
+            
+            return memory.getShort(index, offset) == input[i];            
+        }
+        
+        @Override
+        public boolean validateGetAt(Memory memory, int index, int offset)
+        {
+            return memory.getShort(index, offset) == values[index][offset];
+        }
+        
+        @Override
+        public int getTypeSize()
+        {
+            return Bits.sizeofShort();
+        }
+    }
+    
+    private static class CharValidator implements TypeValidator
+    {
+        char[]   input;
+        char[][] values;
+        
+        @Override
+        public void init(Random r, int numberOfPuts, int size, int chunkSize)
+        {
+            input  = Randoms.generateArray(r, new char[numberOfPuts]);
+            values = new char[size][chunkSize];
+        }
+        
+        @Override
+        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        {
+            memory.putChar(index, offset, input[i]);
+            values[index][offset] = input[i];
+            
+            return memory.getChar(index, offset) == input[i];            
+        }
+        
+        @Override
+        public boolean validateGetAt(Memory memory, int index, int offset)
+        {
+            return memory.getChar(index, offset) == values[index][offset];
+        }
+        
+        @Override
+        public int getTypeSize()
+        {
+            return Bits.sizeofChar();
+        }
+    }
+    
+    private static class ByteValidator implements TypeValidator
+    {
+        byte[]   input;
+        byte[][] values;
+        
+        @Override
+        public void init(Random r, int numberOfPuts, int size, int chunkSize)
+        {
+            input  = Randoms.generateArray(r, new byte[numberOfPuts]);
+            values = new byte[size][chunkSize];
+        }
+        
+        @Override
+        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        {
+            memory.putByte(index, offset, input[i]);
+            values[index][offset] = input[i];
+            
+            return memory.getByte(index, offset) == input[i];            
+        }
+        
+        @Override
+        public boolean validateGetAt(Memory memory, int index, int offset)
+        {
+            return memory.getByte(index, offset) == values[index][offset];
+        }
+        
+        @Override
+        public int getTypeSize()
+        {
+            return Bits.sizeofByte();
         }
     }
 
@@ -187,7 +392,7 @@ public class ByteArrayMemoryTest
         }
     }
     
-    private int randomOffset(Random random, Memory memory, int typeSize, int alignment)
+    private static int randomOffset(Random random, Memory memory, int typeSize, int alignment)
     {
         return (random.nextInt((memory.getChunkSize() / typeSize) - (alignment == 0 ? 0 : 1)) * typeSize) + alignment;
     }    
