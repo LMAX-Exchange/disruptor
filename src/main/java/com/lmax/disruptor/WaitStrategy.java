@@ -26,7 +26,7 @@ public interface WaitStrategy
      *
      * @param sequence to be waited on.
      * @param cursor the main sequence from ringbuffer. Wait/notify strategies will
-     *    need this as it's possibly the only one notified, the dependent sequences are not reliable
+     *    need this as it's the only sequence that is also notified upon update.
      * @param dependentSequence on which to wait.
      * @param barrier the processor is waiting on.
      * @return the sequence that is available which may be greater than the requested sequence.
