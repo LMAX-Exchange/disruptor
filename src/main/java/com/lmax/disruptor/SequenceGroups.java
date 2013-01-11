@@ -23,7 +23,7 @@ class SequenceGroups
 {
     static <T> void addSequences(final T holder,
                                  final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-                                 final RingBuffer<?> cursor,
+                                 final Cursored cursor,
                                  final Sequence... sequencesToAdd)
     {
         long cursorSequence;
@@ -46,37 +46,6 @@ class SequenceGroups
         while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
         
         cursorSequence = cursor.getCursor();
-        for (Sequence sequence : sequencesToAdd)
-        {
-            sequence.set(cursorSequence);
-        }
-    }
-
-    static <T> void addSequences(final T holder,
-                                 final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-                                 final Sequence cursor,
-                                 final Sequence... sequencesToAdd)
-    {
-        long cursorSequence;
-        Sequence[] updatedSequences;
-        Sequence[] currentSequences;
-        
-        do
-        {
-            currentSequences = updater.get(holder);
-            updatedSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
-            cursorSequence = cursor.get();
-            
-            int index = currentSequences.length;
-            for (Sequence sequence : sequencesToAdd)
-            {
-                sequence.set(cursorSequence);
-                updatedSequences[index++] = sequence;
-            }
-        }
-        while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
-        
-        cursorSequence = cursor.get();
         for (Sequence sequence : sequencesToAdd)
         {
             sequence.set(cursorSequence);

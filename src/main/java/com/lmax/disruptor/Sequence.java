@@ -30,13 +30,14 @@ import sun.misc.Unsafe;
 public class Sequence
 {
     static final long INITIAL_VALUE = -1L;
+    
     private static final Unsafe unsafe;
-    private static final long valueOffset;
+    private static final long   valueOffset;
 
     static
     {
         unsafe = Util.getUnsafe();
-        final int base = unsafe.arrayBaseOffset(long[].class);
+        final int base  = unsafe.arrayBaseOffset(long[].class);
         final int scale = unsafe.arrayIndexScale(long[].class);
         valueOffset = base + (scale * 7);
     }

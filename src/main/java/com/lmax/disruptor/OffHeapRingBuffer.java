@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import com.lmax.disruptor.dsl.ProducerType;
 
 
-public class OffHeapRingBuffer<T extends RingBufferEntry>
+public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
 {
     @SuppressWarnings("rawtypes")
     private static final AtomicReferenceFieldUpdater<OffHeapRingBuffer, Sequence[]> SEQUENCE_UPDATER = 
@@ -77,11 +77,6 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
 
     private T getPreallocated(T entry, long sequence)
     {
-        if (entry == null)
-        {
-            entry = factory.newInstance();
-        }
-        
         // TODO: Handle allocated memory roll-over
         entry.move(memory, memory.indexOf(sequence));
         
@@ -106,7 +101,7 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         {
             entry = factory.newInstance();
         }
-        
+                
         entry.move(memory, memory.indexOf(sequence));
         
         while (entry.getSequence() != sequence)
@@ -119,26 +114,27 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
 
     public Producer<T> createProducer()
     {
-        return new OffHeapProducer<T>(this);
+        return new OffHeapProducer<T>(this, factory.newInstance());
     }
     
     private static class OffHeapProducer<E extends RingBufferEntry> implements Producer<E>
     {
         private final OffHeapRingBuffer<E> ringBuffer;
+        private final E current;
         
-        private E    current  = null;
-        private long sequence = -1;
+        private long sequence = Sequence.INITIAL_VALUE;
         
-        public OffHeapProducer(OffHeapRingBuffer<E> ringBuffer)
+        public OffHeapProducer(OffHeapRingBuffer<E> ringBuffer, E current)
         {
             this.ringBuffer = ringBuffer;
+            this.current = current;
         }
         
         @Override
         public E next()
         {
             sequence = ringBuffer.next();
-            current  = ringBuffer.getPreallocated(current, sequence);
+            ringBuffer.getPreallocated(current, sequence);
             
             return current;
         }
@@ -152,10 +148,12 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
         @Override
         public void publish()
         {
-            if (current != null)
+            if (sequence == Sequence.INITIAL_VALUE)
             {
-                ringBuffer.publish(current, sequence);
+                throw new IllegalStateException("Sequence must be greater than -1, did you forget to call next()?");
             }
+            
+            ringBuffer.publish(current, sequence);
         }
     }
 
@@ -189,6 +187,12 @@ public class OffHeapRingBuffer<T extends RingBufferEntry>
 
     public void addGatingSequences(Sequence...sequencesToAdd)
     {
-        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursorSequence, sequencesToAdd);
+        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, sequencesToAdd);
+    }
+
+    @Override
+    public long getCursor()
+    {
+        return cursorSequence.get();
     }
 }
