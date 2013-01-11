@@ -20,7 +20,7 @@ package com.lmax.disruptor;
  * when it has finished consuming an event if this happens after the {@link EventHandler#onEvent(Object, long, boolean)} call.
  * <p>
  * Typically this would be used when the handler is performing some sort of batching operation such as writing to an IO device;
- * after the operation has completed, the implementation should call ??.
+ * after the operation has completed, the implementation should call store the into the Sequence.
  * 
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
