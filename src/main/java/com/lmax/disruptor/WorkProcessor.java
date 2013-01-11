@@ -98,6 +98,8 @@ public final class WorkProcessor<T>
                 // if previous sequence was processed - fetch the next sequence and set 
                 // that we have successfully processed the previous sequence
                 // typically, this will be true
+                // this prevents the sequence getting too far forward if an exception
+                // is thrown from the WorkHandler
                 if (processedSequence)
                 {
                     processedSequence = false;
