@@ -22,7 +22,7 @@ apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see 
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, stage: 'snapshot3', release: true)
+version = new Version(major: 3, stage: 'beta2')
 
 ext {
     fullName = 'Disruptor Framework'
@@ -154,7 +154,7 @@ install {
 }
 
 signing {
-    required { version.release && gradle.taskGraph.hasTask('uploadArchives') }
+    required { gradle.taskGraph.hasTask('uploadArchives') }
     sign configurations.archives
 }
 
@@ -181,16 +181,11 @@ task tempLibs(type: Sync) {
     into('templib')
 }
 
-gradle.taskGraph.whenReady { taskGraph ->
-    version.release = version.release ?: taskGraph.hasTask('uploadArchives')
-}
-
 class Version {
     int major, minor = 0, revision = 0
     String stage
-    boolean release
     
     String toString() {
-        "$major.$minor.$revision${stage ? '.' + stage : ''}${release ? '' : '-SNAPSHOT'}"
+        "$major.$minor.$revision${stage ? '.' + stage : ''}"
     }
 }

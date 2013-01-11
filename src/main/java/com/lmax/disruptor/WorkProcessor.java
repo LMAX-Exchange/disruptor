@@ -18,9 +18,10 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * {@link WorkProcessor} for ensuring each sequence is handled by only a single processor, effectively consuming the sequence.
+ * A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
+ * and ensuring appropriate barriers.<p/>
  *
- * No other {@link WorkProcessor}s in the {@link WorkerPool} will consume the same sequence.
+ * Generally, this will be used as part of a {@link WorkerPool}.
  *
  * @param <T> event implementation storing the details for the work to processed.
  */
@@ -43,7 +44,7 @@ public final class WorkProcessor<T>
      * @param workHandler is the delegate to which events are dispatched.
      * @param exceptionHandler to be called back when an error occurs
      * @param workSequence from which to claim the next event to be worked on.  It should always be initialised
-     * as {@link SingleProducerSequencer#INITIAL_CURSOR_VALUE}
+     * as {@link Sequencer#INITIAL_CURSOR_VALUE}
      */
     public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
@@ -73,6 +74,8 @@ public final class WorkProcessor<T>
 
     /**
      * It is ok to have another thread re-run this method after a halt().
+     *
+     * @throws IllegalStateException if this processor is already running
      */
     @Override
     public void run()
@@ -92,6 +95,11 @@ public final class WorkProcessor<T>
         {
             try
             {
+                // if previous sequence was processed - fetch the next sequence and set 
+                // that we have successfully processed the previous sequence
+                // typically, this will be true
+                // this prevents the sequence getting too far forward if an exception
+                // is thrown from the WorkHandler
                 if (processedSequence)
                 {
                     processedSequence = false;
@@ -114,6 +122,7 @@ public final class WorkProcessor<T>
             }
             catch (final Throwable ex)
             {
+                // handle, mark as procesed, unless the exception handler threw an exception
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 processedSequence = true;
             }

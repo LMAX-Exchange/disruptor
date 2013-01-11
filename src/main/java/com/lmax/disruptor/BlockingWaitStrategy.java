@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,7 +30,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     private final Condition processorNotifyCondition = lock.newCondition();
 
     @Override
-    public long waitFor(final long sequence, Sequence cursorSequence, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;

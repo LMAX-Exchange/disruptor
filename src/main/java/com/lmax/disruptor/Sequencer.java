@@ -15,6 +15,9 @@
  */
 package com.lmax.disruptor;
 
+/**
+ * Coordinates claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
+ */
 interface Sequencer
 {
     /** Set to -1 as sequence starting point */
@@ -30,7 +33,7 @@ interface Sequencer
     /**
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent
      * method so the response should only be taken as an indication of available capacity.
-     * @param gatingSequences TODO
+     * @param gatingSequences to gate on
      * @param requiredCapacity in the buffer
      *
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
@@ -39,7 +42,7 @@ interface Sequencer
 
     /**
      * Claim the next event in sequence for publishing.
-     * @param gatingSequences TODO
+     * @param gatingSequences to gate on
      *
      * @return the claimed sequence value
      */
@@ -49,7 +52,7 @@ interface Sequencer
      * Attempt to claim the next event in sequence for publishing.  Will return the
      * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.
-     * @param gatingSequences TODO
+     * @param gatingSequences to gate on
      *
      * @return the claimed sequence value
      * @throws InsufficientCapacityException
@@ -58,7 +61,7 @@ interface Sequencer
 
     /**
      * Get the remaining capacity for this sequencer.
-     * @param gatingSequences TODO
+     * @param gatingSequences to gate on
      *
      * @return The number of slots remaining.
      */
@@ -71,6 +74,4 @@ interface Sequencer
      * @param sequence The sequence to initialise too.
      */
     void claim(long sequence);
-
-    long getCachedGatingSequence();
 }

@@ -16,7 +16,8 @@
 package com.lmax.disruptor;
 
 /**
- * No operation version of a {@link EventProcessor} that simply tracks a {@link SingleProducerSequencer}.
+ * No operation version of a {@link EventProcessor} that simply tracks a {@link Sequence}.
+ *
  * This is useful in tests or for pre-filling a {@link RingBuffer} from a publisher.
  */
 public final class NoOpEventProcessor implements EventProcessor
@@ -24,7 +25,7 @@ public final class NoOpEventProcessor implements EventProcessor
     private final SequencerFollowingSequence sequence;
 
     /**
-     * Construct a {@link EventProcessor} that simply tracks a {@link SingleProducerSequencer}.
+     * Construct a {@link EventProcessor} that simply tracks a {@link Sequence} object.
      *
      * @param sequencer to track.
      */
@@ -49,6 +50,9 @@ public final class NoOpEventProcessor implements EventProcessor
     {
     }
 
+    /**
+     * Sequence that follows (by wrapping) another sequence
+     */
     private static final class SequencerFollowingSequence extends Sequence
     {
         private final RingBuffer<?> sequencer;

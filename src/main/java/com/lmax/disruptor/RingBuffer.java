@@ -52,15 +52,15 @@ public final class RingBuffer<E>
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
     private RingBuffer(EventFactory<E> eventFactory, 
-                       Sequence cursor, 
-                       Sequencer sequencer, 
-                       Publisher publisher, 
-                       WaitStrategy waitStrategy)
+                       Sequence        cursor, 
+                       Sequencer       sequencer, 
+                       Publisher       publisher, 
+                       WaitStrategy    waitStrategy)
     {
-        this.sequencer = sequencer;
+        this.sequencer    = sequencer;
         this.waitStrategy = waitStrategy;
-        this.bufferSize = sequencer.getBufferSize();
-        this.cursor = cursor;
+        this.bufferSize   = sequencer.getBufferSize();
+        this.cursor       = cursor;
         
         if (bufferSize < 1)
         {
@@ -71,9 +71,9 @@ public final class RingBuffer<E>
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
 
-        indexMask = bufferSize - 1;
+        this.indexMask = bufferSize - 1;
         this.publisher = publisher;
-        this.entries = new Object[sequencer.getBufferSize()];
+        this.entries   = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
     
@@ -87,15 +87,14 @@ public final class RingBuffer<E>
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory, 
-                                                        int bufferSize, 
-                                                        WaitStrategy waitStrategy)
+                                                        int             bufferSize, 
+                                                        WaitStrategy    waitStrategy)
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
         MultiProducerPublisher publisher = new MultiProducerPublisher(bufferSize, waitStrategy);
         
-        RingBuffer<E> ringBuffer = 
-                new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
-                                  sequencer, publisher, waitStrategy);
+        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
+                                                     sequencer, publisher, waitStrategy);
         
         return ringBuffer;
     }
@@ -123,8 +122,8 @@ public final class RingBuffer<E>
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory, 
-                                                                     int bufferSize, 
-                                                                     WaitStrategy waitStrategy)
+                                                         int             bufferSize, 
+                                                         WaitStrategy    waitStrategy)
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
         SingleProducerPublisher publisher = new SingleProducerPublisher(waitStrategy);
@@ -157,7 +156,10 @@ public final class RingBuffer<E>
      * @param waitStrategy used to determine how to wait for new elements to become available.
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
-    public static <E> RingBuffer<E> create(ProducerType producerType, EventFactory<E> factory, int bufferSize, WaitStrategy waitStrategy)
+    public static <E> RingBuffer<E> create(ProducerType    producerType, 
+                                           EventFactory<E> factory, 
+                                           int             bufferSize, 
+                                           WaitStrategy    waitStrategy)
     {
         switch (producerType)
         {
@@ -402,8 +404,7 @@ public final class RingBuffer<E>
      * @param translator The user specified translation for the event
      * @param arg0 A user supplied argument.
      */
-    public <A> void publishEvent(EventTranslatorOneArg<E, A> translator, 
-                                 A arg0)
+    public <A> void publishEvent(EventTranslatorOneArg<E, A> translator, A arg0)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0);
@@ -419,8 +420,7 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, 
-                                       int capacity, A arg0)
+    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, int capacity, A arg0)
     {
         try
         {
@@ -442,8 +442,7 @@ public final class RingBuffer<E>
      * @param arg0 A user supplied argument.
      * @param arg1 A user supplied argument.
      */
-    public <A, B> void publishEvent(EventTranslatorTwoArg<E, A, B> translator, 
-                                    A arg0, B arg1)
+    public <A, B> void publishEvent(EventTranslatorTwoArg<E, A, B> translator, A arg0, B arg1)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1);
@@ -484,8 +483,7 @@ public final class RingBuffer<E>
      * @param arg1 A user supplied argument.
      * @param arg2 A user supplied argument.
      */
-    public <A, B, C> void publishEvent(EventTranslatorThreeArg<E, A, B, C> translator,
-                                       A arg0, B arg1, C arg2)
+    public <A, B, C> void publishEvent(EventTranslatorThreeArg<E, A, B, C> translator, A arg0, B arg1, C arg2)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, arg0, arg1, arg2);
@@ -525,8 +523,7 @@ public final class RingBuffer<E>
      * @param translator The user specified translation for the event
      * @param args User supplied arguments.
      */
-    public void publishEvent(EventTranslatorVararg<E> translator,
-                             Object...args)
+    public void publishEvent(EventTranslatorVararg<E> translator, Object...args)
     {
         final long sequence = sequencer.next(gatingSequences);
         translateAndPublish(translator, sequence, args);
@@ -542,8 +539,7 @@ public final class RingBuffer<E>
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, 
-                                   int capacity, Object...args)
+    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, int capacity, Object...args)
     {
         try
         {
@@ -558,8 +554,8 @@ public final class RingBuffer<E>
     }
 
     /**
-     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #getPublished(long)} in that
-     * is does not wait until the publisher indicates that object is available.  This method should only be used
+     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #getPublished(long)} \
+     * in that is does not wait until the publisher indicates that object is available.  This method should only be used
      * by the publishing thread to get a handle on the preallocated event in order to fill it with data.
      *
      * @param sequence for the event
@@ -579,8 +575,6 @@ public final class RingBuffer<E>
      */
     public void publish(long sequence)
     {
-        assert sequence > sequencer.getCachedGatingSequence();
-        
         publisher.publish(sequence);
     }
 
@@ -596,9 +590,7 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A> void translateAndPublish(EventTranslatorOneArg<E, A> translator,
-                                         long sequence,
-                                         A arg0)
+    private <A> void translateAndPublish(EventTranslatorOneArg<E, A> translator, long sequence, A arg0)
     {
         try
         {
@@ -610,10 +602,7 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A, B> void translateAndPublish(EventTranslatorTwoArg<E, A, B> translator,
-                                            long sequence,
-                                            A arg0,
-                                            B arg1)
+    private <A, B> void translateAndPublish(EventTranslatorTwoArg<E, A, B> translator, long sequence, A arg0, B arg1)
     {
         try
         {
@@ -625,11 +614,8 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A, B, C> void translateAndPublish(EventTranslatorThreeArg<E, A, B, C> translator,
-                                               long sequence,
-                                               A arg0,
-                                               B arg1,
-                                               C arg2)
+    private <A, B, C> void translateAndPublish(EventTranslatorThreeArg<E, A, B, C> translator, long sequence, 
+                                               A arg0, B arg1, C arg2)
     {
         try
         {
@@ -641,9 +627,7 @@ public final class RingBuffer<E>
         }
     }
 
-    private <A> void translateAndPublish(EventTranslatorVararg<E> translator,
-                                         long sequence,
-                                         Object...args)
+    private <A> void translateAndPublish(EventTranslatorVararg<E> translator, long sequence, Object...args)
     {
         try
         {

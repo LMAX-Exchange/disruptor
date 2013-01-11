@@ -11,6 +11,12 @@ Maintainer
 Changelog
 ==========
 
+## 3.0.0.beta2 Released (7-Jan-2013)
+
+- Remove millisecond wakeup from BlockingWaitStrategy
+- Add RingBuffer.claimAndGetPreallocated
+- Add RingBuffer.isPublished
+
 ## 3.0.0.beta1 Released (3-Jan-2013)
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.

@@ -24,7 +24,9 @@ import com.lmax.disruptor.util.Util;
 
 
 /**
- * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
+ * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p/>
+ *
+ * Generally not safe for use from multiple threads as it does not implement any barriers.
  */
 class SingleProducerSequencer implements Sequencer
 {
@@ -127,11 +129,5 @@ class SingleProducerSequencer implements Sequencer
     public void claim(long sequence)
     {
         nextValue = sequence;
-    }
-    
-    @Override
-    public long getCachedGatingSequence()
-    {
-        return gatingSequenceCache.get();
     }
 }

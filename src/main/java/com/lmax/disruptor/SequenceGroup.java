@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import com.lmax.disruptor.util.Util;
 
 /**
- * {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
+ * A {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
  * thread safe.
  * <p>
  * The {@link SequenceGroup#get()} and {@link SequenceGroup#set(long)} methods are lock free and can be

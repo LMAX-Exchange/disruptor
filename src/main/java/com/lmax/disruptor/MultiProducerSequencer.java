@@ -24,6 +24,8 @@ import com.lmax.disruptor.util.Util;
 
 /**
  * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
+ *
+ * Suitable for use for sequencing across multiple publisher threads.
  */
 class MultiProducerSequencer implements Sequencer
 {
@@ -150,11 +152,5 @@ class MultiProducerSequencer implements Sequencer
         long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
-    }
-    
-    @Override
-    public long getCachedGatingSequence()
-    {
-        return gatingSequenceCache.get();
     }
 }
