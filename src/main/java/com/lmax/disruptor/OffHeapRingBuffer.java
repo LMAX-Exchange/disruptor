@@ -49,7 +49,7 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(size, waitStrategy);
 
-        Memory memory = DirectMemory.newInstance(size, chunkSize);
+        Memory memory = DirectMemory.newDirectInstance(size, chunkSize);
         
         return new OffHeapRingBuffer<T>(new Sequence(), sequencer, waitStrategy, memory, factory);
     }
