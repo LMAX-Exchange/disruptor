@@ -24,8 +24,6 @@ import java.util.concurrent.Executors;
 
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueEvent;
 
 public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchmark
 {

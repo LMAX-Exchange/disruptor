@@ -2,35 +2,58 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.util.Util.isPowerOfTwo;
 import static java.lang.String.format;
+
+import java.nio.ByteBuffer;
+
 import sun.misc.Unsafe;
 
 import com.lmax.disruptor.util.Bits;
 import com.lmax.disruptor.util.Util;
 
-public class ByteArrayMemory implements Memory
+public class DirectMemory implements Memory
 {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
     
+    @SuppressWarnings("unused")
+    private final ByteBuffer buffer;
     private final byte[] array;
-    private final long   byteArrayOffset;
+    private final long   addressOffset;
     private final int    size;
     private final int    chunkSize;
     private final int    mask;
 
-    public ByteArrayMemory(byte[] array, long byteArrayOffset, int size, int chunkSize)
+    public DirectMemory(ByteBuffer buffer, byte[] array, long byteArrayOffset, int size, int chunkSize)
     {
         if (!isPowerOfTwo(size))
         {
             throw new IllegalArgumentException("size must be a power of two");
         }
         
+        this.buffer          = buffer;
         this.array           = array;
-        this.byteArrayOffset = byteArrayOffset;
+        this.addressOffset = byteArrayOffset;
         this.size            = size;
         this.chunkSize       = chunkSize;
         this.mask            = size - 1;
+    }
+
+    public static Memory newInstance(int size, int chunkSize)
+    {
+        int numBytes = size * chunkSize;
+        byte[] array = new byte[numBytes];
+        return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, size, chunkSize);
+    }
+    
+    public static Memory newDirectInstance(int size, int chunkSize)
+    {
+        int numBytes = size * chunkSize;
+        ByteBuffer buffer = ByteBuffer.allocateDirect(numBytes);
+        
+        long addressOffset = Util.getAddressFromDirectByteBuffer(buffer);
+        
+        return new DirectMemory(buffer, null, addressOffset, size, chunkSize);
     }
 
     @Override
@@ -205,7 +228,7 @@ public class ByteArrayMemory implements Memory
             return 0;
         }
         
-        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, byteArrayOffset, length);
+        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, BYTE_ARRAY_OFFSET, length);
         
         return length;
     }
@@ -224,7 +247,7 @@ public class ByteArrayMemory implements Memory
         
         byte[] data = new byte[length];
         
-        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, byteArrayOffset, length);
+        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, BYTE_ARRAY_OFFSET, length);
         return data;
     }
 
@@ -240,16 +263,9 @@ public class ByteArrayMemory implements Memory
             return 0;
         }
         
-        UNSAFE.copyMemory(value, byteArrayOffset + arrayOffset, array, addressOffsetOf(index, offset), length);
+        UNSAFE.copyMemory(value, BYTE_ARRAY_OFFSET + arrayOffset, array, addressOffsetOf(index, offset), length);
         
         return length;
-    }
-
-    public static Memory newInstance(int size, int chunkSize)
-    {
-        int numBytes = size * chunkSize;
-        byte[] array = new byte[numBytes];
-        return new ByteArrayMemory(array, BYTE_ARRAY_OFFSET, size, chunkSize);
     }
 
     @Override
@@ -272,6 +288,32 @@ public class ByteArrayMemory implements Memory
     
     private long addressOffsetOf(int index, int offset)
     {
-        return byteArrayOffset + (index * chunkSize) + offset;
+        return addressOffset + (index * chunkSize) + offset;
+    }
+
+    public static MemoryAllocator getByteArrayAllocator()
+    {
+        // TODO: Make static.
+        return new MemoryAllocator()
+        {
+            @Override
+            public Memory allocate(int size, int chunkSize)
+            {
+                return DirectMemory.newInstance(size, chunkSize);
+            }
+        };
+    }
+
+    public static MemoryAllocator getByteBufferAllocator()
+    {
+        // TODO: Make static.
+        return new MemoryAllocator()
+        {
+            @Override
+            public Memory allocate(int size, int chunkSize)
+            {
+                return DirectMemory.newDirectInstance(size, chunkSize);
+            }
+        };
     }
 }

@@ -1,22 +1,42 @@
 package com.lmax.disruptor;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.lmax.disruptor.util.Bits;
 
-
-public class ByteArrayMemoryTest
+@RunWith(Parameterized.class)
+public class DirectMemoryTest
 {
     private static final int OFFSET = 1;
     private static final int INDEX  = 0;
+    private MemoryAllocator memoryAllocator;
+        
+    public DirectMemoryTest(MemoryAllocator memoryAllocator)
+    {
+        this.memoryAllocator = memoryAllocator;
+    }
+    
+    @Parameters
+    public static Collection<Object[]> generateData()
+    {
+        Object[][] allocators =
+        {
+         { DirectMemory.getByteArrayAllocator() },
+         { DirectMemory.getByteBufferAllocator() }
+        };
+        return Arrays.asList(allocators);
+    }
     
     @Test
     public void shouldPutAndGetForLongs() throws Exception
@@ -362,7 +382,7 @@ public class ByteArrayMemoryTest
                                            int chunkSize, 
                                            TypeValidator validator)
     {
-        Memory memory = ByteArrayMemory.newInstance(size, chunkSize);
+        Memory memory = memoryAllocator.allocate(size, chunkSize);
         
         int typeSize         = validator.getTypeSize();
         int alignment        = random.nextInt(typeSize);
