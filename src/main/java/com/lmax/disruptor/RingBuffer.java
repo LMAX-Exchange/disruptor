@@ -578,8 +578,6 @@ public final class RingBuffer<E> implements DataSource<E>, Cursored
      */
     public void publish(long sequence)
     {
-        assert sequence > sequencer.getCachedGatingSequence();
-        
         publisher.publish(sequence);
     }
 

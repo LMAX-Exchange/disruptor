@@ -19,6 +19,9 @@ import static java.util.Arrays.copyOf;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
+/**
+ * Provides static methods for managing a {@link SequenceGroup} object.
+ */
 class SequenceGroups
 {
     static <T> void addSequences(final T holder,
