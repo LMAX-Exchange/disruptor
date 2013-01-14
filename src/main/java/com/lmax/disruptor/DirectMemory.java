@@ -3,7 +3,13 @@ package com.lmax.disruptor;
 import static com.lmax.disruptor.util.Util.isPowerOfTwo;
 import static java.lang.String.format;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 
 import sun.misc.Unsafe;
 
@@ -24,7 +30,7 @@ public class DirectMemory implements Memory
     private final int    chunkSize;
     private final int    mask;
 
-    public DirectMemory(ByteBuffer buffer, byte[] array, long byteArrayOffset, int size, int chunkSize)
+    public DirectMemory(ByteBuffer buffer, byte[] array, long addressOffset, int size, int chunkSize)
     {
         if (!isPowerOfTwo(size))
         {
@@ -33,7 +39,7 @@ public class DirectMemory implements Memory
         
         this.buffer          = buffer;
         this.array           = array;
-        this.addressOffset = byteArrayOffset;
+        this.addressOffset   = addressOffset;
         this.size            = size;
         this.chunkSize       = chunkSize;
         this.mask            = size - 1;
@@ -54,6 +60,27 @@ public class DirectMemory implements Memory
         long addressOffset = Util.getAddressFromDirectByteBuffer(buffer);
         
         return new DirectMemory(buffer, null, addressOffset, size, chunkSize);
+    }
+    
+    public static Memory fromByteBuffer(ByteBuffer buffer, int size, int chunkSize)
+    {
+        if (buffer.capacity() != size * chunkSize)
+        {
+            String msg = String.format("ByteBuffer.capacity(%d) must be equal to size(%d) * chunkSize(%d)",
+                                       buffer.capacity(), size, chunkSize);
+            throw new IllegalArgumentException(msg);
+        }
+        
+        if (buffer.hasArray())
+        {
+            byte[] array = buffer.array();
+            return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, size, chunkSize);
+        }
+        else
+        {
+            long addressOffset = Util.getAddressFromDirectByteBuffer(buffer);
+            return new DirectMemory(buffer, null, addressOffset, size, chunkSize);
+        }
     }
 
     @Override
@@ -315,5 +342,5 @@ public class DirectMemory implements Memory
                 return DirectMemory.newDirectInstance(size, chunkSize);
             }
         };
-    }
+    }    
 }

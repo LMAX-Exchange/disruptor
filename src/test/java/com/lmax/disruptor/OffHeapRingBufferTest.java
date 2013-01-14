@@ -62,6 +62,8 @@ public class OffHeapRingBufferTest
                                                     ringBuffer.newBarrier(),
                                                     handler);
         
+        ringBuffer.addGatingSequences(processor.getSequence());
+        
         Thread t = new Thread(processor);
         t.start();
         

@@ -4,6 +4,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -33,7 +39,8 @@ public class DirectMemoryTest
         Object[][] allocators =
         {
          { DirectMemory.getByteArrayAllocator() },
-         { DirectMemory.getByteBufferAllocator() }
+         { DirectMemory.getByteBufferAllocator() },
+         { getMemoryMappedAllocator() }
         };
         return Arrays.asList(allocators);
     }
@@ -415,5 +422,46 @@ public class DirectMemoryTest
     private static int randomOffset(Random random, Memory memory, int typeSize, int alignment)
     {
         return (random.nextInt((memory.getChunkSize() / typeSize) - (alignment == 0 ? 0 : 1)) * typeSize) + alignment;
-    }    
+    }
+    
+    public static MemoryAllocator getMemoryMappedAllocator()
+    {
+        return new MemoryAllocator()
+        {
+            @Override
+            public Memory allocate(int size, int chunkSize)
+            {
+                RandomAccessFile raf = null;
+                try
+                {
+                    File f = File.createTempFile(System.getProperty("user.name") + "-", ".map");
+                    f.deleteOnExit();
+                    
+                    raf = new RandomAccessFile(f, "rw");
+                    MappedByteBuffer map = raf.getChannel().map(MapMode.READ_WRITE, 0, size * chunkSize);
+                    return DirectMemory.fromByteBuffer(map, size, chunkSize);
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    close(raf);
+                }
+            }
+        };
+    }
+    
+    private static void close(Closeable c)
+    {
+        try
+        {
+            c.close();
+        }
+        catch (IOException e)
+        {
+            // Swallow.
+        }
+    }
 }
