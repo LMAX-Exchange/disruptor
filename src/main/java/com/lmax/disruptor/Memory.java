@@ -2,35 +2,34 @@ package com.lmax.disruptor;
 
 public interface Memory
 {
-    byte getByte(int index, int offset);
-    void putByte(int index, int offset, byte value);
+    byte getByte(long reference, int offset);
+    void putByte(long reference, int offset, byte value);
     
-    short getShort(int index, int offset);
-    void putShort(int index, int offset, short value);
+    short getShort(long reference, int offset);
+    void putShort(long reference, int offset, short value);
     
-    char getChar(int index, int offset);
-    void putChar(int index, int offset, char value);
+    char getChar(long reference, int offset);
+    void putChar(long reference, int offset, char value);
     
-    int getInt(int index, int offset);
-    void putInt(int index, int lengthOffset, int value);
+    int getInt(long reference, int offset);
+    void putInt(long reference, int lengthOffset, int value);
     
-    long getLong(int index, int offset);
-    long getVolatileLong(int index, int offset);
-    void putLong(int index, int offset, long value);
-    void putOrderedLong(int index, int offset, long value);
+    long getLong(long reference, int offset);
+    long getVolatileLong(long reference, int offset);
+    void putLong(long reference, int offset, long value);
+    void putOrderedLong(long reference, int offset, long value);
 
-    float getFloat(int index, int offset);
-    void putFloat(int index, int offset, float value);
+    float getFloat(long reference, int offset);
+    void putFloat(long reference, int offset, float value);
     
-    double getDouble(int index, int offset);
-    void putDouble(int index, int offset, double value);
+    double getDouble(long reference, int offset);
+    void putDouble(long reference, int offset, double value);
     
-    byte[] getBytes(int index, int offset, int length);
-    int getBytes(int index, int offset, int length, byte[] data);
-    int putBytes(int index, int offset, byte[] value, int arrayOffset, int length);
+    byte[] getBytes(long reference, int offset, int length);
+    int getBytes(long reference, int offset, int length, byte[] data);
+    int putBytes(long reference, int offset, byte[] value, int arrayOffset, int length);
     
-    int getSize();
-    int getChunkSize();
-    int indexOf(long next);
-
+    int getEntryCount();
+    int getEntrySize();
+    long indexOf(long next);
 }

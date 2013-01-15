@@ -18,12 +18,12 @@ public class ValueEntry extends RingBufferEntryBase
     
     public long getValue()
     {
-        return memory.getLong(index, VALUE_OFFSET);
+        return memory.getLong(reference, VALUE_OFFSET);
     }
     
     public void setValue(long value)
     {
-        memory.putLong(index, VALUE_OFFSET, value);        
+        memory.putLong(reference, VALUE_OFFSET, value);        
     }
 
     @Override

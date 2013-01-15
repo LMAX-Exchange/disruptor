@@ -8,21 +8,21 @@ public abstract class RingBufferEntryBase implements RingBufferEntry
     protected static final int BASE_OFFSET = SEQUENCE_OFFSET + Bits.sizeofLong();
     
     protected Memory memory;
-    protected int index;
+    protected long reference;
     
-    public void move(Memory memory, int index)
+    public void move(Memory memory, long index)
     {
         this.memory = memory;
-        this.index  = index;
+        this.reference  = index;
     }
 
     public long getSequence()
     {
-        return memory.getVolatileLong(index, SEQUENCE_OFFSET);
+        return memory.getVolatileLong(reference, SEQUENCE_OFFSET);
     }
 
     public void setSequence(long value)
     {
-        memory.putOrderedLong(index, SEQUENCE_OFFSET, value);
+        memory.putOrderedLong(reference, SEQUENCE_OFFSET, value);
     }
 }

@@ -3,6 +3,14 @@ package com.lmax.disruptor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2CharOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ShortOpenHashMap;
 
 import java.io.Closeable;
 import java.io.File;
@@ -24,8 +32,6 @@ import com.lmax.disruptor.util.Bits;
 @RunWith(Parameterized.class)
 public class DirectMemoryTest
 {
-    private static final int OFFSET = 1;
-    private static final int INDEX  = 0;
     private MemoryAllocator memoryAllocator;
         
     public DirectMemoryTest(MemoryAllocator memoryAllocator)
@@ -93,26 +99,36 @@ public class DirectMemoryTest
         assertPutAndGet(new ByteValidator());
     }    
     
+    @Test
+    public void shouldPutAndGetForBytes2() throws Exception
+    {
+        Random r = new Random(1);
+        
+        int size      = 1 << r.nextInt(13);
+        int chunkSize = 1 << (r.nextInt(4) + 5);
+        assertPutGetForSingleType(r, 1024, size, chunkSize, new ByteArrayValidator());
+    }    
+    
     private static class ByteArrayValidator implements TypeValidator
     {
         private static final int BYTE_ARRAY_SIZE = 16;
-        byte[][]   input;
-        byte[][][] values;
+        
+        private final    Long2ObjectOpenHashMap<byte[]> values = new Long2ObjectOpenHashMap<byte[]>();
+        private byte[][] input;
 
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new byte[numberOfPuts][BYTE_ARRAY_SIZE]);
-            values = new byte[size][chunkSize][BYTE_ARRAY_SIZE]; 
         }
 
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long reference, int offset)
         {
-            memory.putBytes(index, offset, input[i], 0, input[i].length);
-            System.arraycopy(input[i], 0, values[index][offset], 0, values[index][offset].length);
+            memory.putBytes(reference, offset, input[i], 0, input[i].length);
+            values.put(reference + offset, Arrays.copyOf(input[i], input[i].length));
             byte[] stored = new byte[16];
-            int amountRead = memory.getBytes(index, offset, BYTE_ARRAY_SIZE, stored);
+            int amountRead = memory.getBytes(reference, offset, BYTE_ARRAY_SIZE, stored);
             
             assertThat(amountRead, is(BYTE_ARRAY_SIZE));
             
@@ -120,10 +136,10 @@ public class DirectMemoryTest
         }
 
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long reference, int offset)
         {
-            byte[] stored = memory.getBytes(index, offset, BYTE_ARRAY_SIZE);
-            return Arrays.equals(stored, values[index][offset]);
+            byte[] stored = memory.getBytes(reference, offset, BYTE_ARRAY_SIZE);
+            return Arrays.equals(stored, values.get(reference + offset));
         }
 
         @Override
@@ -135,29 +151,28 @@ public class DirectMemoryTest
     
     private static class LongValidator implements TypeValidator
     {
-        long[]   input;
-        long[][] values;
+        private final Long2LongOpenHashMap values = new Long2LongOpenHashMap();
+        private long[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new long[numberOfPuts]);
-            values = new long[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putLong(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getLong(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getLong(index, offset) == values[index][offset];
+            return memory.getLong(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -169,29 +184,28 @@ public class DirectMemoryTest
     
     private static class IntValidator implements TypeValidator
     {
-        int[]   input;
-        int[][] values;
+        private final Long2IntOpenHashMap values = new Long2IntOpenHashMap();
+        private int[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new int[numberOfPuts]);
-            values = new int[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putInt(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getInt(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getInt(index, offset) == values[index][offset];
+            return memory.getInt(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -203,29 +217,28 @@ public class DirectMemoryTest
     
     private static class DoubleValidator implements TypeValidator
     {
-        double[]   input;
-        double[][] values;
+        private final Long2DoubleOpenHashMap values = new Long2DoubleOpenHashMap();
+        private double[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new double[numberOfPuts]);
-            values = new double[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putDouble(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getDouble(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getDouble(index, offset) == values[index][offset];
+            return memory.getDouble(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -237,29 +250,28 @@ public class DirectMemoryTest
     
     private static class FloatValidator implements TypeValidator
     {
-        float[]   input;
-        float[][] values;
+        private final Long2FloatOpenHashMap values = new Long2FloatOpenHashMap();
+        private float[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new float[numberOfPuts]);
-            values = new float[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putFloat(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getFloat(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getFloat(index, offset) == values[index][offset];
+            return memory.getFloat(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -271,29 +283,28 @@ public class DirectMemoryTest
     
     private static class ShortValidator implements TypeValidator
     {
-        short[]   input;
-        short[][] values;
+        private final Long2ShortOpenHashMap values = new Long2ShortOpenHashMap();
+        private short[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new short[numberOfPuts]);
-            values = new short[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putShort(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getShort(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getShort(index, offset) == values[index][offset];
+            return memory.getShort(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -305,29 +316,28 @@ public class DirectMemoryTest
     
     private static class CharValidator implements TypeValidator
     {
-        char[]   input;
-        char[][] values;
+        private final Long2CharOpenHashMap values = new Long2CharOpenHashMap();
+        private char[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new char[numberOfPuts]);
-            values = new char[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putChar(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getChar(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getChar(index, offset) == values[index][offset];
+            return memory.getChar(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -339,29 +349,28 @@ public class DirectMemoryTest
     
     private static class ByteValidator implements TypeValidator
     {
-        byte[]   input;
-        byte[][] values;
+        private final Long2ByteOpenHashMap values = new Long2ByteOpenHashMap();
+        private byte[] input;
         
         @Override
         public void init(Random r, int numberOfPuts, int size, int chunkSize)
         {
             input  = Randoms.generateArray(r, new byte[numberOfPuts]);
-            values = new byte[size][chunkSize];
         }
         
         @Override
-        public boolean putAndGetAt(Memory memory, int i, int index, int offset)
+        public boolean putAndGetAt(Memory memory, int i, long index, int offset)
         {
             memory.putByte(index, offset, input[i]);
-            values[index][offset] = input[i];
+            values.put(index + offset, input[i]);
             
             return memory.getByte(index, offset) == input[i];            
         }
         
         @Override
-        public boolean validateGetAt(Memory memory, int index, int offset)
+        public boolean validateGetAt(Memory memory, long index, int offset)
         {
-            return memory.getByte(index, offset) == values[index][offset];
+            return memory.getByte(index, offset) == values.get(index + offset);
         }
         
         @Override
@@ -391,37 +400,38 @@ public class DirectMemoryTest
     {
         Memory memory = memoryAllocator.allocate(size, chunkSize);
         
-        int typeSize         = validator.getTypeSize();
-        int alignment        = random.nextInt(typeSize);
-        int[][] accessPoints = new int[2][numberOfPuts];
+        int    typeSize   = validator.getTypeSize();
+        int    alignment  = random.nextInt(typeSize);
+        long[] references = new long[numberOfPuts];
+        int[]  offsets    = new int[numberOfPuts];
         
         validator.init(random, numberOfPuts, size, chunkSize);
         
         for (int i = 0; i < numberOfPuts; i++)
         {
-            int index = random.nextInt(memory.getSize());
+            long reference = memory.indexOf(random.nextInt(memory.getEntryCount()));
             int offset = randomOffset(random, memory, typeSize, alignment);
             
-            assertTrue("value " + i + " is incorrect, index: " + index + ", offset: " + offset, 
-                       validator.putAndGetAt(memory, i, index, offset));
+            assertTrue("value " + i + " is incorrect, index: " + reference + ", offset: " + offset, 
+                       validator.putAndGetAt(memory, i, reference, offset));
             
-            accessPoints[INDEX][i] = index; 
-            accessPoints[OFFSET][i] = offset;
+            references[i] = reference; 
+            offsets[i]    = offset;
         }
         
         for (int i = 0; i < numberOfPuts; i++)
         {
-            int index = accessPoints[INDEX][i];
-            int offset = accessPoints[OFFSET][i];
+            long reference = references[i];
+            int  offset    = offsets[i];
 
-            assertTrue("value " + i + " is incorrect, index: " + index + ", offset: " + offset, 
-                       validator.validateGetAt(memory, index, offset));
+            assertTrue("value " + i + " is incorrect, reference: " + reference + ", offset: " + offset, 
+                       validator.validateGetAt(memory, reference, offset));
         }
     }
     
     private static int randomOffset(Random random, Memory memory, int typeSize, int alignment)
     {
-        return (random.nextInt((memory.getChunkSize() / typeSize) - (alignment == 0 ? 0 : 1)) * typeSize) + alignment;
+        return (random.nextInt((memory.getEntrySize() / typeSize) - (alignment == 0 ? 0 : 1)) * typeSize) + alignment;
     }
     
     public static MemoryAllocator getMemoryMappedAllocator()

@@ -3,13 +3,7 @@ package com.lmax.disruptor;
 import static com.lmax.disruptor.util.Util.isPowerOfTwo;
 import static java.lang.String.format;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
 
 import sun.misc.Unsafe;
 
@@ -26,13 +20,14 @@ public class DirectMemory implements Memory
     private final ByteBuffer buffer;
     private final byte[] array;
     private final long   addressOffset;
-    private final int    size;
-    private final int    chunkSize;
+    private final int    entryCount;
+    private final int    entrySize;
     private final int    mask;
+    private final long   upperBound;
 
-    public DirectMemory(ByteBuffer buffer, byte[] array, long addressOffset, int size, int chunkSize)
+    public DirectMemory(ByteBuffer buffer, byte[] array, long addressOffset, int entryCount, int entrySize)
     {
-        if (!isPowerOfTwo(size))
+        if (!isPowerOfTwo(entryCount))
         {
             throw new IllegalArgumentException("size must be a power of two");
         }
@@ -40,232 +35,252 @@ public class DirectMemory implements Memory
         this.buffer          = buffer;
         this.array           = array;
         this.addressOffset   = addressOffset;
-        this.size            = size;
-        this.chunkSize       = chunkSize;
-        this.mask            = size - 1;
+        this.entryCount      = entryCount;
+        this.entrySize       = entrySize;
+        this.mask            = entryCount - 1;
+        
+        this.upperBound      = (entryCount * (long) entrySize) + addressOffset;
     }
 
-    public static Memory newInstance(int size, int chunkSize)
+    public static Memory newInstance(int entryCount, int entrySize)
     {
-        int numBytes = size * chunkSize;
+        int numBytes = entryCount * entrySize;
         byte[] array = new byte[numBytes];
-        return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, size, chunkSize);
+        return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, entryCount, entrySize);
     }
     
-    public static Memory newDirectInstance(int size, int chunkSize)
+    public static Memory newDirectInstance(int entryCount, int entrySize)
     {
-        int numBytes = size * chunkSize;
+        int numBytes = entryCount * entrySize;
         ByteBuffer buffer = ByteBuffer.allocateDirect(numBytes);
         
         long addressOffset = Util.getAddressFromDirectByteBuffer(buffer);
         
-        return new DirectMemory(buffer, null, addressOffset, size, chunkSize);
+        return new DirectMemory(buffer, null, addressOffset, entryCount, entrySize);
     }
     
-    public static Memory fromByteBuffer(ByteBuffer buffer, int size, int chunkSize)
+    public static Memory fromByteBuffer(ByteBuffer buffer, int entryCount, int entrySize)
     {
-        if (buffer.capacity() != size * chunkSize)
+        if (buffer.capacity() != entryCount * entrySize)
         {
-            String msg = String.format("ByteBuffer.capacity(%d) must be equal to size(%d) * chunkSize(%d)",
-                                       buffer.capacity(), size, chunkSize);
+            String msg = String.format("ByteBuffer.capacity(%d) must be equal to size(%d) * entrySize(%d)",
+                                       buffer.capacity(), entryCount, entrySize);
             throw new IllegalArgumentException(msg);
         }
         
         if (buffer.hasArray())
         {
             byte[] array = buffer.array();
-            return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, size, chunkSize);
+            return new DirectMemory(null, array, BYTE_ARRAY_OFFSET, entryCount, entrySize);
         }
         else
         {
             long addressOffset = Util.getAddressFromDirectByteBuffer(buffer);
-            return new DirectMemory(buffer, null, addressOffset, size, chunkSize);
+            return new DirectMemory(buffer, null, addressOffset, entryCount, entrySize);
         }
     }
 
     @Override
-    public int getInt(int index, int offset)
+    public int getInt(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofInt()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofInt()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getInt(array, addressOffsetOf(index, offset));
+        return UNSAFE.getInt(array, addressOffsetOf(reference, offset));
     }
 
     @Override
-    public void putInt(int index, int offset, int value)
+    public void putInt(long reference, int offset, int value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize); 
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize); 
         
-        UNSAFE.putInt(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putInt(array, addressOffsetOf(reference, offset), value);
     }
 
     @Override
-    public long getLong(int index, int offset)
+    public long getLong(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofLong()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getLong(array, addressOffsetOf(index, offset));
+        return UNSAFE.getLong(array, addressOffsetOf(reference, offset));
     }
 
     @Override
-    public long getVolatileLong(int index, int offset)
+    public long getVolatileLong(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofLong()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getLongVolatile(array, addressOffsetOf(index, offset));
+        return UNSAFE.getLongVolatile(array, addressOffsetOf(reference, offset));
     }
 
     @Override
-    public void putLong(int index, int offset, long value)
+    public void putLong(long reference, int offset, long value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofLong()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putLong(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putLong(array, addressOffsetOf(reference, offset), value);
     }
 
     @Override
-    public void putOrderedLong(int index, int offset, long value)
+    public void putOrderedLong(long reference, int offset, long value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putOrderedLong(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putOrderedLong(array, addressOffsetOf(reference, offset), value);
     }
     
     @Override
-    public double getDouble(int index, int offset)
+    public double getDouble(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofDouble()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofDouble()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getDouble(array, addressOffsetOf(index, offset));
+        return UNSAFE.getDouble(array, addressOffsetOf(reference, offset));
     }
     
     @Override
-    public void putDouble(int index, int offset, double value)
+    public void putDouble(long reference, int offset, double value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putDouble(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putDouble(array, addressOffsetOf(reference, offset), value);
     }
     
     @Override
-    public float getFloat(int index, int offset)
+    public float getFloat(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofFloat()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofFloat()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getFloat(array, addressOffsetOf(index, offset));
+        return UNSAFE.getFloat(array, addressOffsetOf(reference, offset));
     }
     
     @Override
-    public void putFloat(int index, int offset, float value)
+    public void putFloat(long reference, int offset, float value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putFloat(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putFloat(array, addressOffsetOf(reference, offset), value);
     }
     
     @Override
-    public short getShort(int index, int offset)
+    public short getShort(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofShort()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofShort()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getShort(array, addressOffsetOf(index, offset));
+        return UNSAFE.getShort(array, addressOffsetOf(reference, offset));
     }
     
     @Override
-    public void putShort(int index, int offset, short value)
+    public void putShort(long reference, int offset, short value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putShort(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putShort(array, addressOffsetOf(reference, offset), value);
     }
     
     @Override
-    public char getChar(int index, int offset)
+    public char getChar(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofChar()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofChar()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getChar(array, addressOffsetOf(index, offset));
+        return UNSAFE.getChar(array, addressOffsetOf(reference, offset));
     }
     
     @Override
-    public void putChar(int index, int offset, char value)
+    public void putChar(long reference, int offset, char value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putChar(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putChar(array, addressOffsetOf(reference, offset), value);
     }
     
     @Override
-    public byte getByte(int index, int offset)
+    public byte getByte(long reference, int offset)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeofByte()) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeofByte()) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        return UNSAFE.getByte(array, addressOffsetOf(index, offset));
+        return UNSAFE.getByte(array, addressOffsetOf(reference, offset));
     }
     
     @Override
-    public void putByte(int index, int offset, byte value)
+    public void putByte(long reference, int offset, byte value)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
-        assert 0 <= offset && (offset + Bits.sizeof(value)) <= chunkSize : 
-            format("offset: %d, chunkSize: %d", offset, chunkSize);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
+        assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
+            format("offset: %d, entrySize: %d", offset, entrySize);
         
-        UNSAFE.putByte(array, addressOffsetOf(index, offset), value);
+        UNSAFE.putByte(array, addressOffsetOf(reference, offset), value);
     }
 
     @Override
-    public int getBytes(int index, int offset, int length, byte[] data)
+    public int getBytes(long reference, int offset, int length, byte[] data)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
         
-        length = Math.min(length, chunkSize - offset);
+        length = Math.min(length, entrySize - offset);
         
         if (length < 1)
         {
             return 0;
         }
         
-        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, BYTE_ARRAY_OFFSET, length);
+        UNSAFE.copyMemory(array, addressOffsetOf(reference, offset), data, BYTE_ARRAY_OFFSET, length);
         
         return length;
     }
     
     @Override
-    public byte[] getBytes(int index, int offset, int length)
+    public byte[] getBytes(long reference, int offset, int length)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
+        assert addressOffset <= reference && reference < upperBound :
+            format("index: %d, size: %d", reference, entryCount);
         
-        length = Math.min(length, chunkSize - offset);
+        length = Math.min(length, entrySize - offset);
         
         if (length < 1)
         {
@@ -274,48 +289,49 @@ public class DirectMemory implements Memory
         
         byte[] data = new byte[length];
         
-        UNSAFE.copyMemory(array, addressOffsetOf(index, offset), data, BYTE_ARRAY_OFFSET, length);
+        UNSAFE.copyMemory(array, addressOffsetOf(reference, offset), data, BYTE_ARRAY_OFFSET, length);
         return data;
     }
 
     @Override
-    public int putBytes(int index, int offset, byte[] value, int arrayOffset, int length)
+    public int putBytes(long reference, int offset, byte[] value, int arrayOffset, int length)
     {
-        assert 0 <= index && index < size : format("index: %d, size: %d", index, size);
+        assert addressOffset <= reference && reference < upperBound : 
+            format("index: %d, size: %d", reference, entryCount);
         
-        length = Math.min(length, chunkSize - offset);
+        length = Math.min(length, entrySize - offset);
         
         if (length < 1)
         {
             return 0;
         }
         
-        UNSAFE.copyMemory(value, BYTE_ARRAY_OFFSET + arrayOffset, array, addressOffsetOf(index, offset), length);
+        UNSAFE.copyMemory(value, BYTE_ARRAY_OFFSET + arrayOffset, array, addressOffsetOf(reference, offset), length);
         
         return length;
     }
 
     @Override
-    public int getSize()
+    public int getEntryCount()
     {
-        return size;
+        return entryCount;
     }
 
     @Override
-    public int getChunkSize()
+    public int getEntrySize()
     {
-        return chunkSize;
+        return entrySize;
     }
     
     @Override
-    public int indexOf(long next)
+    public long indexOf(long next)
     {
-        return mask & ((int) next);
+        return (next & mask) * entrySize + addressOffset;
     }
     
-    private long addressOffsetOf(int index, int offset)
+    private long addressOffsetOf(long reference, int offset)
     {
-        return addressOffset + (index * chunkSize) + offset;
+        return reference + offset;
     }
 
     public static MemoryAllocator getByteArrayAllocator()
@@ -324,9 +340,9 @@ public class DirectMemory implements Memory
         return new MemoryAllocator()
         {
             @Override
-            public Memory allocate(int size, int chunkSize)
+            public Memory allocate(int size, int entrySize)
             {
-                return DirectMemory.newInstance(size, chunkSize);
+                return DirectMemory.newInstance(size, entrySize);
             }
         };
     }
@@ -337,9 +353,9 @@ public class DirectMemory implements Memory
         return new MemoryAllocator()
         {
             @Override
-            public Memory allocate(int size, int chunkSize)
+            public Memory allocate(int size, int entrySize)
             {
-                return DirectMemory.newDirectInstance(size, chunkSize);
+                return DirectMemory.newDirectInstance(size, entrySize);
             }
         };
     }    

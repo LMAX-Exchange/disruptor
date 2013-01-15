@@ -7,5 +7,5 @@ public interface RingBufferEntry
     long getSequence();
     void setSequence(long value);
 
-    void move(Memory memory, int index);
+    void move(Memory memory, long reference);
 }

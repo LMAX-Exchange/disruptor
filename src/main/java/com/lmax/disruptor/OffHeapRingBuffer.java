@@ -34,22 +34,22 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
     
     public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newMultiProducer(WaitStrategy    waitStrategy, 
                                                                                     EntryFactory<T> factory, 
-                                                                                    int size, int chunkSize)
+                                                                                    int entryCount, int entrySize)
     {
-        MultiProducerSequencer sequencer  = new MultiProducerSequencer(size, waitStrategy);
+        MultiProducerSequencer sequencer  = new MultiProducerSequencer(entryCount, waitStrategy);
 
-        Memory memory = DirectMemory.newInstance(size, chunkSize);
+        Memory memory = DirectMemory.newInstance(entryCount, entrySize);
         
         return new OffHeapRingBuffer<T>(sequencer.getCursorSequence(), sequencer, waitStrategy, memory, factory);
     }
     
     public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newSingleProducer(WaitStrategy    waitStrategy, 
                                                                                      EntryFactory<T> factory, 
-                                                                                     int size, int chunkSize)
+                                                                                     int entryCount, int entrySize)
     {
-        SingleProducerSequencer sequencer = new SingleProducerSequencer(size, waitStrategy);
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(entryCount, waitStrategy);
 
-        Memory memory = DirectMemory.newDirectInstance(size, chunkSize);
+        Memory memory = DirectMemory.newDirectInstance(entryCount, entrySize);
         
         return new OffHeapRingBuffer<T>(new Sequence(), sequencer, waitStrategy, memory, factory);
     }
@@ -57,14 +57,14 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
     public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newInstance(ProducerType    producerType,
                                                                                WaitStrategy    waitStrategy,
                                                                                EntryFactory<T> factory,
-                                                                               int size, int chunkSize)
+                                                                               int entryCount, int entrySize)
     {
         switch (producerType)
         {
         case SINGLE:
-            return newSingleProducer(waitStrategy, factory, size, chunkSize);
+            return newSingleProducer(waitStrategy, factory, entryCount, entrySize);
         case MULTI:
-            return newMultiProducer(waitStrategy, factory, size, chunkSize);
+            return newMultiProducer(waitStrategy, factory, entryCount, entrySize);
         default:
             throw new IllegalStateException(producerType.toString());
         }
@@ -78,14 +78,8 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
     private T getPreallocated(T entry, long sequence)
     {
         // TODO: Handle allocated memory roll-over
-        int index = memory.indexOf(sequence);
-        
-        if (index == 0)
-        {
-            
-        }
-        
-        entry.move(memory, index);
+        long reference = memory.indexOf(sequence);
+        entry.move(memory, reference);
         
         return entry;
     }

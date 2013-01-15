@@ -27,48 +27,48 @@ public class SimpleDataEntry extends RingBufferEntryBase implements SimpleData
     @Override
     public int getLength()
     {
-        return memory.getInt(index, LENGTH_OFFSET);
+        return memory.getInt(reference, LENGTH_OFFSET);
     }
 
     @Override
     public void setLength(int value)
     {
-        memory.putInt(index, LENGTH_OFFSET, value);
+        memory.putInt(reference, LENGTH_OFFSET, value);
     }
 
     @Override
     public long getPreviousSequence()
     {
-        return memory.getLong(index, PREVIOUS_SEQUENCE_OFFSET);
+        return memory.getLong(reference, PREVIOUS_SEQUENCE_OFFSET);
     }
 
     @Override
     public void setPreviousSequence(long value)
     {
-        memory.putLong(index, PREVIOUS_SEQUENCE_OFFSET, value);
+        memory.putLong(reference, PREVIOUS_SEQUENCE_OFFSET, value);
     }
 
     @Override
     public int getDataLength()
     {
-        return memory.getInt(index, DATA_LENGTH_OFFSET);
+        return memory.getInt(reference, DATA_LENGTH_OFFSET);
     }
 
     @Override
     public void setDataLength(int value)
     {
-        memory.putInt(index, DATA_LENGTH_OFFSET, value);
+        memory.putInt(reference, DATA_LENGTH_OFFSET, value);
     }
 
     @Override
     public byte[] getData()
     {
-        return memory.getBytes(index, DATA_OFFSET, getDataLength());
+        return memory.getBytes(reference, DATA_OFFSET, getDataLength());
     }
 
     @Override
     public int setData(byte[] value, int offset, int length)
     {
-        return memory.putBytes(index, DATA_OFFSET, value, offset, length);
+        return memory.putBytes(reference, DATA_OFFSET, value, offset, length);
     }    
 }
