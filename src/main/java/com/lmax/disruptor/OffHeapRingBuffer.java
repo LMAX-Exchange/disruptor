@@ -78,7 +78,7 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
     private T getPreallocated(T entry, long sequence)
     {
         // TODO: Handle allocated memory roll-over
-        long reference = memory.indexOf(sequence);
+        long reference = memory.referenceFor(sequence);
         entry.move(memory, reference);
         
         return entry;
@@ -103,7 +103,7 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
             entry = factory.newInstance();
         }
                 
-        entry.move(memory, memory.indexOf(sequence));
+        entry.move(memory, memory.referenceFor(sequence));
         
         while (entry.getSequence() != sequence)
         {

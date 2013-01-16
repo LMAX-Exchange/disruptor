@@ -409,7 +409,7 @@ public class DirectMemoryTest
         
         for (int i = 0; i < numberOfPuts; i++)
         {
-            long reference = memory.indexOf(random.nextInt(memory.getEntryCount()));
+            long reference = memory.referenceFor(random.nextInt(memory.getEntryCount()));
             int offset = randomOffset(random, memory, typeSize, alignment);
             
             assertTrue("value " + i + " is incorrect, index: " + reference + ", offset: " + offset, 

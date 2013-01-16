@@ -324,7 +324,7 @@ public class DirectMemory implements Memory
     }
     
     @Override
-    public long indexOf(long next)
+    public long referenceFor(long next)
     {
         return (next & mask) * entrySize + addressOffset;
     }

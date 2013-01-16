@@ -31,5 +31,5 @@ public interface Memory
     
     int getEntryCount();
     int getEntrySize();
-    long indexOf(long next);
+    long referenceFor(long next);
 }
