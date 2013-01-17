@@ -139,6 +139,35 @@ public class Sequence
 
         return newValue;
     }
+    
+    /**
+     * Set the value of the sequence once.  The user supplies the
+     * intended initial value of the sequence and it will be atomically updated
+     * to the new value if it currently at the initial value.  It will then
+     * return the updated value or the old value if already set.
+     * 
+     * @param initialValue the user defined "initial" value
+     * @param newValue the value to update to
+     * @return the newValue or the existing sequence value if it is not equals to initialValue
+     */
+    public long setOnce(long initialValue, long newValue)
+    {
+        long currentValue = get();
+        
+        if (currentValue == initialValue)
+        {
+            if (compareAndSet(initialValue, newValue))
+            {
+                currentValue = newValue;
+            }
+            else
+            {
+                currentValue = get();
+            }
+        }
+        
+        return currentValue;
+    }
 
     public String toString()
     {

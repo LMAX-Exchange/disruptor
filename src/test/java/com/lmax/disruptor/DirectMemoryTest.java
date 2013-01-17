@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.longs.Long2ShortOpenHashMap;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
@@ -436,31 +437,42 @@ public class DirectMemoryTest
     
     public static MemoryAllocator getMemoryMappedAllocator()
     {
-        return new MemoryAllocator()
+        try
         {
-            @Override
-            public Memory allocate(int size, int chunkSize)
+            File f = File.createTempFile(System.getProperty("user.name") + "-", ".map");
+            //f.deleteOnExit();
+            final RandomAccessFile raf = new RandomAccessFile(f, "rw");
+            
+            return new MemoryAllocator()
             {
-                RandomAccessFile raf = null;
-                try
+                long startPosition = 0;
+                
+                @Override
+                public Memory allocate(int size, int chunkSize)
                 {
-                    File f = File.createTempFile(System.getProperty("user.name") + "-", ".map");
-                    f.deleteOnExit();
-                    
-                    raf = new RandomAccessFile(f, "rw");
-                    MappedByteBuffer map = raf.getChannel().map(MapMode.READ_WRITE, 0, size * chunkSize);
-                    return DirectMemory.fromByteBuffer(map, size, chunkSize);
+                    try
+                    {
+                        int mapSize = size * chunkSize;
+                        MappedByteBuffer map = raf.getChannel().map(MapMode.READ_WRITE, startPosition, mapSize);
+                        startPosition += mapSize;
+                        
+                        return DirectMemory.fromByteBuffer(map, size, chunkSize);
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                    finally
+                    {
+//                    close(raf);
+                    }
                 }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                finally
-                {
-                    close(raf);
-                }
-            }
-        };
+            };
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     
     private static void close(Closeable c)

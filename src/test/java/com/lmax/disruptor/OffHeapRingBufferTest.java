@@ -15,9 +15,12 @@ import com.lmax.disruptor.util.Bits;
 
 public class OffHeapRingBufferTest
 {
-    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newMultiProducer(new BlockingWaitStrategy(), 
-                                                                                  SimpleDataEntry.FACTORY, 
-                                                                                  32, 256);
+//    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newMultiProducer(new BlockingWaitStrategy(), 
+//                                                                                  SimpleDataEntry.FACTORY, 
+//                                                                                  32, 256);
+    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newExpandable(new BlockingWaitStrategy(), 
+                                                                               SimpleDataEntry.FACTORY, 
+                                                                               32, 256);
     
     @Test
     public void shouldPublishSingleEntry() throws Exception

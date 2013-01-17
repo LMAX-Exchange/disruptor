@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import java.io.IOException;
+
 public interface Memory
 {
     byte getByte(long reference, int offset);
@@ -31,5 +33,6 @@ public interface Memory
     
     int getEntryCount();
     int getEntrySize();
-    long referenceFor(long next);
+    long referenceFor(long sequence);
+    long referenceFor(long sequence, boolean allowExpansion);
 }

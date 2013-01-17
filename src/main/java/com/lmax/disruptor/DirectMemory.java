@@ -29,7 +29,7 @@ public class DirectMemory implements Memory
     {
         if (!isPowerOfTwo(entryCount))
         {
-            throw new IllegalArgumentException("size must be a power of two");
+            throw new IllegalArgumentException("entryCount must be a power of two");
         }
         
         this.buffer          = buffer;
@@ -39,7 +39,7 @@ public class DirectMemory implements Memory
         this.entrySize       = entrySize;
         this.mask            = entryCount - 1;
         
-        this.upperBound      = (entryCount * (long) entrySize) + addressOffset;
+        this.upperBound      = (entryCount * (long) entrySize);
     }
 
     public static Memory newInstance(int entryCount, int entrySize)
@@ -59,7 +59,7 @@ public class DirectMemory implements Memory
         return new DirectMemory(buffer, null, addressOffset, entryCount, entrySize);
     }
     
-    public static Memory fromByteBuffer(ByteBuffer buffer, int entryCount, int entrySize)
+    public static DirectMemory fromByteBuffer(ByteBuffer buffer, int entryCount, int entrySize)
     {
         if (buffer.capacity() != entryCount * entrySize)
         {
@@ -83,7 +83,7 @@ public class DirectMemory implements Memory
     @Override
     public int getInt(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofInt()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -94,7 +94,7 @@ public class DirectMemory implements Memory
     @Override
     public void putInt(long reference, int offset, int value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize); 
@@ -105,7 +105,7 @@ public class DirectMemory implements Memory
     @Override
     public long getLong(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -116,7 +116,7 @@ public class DirectMemory implements Memory
     @Override
     public long getVolatileLong(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -127,7 +127,7 @@ public class DirectMemory implements Memory
     @Override
     public void putLong(long reference, int offset, long value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofLong()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -138,7 +138,7 @@ public class DirectMemory implements Memory
     @Override
     public void putOrderedLong(long reference, int offset, long value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -149,7 +149,7 @@ public class DirectMemory implements Memory
     @Override
     public double getDouble(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofDouble()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -160,7 +160,7 @@ public class DirectMemory implements Memory
     @Override
     public void putDouble(long reference, int offset, double value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -171,7 +171,7 @@ public class DirectMemory implements Memory
     @Override
     public float getFloat(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofFloat()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -182,7 +182,7 @@ public class DirectMemory implements Memory
     @Override
     public void putFloat(long reference, int offset, float value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -193,7 +193,7 @@ public class DirectMemory implements Memory
     @Override
     public short getShort(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofShort()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -204,7 +204,7 @@ public class DirectMemory implements Memory
     @Override
     public void putShort(long reference, int offset, short value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -215,7 +215,7 @@ public class DirectMemory implements Memory
     @Override
     public char getChar(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofChar()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -226,7 +226,7 @@ public class DirectMemory implements Memory
     @Override
     public void putChar(long reference, int offset, char value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -237,7 +237,7 @@ public class DirectMemory implements Memory
     @Override
     public byte getByte(long reference, int offset)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeofByte()) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -248,7 +248,7 @@ public class DirectMemory implements Memory
     @Override
     public void putByte(long reference, int offset, byte value)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         assert 0 <= offset && (offset + Bits.sizeof(value)) <= entrySize : 
             format("offset: %d, entrySize: %d", offset, entrySize);
@@ -259,7 +259,7 @@ public class DirectMemory implements Memory
     @Override
     public int getBytes(long reference, int offset, int length, byte[] data)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         
         length = Math.min(length, entrySize - offset);
@@ -277,7 +277,7 @@ public class DirectMemory implements Memory
     @Override
     public byte[] getBytes(long reference, int offset, int length)
     {
-        assert addressOffset <= reference && reference < upperBound :
+        assert validateReference(reference) :
             format("index: %d, size: %d", reference, entryCount);
         
         length = Math.min(length, entrySize - offset);
@@ -296,7 +296,7 @@ public class DirectMemory implements Memory
     @Override
     public int putBytes(long reference, int offset, byte[] value, int arrayOffset, int length)
     {
-        assert addressOffset <= reference && reference < upperBound : 
+        assert validateReference(reference) : 
             format("index: %d, size: %d", reference, entryCount);
         
         length = Math.min(length, entrySize - offset);
@@ -324,14 +324,25 @@ public class DirectMemory implements Memory
     }
     
     @Override
-    public long referenceFor(long next)
+    public long referenceFor(long sequence)
     {
-        return (next & mask) * entrySize + addressOffset;
+        return (sequence & mask) * entrySize;
+    }
+    
+    @Override
+    public long referenceFor(long sequence, boolean allowExpansion)
+    {
+        return referenceFor(sequence);
     }
     
     private long addressOffsetOf(long reference, int offset)
     {
-        return reference + offset;
+        return addressOffset + reference + offset;
+    }
+
+    private boolean validateReference(long reference)
+    {
+        return 0 <= reference && reference < upperBound;
     }
 
     public static MemoryAllocator getByteArrayAllocator()
