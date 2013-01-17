@@ -20,7 +20,7 @@ public class ExpandableMemory implements Memory
     private final int entrySize;
     private final int initialEntryCount;
     
-    private volatile int entryCount;
+    private volatile long entryCount;
     private volatile AtomicReferenceArray<DirectMemory> maps = new AtomicReferenceArray<DirectMemory>(4);
 
     public ExpandableMemory(FileChannel channel, int entryCount, int entrySize) throws IOException
@@ -93,7 +93,7 @@ public class ExpandableMemory implements Memory
                 return;
             }
             
-            int  mapIndex      = entryCount / initialEntryCount;
+            int  mapIndex      = (int) (entryCount / initialEntryCount);
             long startPosition = entryCount * entrySize;
             int  memorySize    = initialEntryCount * entrySize;
             try
