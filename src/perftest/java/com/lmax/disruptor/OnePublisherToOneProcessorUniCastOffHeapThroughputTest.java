@@ -17,6 +17,9 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.dsl.ProducerType.SINGLE;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -109,7 +112,19 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     
     private static Memory allocateMemory(int entryCount, int entrySize)
     {
-        return DirectMemory.newInstance(entryCount, entrySize);
+        try
+        {
+            File f = new File("/home/barkerm/tmp/ringBuffer.map");
+            f.createNewFile();
+            RandomAccessFile raf = new RandomAccessFile(f, "rw");
+            ExpandableMemory memory = new ExpandableMemory(raf.getChannel(), entryCount, entrySize);
+            
+            return memory;
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     
 
