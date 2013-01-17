@@ -54,7 +54,7 @@ public class ExpandableMemory implements Memory
     {
         while (allowExpansion && outsideBounds(sequence))
         {
-            remapMemory(sequence);
+            allocateMemory(sequence);
         }
         
         return referenceFor(sequence);
@@ -82,7 +82,7 @@ public class ExpandableMemory implements Memory
         return reference & CHILD_REFERENCE_MASK;
     }
 
-    private void remapMemory(long sequence)
+    private void allocateMemory(long sequence)
     {
         synchronized (channel)
         {

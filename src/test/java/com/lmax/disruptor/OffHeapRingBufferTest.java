@@ -10,17 +10,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.Bits;
 
 
 public class OffHeapRingBufferTest
 {
-//    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newMultiProducer(new BlockingWaitStrategy(), 
-//                                                                                  SimpleDataEntry.FACTORY, 
-//                                                                                  32, 256);
-    OffHeapRingBuffer<SimpleData> ringBuffer = OffHeapRingBuffer.newExpandable(new BlockingWaitStrategy(), 
-                                                                               SimpleDataEntry.FACTORY, 
-                                                                               32, 256);
+    private final OffHeapRingBuffer<SimpleData> ringBuffer = 
+            OffHeapRingBuffer.newInstance(ProducerType.MULTI,
+                                          new BlockingWaitStrategy(), 
+                                          SimpleDataEntry.FACTORY, 
+                                          DirectMemory.newInstance(32, 256));
     
     @Test
     public void shouldPublishSingleEntry() throws Exception

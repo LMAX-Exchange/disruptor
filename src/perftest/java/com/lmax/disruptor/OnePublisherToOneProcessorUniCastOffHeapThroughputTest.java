@@ -92,7 +92,11 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final OffHeapRingBuffer<ValueEntry> ringBuffer =
-        OffHeapRingBuffer.newInstance(SINGLE, new YieldingWaitStrategy(), ValueEntry.FACTORY, BUFFER_SIZE, 16);
+        OffHeapRingBuffer.newInstance(SINGLE, 
+                                      new YieldingWaitStrategy(), 
+                                      ValueEntry.FACTORY, 
+                                      allocateMemory(BUFFER_SIZE, 16));
+    
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEntryHandler handler = new ValueAdditionEntryHandler();
     private final BatchEventProcessor<ValueEntry> batchEventProcessor = 
@@ -102,6 +106,12 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
+    
+    private static Memory allocateMemory(int entryCount, int entrySize)
+    {
+        return DirectMemory.newInstance(entryCount, entrySize);
+    }
+    
 
     @Override
     protected int getRequiredProcessorCount()

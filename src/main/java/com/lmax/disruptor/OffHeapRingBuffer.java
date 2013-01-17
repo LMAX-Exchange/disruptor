@@ -1,7 +1,6 @@
 package com.lmax.disruptor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
@@ -47,26 +46,6 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
         return new OffHeapRingBuffer<T>(sequencer.getCursorSequence(), sequencer, waitStrategy, memory, factory);
     }
     
-    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newExpandable(WaitStrategy    waitStrategy, 
-                                                                                 EntryFactory<T> factory, 
-                                                                                 int entryCount, int entrySize) 
-    {
-        MultiProducerSequencer sequencer  = new MultiProducerSequencer(entryCount, waitStrategy);
-        
-        try
-        {
-            File f = File.createTempFile("mike", ".map");
-            RandomAccessFile raf = new RandomAccessFile(f, "rw");
-            ExpandableMemory memory = new ExpandableMemory(raf.getChannel(), entryCount, entrySize);
-            
-            return new OffHeapRingBuffer<T>(sequencer.getCursorSequence(), sequencer, waitStrategy, memory, factory);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
     public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newSingleProducer(WaitStrategy    waitStrategy, 
                                                                                      EntryFactory<T> factory, 
                                                                                      int entryCount, int entrySize)
@@ -76,6 +55,30 @@ public class OffHeapRingBuffer<T extends RingBufferEntry> implements Cursored
         Memory memory = DirectMemory.newDirectInstance(entryCount, entrySize);
         
         return new OffHeapRingBuffer<T>(new Sequence(), sequencer, waitStrategy, memory, factory);
+    }
+    
+    public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newInstance(ProducerType producerType,
+                                                                               WaitStrategy    waitStrategy, 
+                                                                               EntryFactory<T> factory, 
+                                                                               Memory memory) 
+    {
+        int entryCount = memory.getEntryCount();
+        
+        switch (producerType)
+        {
+        case SINGLE:
+        {
+            SingleProducerSequencer sequencer = new SingleProducerSequencer(entryCount, waitStrategy);
+            return new OffHeapRingBuffer<T>(new Sequence(), sequencer, waitStrategy, memory, factory);
+        }
+        case MULTI:
+        {            
+            MultiProducerSequencer sequencer = new MultiProducerSequencer(entryCount, waitStrategy);
+            return new OffHeapRingBuffer<T>(sequencer.getCursorSequence(), sequencer, waitStrategy, memory, factory);
+        }   
+        default:
+            throw new IllegalStateException(producerType.toString());
+        }
     }
 
     public static <T extends RingBufferEntry> OffHeapRingBuffer<T> newInstance(ProducerType    producerType,
