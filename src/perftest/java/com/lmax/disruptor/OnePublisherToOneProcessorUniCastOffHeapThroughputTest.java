@@ -112,19 +112,20 @@ public final class OnePublisherToOneProcessorUniCastOffHeapThroughputTest extend
     
     private static Memory allocateMemory(int entryCount, int entrySize)
     {
-        try
-        {
-            File f = new File("/home/barkerm/tmp/ringBuffer.map");
-            f.createNewFile();
-            RandomAccessFile raf = new RandomAccessFile(f, "rw");
-            ExpandableMemory memory = new ExpandableMemory(raf.getChannel(), entryCount, entrySize);
-            
-            return memory;
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+//        try
+//        {
+//            File f = new File("/home/barkerm/tmp/ringBuffer.map");
+//            f.createNewFile();
+//            RandomAccessFile raf = new RandomAccessFile(f, "rw");
+//            ExpandableMemory memory = new ExpandableMemory(raf.getChannel(), entryCount, entrySize);
+//            
+//            return memory;
+//        }
+//        catch (Exception e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+        return DirectMemory.newDirectInstance(entryCount, entrySize);
     }
     
 
