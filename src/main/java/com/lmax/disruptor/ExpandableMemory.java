@@ -25,10 +25,10 @@ public class ExpandableMemory implements Memory
 
     public ExpandableMemory(FileChannel channel, int entryCount, int entrySize) throws IOException
     {
-        this.channel = channel;
+        this.channel           = channel;
         this.initialEntryCount = entryCount;
-        this.entryCount = 0;
-        this.entrySize = entrySize;
+        this.entryCount        = 0;
+        this.entrySize         = entrySize;
     }
 
     public int getEntryCount()
@@ -94,8 +94,8 @@ public class ExpandableMemory implements Memory
             }
             
             int  mapIndex      = (int) (entryCount / initialEntryCount);
-            long startPosition = entryCount * entrySize;
             int  memorySize    = initialEntryCount * entrySize;
+            long startPosition = entryCount * entrySize;
             try
             {
                 MappedByteBuffer map     = channel.map(MapMode.READ_WRITE, startPosition, memorySize);
