@@ -149,6 +149,12 @@ def projectPom = {
     }
 }
 
+task writePom << {
+    pom { 
+//        project(projectPom)
+    }.writeTo("pom.xml")
+}
+
 install {
     repositories.mavenInstaller.pom.project(projectPom)
 }
