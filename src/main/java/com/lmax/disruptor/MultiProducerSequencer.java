@@ -34,6 +34,8 @@ class MultiProducerSequencer implements Sequencer
     private final WaitStrategy waitStrategy;
     private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    
+    private long backOffCount = 0;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -106,13 +108,15 @@ class MultiProducerSequencer implements Sequencer
             if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
             {
                 long gatingSequence = getMinimumSequence(gatingSequences, current);
-                gatingSequenceCache.set(gatingSequence);
 
-                if (next > wrapPoint)
+                if (wrapPoint > gatingSequence)
                 {
+                    backOffCount++;
                     LockSupport.parkNanos(1); // TODO, should we spin based on the wait strategy?
                     continue;
                 }
+                
+                gatingSequenceCache.set(gatingSequence);
             }
 
             else if (cursor.compareAndSet(current, next))
@@ -152,5 +156,11 @@ class MultiProducerSequencer implements Sequencer
         long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
+    }
+    
+    @Override
+    public long getBackOffCount()
+    {
+        return backOffCount;
     }
 }
