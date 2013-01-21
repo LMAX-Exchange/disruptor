@@ -646,4 +646,14 @@ public final class RingBuffer<E>
             entries[i] = eventFactory.newInstance();
         }
     }
+
+    long getBackOffCount()
+    {
+        return sequencer.getBackOffCount();
+    }
+
+    long remainingCapacity()
+    {
+        return sequencer.remainingCapacity(gatingSequences);
+    }
 }

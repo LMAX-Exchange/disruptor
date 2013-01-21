@@ -37,6 +37,7 @@ class SingleProducerSequencer implements Sequencer
     private final WaitStrategy waitStrategy;
 
     private final int bufferSize;
+    private long backOffCounter;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -93,6 +94,7 @@ class SingleProducerSequencer implements Sequencer
             long minSequence;
             while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
             {
+                backOffCounter++;
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
         
@@ -129,5 +131,11 @@ class SingleProducerSequencer implements Sequencer
     public void claim(long sequence)
     {
         nextValue = sequence;
+    }
+
+    @Override
+    public long getBackOffCount()
+    {
+        return backOffCounter;
     }
 }
