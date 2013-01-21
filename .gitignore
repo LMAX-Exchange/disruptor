@@ -13,3 +13,4 @@ code
 templib
 SConstruct
 .*dblite
+pom.xml
