@@ -98,8 +98,8 @@ public class ExpandableMemory implements Memory
             long startPosition = entryCount * entrySize;
             try
             {
-                MappedByteBuffer map     = channel.map(MapMode.READ_WRITE, startPosition, memorySize);
-                DirectMemory     memory  = fromByteBuffer(map, initialEntryCount, entrySize);
+                MappedByteBuffer map    = channel.map(MapMode.READ_WRITE, startPosition, memorySize);
+                DirectMemory     memory = fromByteBuffer(map, initialEntryCount, entrySize);
                 
                 entryCount += initialEntryCount;
                 
