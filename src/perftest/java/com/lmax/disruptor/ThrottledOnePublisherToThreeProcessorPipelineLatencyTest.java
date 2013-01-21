@@ -270,8 +270,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
         for (long i = 0; i < ITERATIONS; i++)
         {
+            long t0 = System.nanoTime();
             long sequence = ringBuffer.next();
-            ringBuffer.getPreallocated(sequence).setValue(System.nanoTime());
+            ringBuffer.getPreallocated(sequence).setValue(t0);
             ringBuffer.publish(sequence);
 
             long pauseStart = System.nanoTime();
