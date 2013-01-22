@@ -94,13 +94,19 @@ class MultiProducerSequencer implements Sequencer
     @Override
     public long next(Sequence[] gatingSequences)
     {
+        return next(gatingSequences, 1);
+    }
+    
+    @Override
+    public long next(Sequence[] gatingSequences, int batchSize)
+    {
         long current;
         long next;
 
         do
         {
             current = cursor.get();
-            next = current + 1;
+            next = current + batchSize;
 
             long wrapPoint = next - bufferSize;
             long cachedGatingSequence = gatingSequenceCache.get();

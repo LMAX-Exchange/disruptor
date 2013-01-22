@@ -85,7 +85,13 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long next(Sequence[] gatingSequences)
     {
-        long nextSequence = nextValue + 1;
+        return next(gatingSequences, 1);
+    }
+    
+    @Override
+    public long next(Sequence[] gatingSequences, int batchSize)
+    {
+        long nextSequence = nextValue + batchSize;
         long wrapPoint = nextSequence - bufferSize;
         long cachedGatingSequence = gatingSequenceCache.get();
         

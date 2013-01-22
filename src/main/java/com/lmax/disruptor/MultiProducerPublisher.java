@@ -63,6 +63,17 @@ class MultiProducerPublisher implements Publisher
         setAvailable(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
+    
+    @Override
+    public void publish(long lo, long hi)
+    {
+        for (long l = lo; l <= hi; l++)
+        {
+            setAvailable(l);
+        }
+        
+        waitStrategy.signalAllWhenBlocking();
+    }
 
     /** 
      * The below methods work on the availableBuffer flag.

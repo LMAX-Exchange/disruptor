@@ -212,6 +212,11 @@ public final class RingBuffer<E>
         return sequencer.next(gatingSequences);
     }
     
+    public long next(int batchSize)
+    {
+        return sequencer.next(gatingSequences, batchSize);
+    }
+    
     /**
      * <p>Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
@@ -576,6 +581,11 @@ public final class RingBuffer<E>
     public void publish(long sequence)
     {
         publisher.publish(sequence);
+    }
+    
+    public void publish(long lo, long hi)
+    {
+        publisher.publish(lo, hi);
     }
 
     private void translateAndPublish(EventTranslator<E> translator, long sequence)

@@ -44,4 +44,6 @@ interface Publisher
      */
     void ensureAvailable(long sequence);
 
+    void publish(long lo, long hi);
+
 }

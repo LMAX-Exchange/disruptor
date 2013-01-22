@@ -48,6 +48,8 @@ interface Sequencer
      */
     long next(Sequence[] gatingSequences);
 
+    long next(Sequence[] gatingSequences, int batchSize);
+
     /**
      * Attempt to claim the next event in sequence for publishing.  Will return the
      * number of the slot if there is at least <code>requiredCapacity</code> slots

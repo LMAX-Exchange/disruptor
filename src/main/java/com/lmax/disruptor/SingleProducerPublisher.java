@@ -36,6 +36,12 @@ class SingleProducerPublisher implements Publisher
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
+    
+    @Override
+    public void publish(long lo, long hi)
+    {
+        publish(hi);
+    }
 
     @Override
     public void ensureAvailable(long sequence)
