@@ -16,8 +16,8 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.*;
-import com.lmax.disruptor.support.TestEvent;
 import com.lmax.disruptor.dsl.stubs.*;
+import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Thread.yield;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
@@ -310,6 +310,58 @@ public class DisruptorTest
         disruptor.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler1, delayedEventHandler2);
+    }
+
+    @Test
+    public void shouldProvideEventsToWorkHandlers() throws Exception
+    {
+        final TestWorkHandler workHandler1 = new TestWorkHandler();
+        final TestWorkHandler workHandler2 = new TestWorkHandler();
+        disruptor.handleEventsWith(workHandler1, workHandler2);
+
+        publishEvent();
+        publishEvent();
+
+        workHandler1.processEvent();
+        workHandler2.processEvent();
+    }
+
+    @Test
+    public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
+    {
+        final TestWorkHandler workHandler1 = new TestWorkHandler();
+        final TestWorkHandler workHandler2 = new TestWorkHandler();
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptor.handleEventsWith(workHandler1, workHandler2).then(delayedEventHandler);
+
+        publishEvent();
+        publishEvent();
+
+        workHandler2.processEvent();
+
+        assertThat(disruptor.getBarrierFor(delayedEventHandler).getCursor(), equalTo(-1L));
+
+        workHandler1.processEvent();
+
+        delayedEventHandler.processEvent();
+    }
+
+    @Test
+    public void shouldSupportUsingWorkerPoolAsDependencyAndProcessFirstEventAsSoonAsItIsAvailable() throws Exception
+    {
+        final TestWorkHandler workHandler1 = new TestWorkHandler();
+        final TestWorkHandler workHandler2 = new TestWorkHandler();
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptor.handleEventsWith(workHandler1, workHandler2).then(delayedEventHandler);
+
+        publishEvent();
+        publishEvent();
+
+        workHandler1.processEvent();
+        delayedEventHandler.processEvent();
+
+        workHandler2.processEvent();
+        delayedEventHandler.processEvent();
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,

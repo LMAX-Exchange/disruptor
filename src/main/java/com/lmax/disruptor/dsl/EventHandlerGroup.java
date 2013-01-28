@@ -17,8 +17,8 @@ package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.util.Util;
 
 /**
  * A group of {@link EventProcessor}s used as part of the {@link Disruptor}.
@@ -28,16 +28,16 @@ import com.lmax.disruptor.util.Util;
 public class EventHandlerGroup<T>
 {
     private final Disruptor<T> disruptor;
-    private final EventProcessorRepository<T> eventProcessorRepository;
-    private final EventProcessor[] eventProcessors;
+    private final ConsumerRepository<T> consumerRepository;
+    private final Sequence[] sequences;
 
     EventHandlerGroup(final Disruptor<T> disruptor,
-                      final EventProcessorRepository<T> eventProcessorRepository,
-                      final EventProcessor[] eventProcessors)
+                      final ConsumerRepository<T> consumerRepository,
+                      final Sequence[] sequences)
     {
         this.disruptor = disruptor;
-        this.eventProcessorRepository = eventProcessorRepository;
-        this.eventProcessors = eventProcessors;
+        this.consumerRepository = consumerRepository;
+        this.sequences = sequences;
     }
 
     /**
@@ -50,14 +50,14 @@ public class EventHandlerGroup<T>
      */
     public EventHandlerGroup<T> and(final EventHandler<T>... handlers)
     {
-        EventProcessor[] combinedProcessors = new EventProcessor[eventProcessors.length + handlers.length];
+        Sequence[] combinedSequences = new Sequence[sequences.length + handlers.length];
         for (int i = 0; i < handlers.length; i++)
         {
-            combinedProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
+            combinedSequences[i] = consumerRepository.getSequenceFor(handlers[i]);
         }
-        System.arraycopy(eventProcessors, 0, combinedProcessors, handlers.length, eventProcessors.length);
+        System.arraycopy(sequences, 0, combinedSequences, handlers.length, sequences.length);
 
-        return new EventHandlerGroup<T>(disruptor, eventProcessorRepository, combinedProcessors);
+        return new EventHandlerGroup<T>(disruptor, consumerRepository, combinedSequences);
     }
 
     /**
@@ -68,16 +68,19 @@ public class EventHandlerGroup<T>
      */
     public EventHandlerGroup<T> and(final EventProcessor... processors)
     {
-        EventProcessor[] combinedProcessors = new EventProcessor[eventProcessors.length + processors.length];
+        Sequence[] combinedSequences = new Sequence[sequences.length + processors.length];
 
         for (EventProcessor processor : processors)
         {
-            eventProcessorRepository.add(processor);
+            consumerRepository.add(processor);
         }
-        System.arraycopy(processors, 0, combinedProcessors, 0, processors.length);
-        System.arraycopy(eventProcessors, 0, combinedProcessors, processors.length, eventProcessors.length);
+        for (int i = 0; i < processors.length; i++)
+        {
+            combinedSequences[i] = processors[i].getSequence();
+        }
+        System.arraycopy(sequences, 0, combinedSequences, processors.length, sequences.length);
 
-        return new EventHandlerGroup<T>(disruptor, eventProcessorRepository, combinedProcessors);
+        return new EventHandlerGroup<T>(disruptor, consumerRepository, combinedSequences);
     }
 
     /**
@@ -111,7 +114,7 @@ public class EventHandlerGroup<T>
      */
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
-        return disruptor.createEventProcessors(eventProcessors, handlers);
+        return disruptor.createEventProcessors(sequences, handlers);
     }
 
     /**
@@ -123,6 +126,6 @@ public class EventHandlerGroup<T>
      */
     public SequenceBarrier asSequenceBarrier()
     {
-        return disruptor.getRingBuffer().newBarrier(Util.getSequencesFor(eventProcessors));
+        return disruptor.getRingBuffer().newBarrier(sequences);
     }
 }

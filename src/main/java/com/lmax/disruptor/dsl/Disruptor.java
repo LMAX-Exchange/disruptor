@@ -40,7 +40,7 @@ public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
     private final Executor executor;
-    private final EventProcessorRepository<T> eventProcessorRepository = new EventProcessorRepository<T>();
+    private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<T>();
     private final AtomicBoolean started = new AtomicBoolean(false);
     private ExceptionHandler exceptionHandler;
 
@@ -98,7 +98,7 @@ public class Disruptor<T>
     @SuppressWarnings("varargs")
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
     {
-        return createEventProcessors(new EventProcessor[0], handlers);
+        return createEventProcessors(new Sequence[0], handlers);
     }
 
     /**
@@ -112,9 +112,27 @@ public class Disruptor<T>
     {
         for (EventProcessor processor : processors)
         {
-            eventProcessorRepository.add(processor);
+            consumerRepository.add(processor);
         }
-        return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
+        return new EventHandlerGroup<T>(this, consumerRepository, Util.getSequencesFor(processors));
+    }
+
+
+    /**
+     * Set up a {@link WorkerPool} to distribute an event to one of a pool of work handler threads.
+     * Each event will only be processed by one of the work handlers.
+     * The Disruptor will automatically start this processors when {@link #start()} is called.
+     *
+     * @param workHandlers the work handlers that will process events.
+     * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
+     */
+    @SuppressWarnings("varargs")
+    public EventHandlerGroup<T> handleEventsWith(final WorkHandler<T>... workHandlers)
+    {
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+        final WorkerPool<T> workerPool = new WorkerPool<T>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
+        consumerRepository.add(workerPool, sequenceBarrier);
+        return new EventHandlerGroup<T>(this, consumerRepository, workerPool.getWorkerSequences());
     }
 
     /**
@@ -138,7 +156,7 @@ public class Disruptor<T>
      */
     public ExceptionHandlerSetting<?> handleExceptionsFor(final EventHandler<T> eventHandler)
     {
-        return new ExceptionHandlerSetting<T>(eventHandler, eventProcessorRepository);
+        return new ExceptionHandlerSetting<T>(eventHandler, consumerRepository);
     }
 
     /**
@@ -154,13 +172,13 @@ public class Disruptor<T>
     @SuppressWarnings("varargs")
     public EventHandlerGroup<T> after(final EventHandler<T>... handlers)
     {
-        EventProcessor[] selectedEventProcessors = new EventProcessor[handlers.length];
+        Sequence[] sequences = new Sequence[handlers.length];
         for (int i = 0, handlersLength = handlers.length; i < handlersLength; i++)
         {
-            selectedEventProcessors[i] = eventProcessorRepository.getEventProcessorFor(handlers[i]);
+            sequences[i] = consumerRepository.getSequenceFor(handlers[i]);
         }
 
-        return new EventHandlerGroup<T>(this, eventProcessorRepository, selectedEventProcessors);
+        return new EventHandlerGroup<T>(this, consumerRepository, sequences);
     }
 
     /**
@@ -175,10 +193,10 @@ public class Disruptor<T>
     {
         for (EventProcessor processor : processors)
         {
-            eventProcessorRepository.add(processor);
+            consumerRepository.add(processor);
         }
 
-        return new EventHandlerGroup<T>(this, eventProcessorRepository, processors);
+        return new EventHandlerGroup<T>(this, consumerRepository, Util.getSequencesFor(processors));
     }
 
     /**
@@ -193,7 +211,7 @@ public class Disruptor<T>
 
     /**
      * Starts the event processors and returns the fully configured ring buffer.<p/>
-     * 
+     *
      * The ring buffer is set up to prevent overwriting any entry that is yet to
      * be processed by the slowest event processor.<p/>
      *
@@ -203,13 +221,13 @@ public class Disruptor<T>
      */
     public RingBuffer<T> start()
     {
-        EventProcessor[] gatingProcessors = eventProcessorRepository.getLastEventProcessorsInChain();
-        ringBuffer.addGatingSequences(Util.getSequencesFor(gatingProcessors));
+        Sequence[] gatingSequences = consumerRepository.getLastSequenceInChain();
+        ringBuffer.addGatingSequences(gatingSequences);
 
         checkOnlyStartedOnce();
-        for (EventProcessorInfo<T> eventProcessorInfo : eventProcessorRepository)
+        for (ConsumerInfo consumerInfo : consumerRepository)
         {
-            executor.execute(eventProcessorInfo.getEventProcessor());
+            consumerInfo.start(executor);
         }
 
         return ringBuffer;
@@ -220,9 +238,9 @@ public class Disruptor<T>
      */
     public void halt()
     {
-        for (EventProcessorInfo<?> eventprocessorInfo : eventProcessorRepository)
+        for (ConsumerInfo consumerInfo : consumerRepository)
         {
-            eventprocessorInfo.getEventProcessor().halt();
+            consumerInfo.halt();
         }
     }
 
@@ -296,7 +314,7 @@ public class Disruptor<T>
      */
     public SequenceBarrier getBarrierFor(final EventHandler<T> handler)
     {
-        return eventProcessorRepository.getBarrierFor(handler);
+        return consumerRepository.getBarrierFor(handler);
     }
 
     /**
@@ -305,9 +323,9 @@ public class Disruptor<T>
     private boolean hasBacklog()
     {
         final long cursor = ringBuffer.getCursor();
-        for (EventProcessor consumer : eventProcessorRepository.getLastEventProcessorsInChain())
+        for (Sequence consumer : consumerRepository.getLastSequenceInChain())
         {
-            if (cursor != consumer.getSequence().get())
+            if (cursor != consumer.get())
             {
                 return true;
             }
@@ -315,13 +333,13 @@ public class Disruptor<T>
         return false;
     }
 
-    EventHandlerGroup<T> createEventProcessors(final EventProcessor[] barrierEventProcessors,
+    EventHandlerGroup<T> createEventProcessors(final Sequence[] barrierSequences,
                                                final EventHandler<T>[] eventHandlers)
     {
         checkNotStarted();
 
-        final EventProcessor[] createdEventProcessors = new EventProcessor[eventHandlers.length];
-        final SequenceBarrier barrier = ringBuffer.newBarrier(Util.getSequencesFor(barrierEventProcessors));
+        final Sequence[] processorSequences = new Sequence[eventHandlers.length];
+        final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
@@ -334,16 +352,16 @@ public class Disruptor<T>
                 batchEventProcessor.setExceptionHandler(exceptionHandler);
             }
 
-            eventProcessorRepository.add(batchEventProcessor, eventHandler, barrier);
-            createdEventProcessors[i] = batchEventProcessor;
+            consumerRepository.add(batchEventProcessor, eventHandler, barrier);
+            processorSequences[i] = batchEventProcessor.getSequence();
         }
 
-        if (createdEventProcessors.length > 0)
+        if (processorSequences.length > 0)
         {
-            eventProcessorRepository.unMarkEventProcessorsAsEndOfChain(barrierEventProcessors);
+            consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
 
-        return new EventHandlerGroup<T>(this, eventProcessorRepository, createdEventProcessors);
+        return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
     }
 
     private void checkNotStarted()

@@ -15,10 +15,12 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.TestEvent;
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +28,11 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-public class EventProcessorRepositoryTest
+public class ConsumerRepositoryTest
 {
     private final Mockery mockery = new Mockery();
 
-    private EventProcessorRepository<TestEvent> eventProcessorRepository;
+    private ConsumerRepository<TestEvent> consumerRepository;
     private EventProcessor eventProcessor1;
     private EventProcessor eventProcessor2;
     private SleepingEventHandler handler1;
@@ -41,9 +43,22 @@ public class EventProcessorRepositoryTest
     @Before
     public void setUp() throws Exception
     {
-        eventProcessorRepository = new EventProcessorRepository<TestEvent>();
+        consumerRepository = new ConsumerRepository<TestEvent>();
         eventProcessor1 = mockery.mock(EventProcessor.class, "eventProcessor1");
         eventProcessor2 = mockery.mock(EventProcessor.class, "eventProcessor2");
+
+        final Sequence sequence1 = new Sequence();
+        final Sequence sequence2 = new Sequence();
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(eventProcessor1).getSequence();
+                will(returnValue(sequence1));
+
+                allowing(eventProcessor2).getSequence();
+                will(returnValue(sequence2));
+            }
+        });
         handler1 = new SleepingEventHandler();
         handler2 = new SleepingEventHandler();
 
@@ -54,61 +69,63 @@ public class EventProcessorRepositoryTest
     @Test
     public void shouldGetBarrierByHandler() throws Exception
     {
-        eventProcessorRepository.add(eventProcessor1, handler1, barrier1);
+        consumerRepository.add(eventProcessor1, handler1, barrier1);
 
-        assertThat(eventProcessorRepository.getBarrierFor(handler1), sameInstance(barrier1));
+        assertThat(consumerRepository.getBarrierFor(handler1), sameInstance(barrier1));
     }
 
     @Test
     public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() throws Exception
     {
-        assertThat(eventProcessorRepository.getBarrierFor(handler1), is(nullValue()));
+        assertThat(consumerRepository.getBarrierFor(handler1), is(nullValue()));
     }
 
     @Test
     public void shouldGetLastEventProcessorsInChain() throws Exception
     {
-        eventProcessorRepository.add(eventProcessor1, handler1, barrier1);
-        eventProcessorRepository.add(eventProcessor2, handler2, barrier2);
+        consumerRepository.add(eventProcessor1, handler1, barrier1);
+        consumerRepository.add(eventProcessor2, handler2, barrier2);
 
-        eventProcessorRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2);
+        consumerRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2.getSequence());
 
-        final EventProcessor[] lastEventProcessorsInChain = eventProcessorRepository.getLastEventProcessorsInChain();
-        assertThat(Integer.valueOf(lastEventProcessorsInChain.length), equalTo(Integer.valueOf(1)));
-        assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1));
+
+        final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain();
+        assertThat(lastEventProcessorsInChain.length, equalTo(1));
+        assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1.getSequence()));
     }
 
     @Test
     public void shouldRetrieveEventProcessorForHandler() throws Exception
     {
-        eventProcessorRepository.add(eventProcessor1, handler1, barrier1);
+        consumerRepository.add(eventProcessor1, handler1, barrier1);
 
-        assertThat(eventProcessorRepository.getEventProcessorFor(handler1), sameInstance(eventProcessor1));
+        assertThat(consumerRepository.getEventProcessorFor(handler1), sameInstance(eventProcessor1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenHandlerIsNotRegistered() throws Exception
     {
-        eventProcessorRepository.getEventProcessorFor(new SleepingEventHandler());
+        consumerRepository.getEventProcessorFor(new SleepingEventHandler());
     }
 
     @Test
     public void shouldIterateAllEventProcessors() throws Exception
     {
-        eventProcessorRepository.add(eventProcessor1, handler1, barrier1);
-        eventProcessorRepository.add(eventProcessor2, handler2, barrier2);
+        consumerRepository.add(eventProcessor1, handler1, barrier1);
+        consumerRepository.add(eventProcessor2, handler2, barrier2);
 
         boolean seen1 = false;
         boolean seen2 = false;
-        for (EventProcessorInfo<TestEvent> testEntryEventProcessorInfo : eventProcessorRepository)
+        for (ConsumerInfo testEntryEventProcessorInfo : consumerRepository)
         {
-            if (!seen1 && testEntryEventProcessorInfo.getEventProcessor() == eventProcessor1 &&
-                testEntryEventProcessorInfo.getHandler() == handler1)
+            final EventProcessorInfo eventProcessorInfo = (EventProcessorInfo) testEntryEventProcessorInfo;
+            if (!seen1 && eventProcessorInfo.getEventProcessor() == eventProcessor1 &&
+                eventProcessorInfo.getHandler() == handler1)
             {
                 seen1 = true;
             }
-            else if (!seen2 && testEntryEventProcessorInfo.getEventProcessor() == eventProcessor2 &&
-                     testEntryEventProcessorInfo.getHandler() == handler2)
+            else if (!seen2 && eventProcessorInfo.getEventProcessor() == eventProcessor2 &&
+                     eventProcessorInfo.getHandler() == handler2)
             {
                 seen2 = true;
             }
