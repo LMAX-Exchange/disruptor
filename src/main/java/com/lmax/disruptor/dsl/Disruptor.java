@@ -127,12 +127,9 @@ public class Disruptor<T>
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
     @SuppressWarnings("varargs")
-    public EventHandlerGroup<T> handleEventsWith(final WorkHandler<T>... workHandlers)
+    public EventHandlerGroup<T> handleEventsWithWorkerPool(final WorkHandler<T>... workHandlers)
     {
-        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-        final WorkerPool<T> workerPool = new WorkerPool<T>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
-        consumerRepository.add(workerPool, sequenceBarrier);
-        return new EventHandlerGroup<T>(this, consumerRepository, workerPool.getWorkerSequences());
+        return createWorkerPool(new Sequence[0], workHandlers);
     }
 
     /**
@@ -362,6 +359,14 @@ public class Disruptor<T>
         }
 
         return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
+    }
+
+    EventHandlerGroup<T> createWorkerPool(final Sequence[] barrierSequences, final WorkHandler<T>[] workHandlers)
+    {
+        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(barrierSequences);
+        final WorkerPool<T> workerPool = new WorkerPool<T>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
+        consumerRepository.add(workerPool, sequenceBarrier);
+        return new EventHandlerGroup<T>(this, consumerRepository, workerPool.getWorkerSequences());
     }
 
     private void checkNotStarted()

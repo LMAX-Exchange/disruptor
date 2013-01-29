@@ -41,6 +41,7 @@ public class DisruptorTest
     private Disruptor<TestEvent> disruptor;
     private StubExecutor executor;
     private Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
+    private Collection<TestWorkHandler> testWorkHandlers = new ArrayList<TestWorkHandler>();
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
@@ -56,6 +57,10 @@ public class DisruptorTest
         for (DelayedEventHandler delayedEventHandler : delayedEventHandlers)
         {
             delayedEventHandler.stopWaiting();
+        }
+        for (TestWorkHandler testWorkHandler : testWorkHandlers)
+        {
+            testWorkHandler.stopWaiting();
         }
 
         disruptor.halt();
@@ -291,8 +296,7 @@ public class DisruptorTest
     }
 
     @Test
-    public void shouldSupportCustomProcessorsAndHandlersAsDependencies()
-        throws Exception
+    public void shouldSupportCustomProcessorsAndHandlersAsDependencies() throws Exception
     {
         final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
         final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
@@ -315,9 +319,9 @@ public class DisruptorTest
     @Test
     public void shouldProvideEventsToWorkHandlers() throws Exception
     {
-        final TestWorkHandler workHandler1 = new TestWorkHandler();
-        final TestWorkHandler workHandler2 = new TestWorkHandler();
-        disruptor.handleEventsWith(workHandler1, workHandler2);
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final TestWorkHandler workHandler2 = createTestWorkHandler();
+        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2);
 
         publishEvent();
         publishEvent();
@@ -326,13 +330,20 @@ public class DisruptorTest
         workHandler2.processEvent();
     }
 
+    private TestWorkHandler createTestWorkHandler()
+    {
+        final TestWorkHandler testWorkHandler = new TestWorkHandler();
+        testWorkHandlers.add(testWorkHandler);
+        return testWorkHandler;
+    }
+
     @Test
     public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
     {
-        final TestWorkHandler workHandler1 = new TestWorkHandler();
-        final TestWorkHandler workHandler2 = new TestWorkHandler();
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final TestWorkHandler workHandler2 = createTestWorkHandler();
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWith(workHandler1, workHandler2).then(delayedEventHandler);
+        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2).then(delayedEventHandler);
 
         publishEvent();
         publishEvent();
@@ -349,10 +360,10 @@ public class DisruptorTest
     @Test
     public void shouldSupportUsingWorkerPoolAsDependencyAndProcessFirstEventAsSoonAsItIsAvailable() throws Exception
     {
-        final TestWorkHandler workHandler1 = new TestWorkHandler();
-        final TestWorkHandler workHandler2 = new TestWorkHandler();
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final TestWorkHandler workHandler2 = createTestWorkHandler();
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWith(workHandler1, workHandler2).then(delayedEventHandler);
+        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2).then(delayedEventHandler);
 
         publishEvent();
         publishEvent();
@@ -362,6 +373,45 @@ public class DisruptorTest
 
         workHandler2.processEvent();
         delayedEventHandler.processEvent();
+    }
+
+    @Test
+    public void shouldSupportUsingWorkerPoolWithADependency() throws Exception
+    {
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final TestWorkHandler workHandler2 = createTestWorkHandler();
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptor.handleEventsWith(delayedEventHandler).thenHandleEventsWithWorkerPool(workHandler1, workHandler2);
+
+        publishEvent();
+        publishEvent();
+
+        delayedEventHandler.processEvent();
+        delayedEventHandler.processEvent();
+
+        workHandler1.processEvent();
+        workHandler2.processEvent();
+    }
+
+    @Test
+    public void shouldSupportCombiningWorkerPoolWithEventHandlerAsDependencyWhenNotPreviouslyRegistered() throws Exception
+    {
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
+        final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
+        disruptor.handleEventsWith(delayedEventHandler1).and(disruptor.handleEventsWithWorkerPool(workHandler1)).then(delayedEventHandler2);
+
+        publishEvent();
+        publishEvent();
+
+        delayedEventHandler1.processEvent();
+        delayedEventHandler1.processEvent();
+
+        workHandler1.processEvent();
+        delayedEventHandler2.processEvent();
+
+        workHandler1.processEvent();
+        delayedEventHandler2.processEvent();
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,

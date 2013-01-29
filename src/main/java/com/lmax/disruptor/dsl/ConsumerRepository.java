@@ -26,7 +26,7 @@ import java.util.*;
  */
 class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 {
-    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByHandler = new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
+    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByEventHandler = new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
     private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence = new IdentityHashMap<Sequence, ConsumerInfo>();
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
 
@@ -35,7 +35,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
                     final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
-        eventProcessorInfoByHandler.put(handler, consumerInfo);
+        eventProcessorInfoByEventHandler.put(handler, consumerInfo);
         eventProcessorInfoBySequence.put(eventprocessor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
     }
@@ -109,7 +109,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     private EventProcessorInfo<T> getEventProcessorInfo(final EventHandler<T> handler)
     {
-        return eventProcessorInfoByHandler.get(handler);
+        return eventProcessorInfoByEventHandler.get(handler);
     }
 
     private ConsumerInfo getEventProcessorInfo(final Sequence barrierEventProcessor)
