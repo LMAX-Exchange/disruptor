@@ -42,26 +42,6 @@ public class EventHandlerGroup<T>
     }
 
     /**
-     * Create a new event handler group that combines the handlers in this group with
-     * <tt>handlers</tt>.
-     *
-     * @param handlers the handlers to combine.
-     * @return a new EventHandlerGroup combining the existing and new handlers into a
-     * single dependency group.
-     */
-    public EventHandlerGroup<T> and(final EventHandler<T>... handlers)
-    {
-        Sequence[] combinedSequences = new Sequence[sequences.length + handlers.length];
-        for (int i = 0; i < handlers.length; i++)
-        {
-            combinedSequences[i] = consumerRepository.getSequenceFor(handlers[i]);
-        }
-        System.arraycopy(sequences, 0, combinedSequences, handlers.length, sequences.length);
-
-        return new EventHandlerGroup<T>(disruptor, consumerRepository, combinedSequences);
-    }
-
-    /**
      * Create a new event handler group that combines the consumers in this group with <tt>otherHandlerGroup</tt>.
      *
      * @param otherHandlerGroup the event handler group to combine.

@@ -134,8 +134,9 @@ public class DisruptorTest
         CountDownLatch countDownLatch = new CountDownLatch(2);
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub(countDownLatch);
 
-        disruptor.handleEventsWith(handler1, handler2);
-        disruptor.after(handler1).and(handler2).handleEventsWith(handlerWithBarrier);
+        disruptor.handleEventsWith(handler1);
+        final EventHandlerGroup<TestEvent> handler2Group = disruptor.handleEventsWith(handler2);
+        disruptor.after(handler1).and(handler2Group).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
     }
@@ -145,16 +146,6 @@ public class DisruptorTest
         throws Exception
     {
         disruptor.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfHandlerUsedWithAndIsNotAlreadyConsuming()
-        throws Exception
-    {
-        final DelayedEventHandler handler1 = createDelayedEventHandler();
-        final DelayedEventHandler handler2 = createDelayedEventHandler();
-        disruptor.handleEventsWith(handler1);
-        disruptor.after(handler1).and(handler2);
     }
 
     @Test(expected = IllegalArgumentException.class)
