@@ -647,11 +647,6 @@ public final class RingBuffer<E>
         }
     }
 
-    long getBackOffCount()
-    {
-        return sequencer.getBackOffCount();
-    }
-
     long remainingCapacity()
     {
         return sequencer.remainingCapacity(gatingSequences);

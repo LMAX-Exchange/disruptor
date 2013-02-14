@@ -19,7 +19,6 @@ import static com.lmax.disruptor.util.Util.getMinimumSequence;
 
 import java.util.concurrent.locks.LockSupport;
 
-import com.lmax.disruptor.util.PaddedLong;
 import com.lmax.disruptor.util.Util;
 
 
@@ -30,14 +29,18 @@ import com.lmax.disruptor.util.Util;
  */
 class SingleProducerSequencer implements Sequencer
 {
-    /** Set to -1 as sequence starting point */
-    private final PaddedLong gatingSequenceCache = new PaddedLong(Sequencer.INITIAL_CURSOR_VALUE);
-    private long nextValue = Sequencer.INITIAL_CURSOR_VALUE;
     @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
-
     private final int bufferSize;
-    private long backOffCounter;
+
+    @SuppressWarnings("unused")
+    private static class Padding
+    {
+        /** Set to -1 as sequence starting point */
+        public long nextValue = Sequence.INITIAL_VALUE, cachedValue = Sequence.INITIAL_VALUE, p2, p3, p4, p5, p6, p7;
+    }
+    
+    private final Padding pad = new Padding();
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -59,19 +62,21 @@ class SingleProducerSequencer implements Sequencer
     
     long getNextValue()
     {
-        return nextValue;
+        return pad.nextValue;
     }
 
     @Override
     public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
     {
+        long nextValue = pad.nextValue;
+        
         long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
-        long cachedGatingSequence = gatingSequenceCache.get();
+        long cachedGatingSequence = pad.cachedValue;
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence = getMinimumSequence(gatingSequences, nextValue);
-            gatingSequenceCache.set(minSequence);
+            pad.cachedValue = minSequence;
         
             if (wrapPoint > minSequence)
             {
@@ -85,23 +90,24 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long next(Sequence[] gatingSequences)
     {
+        long nextValue = pad.nextValue;
+        
         long nextSequence = nextValue + 1;
         long wrapPoint = nextSequence - bufferSize;
-        long cachedGatingSequence = gatingSequenceCache.get();
+        long cachedGatingSequence = pad.cachedValue;
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence;
             while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
             {
-                backOffCounter++;
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
         
-            gatingSequenceCache.set(minSequence);
+            pad.cachedValue = minSequence;
         }
         
-        nextValue = nextSequence;
+        pad.nextValue = nextSequence;
         
         return nextSequence;
     }
@@ -114,7 +120,7 @@ class SingleProducerSequencer implements Sequencer
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = ++nextValue;
+        long nextSequence = ++pad.nextValue;
         
         return nextSequence;
     }
@@ -122,6 +128,8 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public long remainingCapacity(Sequence[] gatingSequences)
     {
+        long nextValue = pad.nextValue;
+        
         long consumed = Util.getMinimumSequence(gatingSequences, nextValue);
         long produced = nextValue;
         return getBufferSize() - (produced - consumed);
@@ -130,12 +138,6 @@ class SingleProducerSequencer implements Sequencer
     @Override
     public void claim(long sequence)
     {
-        nextValue = sequence;
-    }
-
-    @Override
-    public long getBackOffCount()
-    {
-        return backOffCounter;
+        pad.nextValue = sequence;
     }
 }
