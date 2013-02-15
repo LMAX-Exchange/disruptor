@@ -322,10 +322,16 @@ public class Disruptor<T>
         final long cursor = ringBuffer.getCursor();
         for (Sequence consumer : consumerRepository.getLastSequenceInChain())
         {
-            if (cursor != consumer.get())
+            /*
+             * change '!=' to '>', because the WorkProcessor has processedSequence,
+             * more then one WorProcessor will be large then the ringbuffer.cursor.
+             * oldmanpushcart@gmail.com
+             */
+            if (cursor > consumer.get())
             {
                 return true;
             }
+            
         }
         return false;
     }
