@@ -17,6 +17,7 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available events to an {@link EventHandler}.
@@ -35,6 +36,7 @@ public final class BatchEventProcessor<T>
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    private final TimeoutHandler timeoutHandler;
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -56,6 +58,8 @@ public final class BatchEventProcessor<T>
         {
             ((SequenceReportingEventHandler<?>)eventHandler).setSequenceCallback(sequence);
         }
+        
+        timeoutHandler = (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
     }
 
     @Override
@@ -109,6 +113,13 @@ public final class BatchEventProcessor<T>
             try
             {
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                
+                if (availableSequence < nextSequence && timeoutHandler != null)
+                {
+                    notifyTimeout(availableSequence);
+                    continue;
+                }
+                
                 while (nextSequence <= availableSequence)
                 {
                     event = ringBuffer.getPublished(nextSequence);
@@ -136,6 +147,18 @@ public final class BatchEventProcessor<T>
         notifyShutdown();
 
         running.set(false);
+    }
+
+    private void notifyTimeout(final long availableSequence) throws Exception
+    {
+        try
+        {
+            timeoutHandler.onTimeout(availableSequence);
+        }
+        catch (Throwable e)
+        {
+            exceptionHandler.handleEventException(e, availableSequence, null);
+        }
     }
 
     /**

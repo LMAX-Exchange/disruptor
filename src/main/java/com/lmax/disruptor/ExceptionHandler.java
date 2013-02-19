@@ -28,7 +28,7 @@ public interface ExceptionHandler
      *
      * @param ex the exception that propagated from the {@link EventHandler}.
      * @param sequence of the event which cause the exception.
-     * @param event being processed when the exception occurred.
+     * @param event being processed when the exception occurred.  This can be null.
      */
     void handleEventException(Throwable ex, long sequence, Object event);
 

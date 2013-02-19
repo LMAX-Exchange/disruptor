@@ -11,6 +11,13 @@ Maintainer
 Changelog
 ==========
 
+## 3.0.0.beta3 Released (20-Feb-2013)
+
+- Significant Javadoc updates (thanks Jason Koch)
+- DSL support for WorkerPool
+- Small performance tweaks
+- Add TimeoutHandler and TimeoutBlockingWaitStrategy and support timeouts in BatchEventProcessor
+
 ## 3.0.0.beta2 Released (7-Jan-2013)
 
 - Remove millisecond wakeup from BlockingWaitStrategy
