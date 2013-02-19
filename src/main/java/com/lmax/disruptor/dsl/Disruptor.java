@@ -322,7 +322,7 @@ public class Disruptor<T>
         final long cursor = ringBuffer.getCursor();
         for (Sequence consumer : consumerRepository.getLastSequenceInChain())
         {
-            if (cursor != consumer.get())
+            if (cursor > consumer.get())
             {
                 return true;
             }
