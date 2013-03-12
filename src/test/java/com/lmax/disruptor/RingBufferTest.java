@@ -140,7 +140,7 @@ public class RingBufferTest
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 2, "2");
         ringBuffer.publishEvent(StubEvent.TRANSLATOR, 3, "3");
 
-        assertFalse(ringBuffer.tryPublishEvent(StubEvent.TRANSLATOR, 1, 3, "3"));
+        assertFalse(ringBuffer.tryPublishEvent(StubEvent.TRANSLATOR, 3, "3"));
     }
     
     @Test
@@ -239,7 +239,7 @@ public class RingBufferTest
         };
         
         ringBuffer.publishEvent(translator, "Foo");
-        ringBuffer.tryPublishEvent(translator, 1, "Foo");
+        ringBuffer.tryPublishEvent(translator, "Foo");
         
         assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0"));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo1"));
@@ -260,7 +260,7 @@ public class RingBufferTest
         };
         
         ringBuffer.publishEvent(translator, "Foo", "Bar");
-        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar");
+        ringBuffer.tryPublishEvent(translator, "Foo", "Bar");
         
         assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBar0"));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBar1"));
@@ -281,7 +281,7 @@ public class RingBufferTest
         };
         
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz");
-        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz");
+        ringBuffer.tryPublishEvent(translator, "Foo", "Bar", "Baz");
         
         assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBaz0"));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBaz1"));
@@ -302,7 +302,7 @@ public class RingBufferTest
         };
         
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz", "Bam");
-        ringBuffer.tryPublishEvent(translator, 1, "Foo", "Bar", "Baz", "Bam");
+        ringBuffer.tryPublishEvent(translator, "Foo", "Bar", "Baz", "Bam");
         
         assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBazBam0"));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
