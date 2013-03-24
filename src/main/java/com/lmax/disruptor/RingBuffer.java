@@ -379,11 +379,10 @@ public final class RingBuffer<E>
      * was not available.
      *
      * @param translator The user specified translation for the event
-     * @param capacity The capacity that should be available before publishing
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public boolean tryPublishEvent(EventTranslator<E> translator, int capacity)
+    public boolean tryPublishEvent(EventTranslator<E> translator)
     {
         try
         {
@@ -413,14 +412,13 @@ public final class RingBuffer<E>
     /**
      * Allows one user supplied argument.
      *
-     * @see #tryPublishEvent(EventTranslator, int)
+     * @see #tryPublishEvent(EventTranslator)
      * @param translator The user specified translation for the event
-     * @param capacity The capacity that should be available before publishing
      * @param arg0 A user supplied argument.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, int capacity, A arg0)
+    public <A> boolean tryPublishEvent(EventTranslatorOneArg<E, A> translator, A arg0)
     {
         try
         {
@@ -451,16 +449,14 @@ public final class RingBuffer<E>
     /**
      * Allows two user supplied arguments.
      *
-     * @see #tryPublishEvent(EventTranslator, int)
+     * @see #tryPublishEvent(EventTranslator)
      * @param translator The user specified translation for the event
-     * @param capacity The capacity that should be available before publishing
      * @param arg0 A user supplied argument.
      * @param arg1 A user supplied argument.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A, B> boolean tryPublishEvent(EventTranslatorTwoArg<E, A, B> translator, 
-                                          int capacity, A arg0, B arg1)
+    public <A, B> boolean tryPublishEvent(EventTranslatorTwoArg<E, A, B> translator, A arg0, B arg1)
     {
         try
         {
@@ -494,15 +490,13 @@ public final class RingBuffer<E>
      *
      * @see #publishEvent(EventTranslator)
      * @param translator The user specified translation for the event
-     * @param capacity The capacity that should be available before publishing
      * @param arg0 A user supplied argument.
      * @param arg1 A user supplied argument.
      * @param arg2 A user supplied argument.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public <A, B, C> boolean tryPublishEvent(EventTranslatorThreeArg<E, A, B, C> translator, 
-                                             int capacity, A arg0, B arg1, C arg2)
+    public <A, B, C> boolean tryPublishEvent(EventTranslatorThreeArg<E, A, B, C> translator, A arg0, B arg1, C arg2)
     {
         try
         {
@@ -534,12 +528,11 @@ public final class RingBuffer<E>
      *
      * @see #publishEvent(EventTranslator)
      * @param translator The user specified translation for the event
-     * @param capacity The capacity that should be available before publishing
      * @param args User supplied arguments.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      */
-    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, int capacity, Object...args)
+    public boolean tryPublishEvent(EventTranslatorVararg<E> translator, Object...args)
     {
         try
         {
