@@ -29,15 +29,12 @@ import com.lmax.disruptor.util.Util;
  *
  * Suitable for use for sequencing across multiple publisher threads.
  */
-class MultiProducerSequencer implements Sequencer
+final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BASE  = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
     
-    private final int bufferSize;
-    private final WaitStrategy waitStrategy;
-    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     
     // availableBuffer tracks the state of each ringbuffer slot
@@ -54,20 +51,13 @@ class MultiProducerSequencer implements Sequencer
      */
     public MultiProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
     {
-        this.bufferSize = bufferSize;
-        this.waitStrategy = waitStrategy;
+        super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
         initialiseAvailableBuffer();
     }
 
-    @Override
-    public int getBufferSize()
-    {
-        return bufferSize;
-    }
-    
     Sequence getCursorSequence()
     {
         return cursor;
@@ -237,12 +227,6 @@ class MultiProducerSequencer implements Sequencer
         int flag = calculateAvailabilityFlag(sequence);
         long bufferAddress = (index * SCALE) + BASE;
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
-    }
-    
-    @Override
-    public long getCursor()
-    {
-        return cursor.get();
     }
     
     private int calculateAvailabilityFlag(final long sequence)

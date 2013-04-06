@@ -27,12 +27,8 @@ import com.lmax.disruptor.util.Util;
  *
  * Generally not safe for use from multiple threads as it does not implement any barriers.
  */
-class SingleProducerSequencer implements Sequencer
+final class SingleProducerSequencer extends AbstractSequencer
 {
-    private final WaitStrategy waitStrategy;
-    private final int bufferSize;
-    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-
     @SuppressWarnings("unused")
     private static class Padding
     {
@@ -50,14 +46,7 @@ class SingleProducerSequencer implements Sequencer
      */
     public SingleProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
     {
-        this.bufferSize = bufferSize;
-        this.waitStrategy = waitStrategy;
-    }
-
-    @Override
-    public int getBufferSize()
-    {
-        return bufferSize;
+        super(bufferSize, waitStrategy);
     }
     
     long getNextValue()
@@ -157,12 +146,6 @@ class SingleProducerSequencer implements Sequencer
     public boolean isAvailable(long sequence)
     {
         return sequence <= cursor.get();
-    }
-    
-    @Override
-    public long getCursor()
-    {
-        return cursor.get();
     }
 
     Sequence getCursorSequence()

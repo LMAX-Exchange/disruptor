@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 /**
  * Coordinates claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-interface Sequencer
+interface Sequencer extends Cursored
 {
     /** Set to -1 as sequence starting point */
     public static final long INITIAL_CURSOR_VALUE = -1L;
@@ -98,10 +98,4 @@ interface Sequencer
      * @param sequence of the event to wait for
      */
     void ensureAvailable(long sequence);
-
-    /**
-     * Get the current cursor value
-     * @return
-     */
-    long getCursor();
 }

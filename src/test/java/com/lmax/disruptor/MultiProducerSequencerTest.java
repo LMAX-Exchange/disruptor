@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 public class MultiProducerSequencerTest
 {
     private final Mockery mockery = new Mockery();
-    private MultiProducerSequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+    private AbstractSequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
     
     @Test
     public void shouldNotBeAvailableUntilPublished() throws Exception
