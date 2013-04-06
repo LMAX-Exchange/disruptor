@@ -23,7 +23,7 @@ import com.lmax.disruptor.util.Util;
 
 /**
  * Ring based store of reusable entries containing the data representing
- * an event being exchanged between event publisher and {@link EventProcessor}s.
+ * an event being exchanged between event producer and {@link EventProcessor}s.
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
@@ -37,7 +37,6 @@ public final class RingBuffer<E>
     private final Object[] entries;
     private final Sequence cursor;
     private final int bufferSize;
-    private final Publisher publisher;
     private final Sequencer sequencer;
     private final WaitStrategy waitStrategy;
     protected volatile Sequence[] gatingSequences = new Sequence[0];
@@ -54,7 +53,6 @@ public final class RingBuffer<E>
     private RingBuffer(EventFactory<E> eventFactory, 
                        Sequence        cursor, 
                        Sequencer       sequencer, 
-                       Publisher       publisher, 
                        WaitStrategy    waitStrategy)
     {
         this.sequencer    = sequencer;
@@ -72,7 +70,6 @@ public final class RingBuffer<E>
         }
 
         this.indexMask = bufferSize - 1;
-        this.publisher = publisher;
         this.entries   = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
@@ -91,10 +88,9 @@ public final class RingBuffer<E>
                                                         WaitStrategy    waitStrategy)
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
-        MultiProducerPublisher publisher = new MultiProducerPublisher(bufferSize, waitStrategy);
         
         RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
-                                                     sequencer, publisher, waitStrategy);
+                                                     sequencer, waitStrategy);
         
         return ringBuffer;
     }
@@ -126,10 +122,9 @@ public final class RingBuffer<E>
                                                          WaitStrategy    waitStrategy)
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
-        SingleProducerPublisher publisher = new SingleProducerPublisher(waitStrategy);
         
-        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, publisher.getCursorSequence(), 
-                                                     sequencer, publisher, waitStrategy);
+        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
+                                                     sequencer, waitStrategy);
         
         return ringBuffer;
     }
@@ -187,7 +182,7 @@ public final class RingBuffer<E>
     @SuppressWarnings("unchecked")
     public E getPublished(long sequence)
     {
-        publisher.ensureAvailable(sequence);
+        sequencer.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
     }
     
@@ -249,7 +244,7 @@ public final class RingBuffer<E>
     public void resetTo(long sequence)
     {
         sequencer.claim(sequence);
-        publisher.publish(sequence);
+        sequencer.publish(sequence);
     }
     
     /**
@@ -273,7 +268,7 @@ public final class RingBuffer<E>
      */
     public boolean isPublished(long sequence)
     {
-        return publisher.isAvailable(sequence);
+        return sequencer.isAvailable(sequence);
     }
     
     /**
@@ -568,7 +563,7 @@ public final class RingBuffer<E>
      */
     public void publish(long sequence)
     {
-        publisher.publish(sequence);
+        sequencer.publish(sequence);
     }
 
     private void translateAndPublish(EventTranslator<E> translator, long sequence)
@@ -579,7 +574,7 @@ public final class RingBuffer<E>
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -591,7 +586,7 @@ public final class RingBuffer<E>
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -603,7 +598,7 @@ public final class RingBuffer<E>
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -616,7 +611,7 @@ public final class RingBuffer<E>
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -628,7 +623,7 @@ public final class RingBuffer<E>
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 

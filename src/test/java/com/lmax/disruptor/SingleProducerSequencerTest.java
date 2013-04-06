@@ -16,16 +16,24 @@
 package com.lmax.disruptor;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
+@RunWith(JMock.class)
 public final class SingleProducerSequencerTest
 {
     private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
@@ -34,10 +42,7 @@ public final class SingleProducerSequencerTest
     private final SingleProducerSequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new SleepingWaitStrategy());
     private final Sequence cursor = new Sequence();
     private final Sequence[] gatingSequences = { new Sequence(Sequencer.INITIAL_CURSOR_VALUE) };
-
-    public SingleProducerSequencerTest()
-    {
-    }
+    private final Mockery mockery = new Mockery();
 
     @Test
     public void shouldStartWithInitialValue()
@@ -114,6 +119,37 @@ public final class SingleProducerSequencerTest
         assertThat(sequencer.remainingCapacity(gatingSequences), is(2L));
         sequencer.next(gatingSequences);
         assertThat(sequencer.remainingCapacity(gatingSequences), is(1L));
+    }
+
+    @Test
+    public void shouldNotBeAvailableUntilPublished() throws Exception
+    {
+        assertThat(sequencer.isAvailable(0), is(false));
+        sequencer.publish(5);
+        
+        for (int i = 0; i <= 5; i++)
+        {
+            assertThat(sequencer.isAvailable(i), is(true));
+        }
+        
+        assertThat(sequencer.isAvailable(6), is(false));
+    }
+
+    
+    @Test
+    public void shouldNotifyWaitStrategyOnPublish() throws Exception
+    {
+        final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(1024, waitStrategy);
+        
+        mockery.checking(new Expectations()
+        {
+            {
+                one(waitStrategy).signalAllWhenBlocking();
+            }
+        });
+        
+        sequencer.publish(0);
     }
 
     private void fillBuffer()

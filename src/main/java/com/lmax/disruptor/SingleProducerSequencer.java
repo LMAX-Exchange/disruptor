@@ -29,9 +29,9 @@ import com.lmax.disruptor.util.Util;
  */
 class SingleProducerSequencer implements Sequencer
 {
-    @SuppressWarnings("unused")
     private final WaitStrategy waitStrategy;
     private final int bufferSize;
+    private final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     @SuppressWarnings("unused")
     private static class Padding
@@ -139,5 +139,28 @@ class SingleProducerSequencer implements Sequencer
     public void claim(long sequence)
     {
         pad.nextValue = sequence;
+    }
+
+    @Override
+    public void publish(long sequence)
+    {
+        cursor.set(sequence);
+        waitStrategy.signalAllWhenBlocking();
+    }
+
+    @Override
+    public void ensureAvailable(long sequence)
+    {
+    }
+
+    @Override
+    public boolean isAvailable(long sequence)
+    {
+        return sequence <= cursor.get();
+    }
+
+    Sequence getCursorSequence()
+    {
+        return cursor;
     }
 }

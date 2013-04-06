@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JMock.class)
-public class MultiProducerPublisherTest
+public class MultiProducerSequencerTest
 {
     private final Mockery mockery = new Mockery();
-    private MultiProducerPublisher publisher = new MultiProducerPublisher(1024, new BlockingWaitStrategy());
+    private MultiProducerSequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
     
     @Test
     public void shouldNotBeAvailableUntilPublished() throws Exception
@@ -57,7 +57,7 @@ public class MultiProducerPublisherTest
     public void shouldNotifyWaitStrategyOnPublish() throws Exception
     {
         final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
-        publisher = new MultiProducerPublisher(1024, waitStrategy);
+        publisher = new MultiProducerSequencer(1024, waitStrategy);
         
         mockery.checking(new Expectations()
         {
