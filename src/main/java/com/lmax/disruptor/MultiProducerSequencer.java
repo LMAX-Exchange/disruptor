@@ -239,6 +239,12 @@ class MultiProducerSequencer implements Sequencer
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
     
+    @Override
+    public long getCursor()
+    {
+        return cursor.get();
+    }
+    
     private int calculateAvailabilityFlag(final long sequence)
     {
         return (int) (sequence >>> indexShift);

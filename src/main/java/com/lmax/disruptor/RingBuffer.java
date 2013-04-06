@@ -27,7 +27,7 @@ import com.lmax.disruptor.util.Util;
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<E>
+public final class RingBuffer<E> implements Cursored
 {
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
     @SuppressWarnings("rawtypes")
@@ -291,7 +291,7 @@ public final class RingBuffer<E>
      */
     public long getMinimumGatingSequence()
     {
-        return Util.getMinimumSequence(gatingSequences, cursor.get());
+        return Util.getMinimumSequence(gatingSequences, getCursor());
     }
 
     /**
@@ -325,7 +325,7 @@ public final class RingBuffer<E>
      */
     public final long getCursor()
     {
-        return cursor.get();
+        return sequencer.getCursor();
     }
 
     /**

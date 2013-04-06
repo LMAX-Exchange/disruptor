@@ -158,6 +158,12 @@ class SingleProducerSequencer implements Sequencer
     {
         return sequence <= cursor.get();
     }
+    
+    @Override
+    public long getCursor()
+    {
+        return cursor.get();
+    }
 
     Sequence getCursorSequence()
     {

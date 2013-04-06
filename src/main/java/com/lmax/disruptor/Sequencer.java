@@ -98,4 +98,10 @@ interface Sequencer
      * @param sequence of the event to wait for
      */
     void ensureAvailable(long sequence);
+
+    /**
+     * Get the current cursor value
+     * @return
+     */
+    long getCursor();
 }
