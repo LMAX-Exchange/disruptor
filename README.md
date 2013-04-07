@@ -11,7 +11,7 @@ Maintainer
 Changelog
 ==========
 
-## 3.0.0.beta5
+## 3.0.0.beta5 (08-Apr-2013)
 
 - Make Sequencer public
 
