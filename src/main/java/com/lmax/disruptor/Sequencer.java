@@ -33,31 +33,25 @@ interface Sequencer extends Cursored
     /**
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent
      * method so the response should only be taken as an indication of available capacity.
-     * @param gatingSequences to gate on
      * @param requiredCapacity in the buffer
-     *
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
-    boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity);
+    boolean hasAvailableCapacity(final int requiredCapacity);
 
     /**
      * Claim the next event in sequence for publishing.
-     * @param gatingSequences to gate on
-     *
      * @return the claimed sequence value
      */
-    long next(Sequence[] gatingSequences);
+    long next();
 
     /**
      * Attempt to claim the next event in sequence for publishing.  Will return the
      * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.
-     * @param gatingSequences to gate on
-     *
      * @return the claimed sequence value
      * @throws InsufficientCapacityException
      */
-    long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException;
+    long tryNext() throws InsufficientCapacityException;
 
     /**
      * Get the remaining capacity for this sequencer.
@@ -98,4 +92,19 @@ interface Sequencer extends Cursored
      * @param sequence of the event to wait for
      */
     void ensureAvailable(long sequence);
+
+    void addGatingSequences(Sequence... gatingSequences);
+
+    long getMinimumSequence();
+
+    SequenceBarrier newBarrier(Sequence... sequencesToTrack);
+
+
+    /**
+     * Remove the specified sequence from this sequencer.
+     * 
+     * @param sequence to be removed.
+     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     */
+    boolean removeSequence(Sequence sequence);
 }

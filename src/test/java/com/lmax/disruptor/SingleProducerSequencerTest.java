@@ -47,27 +47,29 @@ public final class SingleProducerSequencerTest
     @Test
     public void shouldStartWithInitialValue()
     {
-        assertEquals(0, sequencer.next(gatingSequences));
+        assertEquals(0, sequencer.next());
     }
 
     @Test
     public void shouldIndicateAvailableCapacity()
     {
-        assertTrue(sequencer.hasAvailableCapacity(gatingSequences, 1));
+        assertTrue(sequencer.hasAvailableCapacity(1));
     }
 
     @Test
     public void voidSthouldIndicateNoAvailableCapacity()
     {
+        sequencer.addGatingSequences(gatingSequences);
         fillBuffer();
 
-        assertFalse(sequencer.hasAvailableCapacity(gatingSequences, 1));
+        assertFalse(sequencer.hasAvailableCapacity(1));
     }
 
     @Test
     public void shouldHoldUpPublisherWhenBufferIsFull()
         throws InterruptedException
     {
+        sequencer.addGatingSequences(gatingSequences);
         fillBuffer();
 
         final CountDownLatch waitingLatch = new CountDownLatch(1);
@@ -83,7 +85,7 @@ public final class SingleProducerSequencerTest
             {
                 waitingLatch.countDown();
 
-                long next = sequencer.next(gatingSequences);
+                long next = sequencer.next();
                 cursor.set(next);
 
                 doneLatch.countDown();
@@ -102,22 +104,23 @@ public final class SingleProducerSequencerTest
     @Test(expected = InsufficientCapacityException.class)
     public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull() throws Exception
     {
+        sequencer.addGatingSequences(gatingSequences);
         for (int i = 0; i < 4; i++)
         {
-            sequencer.next(gatingSequences);
+            sequencer.next();
         }
-        sequencer.tryNext(gatingSequences);
+        sequencer.tryNext();
     }
 
     @Test
     public void shouldCalculateRemainingCapacity() throws Exception
     {
         assertThat(sequencer.remainingCapacity(gatingSequences), is(4L));
-        sequencer.next(gatingSequences);
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(gatingSequences), is(3L));
-        sequencer.next(gatingSequences);
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(gatingSequences), is(2L));
-        sequencer.next(gatingSequences);
+        sequencer.next();
         assertThat(sequencer.remainingCapacity(gatingSequences), is(1L));
     }
 
@@ -156,7 +159,7 @@ public final class SingleProducerSequencerTest
     {
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            long next = sequencer.next(gatingSequences);
+            long next = sequencer.next();
             cursor.set(next);
         }
     }

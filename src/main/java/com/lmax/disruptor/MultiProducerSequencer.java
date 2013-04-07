@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 import java.util.concurrent.locks.LockSupport;
 
 import sun.misc.Unsafe;
@@ -64,7 +62,7 @@ final class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
+    public boolean hasAvailableCapacity(final int requiredCapacity)
     {
         return hasAvailableCapacity(gatingSequences, requiredCapacity, cursor.get());
     }
@@ -76,7 +74,7 @@ final class MultiProducerSequencer extends AbstractSequencer
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > cursorValue)
         {
-            long minSequence = getMinimumSequence(gatingSequences, cursorValue);
+            long minSequence = Util.getMinimumSequence(gatingSequences, cursorValue);
             gatingSequenceCache.set(minSequence);
         
             if (wrapPoint > minSequence)
@@ -95,7 +93,7 @@ final class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long next(Sequence[] gatingSequences)
+    public long next()
     {
         long current;
         long next;
@@ -110,7 +108,7 @@ final class MultiProducerSequencer extends AbstractSequencer
 
             if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
             {
-                long gatingSequence = getMinimumSequence(gatingSequences, current);
+                long gatingSequence = Util.getMinimumSequence(gatingSequences, current);
 
                 if (wrapPoint > gatingSequence)
                 {
@@ -131,7 +129,7 @@ final class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
         long current;
         long next;

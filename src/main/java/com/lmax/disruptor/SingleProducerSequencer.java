@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 import java.util.concurrent.locks.LockSupport;
 
 import com.lmax.disruptor.util.Util;
@@ -55,7 +53,7 @@ final class SingleProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
+    public boolean hasAvailableCapacity(final int requiredCapacity)
     {
         long nextValue = pad.nextValue;
         
@@ -64,7 +62,7 @@ final class SingleProducerSequencer extends AbstractSequencer
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
-            long minSequence = getMinimumSequence(gatingSequences, nextValue);
+            long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             pad.cachedValue = minSequence;
         
             if (wrapPoint > minSequence)
@@ -77,7 +75,7 @@ final class SingleProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long next(Sequence[] gatingSequences)
+    public long next()
     {
         long nextValue = pad.nextValue;
         
@@ -88,7 +86,7 @@ final class SingleProducerSequencer extends AbstractSequencer
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
+            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
@@ -102,9 +100,9 @@ final class SingleProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
-        if (!hasAvailableCapacity(gatingSequences, 1))
+        if (!hasAvailableCapacity(1))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
