@@ -27,7 +27,7 @@ import com.lmax.disruptor.util.Util;
  *
  * Suitable for use for sequencing across multiple publisher threads.
  */
-final class MultiProducerSequencer extends AbstractSequencer
+public final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BASE  = UNSAFE.arrayBaseOffset(int[].class);

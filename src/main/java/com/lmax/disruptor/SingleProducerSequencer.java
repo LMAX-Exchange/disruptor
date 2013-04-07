@@ -25,7 +25,7 @@ import com.lmax.disruptor.util.Util;
  *
  * Generally not safe for use from multiple threads as it does not implement any barriers.
  */
-final class SingleProducerSequencer extends AbstractSequencer
+public final class SingleProducerSequencer extends AbstractSequencer
 {
     @SuppressWarnings("unused")
     private static class Padding
