@@ -11,6 +11,10 @@ Maintainer
 Changelog
 ==========
 
+## 3.0.0.beta4 Released (08-Apr-2013)
+
+- Refactoring, merge Publisher back into Sequencer and some of the gating sequence repsonsibilities up to the sequencer.
+
 ## 3.0.0.beta3 Released (20-Feb-2013)
 
 - Significant Javadoc updates (thanks Jason Koch)
