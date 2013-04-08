@@ -187,10 +187,14 @@ task tempLibs(type: Sync) {
     into('templib')
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.5'
+}
+
 class Version {
     int major, minor = 0, revision = 0
     String stage
-    
+
     String toString() {
         "$major.$minor.$revision${stage ? '.' + stage : ''}"
     }
