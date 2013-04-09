@@ -549,6 +549,16 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         sequencer.publish(sequence);
     }
+    
+    /**
+     * Get the remaining capacity for this ringBuffer.
+     * @return The number of slots remaining.
+     */
+    public long remainingCapacity()
+    {
+        return sequencer.remainingCapacity();
+    }
+
 
     private void translateAndPublish(EventTranslator<E> translator, long sequence)
     {
