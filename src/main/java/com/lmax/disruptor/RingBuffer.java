@@ -24,7 +24,7 @@ import com.lmax.disruptor.dsl.ProducerType;
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<E> implements Cursored
+public final class RingBuffer<E> implements Cursored, DataProvider<E>
 {
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
     

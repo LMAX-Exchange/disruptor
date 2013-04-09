@@ -32,7 +32,7 @@ public final class BatchEventProcessor<T>
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
-    private final RingBuffer<T> ringBuffer;
+    private final DataProvider<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -46,7 +46,7 @@ public final class BatchEventProcessor<T>
      * @param sequenceBarrier on which it is waiting.
      * @param eventHandler is the delegate to which events are dispatched.
      */
-    public BatchEventProcessor(final RingBuffer<T> ringBuffer,
+    public BatchEventProcessor(final DataProvider<T> ringBuffer,
                                final SequenceBarrier sequenceBarrier,
                                final EventHandler<T> eventHandler)
     {
