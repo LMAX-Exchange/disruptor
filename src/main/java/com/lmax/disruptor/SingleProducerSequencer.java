@@ -52,6 +52,9 @@ public final class SingleProducerSequencer extends AbstractSequencer
         return pad.nextValue;
     }
 
+    /**
+     * @see Sequencer#hasAvailableCapacity(int)
+     */
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
@@ -74,12 +77,18 @@ public final class SingleProducerSequencer extends AbstractSequencer
         return true;
     }
 
+    /**
+     * @see Sequencer#next()
+     */
     @Override
     public long next()
     {
         return next(1);
     }
 
+    /**
+     * @see Sequencer#next(int)
+     */
     @Override
     public long next(int n)
     {
@@ -105,12 +114,18 @@ public final class SingleProducerSequencer extends AbstractSequencer
         return nextSequence;
     }
 
+    /**
+     * @see Sequencer#tryNext()
+     */
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
         return tryNext(1);
     }
 
+    /**
+     * @see Sequencer#tryNext(int)
+     */
     @Override
     public long tryNext(int n) throws InsufficientCapacityException
     {
@@ -124,6 +139,9 @@ public final class SingleProducerSequencer extends AbstractSequencer
         return nextSequence;
     }
 
+    /**
+     * @see Sequencer#remainingCapacity()
+     */
     @Override
     public long remainingCapacity()
     {
@@ -134,12 +152,18 @@ public final class SingleProducerSequencer extends AbstractSequencer
         return getBufferSize() - (produced - consumed);
     }
     
+    /**
+     * @see Sequencer#claim(long)
+     */
     @Override
     public void claim(long sequence)
     {
         pad.nextValue = sequence;
     }
 
+    /**
+     * @see Sequencer#publish(long)
+     */
     @Override
     public void publish(long sequence)
     {
@@ -147,25 +171,29 @@ public final class SingleProducerSequencer extends AbstractSequencer
         waitStrategy.signalAllWhenBlocking();
     }
     
+    /**
+     * @see Sequencer#publish(long, long)
+     */
     @Override
     public void publish(long lo, long hi)
     {
         publish(hi);
     }
 
+    /**
+     * @see Sequencer#ensureAvailable(long)
+     */
     @Override
     public void ensureAvailable(long sequence)
     {
     }
 
+    /**
+     * @see Sequencer#isAvailable(long)
+     */
     @Override
     public boolean isAvailable(long sequence)
     {
         return sequence <= cursor.get();
-    }
-
-    Sequence getCursorSequence()
-    {
-        return cursor;
     }
 }

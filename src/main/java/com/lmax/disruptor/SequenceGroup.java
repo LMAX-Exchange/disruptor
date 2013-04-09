@@ -68,9 +68,9 @@ public final class SequenceGroup extends Sequence
 
     /**
      * Add a {@link Sequence} into this aggregate.  This should only be used during
-     * initialisation.  Use {@link SequenceGroup#addWhileRunning(RingBuffer, Sequence)}
+     * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
-     * @see SequenceGroup#addWhileRunning(RingBuffer, Sequence)
+     * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      * @param sequence to be added to the aggregate.
      */
     public void add(final Sequence sequence)

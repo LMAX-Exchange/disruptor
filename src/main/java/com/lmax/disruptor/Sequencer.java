@@ -146,10 +146,12 @@ public interface Sequencer extends Cursored
     boolean removeGatingSequence(Sequence sequence);
 
     /**
-     * Remove the specified sequence from this ringBuffer.
+     * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
+     * are available to be read from the ring buffer given a list of sequences to track.
      * 
-     * @param sequence to be removed.
-     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     * @see SequenceBarrier
+     * @param sequencesToTrack 
+     * @return A sequence barrier that will track the specified sequences.
      */
     SequenceBarrier newBarrier(Sequence... sequencesToTrack);
 
