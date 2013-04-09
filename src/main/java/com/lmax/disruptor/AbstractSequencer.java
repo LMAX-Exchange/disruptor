@@ -19,6 +19,11 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import com.lmax.disruptor.util.Util;
 
+/**
+ * Base class for the various sequencer types (single/multi).  Provides
+ * common functionality like the management of gating sequences (add/remove) and
+ * ownership of the current cursor.
+ */
 public abstract class AbstractSequencer implements Sequencer
 {
     private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER = 
@@ -29,6 +34,12 @@ public abstract class AbstractSequencer implements Sequencer
     protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     protected volatile Sequence[] gatingSequences = new Sequence[0];
 
+    /**
+     * Create with the specified buffer size and wait strategy.
+     * 
+     * @param bufferSize The total number of entries, must be a positive power of 2.
+     * @param waitStrategy
+     */
     public AbstractSequencer(int bufferSize, WaitStrategy waitStrategy)
     {
         if (bufferSize < 1)
@@ -44,36 +55,54 @@ public abstract class AbstractSequencer implements Sequencer
         this.waitStrategy = waitStrategy;
     }
 
+    /**
+     * @see Sequencer#getCursor()
+     */
     @Override
     public final long getCursor()
     {
         return cursor.get();
     }
 
+    /**
+     * @see Sequencer#getBufferSize()
+     */
     @Override
     public final int getBufferSize()
     {
         return bufferSize;
     }
 
+    /**
+     * @see Sequencer#addGatingSequences(Sequence...)
+     */
     @Override
     public final void addGatingSequences(Sequence... gatingSequences)
     {
         SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
     }
     
+    /**
+     * @see Sequencer#removeGatingSequence(Sequence)
+     */
     @Override
-    public boolean removeSequence(Sequence sequence)
+    public boolean removeGatingSequence(Sequence sequence)
     {
         return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
     }
     
+    /**
+     * @see Sequencer#getMinimumSequence()
+     */
     @Override
     public long getMinimumSequence()
     {
         return Util.getMinimumSequence(gatingSequences, cursor.get());
     }
     
+    /**
+     * @see Sequencer#newBarrier(Sequence...)
+     */
     @Override
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
     {        

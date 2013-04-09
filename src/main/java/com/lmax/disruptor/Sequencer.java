@@ -93,12 +93,13 @@ public interface Sequencer extends Cursored
      */
     void ensureAvailable(long sequence);
 
+    /**
+     * Add the specified gating sequences to this instance of the Disruptor.  They will
+     * safely and atomically added to the list of gating sequences.
+     * 
+     * @param gatingSequences The sequences to add.
+     */
     void addGatingSequences(Sequence... gatingSequences);
-
-    long getMinimumSequence();
-
-    SequenceBarrier newBarrier(Sequence... sequencesToTrack);
-
 
     /**
      * Remove the specified sequence from this sequencer.
@@ -106,5 +107,22 @@ public interface Sequencer extends Cursored
      * @param sequence to be removed.
      * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
      */
-    boolean removeSequence(Sequence sequence);
+    boolean removeGatingSequence(Sequence sequence);
+
+    /**
+     * Remove the specified sequence from this ringBuffer.
+     * 
+     * @param sequence to be removed.
+     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     */
+    SequenceBarrier newBarrier(Sequence... sequencesToTrack);
+
+    /**
+     * Get the minimum sequence value from all of the gating sequences
+     * added to this ringBuffer.
+     * 
+     * @return The minimum gating sequence or the cursor sequence if
+     * no sequences have been added.
+     */
+    long getMinimumSequence();
 }

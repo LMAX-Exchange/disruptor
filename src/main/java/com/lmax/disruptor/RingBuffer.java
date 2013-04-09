@@ -286,7 +286,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      */
     public boolean removeGatingSequence(Sequence sequence)
     {
-        return sequencer.removeSequence(sequence);
+        return sequencer.removeGatingSequence(sequence);
     }
     
     /**
