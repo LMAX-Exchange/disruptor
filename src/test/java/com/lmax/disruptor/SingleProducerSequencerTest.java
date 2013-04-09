@@ -51,6 +51,12 @@ public final class SingleProducerSequencerTest
     }
 
     @Test
+    public void shouldBatchClaim()
+    {
+        assertEquals(3, sequencer.next(4));
+    }
+    
+    @Test
     public void shouldIndicateAvailableCapacity()
     {
         assertTrue(sequencer.hasAvailableCapacity(1));

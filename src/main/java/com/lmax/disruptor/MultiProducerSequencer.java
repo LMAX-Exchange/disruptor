@@ -95,13 +95,19 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long next()
     {
+        return next(1);
+    }
+
+    @Override
+    public long next(int n)
+    {
         long current;
         long next;
 
         do
         {
             current = cursor.get();
-            next = current + 1;
+            next = current + n;
 
             long wrapPoint = next - bufferSize;
             long cachedGatingSequence = gatingSequenceCache.get();
@@ -131,15 +137,22 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
+        int n = 1;
+        return tryNext(n);
+    }
+
+    @Override
+    public long tryNext(int n) throws InsufficientCapacityException
+    {
         long current;
         long next;
 
         do
         {
             current = cursor.get();
-            next = current + 1;
+            next = current + n;
 
-            if (!hasAvailableCapacity(gatingSequences, 1, current))
+            if (!hasAvailableCapacity(gatingSequences, n, current))
             {
                 throw InsufficientCapacityException.INSTANCE;
             }
@@ -171,6 +184,16 @@ public final class MultiProducerSequencer extends AbstractSequencer
     public void publish(final long sequence)
     {
         setAvailable(sequence);
+        waitStrategy.signalAllWhenBlocking();
+    }
+    
+    @Override
+    public void publish(long lo, long hi)
+    {
+        for (long l = lo; l < hi; l++)
+        {
+            setAvailable(l);
+        }
         waitStrategy.signalAllWhenBlocking();
     }
 

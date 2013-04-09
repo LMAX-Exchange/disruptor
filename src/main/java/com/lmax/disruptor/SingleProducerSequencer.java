@@ -77,9 +77,15 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long next()
     {
+        return next(1);
+    }
+
+    @Override
+    public long next(int n)
+    {
         long nextValue = pad.nextValue;
         
-        long nextSequence = nextValue + 1;
+        long nextSequence = nextValue + n;
         long wrapPoint = nextSequence - bufferSize;
         long cachedGatingSequence = pad.cachedValue;
         
@@ -102,12 +108,18 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
-        if (!hasAvailableCapacity(1))
+        return tryNext(1);
+    }
+
+    @Override
+    public long tryNext(int n) throws InsufficientCapacityException
+    {
+        if (!hasAvailableCapacity(n))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = ++pad.nextValue;
+        long nextSequence = pad.nextValue += n;
         
         return nextSequence;
     }
@@ -133,6 +145,12 @@ public final class SingleProducerSequencer extends AbstractSequencer
     {
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
+    }
+    
+    @Override
+    public void publish(long lo, long hi)
+    {
+        publish(hi);
     }
 
     @Override
