@@ -163,7 +163,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long remainingCapacity(Sequence[] gatingSequences)
+    public long remainingCapacity()
     {
         long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();

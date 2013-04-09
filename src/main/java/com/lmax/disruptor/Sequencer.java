@@ -85,11 +85,9 @@ public interface Sequencer extends Cursored
 
     /**
      * Get the remaining capacity for this sequencer.
-     * @param gatingSequences to gate on
-     *
      * @return The number of slots remaining.
      */
-    long remainingCapacity(Sequence[] gatingSequences);
+    long remainingCapacity();
 
     /**
      * Claim a specific sequence.  Only used if initialising the ring buffer to

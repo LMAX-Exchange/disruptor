@@ -125,7 +125,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
     }
 
     @Override
-    public long remainingCapacity(Sequence[] gatingSequences)
+    public long remainingCapacity()
     {
         long nextValue = pad.nextValue;
         
