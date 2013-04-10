@@ -11,7 +11,7 @@ Maintainer
 Changelog
 ==========
 
-## 3.0.0 Released (09-Apr-2013)
+## 3.0.0 Released (10-Apr-2013)
 
 - Add remaining capacity to RingBuffer
 - Add batch publish methods to Sequencer
