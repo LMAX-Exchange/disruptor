@@ -11,7 +11,14 @@ Maintainer
 Changelog
 ==========
 
-## 3.0.0.beta5 (08-Apr-2013)
+## 3.0.0 Released (09-Apr-2013)
+
+- Add remaining capacity to RingBuffer
+- Add batch publish methods to Sequencer
+- Add DataProvider interface to decouple the RingBuffer and BatchEventProcessor
+- Upgrade to gradle 1.5
+
+## 3.0.0.beta5 Released (08-Apr-2013)
 
 - Make Sequencer public
 
