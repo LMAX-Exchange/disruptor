@@ -207,6 +207,28 @@ public class Disruptor<T>
     }
 
     /**
+     * Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg A single argument to load into the event
+     */
+    public <A> void publishEvent(final EventTranslatorOneArg<T, A> eventTranslator, A arg)
+    {
+        ringBuffer.publishEvent(eventTranslator, arg);
+    }
+
+    /**
+     * Publish a batch of events to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg An array single arguments to load into the events. One Per event.
+     */
+    public <A> void publishEvents(final EventTranslatorOneArg<T, A> eventTranslator, A[] arg)
+    {
+        ringBuffer.publishEvents(eventTranslator, arg);
+    }
+
+    /**
      * Starts the event processors and returns the fully configured ring buffer.<p/>
      *
      * The ring buffer is set up to prevent overwriting any entry that is yet to
