@@ -29,15 +29,8 @@
         <hr>
 
         <section id="main_content">
-          <h2>2.10.4 Released (13-Nov-2012)</h2>
 
-          <ul>
-            <li>Fix for removing non-existent sequences from a SequenceGroup <a href="https://github.com/LMAX-Exchange/disruptor/issues/30">(Issue #30)</a></li>
-            <li>Remove numWaiters optimisation from BlockingWaitStrategy</li>
-          </ul>
-
-          <p><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Change-Log">Full Changelog...</a>
-          <a href="https://github.com/LMAX-Exchange/disruptor/downloads">Download here...</a></p>
+          <p><a href="https://github.com/LMAX-Exchange/disruptor/wiki/Downloads">Download here...</a></p>
 
           <h2>Discussion, Blogs &amp; Other Useful Links</h2>
 
@@ -51,6 +44,43 @@
             <li><a href="http://mechanical-sympathy.blogspot.com">Mechanical Sympathy</a> (Martin Thompson)</li>
             <li><a href="http://martinfowler.com/articles/lmax.html">Martin Fowler's Technical Review</a></li>
             <li><a href="https://github.com/odeheurles/Disruptor-net">.NET Disruptor Port</a></li>
+          </ul>
+
+          <h2>3.0.0 Released (10-Apr-2013)</h2>
+
+          <ul>
+          <li>Add remaining capacity to RingBuffer</li>
+          <li>Add batch publish methods to Sequencer</li>
+          <li>Add DataProvider interface to decouple the RingBuffer and BatchEventProcessor</li>
+          <li>Upgrade to gradle 1.5</li>
+          <li>Make Sequencer public</li>
+          <li>Refactoring, merge Publisher back into Sequencer and some of the gating sequence repsonsibilities up to the sequencer.</li>
+          <li>Significant Javadoc updates (thanks Jason Koch)</li>
+          <li>DSL support for WorkerPool</li>
+          <li>Small performance tweaks</li>
+          <li>Add TimeoutHandler and TimeoutBlockingWaitStrategy and support timeouts in BatchEventProcessor</li>
+          <li>Remove millisecond wakeup from BlockingWaitStrategy</li>
+          <li>Add RingBuffer.claimAndGetPreallocated</li>
+          <li>Add RingBuffer.isPublished</li>
+          <li>Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.</li>
+          <li>Introduce new multi-producer publisher algorithm (faster and more scalable).</li>
+          <li>Introduce more flexible EventPublisher interface that allow for static definition of translators that can handle local values.</li>
+          <li>Allow for dynamic addition of gating sequences to ring buffer. Default it to empty, will allow messages to be sent and the ring buffer to wrap if there are no gating sequences defined.</li>
+          <li>Remove batch writes to the ring buffer.</li>
+          <li>Remove timeout read methods.</li>
+          <li>Switch to gradle build and layout the source maven style.</li>
+          <li>API change, remove RingBuffer.get, add RingBuffer.getPreallocated for producers and RingBuffer.getPublished for consumers.</li>
+          <li>Change maven dependency group id to com.lmax.</li>
+          <li>Added PhasedBackoffStrategy.</li>
+          <li>Remove explicit claim/forcePublish and supply a resetTo method.</li>
+          <li>Added better handling of cases when the gating sequence is ahead of the cursor value.</li>
+          </ul>
+
+          <h2>2.10.4 Released (13-Nov-2012)</h2>
+
+          <ul>
+            <li>Fix for removing non-existent sequences from a SequenceGroup <a href="https://github.com/LMAX-Exchange/disruptor/issues/30">(Issue #30)</a></li>
+            <li>Remove numWaiters optimisation from BlockingWaitStrategy</li>
           </ul>
 
           <h2>Presentations</h2>
