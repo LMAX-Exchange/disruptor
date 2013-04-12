@@ -307,6 +307,7 @@ public class RingBufferTest
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldPublishEvents() throws Exception
     {
@@ -321,7 +322,7 @@ public class RingBufferTest
                 event[0] = sequence;
             }
         };
-        final EventTranslator[] translators = new EventTranslator[] {eventTranslator1, eventTranslator2};
+        final EventTranslator<Object[]>[] translators = new EventTranslator[] {eventTranslator1, eventTranslator2};
 
         ringBuffer.publishEvents(translators);
         assertTrue(ringBuffer.tryPublishEvents(translators));
