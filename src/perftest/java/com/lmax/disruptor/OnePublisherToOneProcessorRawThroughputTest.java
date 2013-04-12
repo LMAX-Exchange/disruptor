@@ -169,11 +169,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
                 latch.countDown();
                 sequence.setVolatile(processed);
             }
-            catch (AlertException e)
-            {
-                e.printStackTrace();
-            }
-            catch (InterruptedException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }

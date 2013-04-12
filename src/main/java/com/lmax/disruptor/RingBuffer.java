@@ -155,7 +155,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * <p>Get the event for a given sequence in the RingBuffer.  This method will wait until the
      * value is published before returning.  This method should only be used by {@link EventProcessor}s
      * that are reading values out of the ring buffer.  Publishing code should use the 
-     * {@link RingBuffer#getPreallocated(long)} call to get a handle onto the preallocated event.
+     * {@link RingBuffer#get(long)} call to get a handle onto the preallocated event.
      * 
      * <p>The call implements the appropriate load fence to ensure that the data within the event
      * is visible after this call completes.
@@ -164,9 +164,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @return the event that visibily published by the producer
      */
     @SuppressWarnings("unchecked")
-    public E getPublished(long sequence)
+    public E get(long sequence)
     {
-//        sequencer.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
     }
     
@@ -176,14 +175,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * <pre>
      * long sequence = ringBuffer.next();
      * try {
-     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     Event e = ringBuffer.get(sequence);
      *     // Do some work with the event.
      * } finally {
      *     ringBuffer.publish(sequence);
      * }
      * </pre>
      * @see RingBuffer#publish(long)
-     * @see RingBuffer#getPreallocated(long)
+     * @see RingBuffer#get(long)
      * @return The next sequence to publish to.
      */
     public long next()
@@ -197,7 +196,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * <pre>
      * long sequence = ringBuffer.next();
      * try {
-     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     Event e = ringBuffer.get(sequence);
      *     // Do some work with the event.
      * } finally {
      *     ringBuffer.publish(sequence);
@@ -208,7 +207,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * 
      * 
      * @see RingBuffer#publish(long)
-     * @see RingBuffer#getPreallocated(long)
+     * @see RingBuffer#get(long)
      * @return The next sequence to publish to.
      * @throws InsufficientCapacityException 
      */
@@ -238,10 +237,10 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param sequence The sequence to claim.
      * @return The preallocated event.
      */
-    public E claimAndGetPreallocated(long sequence)
+    public E claimAndget(long sequence)
     {
         sequencer.claim(sequence);
-        return getPreallocated(sequence);
+        return get(sequence);
     }
     
     /**
@@ -524,20 +523,6 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
     }
-
-    /**
-     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #getPublished(long)} \
-     * in that is does not wait until the publisher indicates that object is available.  This method should only be used
-     * by the publishing thread to get a handle on the preallocated event in order to fill it with data.
-     *
-     * @param sequence for the event
-     * @return event for the sequence
-     */
-    @SuppressWarnings("unchecked")
-    public E getPreallocated(long sequence)
-    {
-        return (E)entries[(int)sequence & indexMask];
-    }
     
     /**
      * Publish the specified sequence.  This action marks this particular
@@ -564,7 +549,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence);
+            translator.translateTo(get(sequence), sequence);
         }
         finally
         {
@@ -576,7 +561,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0);
+            translator.translateTo(get(sequence), sequence, arg0);
         }
         finally
         {
@@ -588,7 +573,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0, arg1);
+            translator.translateTo(get(sequence), sequence, arg0, arg1);
         }
         finally
         {
@@ -601,7 +586,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0, arg1, arg2);
+            translator.translateTo(get(sequence), sequence, arg0, arg1, arg2);
         }
         finally
         {
@@ -613,7 +598,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, args);
+            translator.translateTo(get(sequence), sequence, args);
         }
         finally
         {

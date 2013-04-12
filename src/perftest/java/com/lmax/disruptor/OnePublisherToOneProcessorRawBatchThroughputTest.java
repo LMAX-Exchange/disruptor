@@ -171,11 +171,7 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
                 latch.countDown();
                 sequence.setVolatile(processed);
             }
-            catch (AlertException e)
-            {
-                e.printStackTrace();
-            }
-            catch (InterruptedException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }

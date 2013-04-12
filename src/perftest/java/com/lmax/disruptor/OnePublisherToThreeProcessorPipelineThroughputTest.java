@@ -212,7 +212,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         for (long i = 0; i < ITERATIONS; i++)
         {
             long sequence = ringBuffer.next();
-            FunctionEvent event = ringBuffer.getPreallocated(sequence);
+            FunctionEvent event = ringBuffer.get(sequence);
             event.setOperandOne(i);
             event.setOperandTwo(operandTwo--);
             ringBuffer.publish(sequence);

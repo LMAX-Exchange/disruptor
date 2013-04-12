@@ -54,7 +54,7 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
             long next = ringBuffer.next();
             try
             {
-                System.arraycopy(data, 0, ringBuffer.getPreallocated(next), 0, data.length);
+                System.arraycopy(data, 0, ringBuffer.get(next), 0, data.length);
             }
             finally
             {

@@ -143,7 +143,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         for (long i = 0; i < ITERATIONS; i++)
         {
             long next = rb.next();
-            rb.getPreallocated(next).setValue(i);
+            rb.get(next).setValue(i);
             rb.publish(next);
         }
 

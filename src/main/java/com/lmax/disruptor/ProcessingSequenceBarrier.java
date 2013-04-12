@@ -48,7 +48,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
 
     @Override
     public long waitFor(final long sequence)
-        throws AlertException, InterruptedException
+        throws AlertException, InterruptedException, TimeoutException
     {
         checkAlert();
 
