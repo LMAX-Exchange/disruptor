@@ -278,6 +278,20 @@ public final class MultiProducerSequencer extends AbstractSequencer
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
     
+    @Override
+    public long getHighestPublishedSequence(long lowerBound, long availableSequence)
+    {
+        for (long sequence = lowerBound; sequence <= availableSequence; sequence++)
+        {
+            if (!isAvailable(sequence))
+            {
+                return sequence - 1;
+            }
+        }
+        
+        return availableSequence;
+    }
+    
     private int calculateAvailabilityFlag(final long sequence)
     {
         return (int) (sequence >>> indexShift);

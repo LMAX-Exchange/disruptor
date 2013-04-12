@@ -163,4 +163,6 @@ public interface Sequencer extends Cursored
      * no sequences have been added.
      */
     long getMinimumSequence();
+
+    long getHighestPublishedSequence(long sequence, long availableSequence);
 }

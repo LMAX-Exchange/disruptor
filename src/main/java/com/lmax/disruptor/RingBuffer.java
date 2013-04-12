@@ -166,7 +166,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     @SuppressWarnings("unchecked")
     public E getPublished(long sequence)
     {
-        sequencer.ensureAvailable(sequence);
+//        sequencer.ensureAvailable(sequence);
         return (E)entries[(int)sequence & indexMask];
     }
     

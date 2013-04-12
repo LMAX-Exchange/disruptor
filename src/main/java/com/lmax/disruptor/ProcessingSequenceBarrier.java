@@ -26,11 +26,14 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final Sequence dependentSequence;
     private volatile boolean alerted = false;
     private Sequence cursorSequence;
+    private Sequencer sequencer;
 
-    public ProcessingSequenceBarrier(final WaitStrategy waitStrategy,
+    public ProcessingSequenceBarrier(final Sequencer sequencer,
+                                     final WaitStrategy waitStrategy,
                                      final Sequence cursorSequence,
                                      final Sequence[] dependentSequences)
     {
+        this.sequencer = sequencer;
         this.waitStrategy = waitStrategy;
         this.cursorSequence = cursorSequence;
         if (0 == dependentSequences.length)
@@ -49,7 +52,14 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         checkAlert();
 
-        return waitStrategy.waitFor(sequence, cursorSequence, dependentSequence, this);
+        long availableSequence = waitStrategy.waitFor(sequence, cursorSequence, dependentSequence, this);
+        
+        if (availableSequence < sequence)
+        {
+            return availableSequence;
+        }
+        
+        return sequencer.getHighestPublishedSequence(sequence, availableSequence);
     }
 
     @Override

@@ -196,4 +196,10 @@ public final class SingleProducerSequencer extends AbstractSequencer
     {
         return sequence <= cursor.get();
     }
+    
+    @Override
+    public long getHighestPublishedSequence(long lowerBound, long availableSequence)
+    {
+        return availableSequence;
+    }
 }

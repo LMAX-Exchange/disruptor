@@ -106,6 +106,6 @@ public abstract class AbstractSequencer implements Sequencer
     @Override
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
     {        
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
+        return new ProcessingSequenceBarrier(this, waitStrategy, cursor, sequencesToTrack);
     }
 }
