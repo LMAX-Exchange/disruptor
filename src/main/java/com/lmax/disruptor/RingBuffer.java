@@ -170,6 +170,24 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
     
     /**
+     * @deprecated Use {@link RingBuffer#get(long)}
+     */
+    @Deprecated
+    public E getPreallocated(long sequence)
+    {
+        return get(sequence);
+    }
+
+    /**
+     * @deprecated Use {@link RingBuffer#get(long)}
+     */
+    @Deprecated
+    public E getPublished(long sequence)
+    {
+        return get(sequence);
+    }
+    
+    /**
      * Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
      * <pre>
