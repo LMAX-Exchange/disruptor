@@ -18,11 +18,8 @@ package com.lmax.disruptor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class MultiProducerSequencerTest
 {
     private AbstractSequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
