@@ -161,7 +161,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * is visible after this call completes.
      *
      * @param sequence for the event
-     * @return the event that is published by the producer
+     * @return the event that visibily published by the producer
      */
     @SuppressWarnings("unchecked")
     public E get(long sequence)
@@ -232,12 +232,12 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     
     /**
      * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
-     * is another deliberately racy call, that should only be done in controlled circumstances, e.g. initialisation.
+     * is another deliberatly racy call, that should only be done in controlled circumstances, e.g. initialisation.
      * 
      * @param sequence The sequence to claim.
      * @return The preallocated event.
      */
-    public E claimAndGetPreallocated(long sequence)
+    public E claimAndget(long sequence)
     {
         sequencer.claim(sequence);
         return get(sequence);
