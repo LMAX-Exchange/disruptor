@@ -181,14 +181,6 @@ public final class SingleProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @see Sequencer#ensureAvailable(long)
-     */
-    @Override
-    public void ensureAvailable(long sequence)
-    {
-    }
-
-    /**
      * @see Sequencer#isAvailable(long)
      */
     @Override

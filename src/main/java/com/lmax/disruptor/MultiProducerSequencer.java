@@ -147,8 +147,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
-        int n = 1;
-        return tryNext(n);
+        return tryNext(1);
     }
 
     /**
@@ -247,23 +246,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         long bufferAddress = (index * SCALE) + BASE;
         UNSAFE.putOrderedInt(availableBuffer, bufferAddress, flag);
-    }
-
-    /**
-     * @see Sequencer#ensureAvailable(long)
-     */
-    @Override
-    public void ensureAvailable(long sequence)
-    {
-        int index = calculateIndex(sequence);
-        int flag = calculateAvailabilityFlag(sequence);
-        long bufferAddress = (index * SCALE) + BASE;
-        
-        while (UNSAFE.getIntVolatile(availableBuffer, bufferAddress) != flag)
-        {
-            assert UNSAFE.getIntVolatile(availableBuffer, bufferAddress) <= flag;
-            // spin
-        }
     }
 
     /**
