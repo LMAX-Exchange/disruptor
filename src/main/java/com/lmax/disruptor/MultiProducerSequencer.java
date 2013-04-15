@@ -211,7 +211,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public void publish(long lo, long hi)
     {
-        for (long l = lo; l < hi; l++)
+        for (long l = lo; l <= hi; l++)
         {
             setAvailable(l);
         }

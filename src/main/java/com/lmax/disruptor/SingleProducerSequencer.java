@@ -47,11 +47,6 @@ public final class SingleProducerSequencer extends AbstractSequencer
         super(bufferSize, waitStrategy);
     }
     
-    long getNextValue()
-    {
-        return pad.nextValue;
-    }
-
     /**
      * @see Sequencer#hasAvailableCapacity(int)
      */
