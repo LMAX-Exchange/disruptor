@@ -11,6 +11,14 @@ Maintainer
 Changelog
 ==========
 
+### 3.0.1
+
+- Remove Sequencer.ensureAvailable() and move functionality into the ProcessingSequenceBarrier.
+- Add get() method and deprecate getPublished() and getPreallocated() from the RingBuffer.
+- Add TimeoutException to SequenceBarrier.waitFor().
+- Fix off by one bug in MultiProducerSequencer.publish(lo, hi).
+- Improve testing for Sequencers.
+
 ## 3.0.0 Released (10-Apr-2013)
 
 - Add remaining capacity to RingBuffer
