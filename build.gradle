@@ -22,7 +22,7 @@ apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see 
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, stage: null)
+version = new Version(major: 3, revision: 1, stage: "")
 
 ext {
     fullName = 'Disruptor Framework'
