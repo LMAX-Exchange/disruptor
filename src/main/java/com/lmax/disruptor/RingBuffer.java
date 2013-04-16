@@ -75,9 +75,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
 
-        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer);
-
-        return ringBuffer;
+        return new RingBuffer<E>(factory, sequencer);
     }
 
     /**
@@ -108,9 +106,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
 
-        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer);
-
-        return ringBuffer;
+        return new RingBuffer<E>(factory, sequencer);
     }
 
     /**
@@ -294,7 +290,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * are available to be read from the ring buffer given a list of sequences to track.
      *
      * @see SequenceBarrier
-     * @param sequencesToTrack
+     * @param sequencesToTrack zero or more sequences to track.
      * @return A sequence barrier that will track the specified sequences.
      */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
@@ -732,7 +728,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg0       An array of user supplied arguments, one element per event.
      * @param arg1       An array of user supplied arguments, one element per event.
      * @param arg2       An array of user supplied arguments, one element per event.
-     * @param batchSize
+     * @param batchSize  The number of elements in the batch.
      * @see #publishEvents(EventTranslator[])
      */
     public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2, int batchSize) {
@@ -923,7 +919,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private <A> void translateAndPublish(EventTranslatorVararg<E> translator, long sequence, Object...args)
+    private void translateAndPublish(EventTranslatorVararg<E> translator, long sequence, Object...args)
     {
         try
         {
