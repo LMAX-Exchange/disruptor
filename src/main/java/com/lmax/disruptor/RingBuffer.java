@@ -255,7 +255,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param sequence The sequence to claim.
      * @return The preallocated event.
      */
-    public E claimAndget(long sequence)
+    public E claimAndGetPreallocated(long sequence)
     {
         sequencer.claim(sequence);
         return get(sequence);
