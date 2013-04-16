@@ -578,6 +578,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      */
     public boolean tryPublishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize) {
+        if(batchSize > bufferSize) {
+            return false;
+        }
         try {
             final long initialSequence = sequencer.tryNext();
             final long finalSequence = sequencer.tryNext(batchSize - 1);
@@ -639,6 +642,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #tryPublishEvents(EventTranslator[])
      */
     public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0, int batchStartsAt, int batchSize) {
+        if (batchSize > bufferSize) {
+            return false;
+        }
         try {
             final long initialSequence = sequencer.tryNext();
             final long finalSequence = sequencer.tryNext(batchSize - 1);
@@ -704,9 +710,12 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #tryPublishEvents(EventTranslator[])
      */
     public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1, int batchStartsAt, int batchSize) {
+        if (batchSize > bufferSize) {
+            return false;
+        }
         try {
             final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize);
+            final long finalSequence = sequencer.tryNext(batchSize - 1);
             translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, initialSequence, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
@@ -773,9 +782,12 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2, int batchStartsAt, int batchSize) {
+        if (batchSize > bufferSize) {
+            return false;
+        }
         try {
             final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize);
+            final long finalSequence = sequencer.tryNext(batchSize - 1);
             translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, initialSequence, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
@@ -834,6 +846,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public boolean tryPublishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args) {
+        if (batchSize > bufferSize) {
+            return false;
+        }
         try {
             final long initialSequence = sequencer.tryNext();
             final long finalSequence = sequencer.tryNext(batchSize - 1);
