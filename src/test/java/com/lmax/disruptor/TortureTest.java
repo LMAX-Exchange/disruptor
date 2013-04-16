@@ -1,5 +1,6 @@
 package com.lmax.disruptor;
 
+import static java.lang.Math.min;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -23,15 +24,15 @@ public class TortureTest
     public void shouldHandleLotsOfThreads() throws Exception
     {
         Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(TestEvent.FACTORY, 1 << 16, executor, 
-                ProducerType.MULTI, new BlockingWaitStrategy());
+                ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
         
-        int threads = Runtime.getRuntime().availableProcessors() / 2;
+        int threads = min(1, Runtime.getRuntime().availableProcessors() / 2);
         
-        int iterations = 5000000;
+        int iterations     = 20000000;
         int publisherCount = threads;
-        int handlerCount = threads;
+        int handlerCount   = threads;
         
         CyclicBarrier barrier = new CyclicBarrier(publisherCount);
         CountDownLatch latch = new CountDownLatch(publisherCount);
