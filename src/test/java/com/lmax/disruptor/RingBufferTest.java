@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -312,20 +313,57 @@ public class RingBufferTest
     public void shouldPublishEvents() throws Exception
     {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
-        final EventTranslator<Object[]> eventTranslator1 = new EventTranslator<Object[]>() {
+        final EventTranslator<Object[]> eventTranslator = new EventTranslator<Object[]>() {
             public void translateTo(final Object[] event, long sequence) {
                 event[0] = sequence;
             }
         };
-        final EventTranslator<Object[]> eventTranslator2 = new EventTranslator<Object[]>() {
-            public void translateTo(final Object[] event, long sequence) {
-                event[0] = sequence;
-            }
-        };
-        final EventTranslator<Object[]>[] translators = new EventTranslator[] {eventTranslator1, eventTranslator2};
+       final EventTranslator<Object[]>[] translators = new EventTranslator[] {eventTranslator, eventTranslator};
 
         ringBuffer.publishEvents(translators);
         assertTrue(ringBuffer.tryPublishEvents(translators));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) 0L));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) 1L));
+        assertThat(ringBuffer.getPublished(2)[0], is((Object) 2L));
+        assertThat(ringBuffer.getPublished(3)[0], is((Object) 3L));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldPublishEventsWithBatchSizeOfOne() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        final EventTranslator<Object[]> eventTranslator = new EventTranslator<Object[]>() {
+            public void translateTo(final Object[] event, long sequence) {
+                event[0] = sequence;
+            }
+        };
+        final EventTranslator<Object[]>[] translators = new EventTranslator[] {eventTranslator, eventTranslator, eventTranslator};
+
+        ringBuffer.publishEvents(translators, 0, 1);
+        assertTrue(ringBuffer.tryPublishEvents(translators, 0, 1));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) 0L));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) 1L));
+        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
+        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldPublishEventsWithinBatch() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        final EventTranslator<Object[]> eventTranslator = new EventTranslator<Object[]>() {
+            public void translateTo(final Object[] event, long sequence) {
+                event[0] = sequence;
+            }
+        };
+        final EventTranslator<Object[]>[] translators = new EventTranslator[] {eventTranslator, eventTranslator, eventTranslator};
+
+        ringBuffer.publishEvents(translators, 1, 2);
+        assertTrue(ringBuffer.tryPublishEvents(translators, 1, 2));
 
         assertThat(ringBuffer.getPublished(0)[0], is((Object) 0L));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) 1L));
@@ -357,6 +395,53 @@ public class RingBufferTest
     }
 
     @Test
+    public void shouldPublishEventsOneArgBatchSizeOfOne() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorOneArg<Object[], String> translator =
+                new EventTranslatorOneArg<Object[], String>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, String arg0)
+            {
+                event[0] = arg0 + sequence;
+            }
+        };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 0, 1);
+        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 0, 1));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo1"));
+        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
+        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+    }
+
+
+    @Test
+    public void shouldPublishEventsOneArgWithinBatch() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorOneArg<Object[], String> translator =
+                new EventTranslatorOneArg<Object[], String>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, String arg0)
+            {
+                event[0] = arg0 + sequence;
+            }
+        };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo", "Foo"}, 1, 2);
+        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo", "Foo"}, 1, 2));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo1"));
+        assertThat(ringBuffer.getPublished(2)[0], is((Object) "Foo2"));
+        assertThat(ringBuffer.getPublished(3)[0], is((Object) "Foo3"));
+    }
+
+    @Test
     public void shouldPublishEventsTwoArg() throws Exception
     {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
@@ -377,6 +462,46 @@ public class RingBufferTest
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBar1"));
         assertThat(ringBuffer.getPublished(2)[0], is((Object) "FooBar2"));
         assertThat(ringBuffer.getPublished(3)[0], is((Object) "FooBar3"));
+    }
+
+    @Test
+    public void shouldPublishEventsTwoArgWithBatchSizeOfOne() throws Exception {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorTwoArg<Object[], String, String> translator =
+                new EventTranslatorTwoArg<Object[], String, String>() {
+                    @Override
+                    public void translateTo(Object[] event, long sequence, String arg0, String arg1) {
+                        event[0] = arg0 + arg1 + "-" + sequence;
+                    }
+                };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1"}, new String[]{"Bar0", "Bar1"}, 0, 1);
+        ringBuffer.tryPublishEvents(translator, new String[]{"Foo2", "Foo3"}, new String[]{"Bar2", "Bar3"}, 0, 1);
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0Bar0-0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo2Bar2-1"));
+        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
+        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+    }
+
+    @Test
+    public void shouldPublishEventsTwoArgWithinBatch() throws Exception {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorTwoArg<Object[], String, String> translator =
+                new EventTranslatorTwoArg<Object[], String, String>() {
+                    @Override
+                    public void translateTo(Object[] event, long sequence, String arg0, String arg1) {
+                        event[0] = arg0 + arg1 + "-" + sequence;
+                    }
+                };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"}, 1, 2);
+        ringBuffer.tryPublishEvents(translator, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"}, 1, 2);
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo1Bar1-0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo2Bar2-1"));
+        assertThat(ringBuffer.getPublished(2)[0], is((Object) "Foo4Bar4-2"));
+        assertThat(ringBuffer.getPublished(3)[0], is((Object) "Foo5Bar5-3"));
     }
 
     @Test
@@ -403,6 +528,48 @@ public class RingBufferTest
     }
 
     @Test
+    public void shouldPublishEventsThreeArgBatchSizeOfOne() throws Exception {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorThreeArg<Object[], String, String, String> translator =
+                new EventTranslatorThreeArg<Object[], String, String, String>() {
+                    @Override
+                    public void translateTo(Object[] event, long sequence, String arg0, String arg1, String arg2) {
+                        event[0] = arg0 + arg1 + arg2 + sequence;
+                    }
+                };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 0, 1);
+        ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 0, 1);
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBaz0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBaz1"));
+        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
+        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+    }
+
+    @Test
+    public void shouldPublishEventsThreeArgWithinBatch() throws Exception {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorThreeArg<Object[], String, String, String> translator =
+                new EventTranslatorThreeArg<Object[], String, String, String>() {
+                    @Override
+                    public void translateTo(Object[] event, long sequence, String arg0, String arg1, String arg2) {
+                        event[0] = arg0 + arg1 + arg2 + "-" + sequence;
+                    }
+                };
+
+        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"}, new String[]{"Baz0", "Baz1", "Baz2"},
+                1, 2);
+        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"},
+                new String[]{"Baz3", "Baz4", "Baz5"}, 1, 2));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo1Bar1Baz1-0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo2Bar2Baz2-1"));
+        assertThat(ringBuffer.getPublished(2)[0], is((Object) "Foo4Bar4Baz4-2"));
+        assertThat(ringBuffer.getPublished(3)[0], is((Object) "Foo5Bar5Baz5-3"));
+    }
+
+    @Test
     public void shouldPublishEventsVarArg() throws Exception
     {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
@@ -417,12 +584,61 @@ public class RingBufferTest
         };
 
         ringBuffer.publishEvents(translator, new String[]{"Foo", "Bar", "Baz", "Bam"}, new String[]{"Foo", "Bar", "Baz", "Bam"});
-        ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Bar", "Baz", "Bam"}, new String[]{"Foo", "Bar", "Baz", "Bam"});
+        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Bar", "Baz", "Bam"}, new String[]{"Foo", "Bar", "Baz", "Bam"}));
 
         assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBazBam0"));
         assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
         assertThat(ringBuffer.getPublished(2)[0], is((Object) "FooBarBazBam2"));
         assertThat(ringBuffer.getPublished(3)[0], is((Object) "FooBarBazBam3"));
+    }
+
+    @Test
+    public void shouldPublishEventsVarArgBatchSizeOfOne() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorVararg<Object[]> translator =
+                new EventTranslatorVararg<Object[]>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, Object...args)
+            {
+                event[0] = (String)args[0] + args[1] + args[2] + args[3] + sequence;
+            }
+        };
+
+        ringBuffer.publishEvents(translator, 0, 1, new String[]{"Foo", "Bar", "Baz", "Bam"}, new String[]{"Foo", "Bar", "Baz", "Bam"});
+        assertTrue(ringBuffer.tryPublishEvents(translator, 0, 1, new String[]{"Foo", "Bar", "Baz", "Bam"}, new String[]{"Foo", "Bar", "Baz", "Bam"}));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBazBam0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
+        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
+        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+    }
+
+
+    @Test
+    public void shouldPublishEventsVarArgWithinBatch() throws Exception
+    {
+        RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
+        EventTranslatorVararg<Object[]> translator =
+                new EventTranslatorVararg<Object[]>()
+        {
+            @Override
+            public void translateTo(Object[] event, long sequence, Object...args)
+            {
+                event[0] = (String)args[0] + args[1] + args[2] + args[3] + "-" + sequence;
+            }
+        };
+
+        ringBuffer.publishEvents(translator, 1, 2, new String[]{"Foo0", "Bar0", "Baz0", "Bam0"}, new String[]{"Foo1", "Bar1", "Baz1", "Bam1"},
+                new String[]{"Foo2", "Bar2", "Baz2", "Bam2"});
+        assertTrue(ringBuffer.tryPublishEvents(translator, 1, 2, new String[]{"Foo3", "Bar3", "Baz3", "Bam3"}, new String[]{"Foo4", "Bar4", "Baz4", "Bam4"},
+                new String[]{"Foo5", "Bar5", "Baz5", "Bam5"}));
+
+        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo1Bar1Baz1Bam1-0"));
+        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo2Bar2Baz2Bam2-1"));
+        assertThat(ringBuffer.getPublished(2)[0], is((Object) "Foo4Bar4Baz4Bam4-2"));
+        assertThat(ringBuffer.getPublished(3)[0], is((Object) "Foo5Bar5Baz5Bam5-3"));
     }
 
     @Test
