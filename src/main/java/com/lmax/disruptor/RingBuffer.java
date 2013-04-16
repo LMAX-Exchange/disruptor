@@ -152,16 +152,19 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
 
     /**
-     * <p>Get the event for a given sequence in the RingBuffer.  This method will wait until the
-     * value is published before returning.  This method should only be used by {@link EventProcessor}s
-     * that are reading values out of the ring buffer.  Publishing code should use the 
-     * {@link RingBuffer#get(long)} call to get a handle onto the preallocated event.
+     * <p>Get the event for a given sequence in the RingBuffer.</p>
      * 
-     * <p>The call implements the appropriate load fence to ensure that the data within the event
-     * is visible after this call completes.
+     * <p>This call has 2 uses.  Firstly use this call when publishing to a ring buffer.
+     * After calling {@link RingBuffer#next()} use this call to get hold of the
+     * preallocated event to fill with data before calling {@link RingBuffer#publish(long)}.</p>
+     * 
+     * <p>Secondly use this call when consuming data from the ring buffer.  After calling
+     * {@link SequenceBarrier#waitFor(long)} call this method with any value greater than
+     * that your current consumer sequence and less than or equal to the value returned from
+     * the {@link SequenceBarrier#waitFor(long)} method.</p>
      *
      * @param sequence for the event
-     * @return the event that visibily published by the producer
+     * @return the event for the given sequence
      */
     @SuppressWarnings("unchecked")
     public E get(long sequence)
