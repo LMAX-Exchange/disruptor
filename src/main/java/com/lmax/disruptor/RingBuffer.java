@@ -544,9 +544,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param batchSize     The actual size of the batch
      */
     public void publishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize) {
-        final long initialSequence = sequencer.next();
-        final long finalSequence = sequencer.next(batchSize - 1);
-        translateAndPublishBatch(translators, batchStartsAt, batchSize, initialSequence, finalSequence);
+        final long finalSequence = sequencer.next(batchSize);
+        translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
     }
 
     /**
@@ -582,9 +581,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
         try {
-            final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize - 1);
-            translateAndPublishBatch(translators, batchStartsAt, batchSize, initialSequence, finalSequence);
+            final long finalSequence = sequencer.tryNext(batchSize);
+            translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
             return false;
@@ -612,9 +610,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public <A> void publishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0, int batchStartsAt, int batchSize) {
-        final long initialSequence = sequencer.next();
-        final long finalSequence = sequencer.next(batchSize - 1);
-        translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, initialSequence, finalSequence);
+        final long finalSequence = sequencer.next(batchSize);
+        translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
     }
 
     /**
@@ -646,9 +643,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
         try {
-            final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize - 1);
-            translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, initialSequence, finalSequence);
+            final long finalSequence = sequencer.tryNext(batchSize);
+            translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
             return false;
@@ -678,9 +674,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1, int batchStartsAt, int batchSize) {
-        final long initialSequence = sequencer.next();
-        final long finalSequence = sequencer.next(batchSize - 1);
-        translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, initialSequence, finalSequence);
+        final long finalSequence = sequencer.next(batchSize);
+        translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
     }
 
     /**
@@ -714,9 +709,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
         try {
-            final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize - 1);
-            translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, initialSequence, finalSequence);
+            final long finalSequence = sequencer.tryNext(batchSize);
+            translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
             return false;
@@ -748,9 +742,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2, int batchStartsAt, int batchSize) {
-        final long initialSequence = sequencer.next();
-        final long finalSequence = sequencer.next(batchSize - 1);
-        translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, initialSequence, finalSequence);
+        final long finalSequence = sequencer.next(batchSize);
+        translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
     }
 
     /**
@@ -786,9 +779,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
         try {
-            final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize - 1);
-            translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, initialSequence, finalSequence);
+            final long finalSequence = sequencer.tryNext(batchSize);
+            translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
             return true;
         } catch (InsufficientCapacityException e) {
             return false;
@@ -816,9 +808,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see #publishEvents(EventTranslator[])
      */
     public void publishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args) {
-        final long initialSequence = sequencer.next();
-        final long finalSequence = sequencer.next(batchSize - 1);
-        translateAndPublishBatch(translator, batchStartsAt, batchSize, initialSequence, finalSequence, args);
+        final long finalSequence = sequencer.next(batchSize);
+        translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
     }
 
     /**
@@ -850,9 +841,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             return false;
         }
         try {
-            final long initialSequence = sequencer.tryNext();
-            final long finalSequence = sequencer.tryNext(batchSize - 1);
-            translateAndPublishBatch(translator, batchStartsAt, batchSize, initialSequence, finalSequence, args);
+            final long finalSequence = sequencer.tryNext(batchSize);
+            translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
             return true;
         } catch (InsufficientCapacityException e) {
             return false;
@@ -955,7 +945,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private void translateAndPublishBatch(final EventTranslator<E>[] translators, int batchStartsAt, final int batchSize, final long initialSequence, final long finalSequence) {
+    private void translateAndPublishBatch(final EventTranslator<E>[] translators, int batchStartsAt, final int batchSize, final long finalSequence) {
+        final long initialSequence = finalSequence - (batchSize - 1);
         try {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
@@ -964,11 +955,12 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
                 translator.translateTo(getPreallocated(sequence), sequence++);
             }
         } finally {
-            sequencer.publish(finalSequence);
+            sequencer.publish(initialSequence, finalSequence);
         }
     }
 
-    private <A> void translateAndPublishBatch(final EventTranslatorOneArg<E, A> translator, final A[] arg0, int batchStartsAt, final int batchSize, final long initialSequence, final long finalSequence) {
+    private <A> void translateAndPublishBatch(final EventTranslatorOneArg<E, A> translator, final A[] arg0, int batchStartsAt, final int batchSize, final long finalSequence) {
+        final long initialSequence = finalSequence - (batchSize - 1);
         try {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
@@ -980,7 +972,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private <A, B> void translateAndPublishBatch(final EventTranslatorTwoArg<E, A, B> translator, final A[] arg0, final B[] arg1, int batchStartsAt, int batchSize, long initialSequence, final long finalSequence) {
+    private <A, B> void translateAndPublishBatch(final EventTranslatorTwoArg<E, A, B> translator, final A[] arg0, final B[] arg1, int batchStartsAt, int batchSize, final long finalSequence) {
+        final long initialSequence = finalSequence - (batchSize - 1);
         try {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
@@ -992,7 +985,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private <A, B, C> void translateAndPublishBatch(final EventTranslatorThreeArg<E, A, B, C> translator, final A[] arg0, final B[] arg1, final C[] arg2, int batchStartsAt, final int batchSize, final long initialSequence, final long finalSequence) {
+    private <A, B, C> void translateAndPublishBatch(final EventTranslatorThreeArg<E, A, B, C> translator, final A[] arg0, final B[] arg1, final C[] arg2, int batchStartsAt, final int batchSize, final long finalSequence) {
+        final long initialSequence = finalSequence - (batchSize - 1);
         try {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
@@ -1004,10 +998,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private void translateAndPublishBatch(final EventTranslatorVararg<E> translator, int batchStartsAt, final int batchSize, final long initialSequence, final long finalSequence, final Object[][] args) {
+    private void translateAndPublishBatch(final EventTranslatorVararg<E> translator, int batchStartsAt, final int batchSize, final long finalSequence, final Object[][] args) {
+        final long initialSequence = finalSequence - (batchSize - 1);
         try {
-            final int batchEndsAt = batchStartsAt + batchSize;
             long sequence = initialSequence;
+            final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
                 translator.translateTo(getPreallocated(sequence), sequence++, args[i]);
             }
