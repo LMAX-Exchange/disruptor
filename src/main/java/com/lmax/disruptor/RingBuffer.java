@@ -40,8 +40,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
-    private RingBuffer(EventFactory<E> eventFactory, 
-                       Sequencer       sequencer)
+    RingBuffer(EventFactory<E> eventFactory, 
+               Sequencer       sequencer)
     {
         this.sequencer    = sequencer;
         this.bufferSize   = sequencer.getBufferSize();
@@ -212,6 +212,19 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
     
     /**
+     * The same functionality as {@link RingBuffer#next()}, but allows the caller to claim
+     * the next n sequences.
+     * 
+     * @see Sequencer#next(int)
+     * @param n number of slots to claim
+     * @return sequence number of the highest slot claimed
+     */
+    public long next(int n)
+    {
+        return sequencer.next(n);
+    }
+    
+    /**
      * <p>Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
      * <pre>
@@ -230,11 +243,24 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see RingBuffer#publish(long)
      * @see RingBuffer#get(long)
      * @return The next sequence to publish to.
-     * @throws InsufficientCapacityException 
+     * @throws InsufficientCapacityException if the necessary space in the ring buffer is not available
      */
     public long tryNext() throws InsufficientCapacityException
     {
         return sequencer.tryNext();
+    }
+    
+    /**
+     * The same functionality as {@link RingBuffer#tryNext()}, but allows the caller to attempt
+     * to claim the next n sequences.
+     * 
+     * @param n number of slots to claim
+     * @return sequence number of the highest slot claimed
+     * @throws InsufficientCapacityException if the necessary space in the ring buffer is not available
+     */
+    public long tryNext(int n) throws InsufficientCapacityException
+    {
+        return sequencer.tryNext(n);
     }
     
     /**
@@ -554,6 +580,19 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public void publish(long sequence)
     {
         sequencer.publish(sequence);
+    }
+    
+    /**
+     * Publish the specified sequences.  This action marks these particular
+     * messages as being available to be read.
+     * 
+     * @see Sequencer#next(int)
+     * @param lo the lowest sequence number to be published
+     * @param hi the highest sequence number to be published
+     */
+    public void publish(long lo, long hi)
+    {
+        sequencer.publish(lo, hi);
     }
     
     /**
