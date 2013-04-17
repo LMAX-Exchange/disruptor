@@ -74,7 +74,7 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
             long next = ringBuffer.next();
             try
             {
-                ringBuffer.getPreallocated(next).setValue(i);
+                ringBuffer.get(next).setValue(i);
             }
             finally
             {

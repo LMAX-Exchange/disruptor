@@ -22,7 +22,7 @@ apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see 
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, stage: 'beta4')
+version = new Version(major: 3, revision: 1, stage: "")
 
 ext {
     fullName = 'Disruptor Framework'
@@ -149,12 +149,6 @@ def projectPom = {
     }
 }
 
-task writePom << {
-    pom { 
-//        project(projectPom)
-    }.writeTo("pom.xml")
-}
-
 install {
     repositories.mavenInstaller.pom.project(projectPom)
 }
@@ -187,10 +181,14 @@ task tempLibs(type: Sync) {
     into('templib')
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.5'
+}
+
 class Version {
     int major, minor = 0, revision = 0
     String stage
-    
+
     String toString() {
         "$major.$minor.$revision${stage ? '.' + stage : ''}"
     }

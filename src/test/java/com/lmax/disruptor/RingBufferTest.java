@@ -52,17 +52,13 @@ public class RingBufferTest
     {
         assertEquals(SingleProducerSequencer.INITIAL_CURSOR_VALUE, ringBuffer.getCursor());
 
-        StubEvent expectedEvent = new StubEvent(2701);
-
-        long claimSequence = ringBuffer.next();
-        StubEvent oldEvent = ringBuffer.getPreallocated(claimSequence);
-        oldEvent.copy(expectedEvent);
-        ringBuffer.publish(claimSequence);
+        StubEvent expectedEvent = new StubEvent(2701);        
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, expectedEvent.getValue(), expectedEvent.getTestString());
 
         long sequence = sequenceBarrier.waitFor(0);
         assertEquals(0, sequence);
 
-        StubEvent event = ringBuffer.getPublished(sequence);
+        StubEvent event = ringBuffer.get(sequence);
         assertEquals(expectedEvent, event);
 
         assertEquals(0L, ringBuffer.getCursor());
@@ -73,12 +69,8 @@ public class RingBufferTest
     {
         Future<List<StubEvent>> messages = getMessages(0, 0);
 
-        StubEvent expectedEvent = new StubEvent(2701);
-
-        long sequence = ringBuffer.next();
-        StubEvent oldEvent = ringBuffer.getPreallocated(sequence);
-        oldEvent.copy(expectedEvent);
-        ringBuffer.publish(sequence);
+        StubEvent expectedEvent = new StubEvent(2701);        
+        ringBuffer.publishEvent(StubEvent.TRANSLATOR, expectedEvent.getValue(), expectedEvent.getTestString());
 
         assertEquals(expectedEvent, messages.get().get(0));
     }
@@ -89,19 +81,16 @@ public class RingBufferTest
         int numMessages = ringBuffer.getBufferSize();
         for (int i = 0; i < numMessages; i++)
         {
-            long sequence = ringBuffer.next();
-            StubEvent event = ringBuffer.getPreallocated(sequence);
-            event.setValue(i);
-            ringBuffer.publish(sequence);
+            ringBuffer.publishEvent(StubEvent.TRANSLATOR, i, "");
         }
 
-        int expectedSequence = numMessages - 1;
+        long expectedSequence = numMessages - 1;
         long available = sequenceBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = 0; i < numMessages; i++)
         {
-            assertEquals(i, ringBuffer.getPublished(i).getValue());
+            assertEquals(i, ringBuffer.get(i).getValue());
         }
     }
 
@@ -112,19 +101,16 @@ public class RingBufferTest
         int offset = 1000;
         for (int i = 0; i < numMessages + offset; i++)
         {
-            long sequence = ringBuffer.next();
-            StubEvent event = ringBuffer.getPreallocated(sequence);
-            event.setValue(i);
-            ringBuffer.publish(sequence);
+            ringBuffer.publishEvent(StubEvent.TRANSLATOR, i, "");
         }
 
-        int expectedSequence = numMessages + offset - 1;
+        long expectedSequence = numMessages + offset - 1;
         long available = sequenceBarrier.waitFor(expectedSequence);
         assertEquals(expectedSequence, available);
 
         for (int i = offset; i < numMessages + offset; i++)
         {
-            assertEquals(i, ringBuffer.getPublished(i).getValue());
+            assertEquals(i, ringBuffer.get(i).getValue());
         }
     }
 
@@ -188,7 +174,7 @@ public class RingBufferTest
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
                     long sequence = ringBuffer.next();
-                    StubEvent event = ringBuffer.getPreallocated(sequence);
+                    StubEvent event = ringBuffer.get(sequence);
                     event.setValue(i);
                     ringBuffer.publish(sequence);
                     latch.countDown();
@@ -221,7 +207,7 @@ public class RingBufferTest
             }
         });
         
-        assertThat(ringBuffer.getPublished(0)[0], is((Object) 0L));
+        assertThat(ringBuffer.get(0)[0], is((Object) 0L));
     }
 
     @Test
@@ -241,8 +227,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo");
         ringBuffer.tryPublishEvent(translator, "Foo");
         
-        assertThat(ringBuffer.getPublished(0)[0], is((Object) "Foo0"));
-        assertThat(ringBuffer.getPublished(1)[0], is((Object) "Foo1"));
+        assertThat(ringBuffer.get(0)[0], is((Object) "Foo0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "Foo1"));
     }
 
     @Test
@@ -262,8 +248,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar");
         ringBuffer.tryPublishEvent(translator, "Foo", "Bar");
         
-        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBar0"));
-        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBar1"));
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBar0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBar1"));
     }
 
     @Test
@@ -283,8 +269,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz");
         ringBuffer.tryPublishEvent(translator, "Foo", "Bar", "Baz");
         
-        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBaz0"));
-        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBaz1"));
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBaz0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBaz1"));
     }
 
     @Test
@@ -304,8 +290,8 @@ public class RingBufferTest
         ringBuffer.publishEvent(translator, "Foo", "Bar", "Baz", "Bam");
         ringBuffer.tryPublishEvent(translator, "Foo", "Bar", "Baz", "Bam");
         
-        assertThat(ringBuffer.getPublished(0)[0], is((Object) "FooBarBazBam0"));
-        assertThat(ringBuffer.getPublished(1)[0], is((Object) "FooBarBazBam1"));
+        assertThat(ringBuffer.get(0)[0], is((Object) "FooBarBazBam0"));
+        assertThat(ringBuffer.get(1)[0], is((Object) "FooBarBazBam1"));
     }
     
     @Test

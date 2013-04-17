@@ -1,19 +1,15 @@
 package com.lmax.disruptor;
 
-import java.util.concurrent.TimeUnit;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.*;
 
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
+import java.util.concurrent.TimeUnit;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class TimeoutBlockingWaitStrategyTest
@@ -39,13 +35,19 @@ public class TimeoutBlockingWaitStrategyTest
         
         long t0 = System.currentTimeMillis();
         
-        long sequence = waitStrategy.waitFor(6, cursor, dependent, sequenceBarrier);
+        try
+        {
+            waitStrategy.waitFor(6, cursor, dependent, sequenceBarrier);
+            fail("TimeoutException should have been thrown");
+        }
+        catch (TimeoutException e)
+        {
+        }
         
         long t1 = System.currentTimeMillis();
         
         long timeWaiting = t1 - t0;
         
-        assertThat(sequence, is(5L));
         assertThat(timeWaiting, greaterThanOrEqualTo(theTimeout));
     }
 }

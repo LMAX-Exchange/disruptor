@@ -16,51 +16,35 @@
 package com.lmax.disruptor;
 
 
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
 import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.util.Util;
 
 /**
  * Ring based store of reusable entries containing the data representing
- * an event being exchanged between event publisher and {@link EventProcessor}s.
+ * an event being exchanged between event producer and {@link EventProcessor}s.
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<E>
+public final class RingBuffer<E> implements Cursored, DataProvider<E>
 {
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
-    @SuppressWarnings("rawtypes")
-    private static final AtomicReferenceFieldUpdater<RingBuffer, Sequence[]> SEQUENCE_UPDATER = 
-            AtomicReferenceFieldUpdater.newUpdater(RingBuffer.class, Sequence[].class, "gatingSequences");
+    
     private final int indexMask;
     private final Object[] entries;
-    private final Sequence cursor;
     private final int bufferSize;
-    private final Publisher publisher;
     private final Sequencer sequencer;
-    private final WaitStrategy waitStrategy;
-    protected volatile Sequence[] gatingSequences = new Sequence[0];
 
     /**
      * Construct a RingBuffer with the full option set.
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
-     * @param waitStrategy 
-     *
      * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
      */
-    private RingBuffer(EventFactory<E> eventFactory, 
-                       Sequence        cursor, 
-                       Sequencer       sequencer, 
-                       Publisher       publisher, 
-                       WaitStrategy    waitStrategy)
+    RingBuffer(EventFactory<E> eventFactory, 
+               Sequencer       sequencer)
     {
         this.sequencer    = sequencer;
-        this.waitStrategy = waitStrategy;
         this.bufferSize   = sequencer.getBufferSize();
-        this.cursor       = cursor;
         
         if (bufferSize < 1)
         {
@@ -72,7 +56,6 @@ public final class RingBuffer<E>
         }
 
         this.indexMask = bufferSize - 1;
-        this.publisher = publisher;
         this.entries   = new Object[sequencer.getBufferSize()];
         fill(eventFactory);
     }
@@ -91,10 +74,8 @@ public final class RingBuffer<E>
                                                         WaitStrategy    waitStrategy)
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
-        MultiProducerPublisher publisher = new MultiProducerPublisher(bufferSize, waitStrategy);
         
-        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer.getCursorSequence(), 
-                                                     sequencer, publisher, waitStrategy);
+        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer);
         
         return ringBuffer;
     }
@@ -126,10 +107,8 @@ public final class RingBuffer<E>
                                                          WaitStrategy    waitStrategy)
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
-        SingleProducerPublisher publisher = new SingleProducerPublisher(waitStrategy);
         
-        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, publisher.getCursorSequence(), 
-                                                     sequencer, publisher, waitStrategy);
+        RingBuffer<E> ringBuffer = new RingBuffer<E>(factory, sequencer);
         
         return ringBuffer;
     }
@@ -173,22 +152,42 @@ public final class RingBuffer<E>
     }
 
     /**
-     * <p>Get the event for a given sequence in the RingBuffer.  This method will wait until the
-     * value is published before returning.  This method should only be used by {@link EventProcessor}s
-     * that are reading values out of the ring buffer.  Publishing code should use the 
-     * {@link RingBuffer#getPreallocated(long)} call to get a handle onto the preallocated event.
+     * <p>Get the event for a given sequence in the RingBuffer.</p>
      * 
-     * <p>The call implements the appropriate load fence to ensure that the data within the event
-     * is visible after this call completes.
+     * <p>This call has 2 uses.  Firstly use this call when publishing to a ring buffer.
+     * After calling {@link RingBuffer#next()} use this call to get hold of the
+     * preallocated event to fill with data before calling {@link RingBuffer#publish(long)}.</p>
+     * 
+     * <p>Secondly use this call when consuming data from the ring buffer.  After calling
+     * {@link SequenceBarrier#waitFor(long)} call this method with any value greater than
+     * that your current consumer sequence and less than or equal to the value returned from
+     * the {@link SequenceBarrier#waitFor(long)} method.</p>
      *
      * @param sequence for the event
-     * @return the event that visibily published by the producer
+     * @return the event for the given sequence
      */
     @SuppressWarnings("unchecked")
+    public E get(long sequence)
+    {
+        return (E)entries[(int)sequence & indexMask];
+    }
+    
+    /**
+     * @deprecated Use {@link RingBuffer#get(long)}
+     */
+    @Deprecated
+    public E getPreallocated(long sequence)
+    {
+        return get(sequence);
+    }
+
+    /**
+     * @deprecated Use {@link RingBuffer#get(long)}
+     */
+    @Deprecated
     public E getPublished(long sequence)
     {
-        publisher.ensureAvailable(sequence);
-        return (E)entries[(int)sequence & indexMask];
+        return get(sequence);
     }
     
     /**
@@ -197,19 +196,32 @@ public final class RingBuffer<E>
      * <pre>
      * long sequence = ringBuffer.next();
      * try {
-     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     Event e = ringBuffer.get(sequence);
      *     // Do some work with the event.
      * } finally {
      *     ringBuffer.publish(sequence);
      * }
      * </pre>
      * @see RingBuffer#publish(long)
-     * @see RingBuffer#getPreallocated(long)
+     * @see RingBuffer#get(long)
      * @return The next sequence to publish to.
      */
     public long next()
     {
-        return sequencer.next(gatingSequences);
+        return sequencer.next();
+    }
+    
+    /**
+     * The same functionality as {@link RingBuffer#next()}, but allows the caller to claim
+     * the next n sequences.
+     * 
+     * @see Sequencer#next(int)
+     * @param n number of slots to claim
+     * @return sequence number of the highest slot claimed
+     */
+    public long next(int n)
+    {
+        return sequencer.next(n);
     }
     
     /**
@@ -218,7 +230,7 @@ public final class RingBuffer<E>
      * <pre>
      * long sequence = ringBuffer.next();
      * try {
-     *     Event e = ringBuffer.getPreallocated(sequence);
+     *     Event e = ringBuffer.get(sequence);
      *     // Do some work with the event.
      * } finally {
      *     ringBuffer.publish(sequence);
@@ -229,13 +241,26 @@ public final class RingBuffer<E>
      * 
      * 
      * @see RingBuffer#publish(long)
-     * @see RingBuffer#getPreallocated(long)
+     * @see RingBuffer#get(long)
      * @return The next sequence to publish to.
-     * @throws InsufficientCapacityException 
+     * @throws InsufficientCapacityException if the necessary space in the ring buffer is not available
      */
     public long tryNext() throws InsufficientCapacityException
     {
-        return sequencer.tryNext(gatingSequences);
+        return sequencer.tryNext();
+    }
+    
+    /**
+     * The same functionality as {@link RingBuffer#tryNext()}, but allows the caller to attempt
+     * to claim the next n sequences.
+     * 
+     * @param n number of slots to claim
+     * @return sequence number of the highest slot claimed
+     * @throws InsufficientCapacityException if the necessary space in the ring buffer is not available
+     */
+    public long tryNext(int n) throws InsufficientCapacityException
+    {
+        return sequencer.tryNext(n);
     }
     
     /**
@@ -249,7 +274,7 @@ public final class RingBuffer<E>
     public void resetTo(long sequence)
     {
         sequencer.claim(sequence);
-        publisher.publish(sequence);
+        sequencer.publish(sequence);
     }
     
     /**
@@ -262,7 +287,7 @@ public final class RingBuffer<E>
     public E claimAndGetPreallocated(long sequence)
     {
         sequencer.claim(sequence);
-        return getPreallocated(sequence);
+        return get(sequence);
     }
     
     /**
@@ -273,7 +298,7 @@ public final class RingBuffer<E>
      */
     public boolean isPublished(long sequence)
     {
-        return publisher.isAvailable(sequence);
+        return sequencer.isAvailable(sequence);
     }
     
     /**
@@ -284,7 +309,7 @@ public final class RingBuffer<E>
      */
     public void addGatingSequences(Sequence... gatingSequences)
     {
-        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
+        sequencer.addGatingSequences(gatingSequences);
     }
 
     /**
@@ -296,7 +321,7 @@ public final class RingBuffer<E>
      */
     public long getMinimumGatingSequence()
     {
-        return Util.getMinimumSequence(gatingSequences, cursor.get());
+        return sequencer.getMinimumSequence();
     }
 
     /**
@@ -307,7 +332,7 @@ public final class RingBuffer<E>
      */
     public boolean removeGatingSequence(Sequence sequence)
     {
-        return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
+        return sequencer.removeGatingSequence(sequence);
     }
     
     /**
@@ -320,7 +345,7 @@ public final class RingBuffer<E>
      */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
     {
-        return new ProcessingSequenceBarrier(waitStrategy, cursor, sequencesToTrack);
+        return sequencer.newBarrier(sequencesToTrack);
     }
 
     /**
@@ -330,7 +355,7 @@ public final class RingBuffer<E>
      */
     public final long getCursor()
     {
-        return cursor.get();
+        return sequencer.getCursor();
     }
 
     /**
@@ -353,7 +378,7 @@ public final class RingBuffer<E>
      */
     public boolean hasAvailableCapacity(int requiredCapacity)
     {
-        return sequencer.hasAvailableCapacity(gatingSequences, requiredCapacity);
+        return sequencer.hasAvailableCapacity(requiredCapacity);
     }
 
 
@@ -367,7 +392,7 @@ public final class RingBuffer<E>
      */
     public void publishEvent(EventTranslator<E> translator)
     {
-        final long sequence = sequencer.next(gatingSequences);
+        final long sequence = sequencer.next();
         translateAndPublish(translator, sequence);
     }
 
@@ -386,7 +411,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(gatingSequences);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence);
             return true;
         }
@@ -405,7 +430,7 @@ public final class RingBuffer<E>
      */
     public <A> void publishEvent(EventTranslatorOneArg<E, A> translator, A arg0)
     {
-        final long sequence = sequencer.next(gatingSequences);
+        final long sequence = sequencer.next();
         translateAndPublish(translator, sequence, arg0);
     }
 
@@ -422,7 +447,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(gatingSequences);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0);
             return true;
         }
@@ -442,7 +467,7 @@ public final class RingBuffer<E>
      */
     public <A, B> void publishEvent(EventTranslatorTwoArg<E, A, B> translator, A arg0, B arg1)
     {
-        final long sequence = sequencer.next(gatingSequences);
+        final long sequence = sequencer.next();
         translateAndPublish(translator, sequence, arg0, arg1);
     }
 
@@ -460,7 +485,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(gatingSequences);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1);
             return true;
         }
@@ -481,7 +506,7 @@ public final class RingBuffer<E>
      */
     public <A, B, C> void publishEvent(EventTranslatorThreeArg<E, A, B, C> translator, A arg0, B arg1, C arg2)
     {
-        final long sequence = sequencer.next(gatingSequences);
+        final long sequence = sequencer.next();
         translateAndPublish(translator, sequence, arg0, arg1, arg2);
     }
 
@@ -500,7 +525,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(gatingSequences);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1, arg2);
             return true;
         }
@@ -519,7 +544,7 @@ public final class RingBuffer<E>
      */
     public void publishEvent(EventTranslatorVararg<E> translator, Object...args)
     {
-        final long sequence = sequencer.next(gatingSequences);
+        final long sequence = sequencer.next();
         translateAndPublish(translator, sequence, args);
     }
 
@@ -536,7 +561,7 @@ public final class RingBuffer<E>
     {
         try
         {
-            final long sequence = sequencer.tryNext(gatingSequences);
+            final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, args);
             return true;
         }
@@ -544,20 +569,6 @@ public final class RingBuffer<E>
         {
             return false;
         }
-    }
-
-    /**
-     * Get the object that is preallocated within the ring buffer.  This differs from the {@link #getPublished(long)} \
-     * in that is does not wait until the publisher indicates that object is available.  This method should only be used
-     * by the publishing thread to get a handle on the preallocated event in order to fill it with data.
-     *
-     * @param sequence for the event
-     * @return event for the sequence
-     */
-    @SuppressWarnings("unchecked")
-    public E getPreallocated(long sequence)
-    {
-        return (E)entries[(int)sequence & indexMask];
     }
     
     /**
@@ -568,18 +579,41 @@ public final class RingBuffer<E>
      */
     public void publish(long sequence)
     {
-        publisher.publish(sequence);
+        sequencer.publish(sequence);
     }
+    
+    /**
+     * Publish the specified sequences.  This action marks these particular
+     * messages as being available to be read.
+     * 
+     * @see Sequencer#next(int)
+     * @param lo the lowest sequence number to be published
+     * @param hi the highest sequence number to be published
+     */
+    public void publish(long lo, long hi)
+    {
+        sequencer.publish(lo, hi);
+    }
+    
+    /**
+     * Get the remaining capacity for this ringBuffer.
+     * @return The number of slots remaining.
+     */
+    public long remainingCapacity()
+    {
+        return sequencer.remainingCapacity();
+    }
+
 
     private void translateAndPublish(EventTranslator<E> translator, long sequence)
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence);
+            translator.translateTo(get(sequence), sequence);
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -587,11 +621,11 @@ public final class RingBuffer<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0);
+            translator.translateTo(get(sequence), sequence, arg0);
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -599,11 +633,11 @@ public final class RingBuffer<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0, arg1);
+            translator.translateTo(get(sequence), sequence, arg0, arg1);
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -612,11 +646,11 @@ public final class RingBuffer<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, arg0, arg1, arg2);
+            translator.translateTo(get(sequence), sequence, arg0, arg1, arg2);
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -624,11 +658,11 @@ public final class RingBuffer<E>
     {
         try
         {
-            translator.translateTo(getPreallocated(sequence), sequence, args);
+            translator.translateTo(get(sequence), sequence, args);
         }
         finally
         {
-            publisher.publish(sequence);
+            sequencer.publish(sequence);
         }
     }
 
@@ -638,10 +672,5 @@ public final class RingBuffer<E>
         {
             entries[i] = eventFactory.newInstance();
         }
-    }
-
-    long remainingCapacity()
-    {
-        return sequencer.remainingCapacity(gatingSequences);
     }
 }

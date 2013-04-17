@@ -232,7 +232,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         for (long i = 0; i < ITERATIONS; i++)
         {
             long sequence = ringBuffer.next();
-            ringBuffer.getPreallocated(sequence).setValue(i);
+            ringBuffer.get(sequence).setValue(i);
             ringBuffer.publish(sequence);
         }
 

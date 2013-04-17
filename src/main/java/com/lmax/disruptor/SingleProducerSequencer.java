@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.util.Util.getMinimumSequence;
-
 import java.util.concurrent.locks.LockSupport;
 
 import com.lmax.disruptor.util.Util;
@@ -27,12 +25,8 @@ import com.lmax.disruptor.util.Util;
  *
  * Generally not safe for use from multiple threads as it does not implement any barriers.
  */
-class SingleProducerSequencer implements Sequencer
+public final class SingleProducerSequencer extends AbstractSequencer
 {
-    @SuppressWarnings("unused")
-    private final WaitStrategy waitStrategy;
-    private final int bufferSize;
-
     @SuppressWarnings("unused")
     private static class Padding
     {
@@ -50,23 +44,14 @@ class SingleProducerSequencer implements Sequencer
      */
     public SingleProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
     {
-        this.bufferSize = bufferSize;
-        this.waitStrategy = waitStrategy;
-    }
-
-    @Override
-    public int getBufferSize()
-    {
-        return bufferSize;
+        super(bufferSize, waitStrategy);
     }
     
-    long getNextValue()
-    {
-        return pad.nextValue;
-    }
-
+    /**
+     * @see Sequencer#hasAvailableCapacity(int)
+     */
     @Override
-    public boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity)
+    public boolean hasAvailableCapacity(final int requiredCapacity)
     {
         long nextValue = pad.nextValue;
         
@@ -75,7 +60,7 @@ class SingleProducerSequencer implements Sequencer
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
-            long minSequence = getMinimumSequence(gatingSequences, nextValue);
+            long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             pad.cachedValue = minSequence;
         
             if (wrapPoint > minSequence)
@@ -87,19 +72,36 @@ class SingleProducerSequencer implements Sequencer
         return true;
     }
 
+    /**
+     * @see Sequencer#next()
+     */
     @Override
-    public long next(Sequence[] gatingSequences)
+    public long next()
     {
+        return next(1);
+    }
+
+    /**
+     * @see Sequencer#next(int)
+     */
+    @Override
+    public long next(int n)
+    {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         long nextValue = pad.nextValue;
         
-        long nextSequence = nextValue + 1;
+        long nextSequence = nextValue + n;
         long wrapPoint = nextSequence - bufferSize;
         long cachedGatingSequence = pad.cachedValue;
         
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence;
-            while (wrapPoint > (minSequence = getMinimumSequence(gatingSequences, nextValue)))
+            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
@@ -112,21 +114,41 @@ class SingleProducerSequencer implements Sequencer
         return nextSequence;
     }
 
+    /**
+     * @see Sequencer#tryNext()
+     */
     @Override
-    public long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException
+    public long tryNext() throws InsufficientCapacityException
     {
-        if (!hasAvailableCapacity(gatingSequences, 1))
+        return tryNext(1);
+    }
+
+    /**
+     * @see Sequencer#tryNext(int)
+     */
+    @Override
+    public long tryNext(int n) throws InsufficientCapacityException
+    {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
+        if (!hasAvailableCapacity(n))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = ++pad.nextValue;
+        long nextSequence = pad.nextValue += n;
         
         return nextSequence;
     }
 
+    /**
+     * @see Sequencer#remainingCapacity()
+     */
     @Override
-    public long remainingCapacity(Sequence[] gatingSequences)
+    public long remainingCapacity()
     {
         long nextValue = pad.nextValue;
         
@@ -135,9 +157,46 @@ class SingleProducerSequencer implements Sequencer
         return getBufferSize() - (produced - consumed);
     }
     
+    /**
+     * @see Sequencer#claim(long)
+     */
     @Override
     public void claim(long sequence)
     {
         pad.nextValue = sequence;
+    }
+
+    /**
+     * @see Sequencer#publish(long)
+     */
+    @Override
+    public void publish(long sequence)
+    {
+        cursor.set(sequence);
+        waitStrategy.signalAllWhenBlocking();
+    }
+    
+    /**
+     * @see Sequencer#publish(long, long)
+     */
+    @Override
+    public void publish(long lo, long hi)
+    {
+        publish(hi);
+    }
+
+    /**
+     * @see Sequencer#isAvailable(long)
+     */
+    @Override
+    public boolean isAvailable(long sequence)
+    {
+        return sequence <= cursor.get();
+    }
+    
+    @Override
+    public long getHighestPublishedSequence(long lowerBound, long availableSequence)
+    {
+        return availableSequence;
     }
 }

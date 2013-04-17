@@ -68,9 +68,9 @@ public final class SequenceGroup extends Sequence
 
     /**
      * Add a {@link Sequence} into this aggregate.  This should only be used during
-     * initialisation.  Use {@link SequenceGroup#addWhileRunning(RingBuffer, Sequence)}
+     * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
-     * @see SequenceGroup#addWhileRunning(RingBuffer, Sequence)
+     * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      * @param sequence to be added to the aggregate.
      */
     public void add(final Sequence sequence)
@@ -114,12 +114,12 @@ public final class SequenceGroup extends Sequence
      * the Disruptor.  It will set the sequences to cursor value of the ringBuffer
      * just after adding them.  This should prevent any nasty rewind/wrapping effects. 
      * 
-     * @param ringBuffer The ringBuffer that the owner of this sequence group will
+     * @param cursored The data structure that the owner of this sequence group will
      * be pulling it's events from.
      * @param sequence The sequence to add.
      */
-    public void addWhileRunning(RingBuffer<?> ringBuffer, Sequence sequence)
+    public void addWhileRunning(Cursored cursored, Sequence sequence)
     {
-        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, ringBuffer, sequence);
+        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
     }
 }

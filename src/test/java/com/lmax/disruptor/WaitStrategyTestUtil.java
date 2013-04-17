@@ -27,7 +27,7 @@ public class WaitStrategyTestUtil
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     static void assertWaitForWithDelayOf(long sleepTimeMillis, WaitStrategy waitStrategy)
-            throws InterruptedException, BrokenBarrierException, AlertException
+            throws InterruptedException, BrokenBarrierException, AlertException, TimeoutException
     {
         SequenceUpdater sequenceUpdater = new SequenceUpdater(sleepTimeMillis, waitStrategy);
         EXECUTOR.execute(sequenceUpdater);

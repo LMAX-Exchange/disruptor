@@ -32,7 +32,7 @@ public final class BatchEventProcessor<T>
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
-    private final RingBuffer<T> ringBuffer;
+    private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -42,15 +42,15 @@ public final class BatchEventProcessor<T>
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
-     * @param ringBuffer to which events are published.
+     * @param dataProvider to which events are published.
      * @param sequenceBarrier on which it is waiting.
      * @param eventHandler is the delegate to which events are dispatched.
      */
-    public BatchEventProcessor(final RingBuffer<T> ringBuffer,
+    public BatchEventProcessor(final DataProvider<T> dataProvider,
                                final SequenceBarrier sequenceBarrier,
                                final EventHandler<T> eventHandler)
     {
-        this.ringBuffer = ringBuffer;
+        this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
 
@@ -114,20 +114,18 @@ public final class BatchEventProcessor<T>
             {
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                 
-                if (availableSequence < nextSequence && timeoutHandler != null)
-                {
-                    notifyTimeout(availableSequence);
-                    continue;
-                }
-                
                 while (nextSequence <= availableSequence)
                 {
-                    event = ringBuffer.getPublished(nextSequence);
+                    event = dataProvider.get(nextSequence);
                     eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     nextSequence++;
                 }
 
                 sequence.set(availableSequence);
+            }
+            catch (final TimeoutException e)
+            {
+                notifyTimeout(sequence.get());
             }
             catch (final AlertException ex)
             {
@@ -149,11 +147,14 @@ public final class BatchEventProcessor<T>
         running.set(false);
     }
 
-    private void notifyTimeout(final long availableSequence) throws Exception
+    private void notifyTimeout(final long availableSequence)
     {
         try
         {
-            timeoutHandler.onTimeout(availableSequence);
+            if (timeoutHandler != null)
+            {                
+                timeoutHandler.onTimeout(availableSequence);
+            }
         }
         catch (Throwable e)
         {

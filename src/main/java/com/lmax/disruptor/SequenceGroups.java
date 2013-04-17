@@ -26,7 +26,7 @@ class SequenceGroups
 {
     static <T> void addSequences(final T holder,
                                  final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-                                 final RingBuffer<?> cursor,
+                                 final Cursored cursor,
                                  final Sequence... sequencesToAdd)
     {
         long cursorSequence;

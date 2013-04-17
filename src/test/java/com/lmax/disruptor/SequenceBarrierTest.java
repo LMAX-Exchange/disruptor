@@ -97,7 +97,7 @@ public final class SequenceBarrierTest
             public void run()
             {
                 long sequence = ringBuffer.next();
-                StubEvent event = ringBuffer.getPreallocated(sequence);
+                StubEvent event = ringBuffer.get(sequence);
                 event.setValue((int) sequence);
                 ringBuffer.publish(sequence);
 
@@ -156,7 +156,7 @@ public final class SequenceBarrierTest
                 {
                     alerted[0] = true;
                 }
-                catch (InterruptedException e)
+                catch (Exception e)
                 {
                     // don't care
                 }
@@ -225,7 +225,7 @@ public final class SequenceBarrierTest
         for (long i = 0; i < expectedNumberMessages; i++)
         {
             long sequence = ringBuffer.next();
-            StubEvent event = ringBuffer.getPreallocated(sequence);
+            StubEvent event = ringBuffer.get(sequence);
             event.setValue((int) i);
             ringBuffer.publish(sequence);
         }
