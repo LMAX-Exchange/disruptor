@@ -256,7 +256,31 @@ public class SequencerTest
         sequencer.publish(sequence);
         assertThat(sequencer.next(), is(sequence + 1));
     }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowBulkNextLessThanZero() throws Exception
+    {
+        sequencer.next(-1);
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowBulkNextOfZero() throws Exception
+    {
+        sequencer.next(0);
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowBulkTryNextLessThanZero() throws Exception
+    {
+        sequencer.tryNext(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowBulkTryNextOfZero() throws Exception
+    {
+        sequencer.tryNext(0);
+    }
+    
     private Sequencer newProducer(ProducerType producerType, int bufferSize, WaitStrategy waitStrategy)
     {
         switch (producerType)

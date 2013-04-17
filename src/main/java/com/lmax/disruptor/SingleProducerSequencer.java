@@ -87,6 +87,11 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long next(int n)
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         long nextValue = pad.nextValue;
         
         long nextSequence = nextValue + n;
@@ -124,6 +129,11 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext(int n) throws InsufficientCapacityException
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         if (!hasAvailableCapacity(n))
         {
             throw InsufficientCapacityException.INSTANCE;
