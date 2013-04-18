@@ -336,7 +336,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * are available to be read from the ring buffer given a list of sequences to track.
      * 
      * @see SequenceBarrier
-     * @param sequencesToTrack 
+     * @param sequencesToTrack the additional sequences to track
      * @return A sequence barrier that will track the specified sequences.
      */
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
@@ -1019,7 +1019,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private <A> void translateAndPublish(EventTranslatorVararg<E> translator, long sequence, Object...args)
+    private void translateAndPublish(EventTranslatorVararg<E> translator, long sequence, Object...args)
     {
         try
         {
