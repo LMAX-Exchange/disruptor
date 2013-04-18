@@ -108,6 +108,11 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long next(int n)
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         long current;
         long next;
 
@@ -147,8 +152,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext() throws InsufficientCapacityException
     {
-        int n = 1;
-        return tryNext(n);
+        return tryNext(1);
     }
 
     /**
@@ -157,6 +161,11 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext(int n) throws InsufficientCapacityException
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         long current;
         long next;
 
@@ -212,7 +221,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public void publish(long lo, long hi)
     {
-        for (long l = lo; l < hi; l++)
+        for (long l = lo; l <= hi; l++)
         {
             setAvailable(l);
         }
@@ -250,23 +259,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @see Sequencer#ensureAvailable(long)
-     */
-    @Override
-    public void ensureAvailable(long sequence)
-    {
-        int index = calculateIndex(sequence);
-        int flag = calculateAvailabilityFlag(sequence);
-        long bufferAddress = (index * SCALE) + BASE;
-        
-        while (UNSAFE.getIntVolatile(availableBuffer, bufferAddress) != flag)
-        {
-            assert UNSAFE.getIntVolatile(availableBuffer, bufferAddress) <= flag;
-            // spin
-        }
-    }
-
-    /**
      * @see Sequencer#isAvailable(long)
      */
     @Override
@@ -276,6 +268,20 @@ public final class MultiProducerSequencer extends AbstractSequencer
         int flag = calculateAvailabilityFlag(sequence);
         long bufferAddress = (index * SCALE) + BASE;
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
+    }
+    
+    @Override
+    public long getHighestPublishedSequence(long lowerBound, long availableSequence)
+    {
+        for (long sequence = lowerBound; sequence <= availableSequence; sequence++)
+        {
+            if (!isAvailable(sequence))
+            {
+                return sequence - 1;
+            }
+        }
+        
+        return availableSequence;
     }
     
     private int calculateAvailabilityFlag(final long sequence)

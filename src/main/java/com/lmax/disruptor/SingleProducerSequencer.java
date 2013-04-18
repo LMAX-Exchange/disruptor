@@ -47,11 +47,6 @@ public final class SingleProducerSequencer extends AbstractSequencer
         super(bufferSize, waitStrategy);
     }
     
-    long getNextValue()
-    {
-        return pad.nextValue;
-    }
-
     /**
      * @see Sequencer#hasAvailableCapacity(int)
      */
@@ -92,6 +87,11 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long next(int n)
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         long nextValue = pad.nextValue;
         
         long nextSequence = nextValue + n;
@@ -129,6 +129,11 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long tryNext(int n) throws InsufficientCapacityException
     {
+        if (n < 1)
+        {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        
         if (!hasAvailableCapacity(n))
         {
             throw InsufficientCapacityException.INSTANCE;
@@ -181,19 +186,17 @@ public final class SingleProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @see Sequencer#ensureAvailable(long)
-     */
-    @Override
-    public void ensureAvailable(long sequence)
-    {
-    }
-
-    /**
      * @see Sequencer#isAvailable(long)
      */
     @Override
     public boolean isAvailable(long sequence)
     {
         return sequence <= cursor.get();
+    }
+    
+    @Override
+    public long getHighestPublishedSequence(long lowerBound, long availableSequence)
+    {
+        return availableSequence;
     }
 }

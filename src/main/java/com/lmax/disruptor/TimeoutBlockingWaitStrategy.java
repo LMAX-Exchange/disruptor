@@ -26,7 +26,7 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
                         final Sequence cursorSequence, 
                         final Sequence dependentSequence, 
                         final SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+        throws AlertException, InterruptedException, TimeoutException
     {
         long nanos = timeoutInNanos;
         
@@ -42,7 +42,7 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
                     nanos = processorNotifyCondition.awaitNanos(nanos);
                     if (nanos <= 0)
                     {
-                        return availableSequence;
+                        throw TimeoutException.INSTANCE;
                     }
                 }
             }

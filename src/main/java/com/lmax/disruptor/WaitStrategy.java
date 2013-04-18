@@ -36,9 +36,10 @@ public interface WaitStrategy
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
+     * @throws TimeoutException 
      */
     long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
-        throws AlertException, InterruptedException;
+        throws AlertException, InterruptedException, TimeoutException;
 
     /**
      * Implementations should signal the waiting {@link EventProcessor}s that the cursor has advanced.

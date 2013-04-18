@@ -60,7 +60,7 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getPreallocated(0L), 0L, true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, true);
                 inSequence(lifecycleSequence);
 
                 will(countDown(latch));
@@ -87,11 +87,11 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getPreallocated(0L), 0L, false);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, false);
                 inSequence(lifecycleSequence);
-                oneOf(eventHandler).onEvent(ringBuffer.getPreallocated(1L), 1L, false);
+                oneOf(eventHandler).onEvent(ringBuffer.get(1L), 1L, false);
                 inSequence(lifecycleSequence);
-                oneOf(eventHandler).onEvent(ringBuffer.getPreallocated(2L), 2L, true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(2L), 2L, true);
                 inSequence(lifecycleSequence);
 
                 will(countDown(latch));
@@ -122,7 +122,7 @@ public final class BatchEventProcessorTest
         context.checking(new Expectations()
         {
             {
-                oneOf(eventHandler).onEvent(ringBuffer.getPreallocated(0), 0L, true);
+                oneOf(eventHandler).onEvent(ringBuffer.get(0), 0L, true);
                 inSequence(lifecycleSequence);
                 will(new Action()
                 {
@@ -139,7 +139,7 @@ public final class BatchEventProcessorTest
                     }
                 });
 
-                oneOf(exceptionHandler).handleEventException(ex, 0L, ringBuffer.getPreallocated(0));
+                oneOf(exceptionHandler).handleEventException(ex, 0L, ringBuffer.get(0));
                 inSequence(lifecycleSequence);
                 will(countDown(latch));
             }

@@ -42,7 +42,7 @@ public final class ValuePublisher implements Runnable
             for (long i = 0; i < iterations; i++)
             {
                 long sequence = ringBuffer.next();
-                ValueEvent event = ringBuffer.getPreallocated(sequence);
+                ValueEvent event = ringBuffer.get(sequence);
                 event.setValue(i);
                 ringBuffer.publish(sequence);
             }

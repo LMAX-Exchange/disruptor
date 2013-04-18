@@ -36,8 +36,8 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
         ringBuffer.publishEvent(this);
         ringBuffer.publishEvent(this);
 
-        assertThat(Long.valueOf(ringBuffer.getPublished(0).get()), is(Long.valueOf(0 + 29L)));
-        assertThat(Long.valueOf(ringBuffer.getPublished(1).get()), is(Long.valueOf(1 + 29L)));
+        assertThat(Long.valueOf(ringBuffer.get(0).get()), is(Long.valueOf(0 + 29L)));
+        assertThat(Long.valueOf(ringBuffer.get(1).get()), is(Long.valueOf(1 + 29L)));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
 
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            assertThat(Long.valueOf(ringBuffer.getPublished(i).get()), is(Long.valueOf(i + 29L)));
+            assertThat(Long.valueOf(ringBuffer.get(i).get()), is(Long.valueOf(i + 29L)));
         }
 
         assertThat(ringBuffer.tryPublishEvent(this), is(false));

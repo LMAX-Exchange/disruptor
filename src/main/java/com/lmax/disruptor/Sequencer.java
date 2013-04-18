@@ -121,15 +121,6 @@ public interface Sequencer extends Cursored
     boolean isAvailable(long sequence);
 
     /**
-     * Ensure a given sequence has been published and the event is now available.<p/>
-     *
-     * Blocks if the sequence is not available yet.
-     *
-     * @param sequence of the event to wait for
-     */
-    void ensureAvailable(long sequence);
-
-    /**
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      * 
@@ -163,4 +154,6 @@ public interface Sequencer extends Cursored
      * no sequences have been added.
      */
     long getMinimumSequence();
+
+    long getHighestPublishedSequence(long sequence, long availableSequence);
 }
