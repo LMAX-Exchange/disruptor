@@ -505,15 +505,17 @@ public class RingBufferTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotPublishEventsWhenBatchSizeIs0() throws Exception {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslator<Object[]> translator = new NoArgEventTranslator();
 
-        ringBuffer.publishEvents(new EventTranslator[]{ translator, translator, translator, translator}, 1, 0);
-        ringBuffer.tryPublishEvents(new EventTranslator[]{translator, translator, translator, translator}, 1, 0);
-
-        assertEmptyRingBuffer(ringBuffer);
+        try {
+            ringBuffer.publishEvents(new EventTranslator[]{ translator, translator, translator, translator}, 1, 0);
+            ringBuffer.tryPublishEvents(new EventTranslator[]{translator, translator, translator, translator}, 1, 0);
+        } finally {
+            assertEmptyRingBuffer(ringBuffer);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -584,15 +586,17 @@ public class RingBufferTest
         assertEmptyRingBuffer(ringBuffer);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotPublishEventsOneArgWhenBatchSizeIs0() throws Exception {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0);
-        assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0));
-
+        try {
+            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0);
+            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0));
+        } finally {
         assertEmptyRingBuffer(ringBuffer);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -657,15 +661,17 @@ public class RingBufferTest
         assertEmptyRingBuffer(ringBuffer);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotPublishEventsTwoArgWhenBatchSizeIs0() throws Exception {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0);
-        assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0));
-
-        assertEmptyRingBuffer(ringBuffer);
+        try {
+            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0);
+            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0));
+        } finally {
+            assertEmptyRingBuffer(ringBuffer);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -730,15 +736,17 @@ public class RingBufferTest
         assertEmptyRingBuffer(ringBuffer);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotPublishEventsThreeArgWhenBatchSizeIs0() throws Exception {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0);
-        assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0));
-
-        assertEmptyRingBuffer(ringBuffer);
+        try {
+            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0);
+            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0));
+        } finally {
+            assertEmptyRingBuffer(ringBuffer);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -804,17 +812,19 @@ public class RingBufferTest
         assertEmptyRingBuffer(ringBuffer);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotPublishEventsVarArgWhenBatchSizeIs0() throws Exception {
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         VarArgEventTranslator translator = new VarArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, 1, 0, new String[]{"Foo0", "Bar0", "Baz0", "Bam0"}, new String[]{"Foo1", "Bar1", "Baz1", "Bam1"},
-                new String[]{"Foo2", "Bar2", "Baz2", "Bam2"});
-        assertFalse(ringBuffer.tryPublishEvents(translator, 1, 0, new String[]{"Foo0", "Bar0", "Baz0", "Bam0"}, new String[]{"Foo1", "Bar1", "Baz1", "Bam1"},
-                new String[]{"Foo2", "Bar2", "Baz2", "Bam2"}));
-
-        assertEmptyRingBuffer(ringBuffer);
+        try {
+            ringBuffer.publishEvents(translator, 1, 0, new String[]{"Foo0", "Bar0", "Baz0", "Bam0"}, new String[]{"Foo1", "Bar1", "Baz1", "Bam1"},
+                    new String[]{"Foo2", "Bar2", "Baz2", "Bam2"});
+            assertFalse(ringBuffer.tryPublishEvents(translator, 1, 0, new String[]{"Foo0", "Bar0", "Baz0", "Bam0"}, new String[]{"Foo1", "Bar1", "Baz1", "Bam1"},
+                    new String[]{"Foo2", "Bar2", "Baz2", "Bam2"}));
+        } finally {
+            assertEmptyRingBuffer(ringBuffer);
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -958,10 +968,10 @@ public class RingBufferTest
     }
 
     private void assertEmptyRingBuffer(final RingBuffer<Object[]> ringBuffer) {
-        assertThat(ringBuffer.getPublished(0)[0], is(nullValue()));
-        assertThat(ringBuffer.getPublished(1)[0], is(nullValue()));
-        assertThat(ringBuffer.getPublished(2)[0], is(nullValue()));
-        assertThat(ringBuffer.getPublished(3)[0], is(nullValue()));
+        assertThat(ringBuffer.get(0)[0], is(nullValue()));
+        assertThat(ringBuffer.get(1)[0], is(nullValue()));
+        assertThat(ringBuffer.get(2)[0], is(nullValue()));
+        assertThat(ringBuffer.get(3)[0], is(nullValue()));
     }
 
     private static final class TestEventProcessor implements EventProcessor
@@ -1046,7 +1056,7 @@ public class RingBufferTest
             boolean matches = true;
             for (int i = 0; i < expectedValueMatchers.length; i++) {
                 final Matcher<?> expectedValueMatcher = expectedValueMatchers[i];
-                matches &= expectedValueMatcher.matches(ringBuffer.getPublished(i)[0]);
+                matches &= expectedValueMatcher.matches(ringBuffer.get(i)[0]);
             }
             return matches;
         }

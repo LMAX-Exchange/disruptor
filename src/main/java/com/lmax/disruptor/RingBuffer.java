@@ -945,25 +945,25 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
 
     private boolean invalidatesBounds(final EventTranslator<E>[] translators, final int batchStartsAt, final int batchSize) {
-        return batchStartsAt < 0 || batchSize < 0 || batchOverRuns(translators, batchStartsAt, batchSize) || batchSize > bufferSize;
+        return batchStartsAt < 0 || batchSize <= 0 || batchOverRuns(translators, batchStartsAt, batchSize) || batchSize > bufferSize;
     }
 
     private <A> boolean invalidatesBounds(final A[] arg0, final int batchStartsAt, final int batchSize) {
-        return batchStartsAt < 0 || batchSize < 0 || batchOverRuns(arg0, batchStartsAt, batchSize) || batchSize > bufferSize;
+        return batchStartsAt < 0 || batchSize <= 0 || batchOverRuns(arg0, batchStartsAt, batchSize) || batchSize > bufferSize;
     }
 
     private <A, B> boolean invalidatesBounds(final A[] arg0, final B[] arg1, final int batchStartsAt, final int batchSize) {
-        return batchStartsAt < 0 || batchSize < 0 || batchOverRuns(arg0, batchStartsAt, batchSize) ||
+        return batchStartsAt < 0 || batchSize <= 0 || batchOverRuns(arg0, batchStartsAt, batchSize) ||
                 batchOverRuns(arg1, batchStartsAt, batchSize) || batchSize > bufferSize;
     }
 
     private <A, B, C> boolean invalidatesBounds(final A[] arg0, final B[] arg1, final C[] arg2, final int batchStartsAt, final int batchSize) {
-        return batchStartsAt < 0 || batchSize < 0 || batchOverRuns(arg0, batchStartsAt, batchSize) || batchOverRuns(arg1, batchStartsAt, batchSize)
+        return batchStartsAt < 0 || batchSize <= 0 || batchOverRuns(arg0, batchStartsAt, batchSize) || batchOverRuns(arg1, batchStartsAt, batchSize)
                 || batchOverRuns(arg2, batchStartsAt, batchSize) || batchSize > bufferSize;
     }
 
     private boolean invalidatesBounds(final int batchStartsAt, final int batchSize, final Object[][] args) {
-        return batchStartsAt < 0 || batchSize < 0 || batchOverRuns(args, batchStartsAt, batchSize) || batchSize > bufferSize;
+        return batchStartsAt < 0 || batchSize <= 0 || batchOverRuns(args, batchStartsAt, batchSize) || batchSize > bufferSize;
     }
 
     private <A> boolean batchOverRuns(final A[] arg0, final int batchStartsAt, final int batchSize) {
@@ -1038,7 +1038,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
                 final EventTranslator<E> translator = translators[i];
-                translator.translateTo(getPreallocated(sequence), sequence++);
+                translator.translateTo(get(sequence), sequence++);
             }
         } finally {
             sequencer.publish(initialSequence, finalSequence);
@@ -1051,7 +1051,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
-                translator.translateTo(getPreallocated(sequence), sequence++, arg0[i]);
+                translator.translateTo(get(sequence), sequence++, arg0[i]);
             }
         } finally {
             sequencer.publish(initialSequence, finalSequence);
@@ -1064,7 +1064,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
-                translator.translateTo(getPreallocated(sequence), sequence++, arg0[i], arg1[i]);
+                translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i]);
             }
         } finally {
             sequencer.publish(initialSequence, finalSequence);
@@ -1077,7 +1077,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
-                translator.translateTo(getPreallocated(sequence), sequence++, arg0[i], arg1[i], arg2[i]);
+                translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i], arg2[i]);
             }
         } finally {
             sequencer.publish(initialSequence, finalSequence);
@@ -1090,7 +1090,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
             for (int i = batchStartsAt; i < batchEndsAt; i++) {
-                translator.translateTo(getPreallocated(sequence), sequence++, args[i]);
+                translator.translateTo(get(sequence), sequence++, args[i]);
             }
         } finally {
             sequencer.publish(initialSequence, finalSequence);
