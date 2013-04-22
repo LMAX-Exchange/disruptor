@@ -348,8 +348,8 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 0, 1);
-        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 0, 1));
+        ringBuffer.publishEvents(translator, 0, 1, new String[]{"Foo", "Foo"});
+        assertTrue(ringBuffer.tryPublishEvents(translator, 0, 1, new String[]{"Foo", "Foo"}));
 
         assertThat(ringBuffer, ringBufferWithEvents(is((Object) "Foo-0"), is((Object) "Foo-1"), is(nullValue()), is(nullValue())));
     }
@@ -360,8 +360,8 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo", "Foo"}, 1, 2);
-        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo", "Foo"}, 1, 2));
+        ringBuffer.publishEvents(translator, 1, 2, new String[]{"Foo", "Foo", "Foo"});
+        assertTrue(ringBuffer.tryPublishEvents(translator, 1, 2, new String[]{"Foo", "Foo", "Foo"}));
 
         assertThat(ringBuffer, ringBufferWithEvents("Foo-0", "Foo-1", "Foo-2", "Foo-3"));
     }
@@ -396,8 +396,8 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1"}, new String[]{"Bar0", "Bar1"}, 0, 1);
-        ringBuffer.tryPublishEvents(translator, new String[]{"Foo2", "Foo3"}, new String[]{"Bar2", "Bar3"}, 0, 1);
+        ringBuffer.publishEvents(translator, 0, 1, new String[]{"Foo0", "Foo1"}, new String[]{"Bar0", "Bar1"});
+        ringBuffer.tryPublishEvents(translator, 0, 1, new String[]{"Foo2", "Foo3"}, new String[]{"Bar2", "Bar3"});
 
         assertThat(ringBuffer, ringBufferWithEvents(is((Object) "Foo0Bar0-0"), is((Object) "Foo2Bar2-1"), is(nullValue()), is(nullValue())));
     }
@@ -407,8 +407,8 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"}, 1, 2);
-        ringBuffer.tryPublishEvents(translator, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"}, 1, 2);
+        ringBuffer.publishEvents(translator, 1, 2, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"});
+        ringBuffer.tryPublishEvents(translator, 1, 2, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"});
 
         assertThat(ringBuffer, ringBufferWithEvents("Foo1Bar1-0", "Foo2Bar2-1", "Foo4Bar4-2", "Foo5Bar5-3"));
     }
@@ -443,8 +443,8 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 0, 1);
-        ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 0, 1);
+        ringBuffer.publishEvents(translator, 0, 1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
+        ringBuffer.tryPublishEvents(translator, 0, 1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
 
         assertThat(ringBuffer, ringBufferWithEvents(is((Object) "FooBarBaz-0"), is((Object) "FooBarBaz-1"), is(nullValue()), is(nullValue())));
     }
@@ -454,10 +454,10 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
-        ringBuffer.publishEvents(translator, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"}, new String[]{"Baz0", "Baz1", "Baz2"},
-                1, 2);
-        assertTrue(ringBuffer.tryPublishEvents(translator, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"},
-                new String[]{"Baz3", "Baz4", "Baz5"}, 1, 2));
+        ringBuffer.publishEvents(translator, 1, 2, new String[]{"Foo0", "Foo1", "Foo2"}, new String[]{"Bar0", "Bar1", "Bar2"}, new String[]{"Baz0", "Baz1", "Baz2"}
+        );
+        assertTrue(ringBuffer.tryPublishEvents(translator, 1, 2, new String[]{"Foo3", "Foo4", "Foo5"}, new String[]{"Bar3", "Bar4", "Bar5"},
+                new String[]{"Baz3", "Baz4", "Baz5"}));
 
         assertThat(ringBuffer, ringBufferWithEvents("Foo1Bar1Baz1-0", "Foo2Bar2Baz2-1", "Foo4Bar4Baz4-2", "Foo5Bar5Baz5-3"));
     }
@@ -611,8 +611,8 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0);
-            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 1, 0));
+            ringBuffer.publishEvents(translator, 1, 0, new String[]{"Foo", "Foo"});
+            assertFalse(ringBuffer.tryPublishEvents(translator, 1, 0, new String[]{"Foo", "Foo"}));
         } finally {
         assertEmptyRingBuffer(ringBuffer);
         }
@@ -624,7 +624,7 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 1, 3);
+            ringBuffer.publishEvents(translator, 1, 3, new String[]{"Foo", "Foo"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -636,7 +636,7 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, 1, -1);
+            ringBuffer.publishEvents(translator, 1, -1, new String[]{"Foo", "Foo"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -647,7 +647,7 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, -1, 2);
+            ringBuffer.publishEvents(translator, -1, 2, new String[]{"Foo", "Foo"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -659,7 +659,7 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 1, 3);
+            ringBuffer.tryPublishEvents(translator, 1, 3, new String[]{"Foo", "Foo"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -671,7 +671,7 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, 1, -1));
+            assertFalse(ringBuffer.tryPublishEvents(translator, 1, -1, new String[]{"Foo", "Foo"}));
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -683,7 +683,7 @@ public class RingBufferTest
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, -1, 2);
+            ringBuffer.tryPublishEvents(translator, -1, 2, new String[]{"Foo", "Foo"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -695,8 +695,8 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0);
-            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 0));
+            ringBuffer.publishEvents(translator, 1, 0, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
+            assertFalse(ringBuffer.tryPublishEvents(translator, 1, 0, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}));
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -708,7 +708,7 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 3);
+            ringBuffer.publishEvents(translator, 1, 3, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -720,7 +720,7 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, -1);
+            ringBuffer.publishEvents(translator, 1, -1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -731,7 +731,7 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, -1, 2);
+            ringBuffer.publishEvents(translator, -1, 2, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -743,7 +743,7 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, 3);
+            ringBuffer.tryPublishEvents(translator, 1, 3, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -755,7 +755,7 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, 1, -1);
+            ringBuffer.tryPublishEvents(translator, 1, -1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -767,7 +767,7 @@ public class RingBufferTest
         EventTranslatorTwoArg<Object[], String, String> translator = new TwoArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, -1, 2);
+            ringBuffer.tryPublishEvents(translator, -1, 2, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -779,8 +779,8 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0);
-            assertFalse(ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 0));
+            ringBuffer.publishEvents(translator, 1, 0, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
+            assertFalse(ringBuffer.tryPublishEvents(translator, 1, 0, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}));
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -792,7 +792,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 3);
+            ringBuffer.publishEvents(translator, 1, 3, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -804,7 +804,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, -1);
+            ringBuffer.publishEvents(translator, 1, -1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -816,7 +816,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.publishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, -1, 2);
+            ringBuffer.publishEvents(translator, -1, 2, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -828,7 +828,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, 3);
+            ringBuffer.tryPublishEvents(translator, 1, 3, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -840,7 +840,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, 1, -1);
+            ringBuffer.tryPublishEvents(translator, 1, -1, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
@@ -852,7 +852,7 @@ public class RingBufferTest
         EventTranslatorThreeArg<Object[], String, String, String> translator = new ThreeArgEventTranslator();
 
         try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"}, -1, 2);
+            ringBuffer.tryPublishEvents(translator, -1, 2, new String[]{"Foo", "Foo"}, new String[]{"Bar", "Bar"}, new String[]{"Baz", "Baz"});
         } finally {
             assertEmptyRingBuffer(ringBuffer);
         }
