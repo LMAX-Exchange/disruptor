@@ -21,7 +21,7 @@ package com.lmax.disruptor;
 public interface Sequencer extends Cursored
 {
     /** Set to -1 as sequence starting point */
-    public static final long INITIAL_CURSOR_VALUE = -1L;
+    long INITIAL_CURSOR_VALUE = -1L;
 
     /**
      * The capacity of the data structure to hold entries.
