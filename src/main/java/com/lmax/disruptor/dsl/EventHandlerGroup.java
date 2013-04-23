@@ -38,7 +38,7 @@ public class EventHandlerGroup<T>
     {
         this.disruptor = disruptor;
         this.consumerRepository = consumerRepository;
-        this.sequences = sequences;
+        this.sequences = Arrays.copyOf(sequences, sequences.length);
     }
 
     /**
