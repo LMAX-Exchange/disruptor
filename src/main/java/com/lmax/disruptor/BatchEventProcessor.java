@@ -134,7 +134,7 @@ public final class BatchEventProcessor<T>
                    break;
                }
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
@@ -156,7 +156,7 @@ public final class BatchEventProcessor<T>
                 timeoutHandler.onTimeout(availableSequence);
             }
         }
-        catch (Throwable e)
+        catch (Exception e)
         {
             exceptionHandler.handleEventException(e, availableSequence, null);
         }
@@ -173,7 +173,7 @@ public final class BatchEventProcessor<T>
             {
                 ((LifecycleAware)eventHandler).onStart();
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 exceptionHandler.handleOnStartException(ex);
             }
@@ -191,7 +191,7 @@ public final class BatchEventProcessor<T>
             {
                 ((LifecycleAware)eventHandler).onShutdown();
             }
-            catch (final Throwable ex)
+            catch (final Exception ex)
             {
                 exceptionHandler.handleOnShutdownException(ex);
             }
