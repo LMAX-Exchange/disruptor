@@ -46,6 +46,16 @@
             <li><a href="https://github.com/odeheurles/Disruptor-net">.NET Disruptor Port</a></li>
           </ul>
 
+          <h2>3.0.1 Released (16-Apr-2013)</h2>
+
+          <ul>
+            <li>Remove Sequencer.ensureAvailable() and move functionality into the ProcessingSequenceBarrier.</li>
+            <li>Add get() method and deprecate getPublished() and getPreallocated() from the RingBuffer.</li>
+            <li>Add TimeoutException to SequenceBarrier.waitFor().</li>
+            <li>Fix off by one bug in MultiProducerSequencer.publish(lo, hi).</li>
+            <li>Improve testing for Sequencers.</li>
+          </ul>
+
           <h2>3.0.0 Released (10-Apr-2013)</h2>
 
           <ul>
