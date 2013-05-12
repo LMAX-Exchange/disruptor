@@ -1,8 +1,6 @@
 <component name="libraryTable">
   <library name="asm-tree-3.3.1">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-23/filestore/asm/asm-tree/3.3.1/jar/c9723d887e26c3049944e46312bb39e7ab1a2ed2/asm-tree-3.3.1.jar!/" />
-    </CLASSES>
+    <CLASSES />
     <JAVADOC />
     <SOURCES />
   </library>

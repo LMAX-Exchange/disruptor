@@ -2,7 +2,6 @@
   <library name="caliper-0.5-rc1">
     <CLASSES>
       <root url="jar://$USER_HOME$/.gradle/caches/artifacts-14/filestore/com.google.caliper/caliper/0.5-rc1/jar/abab2a06f7d429f041d8a423b100604ced3f789d/caliper-0.5-rc1.jar!/" />
-      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-23/filestore/com.google.caliper/caliper/0.5-rc1/jar/abab2a06f7d429f041d8a423b100604ced3f789d/caliper-0.5-rc1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

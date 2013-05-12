@@ -590,7 +590,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param batchStartsAt The first element of the array which is within the batch.
      * @param batchSize     The actual size of the batch
      */
-    public void publishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize) {
+    public void publishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize)
+    {
         checkBounds(translators, batchStartsAt, batchSize);
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
@@ -607,7 +608,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @return true if the value was published, false if there was insufficient
      *         capacity.
      */
-    public boolean tryPublishEvents(EventTranslator<E>[] translators) {
+    public boolean tryPublishEvents(EventTranslator<E>[] translators)
+    {
         return tryPublishEvents(translators, 0, translators.length);
     }
 
@@ -624,13 +626,15 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @return true if all the values were published, false if there was insufficient
      *         capacity.
      */
-    public boolean tryPublishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize) {
+    public boolean tryPublishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize)
+    {
         checkBounds(translators, batchStartsAt, batchSize);
         try {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e) {
+        }
+        catch (InsufficientCapacityException e) {
             return false;
         }
     }
@@ -642,7 +646,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg0       A user supplied argument.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A> void publishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0) {
+    public <A> void publishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0)
+    {
         publishEvents(translator, 0, arg0.length, arg0);
     }
 
@@ -655,7 +660,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg0          An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
-    public <A> void publishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt, int batchSize, A[] arg0) {
+    public <A> void publishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt, int batchSize, A[] arg0)
+    {
         checkBounds(arg0, batchStartsAt, batchSize);
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
@@ -670,7 +676,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #tryPublishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0) {
+    public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, A[] arg0)
+    {
         return tryPublishEvents(translator, 0, arg0.length, arg0);
     }
 
@@ -685,13 +692,15 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #tryPublishEvents(EventTranslator[])
      */
-    public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt, int batchSize, A[] arg0) {
+    public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt, int batchSize, A[] arg0)
+    {
         checkBounds(arg0, batchStartsAt, batchSize);
         try {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e) {
+        }
+        catch (InsufficientCapacityException e) {
             return false;
         }
     }
@@ -704,13 +713,13 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg1       An array of user supplied arguments, one element per event.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1) {
+    public <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1)
+    {
         publishEvents(translator, 0, arg0.length, arg0, arg1);
     }
 
     /**
      * Allows two user supplied arguments per event.
-     *
      *
      * @param translator    The user specified translation for the event
      * @param batchStartsAt The first element of the array which is within the batch.
@@ -719,7 +728,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg1          An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
-    public <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1) {
+    public <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1)
+    {
         checkBounds(arg0, arg1, batchStartsAt, batchSize);
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
@@ -735,13 +745,13 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #tryPublishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1) {
+    public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, A[] arg0, B[] arg1)
+    {
         return tryPublishEvents(translator, 0, arg0.length, arg0, arg1);
     }
 
     /**
      * Allows two user supplied arguments per event.
-     *
      *
      * @param translator    The user specified translation for the event
      * @param batchStartsAt The first element of the array which is within the batch.
@@ -752,13 +762,15 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #tryPublishEvents(EventTranslator[])
      */
-    public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1) {
+    public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1)
+    {
         checkBounds(arg0, arg1, batchStartsAt, batchSize);
         try {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e) {
+        }
+        catch (InsufficientCapacityException e) {
             return false;
         }
     }
@@ -772,7 +784,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg2       An array of user supplied arguments, one element per event.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2) {
+    public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2)
+    {
         publishEvents(translator, 0, arg0.length, arg0, arg1, arg2);
     }
 
@@ -787,7 +800,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param arg2          An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
-    public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2) {
+    public <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2)
+    {
         checkBounds(arg0, arg1, arg2, batchStartsAt, batchSize);
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
@@ -804,7 +818,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2) {
+    public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0, B[] arg1, C[] arg2)
+    {
         return tryPublishEvents(translator, 0, arg0.length, arg0, arg1, arg2);
     }
 
@@ -821,13 +836,15 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #publishEvents(EventTranslator[])
      */
-    public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2) {
+    public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2)
+    {
         checkBounds(arg0, arg1, arg2, batchStartsAt, batchSize);
         try {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e) {
+        }
+        catch (InsufficientCapacityException e) {
             return false;
         }
     }
@@ -839,7 +856,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param args       User supplied arguments, one Object[] per event.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public void publishEvents(EventTranslatorVararg<E> translator, Object[]... args) {
+    public void publishEvents(EventTranslatorVararg<E> translator, Object[]... args)
+    {
         publishEvents(translator, 0, args.length, args);
     }
 
@@ -852,7 +870,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param args          User supplied arguments, one Object[] per event.
      * @see #publishEvents(EventTranslator[])
      */
-    public void publishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args) {
+    public void publishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args)
+    {
         checkBounds(batchStartsAt, batchSize, args);
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
@@ -867,7 +886,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #publishEvents(com.lmax.disruptor.EventTranslator[])
      */
-    public boolean tryPublishEvents(EventTranslatorVararg<E> translator, Object[]... args) {
+    public boolean tryPublishEvents(EventTranslatorVararg<E> translator, Object[]... args)
+    {
         return tryPublishEvents(translator, 0, args.length, args);
     }
 
@@ -882,13 +902,15 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *         capacity.
      * @see #publishEvents(EventTranslator[])
      */
-    public boolean tryPublishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args) {
+    public boolean tryPublishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args)
+    {
         checkBounds(args, batchStartsAt, batchSize);
         try {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
             return true;
-        } catch (InsufficientCapacityException e) {
+        }
+        catch (InsufficientCapacityException e) {
             return false;
         }
     }
