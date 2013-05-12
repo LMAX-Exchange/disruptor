@@ -6,6 +6,7 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/.gradle/caches/artifacts-14/filestore/com.google.guava/guava/11.0.1/source/6101fb9881e05d563c8c971757edb19bfced011/guava-11.0.1-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-23/filestore/com.google.guava/guava/11.0.1/source/6101fb9881e05d563c8c971757edb19bfced011/guava-11.0.1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

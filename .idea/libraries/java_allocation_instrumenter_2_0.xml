@@ -6,6 +6,7 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/.gradle/caches/artifacts-14/filestore/com.google.code.java-allocation-instrumenter/java-allocation-instrumenter/2.0/source/c05b5a72ffe3879e3b7bc51c6442d1f1fd52cc7f/java-allocation-instrumenter-2.0-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/artifacts-23/filestore/com.google.code.java-allocation-instrumenter/java-allocation-instrumenter/2.0/source/c05b5a72ffe3879e3b7bc51c6442d1f1fd52cc7f/java-allocation-instrumenter-2.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

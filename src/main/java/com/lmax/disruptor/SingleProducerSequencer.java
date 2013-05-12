@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.locks.LockSupport;
-
 import com.lmax.disruptor.util.Util;
+
+import java.util.concurrent.locks.LockSupport;
 
 
 /**
