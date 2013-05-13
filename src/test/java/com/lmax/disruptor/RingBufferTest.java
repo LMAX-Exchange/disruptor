@@ -15,15 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.support.StubEvent;
-import com.lmax.disruptor.support.TestWaiter;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
@@ -33,8 +24,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static com.lmax.disruptor.RingBufferTest.RingBufferEventMatcher.ringBufferWithEvents;
+import com.lmax.disruptor.support.StubEvent;
+import com.lmax.disruptor.support.TestWaiter;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -43,6 +42,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBufferTest.RingBufferEventMatcher.ringBufferWithEvents;
 
 public class RingBufferTest
 {
@@ -1221,6 +1224,8 @@ public class RingBufferTest
     {
         private final SequenceBarrier sequenceBarrier;
         private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+        private final AtomicBoolean running = new AtomicBoolean();
+
 
         public TestEventProcessor(final SequenceBarrier sequenceBarrier)
         {
@@ -1236,11 +1241,22 @@ public class RingBufferTest
         @Override
         public void halt()
         {
+            running.set(false);
+        }
+
+        @Override
+        public boolean isRunning()
+        {
+            return running.get();
         }
 
         @Override
         public void run()
         {
+            if (!running.compareAndSet(false, true))
+            {
+                throw new IllegalStateException("Already running");
+            }
             try
             {
                 sequenceBarrier.waitFor(0L);

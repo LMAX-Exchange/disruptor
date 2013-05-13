@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.Util;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.lmax.disruptor.util.Util;
 
 /**
  * WorkerPool contains a pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers.
@@ -166,5 +166,10 @@ public final class WorkerPool<T>
         }
 
         started.set(false);
+    }
+
+    public boolean isRunning()
+    {
+        return started.get();
     }
 }

@@ -72,6 +72,12 @@ public final class WorkProcessor<T>
         sequenceBarrier.alert();
     }
 
+    @Override
+    public boolean isRunning()
+    {
+        return running.get();
+    }
+
     /**
      * It is ok to have another thread re-run this method after a halt().
      *
