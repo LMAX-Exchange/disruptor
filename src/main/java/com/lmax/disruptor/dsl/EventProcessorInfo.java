@@ -91,4 +91,10 @@ class EventProcessorInfo<T> implements ConsumerInfo
     {
         endOfChain = false;
     }
+
+    @Override
+    public boolean isRunning()
+    {
+        return eventprocessor.isRunning();
+    }
 }

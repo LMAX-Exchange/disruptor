@@ -51,4 +51,10 @@ class WorkerPoolInfo<T> implements ConsumerInfo
     {
         endOfChain = false;
     }
+
+    @Override
+    public boolean isRunning()
+    {
+        return workerPool.isRunning();
+    }
 }
