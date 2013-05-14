@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  */
 public final class IgnoreExceptionHandler implements ExceptionHandler
 {
-    private final static Logger LOGGER = Logger.getLogger(IgnoreExceptionHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IgnoreExceptionHandler.class.getName());
     private final Logger logger;
 
     public IgnoreExceptionHandler()

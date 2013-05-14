@@ -84,7 +84,7 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
     private final long expectedResult;
@@ -164,9 +164,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         stepThreeQueueProcessor.reset(latch);
 
         Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
-        futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
-        futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
-        futures[2] = EXECUTOR.submit(stepThreeQueueProcessor);
+        futures[0] = executor.submit(stepOneQueueProcessor);
+        futures[1] = executor.submit(stepTwoQueueProcessor);
+        futures[2] = executor.submit(stepThreeQueueProcessor);
 
         long start = System.currentTimeMillis();
 
@@ -202,9 +202,9 @@ public final class OnePublisherToThreeProcessorPipelineThroughputTest extends Ab
         CountDownLatch latch = new CountDownLatch(1);
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
-        EXECUTOR.submit(stepOneBatchProcessor);
-        EXECUTOR.submit(stepTwoBatchProcessor);
-        EXECUTOR.submit(stepThreeBatchProcessor);
+        executor.submit(stepOneBatchProcessor);
+        executor.submit(stepTwoBatchProcessor);
+        executor.submit(stepThreeBatchProcessor);
 
         long start = System.currentTimeMillis();
 

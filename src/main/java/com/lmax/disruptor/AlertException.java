@@ -21,7 +21,7 @@ package com.lmax.disruptor;
  * It does not fill in a stack trace for performance reasons.
  */
 @SuppressWarnings("serial")
-public class AlertException extends Exception
+public final class AlertException extends Exception
 {
     /** Pre-allocated exception to avoid garbage generation */
     public static final AlertException INSTANCE = new AlertException();

@@ -62,7 +62,7 @@ public final class StubEvent
         this.testString = testString;
     }
 
-    public final static EventFactory<StubEvent> EVENT_FACTORY = new EventFactory<StubEvent>()
+    public static final EventFactory<StubEvent> EVENT_FACTORY = new EventFactory<StubEvent>()
     {
         public StubEvent newInstance()
         {

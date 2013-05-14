@@ -29,7 +29,7 @@ import com.lmax.disruptor.support.ValueEvent;
 public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchmark
 {
     private static final int BUFFER_SIZE = 1024 * 8;
-    private final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final RingBuffer<ValueEvent> ringBuffer =
             createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
@@ -40,7 +40,7 @@ public class DirectVsEventTranslatorWithSingleLongBenchmark extends SimpleBenchm
             new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
-        EXECUTOR.submit(batchEventProcessor);
+        executor.submit(batchEventProcessor);
         try
         {
             Thread.sleep(1000);

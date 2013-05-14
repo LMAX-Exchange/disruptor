@@ -16,7 +16,6 @@
 package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.support.TestEvent;
 
 public class StubPublisher implements Runnable

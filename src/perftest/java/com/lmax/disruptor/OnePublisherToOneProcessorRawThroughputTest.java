@@ -70,7 +70,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
 {
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 200L;
-    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +107,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
         final CountDownLatch latch = new CountDownLatch(1);
         long expectedCount = myRunnable.sequence.get() + ITERATIONS;
         myRunnable.reset(latch, expectedCount);
-        EXECUTOR.submit(myRunnable);
+        executor.submit(myRunnable);
         long start = System.currentTimeMillis();
         
         final Sequencer sequencer = this.sequencer;

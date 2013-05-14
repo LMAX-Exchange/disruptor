@@ -31,7 +31,7 @@ public final class ValueEvent
         this.value = value;
     }
 
-    public final static EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>()
+    public static final EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>()
     {
         public ValueEvent newInstance()
         {

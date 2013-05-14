@@ -30,15 +30,15 @@ import sun.misc.Unsafe;
 public class Sequence
 {
     static final long INITIAL_VALUE = -1L;
-    private static final Unsafe unsafe;
-    private static final long valueOffset;
+    private static final Unsafe UNSAFE;
+    private static final long VALUE_OFFSET;
 
     static
     {
-        unsafe = Util.getUnsafe();
-        final int base = unsafe.arrayBaseOffset(long[].class);
-        final int scale = unsafe.arrayIndexScale(long[].class);
-        valueOffset = base + (scale * 7);
+        UNSAFE = Util.getUnsafe();
+        final int base = UNSAFE.arrayBaseOffset(long[].class);
+        final int scale = UNSAFE.arrayIndexScale(long[].class);
+        VALUE_OFFSET = base + (scale * 7);
     }
 
     private final long[] paddedValue = new long[15];
@@ -58,7 +58,7 @@ public class Sequence
      */
     public Sequence(final long initialValue)
     {
-        unsafe.putOrderedLong(paddedValue, valueOffset, initialValue);
+        UNSAFE.putOrderedLong(paddedValue, VALUE_OFFSET, initialValue);
     }
 
     /**
@@ -68,7 +68,7 @@ public class Sequence
      */
     public long get()
     {
-        return unsafe.getLongVolatile(paddedValue, valueOffset);
+        return UNSAFE.getLongVolatile(paddedValue, VALUE_OFFSET);
     }
 
     /**
@@ -80,7 +80,7 @@ public class Sequence
      */
     public void set(final long value)
     {
-        unsafe.putOrderedLong(paddedValue, valueOffset, value);
+        UNSAFE.putOrderedLong(paddedValue, VALUE_OFFSET, value);
     }
 
     /**
@@ -93,7 +93,7 @@ public class Sequence
      */
     public void setVolatile(final long value)
     {
-        unsafe.putLongVolatile(paddedValue, valueOffset, value);
+        UNSAFE.putLongVolatile(paddedValue, VALUE_OFFSET, value);
     }
 
     /**
@@ -105,7 +105,7 @@ public class Sequence
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return unsafe.compareAndSwapLong(paddedValue, valueOffset, expectedValue, newValue);
+        return UNSAFE.compareAndSwapLong(paddedValue, VALUE_OFFSET, expectedValue, newValue);
     }
 
     /**

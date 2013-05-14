@@ -349,7 +349,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * the last value that was published, or the highest available sequence
      * that can be consumed.
      */
-    public final long getCursor()
+    public long getCursor()
     {
         return sequencer.getCursor();
     }
@@ -576,7 +576,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *
      * @param translators The user specified translation for each event
      */
-    public void publishEvents(EventTranslator<E>[] translators) {
+    public void publishEvents(EventTranslator<E>[] translators)
+    {
         publishEvents(translators, 0, translators.length);
     }
 
@@ -964,10 +965,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         batchOverRuns(translators, batchStartsAt, batchSize);
     }
 
-    private void checkBatchSizing(int batchStartsAt, int batchSize) {
+    private void checkBatchSizing(int batchStartsAt, int batchSize) 
+    {
         if(batchStartsAt < 0 || batchSize < 0)
         {
-            throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and bachSize " + batchSize );
+            throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and bachSize " + batchSize);
         }
         else if(batchSize > bufferSize)
         {
@@ -1006,7 +1008,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         if(batchStartsAt + batchSize > arg0.length)
         {
-            throw new IllegalArgumentException("A batchSize of: " + batchSize + " with batchStatsAt of: " + batchStartsAt + " will overrun the available number of arguments: " + (arg0.length - batchStartsAt));
+            throw new IllegalArgumentException("A batchSize of: " + batchSize + 
+                                               " with batchStatsAt of: " + batchStartsAt + 
+                                               " will overrun the available number of arguments: " + (arg0.length - batchStartsAt));
         }
     }
 

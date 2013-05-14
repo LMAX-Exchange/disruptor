@@ -96,7 +96,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
     {
@@ -173,7 +173,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             queueProcessors[i].reset(latch);
-            futures[i] = EXECUTOR.submit(queueProcessors[i]);
+            futures[i] = executor.submit(queueProcessors[i]);
         }
 
         long start = System.currentTimeMillis();
@@ -206,7 +206,7 @@ public final class OnePublisherToThreeProcessorMultiCastThroughputTest extends A
         for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
         {
             handlers[i].reset(latch, batchEventProcessors[i].getSequence().get() + ITERATIONS);
-            EXECUTOR.submit(batchEventProcessors[i]);
+            executor.submit(batchEventProcessors[i]);
         }
 
         long start = System.currentTimeMillis();

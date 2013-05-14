@@ -22,7 +22,7 @@ import org.junit.Test;
 
 public class MultiProducerSequencerTest
 {
-    private AbstractSequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+    private Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
         
     @Test
     public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished() throws Exception

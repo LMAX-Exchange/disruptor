@@ -104,7 +104,7 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final long expectedResult;
     {
@@ -187,9 +187,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         fizzBuzzQueueProcessor.reset(latch);
 
         Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
-        futures[0] = EXECUTOR.submit(fizzQueueProcessor);
-        futures[1] = EXECUTOR.submit(buzzQueueProcessor);
-        futures[2] = EXECUTOR.submit(fizzBuzzQueueProcessor);
+        futures[0] = executor.submit(fizzQueueProcessor);
+        futures[1] = executor.submit(buzzQueueProcessor);
+        futures[2] = executor.submit(fizzBuzzQueueProcessor);
 
         long start = System.currentTimeMillis();
 
@@ -223,9 +223,9 @@ public final class OnePublisherToThreeProcessorDiamondThroughputTest extends Abs
         CountDownLatch latch = new CountDownLatch(1);
         fizzBuzzHandler.reset(latch, batchProcessorFizzBuzz.getSequence().get() + ITERATIONS);
 
-        EXECUTOR.submit(batchProcessorFizz);
-        EXECUTOR.submit(batchProcessorBuzz);
-        EXECUTOR.submit(batchProcessorFizzBuzz);
+        executor.submit(batchProcessorFizz);
+        executor.submit(batchProcessorBuzz);
+        executor.submit(batchProcessorFizzBuzz);
 
         long start = System.currentTimeMillis();
 

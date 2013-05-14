@@ -31,8 +31,8 @@ public abstract class AbstractPerfTestQueueVsDisruptor
             System.out.println("Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
         }
 
-        long queueOps[] = new long[RUNS];
-        long disruptorOps[] = new long[RUNS];
+        long[] queueOps = new long[RUNS];
+        long[] disruptorOps = new long[RUNS];
 
         if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "false")))
         {

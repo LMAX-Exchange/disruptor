@@ -46,7 +46,7 @@ import static org.junit.Assert.fail;
 
 public class RingBufferTest
 {
-    private final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private final RingBuffer<StubEvent> ringBuffer = RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     {
@@ -283,10 +283,12 @@ public class RingBufferTest
         final EventTranslator<Object[]> eventTranslator = new NoArgEventTranslator();
         final EventTranslator<Object[]>[] translators = new EventTranslator[]{eventTranslator, eventTranslator, eventTranslator, eventTranslator, eventTranslator};
 
-        try {
+        try
+        {
             ringBuffer.tryPublishEvents(translators);
         }
-        finally {
+        finally
+        {
             assertEmptyRingBuffer(ringBuffer);
         }
     }
@@ -337,10 +339,12 @@ public class RingBufferTest
         RingBuffer<Object[]> ringBuffer = RingBuffer.createSingleProducer(new ArrayFactory(1), 4);
         EventTranslatorOneArg<Object[], String> translator = new OneArgEventTranslator();
 
-        try {
-            ringBuffer.tryPublishEvents(translator, new String[]{"Foo", "Foo", "Foo", "Foo", "Foo"});
+        try
+        {
+            ringBuffer.tryPublishEvents(translator, new String[] { "Foo", "Foo", "Foo", "Foo", "Foo" });
         }
-        finally {
+        finally
+        {
             assertEmptyRingBuffer(ringBuffer);
         }
     }
@@ -1197,7 +1201,7 @@ public class RingBufferTest
         final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
-        final Future<List<StubEvent>> f = EXECUTOR.submit(new TestWaiter(cyclicBarrier, sequenceBarrier, ringBuffer,
+        final Future<List<StubEvent>> f = executor.submit(new TestWaiter(cyclicBarrier, sequenceBarrier, ringBuffer,
                                                                          initial, toWaitFor));
 
         cyclicBarrier.await();
@@ -1266,7 +1270,7 @@ public class RingBufferTest
         }
     }
 
-    static class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
+    static final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
     {
         private final Matcher<?>[] expectedValueMatchers;
 

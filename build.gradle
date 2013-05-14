@@ -18,6 +18,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
+apply plugin: 'checkstyle'
 
 defaultTasks 'build'
 

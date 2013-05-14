@@ -63,7 +63,8 @@ public final class Histogram
     private void validateBounds(final long[] upperBounds)
     {
         long lastBound = -1L;
-        if (upperBounds.length <= 0) {
+        if (upperBounds.length <= 0) 
+        {
             throw new IllegalArgumentException("Must provide at least one interval");
         }
         for (final long bound : upperBounds)

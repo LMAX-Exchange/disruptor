@@ -94,7 +94,7 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 20L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,9 +152,9 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = EXECUTOR.submit(valueQueuePublishers[i]);
+            futures[i] = executor.submit(valueQueuePublishers[i]);
         }
-        Future<?> processorFuture = EXECUTOR.submit(queueProcessor);
+        Future<?> processorFuture = executor.submit(queueProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
@@ -182,9 +182,9 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = EXECUTOR.submit(valuePublishers[i]);
+            futures[i] = executor.submit(valuePublishers[i]);
         }
-        EXECUTOR.submit(batchEventProcessor);
+        executor.submit(batchEventProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();

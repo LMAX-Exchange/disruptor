@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
 @SuppressWarnings("serial")
-public class TimeoutException extends Exception
+public final class TimeoutException extends Exception
 {
     public static final TimeoutException INSTANCE = new TimeoutException();
     

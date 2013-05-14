@@ -89,7 +89,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 30L;
     private static final long PAUSE_NANOS = 1000L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final Histogram histogram;
     {
@@ -167,14 +167,14 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     @Test
     public void shouldCompareDisruptorVsQueues() throws Exception
     {
-        final int RUNS = 3;
+        final int runs = 3;
 
-        BigDecimal queueMeanLatency[] = new BigDecimal[RUNS];
-        BigDecimal disruptorMeanLatency[] = new BigDecimal[RUNS];
+        BigDecimal[] queueMeanLatency = new BigDecimal[runs];
+        BigDecimal[] disruptorMeanLatency = new BigDecimal[runs];
 
         if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
         {
-            for (int i = 0; i < RUNS; i++)
+            for (int i = 0; i < runs; i++)
             {
                 System.gc();
                 histogram.clear();
@@ -190,13 +190,13 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         }
         else
         {
-            for (int i = 0; i < RUNS; i++)
+            for (int i = 0; i < runs; i++)
             {
                 queueMeanLatency[i] = new BigDecimal(Long.MAX_VALUE);
             }
         }
 
-        for (int i = 0; i < RUNS; i++)
+        for (int i = 0; i < runs; i++)
         {
             System.gc();
             histogram.clear();
@@ -210,7 +210,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             dumpHistogram(System.out);
         }
 
-        for (int i = 0; i < RUNS; i++)
+        for (int i = 0; i < runs; i++)
         {
             assertTrue(queueMeanLatency[i].compareTo(disruptorMeanLatency[i]) > 0);
         }
@@ -233,9 +233,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         stepThreeQueueProcessor.reset(latch);
 
         Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
-        futures[0] = EXECUTOR.submit(stepOneQueueProcessor);
-        futures[1] = EXECUTOR.submit(stepTwoQueueProcessor);
-        futures[2] = EXECUTOR.submit(stepThreeQueueProcessor);
+        futures[0] = executor.submit(stepOneQueueProcessor);
+        futures[1] = executor.submit(stepTwoQueueProcessor);
+        futures[2] = executor.submit(stepThreeQueueProcessor);
 
         for (long i = 0; i < ITERATIONS; i++)
         {
@@ -264,9 +264,9 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         CountDownLatch latch = new CountDownLatch(1);
         stepThreeFunctionHandler.reset(latch, stepThreeBatchProcessor.getSequence().get() + ITERATIONS);
 
-        EXECUTOR.submit(stepOneBatchProcessor);
-        EXECUTOR.submit(stepTwoBatchProcessor);
-        EXECUTOR.submit(stepThreeBatchProcessor);
+        executor.submit(stepOneBatchProcessor);
+        executor.submit(stepTwoBatchProcessor);
+        executor.submit(stepThreeBatchProcessor);
 
         for (long i = 0; i < ITERATIONS; i++)
         {

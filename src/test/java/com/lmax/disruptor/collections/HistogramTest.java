@@ -122,8 +122,8 @@ public final class HistogramTest
     @Test
     public void shouldGetMeanObservation()
     {
-        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
-        final Histogram histogram = new Histogram(INTERVALS);
+        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(intervals);
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
 
@@ -133,8 +133,8 @@ public final class HistogramTest
     @Test
     public void shouldCorrectMeanForSkewInTopAndBottomPopulatedIntervals()
     {
-        final long[] INTERVALS = new long[]{ 100, 110, 120, 130, 140, 150, 1000, 10000 };
-        final Histogram histogram = new Histogram(INTERVALS);
+        final long[] intervals = new long[]{ 100, 110, 120, 130, 140, 150, 1000, 10000 };
+        final Histogram histogram = new Histogram(intervals);
 
         for (long i = 100; i < 152; i++)
         {
@@ -172,8 +172,8 @@ public final class HistogramTest
     @Test
     public void shouldGetTwoNinesUpperBound()
     {
-        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
-        final Histogram histogram = new Histogram(INTERVALS);
+        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(intervals);
 
         for (long i = 1; i < 101; i++)
         {
@@ -186,8 +186,8 @@ public final class HistogramTest
     @Test
     public void shouldGetFourNinesUpperBound()
     {
-        final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, 10000 };
-        final Histogram histogram = new Histogram(INTERVALS);
+        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final Histogram histogram = new Histogram(intervals);
 
         for (long i = 1; i < 102; i++)
         {

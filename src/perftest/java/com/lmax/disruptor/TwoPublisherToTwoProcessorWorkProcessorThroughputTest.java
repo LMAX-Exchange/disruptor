@@ -52,7 +52,7 @@ public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends
     private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 1L;
-    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,12 +118,12 @@ public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = EXECUTOR.submit(valuePublishers[i]);
+            futures[i] = executor.submit(valuePublishers[i]);
         }
         
         for (WorkProcessor<ValueEvent> processor : workProcessors)
         {            
-            EXECUTOR.submit(processor);
+            executor.submit(processor);
         }
 
         long start = System.currentTimeMillis();

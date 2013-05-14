@@ -257,7 +257,7 @@ public final class SequenceBarrierTest
         }
     }
 
-    private final static class CountDownLatchSequence extends Sequence
+    private static final class CountDownLatchSequence extends Sequence
     {
         private final CountDownLatch latch;
 

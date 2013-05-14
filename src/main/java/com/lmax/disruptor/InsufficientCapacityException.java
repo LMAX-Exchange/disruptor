@@ -25,7 +25,7 @@ package com.lmax.disruptor;
  *
  */
 @SuppressWarnings("serial")
-public class InsufficientCapacityException extends Exception
+public final class InsufficientCapacityException extends Exception
 {
     public static final InsufficientCapacityException INSTANCE = new InsufficientCapacityException();
 

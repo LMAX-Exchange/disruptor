@@ -28,7 +28,7 @@ import com.google.caliper.SimpleBenchmark;
 public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchmark
 {
     private static final int BUFFER_SIZE = 1024 * 8;
-    private final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final RingBuffer<byte[]> ringBuffer = 
             createSingleProducer(new ByteArrayFactory(), BUFFER_SIZE, new YieldingWaitStrategy());
@@ -40,7 +40,7 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
     private final byte[] data = new byte[128];
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
-        EXECUTOR.submit(batchEventProcessor);
+        executor.submit(batchEventProcessor);
         Arrays.fill(data, (byte) 'a');
     }
 
