@@ -629,12 +629,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public boolean tryPublishEvents(EventTranslator<E>[] translators, int batchStartsAt, int batchSize)
     {
         checkBounds(translators, batchStartsAt, batchSize);
-        try {
+        try
+        {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
             return true;
         }
-        catch (InsufficientCapacityException e) {
+        catch (InsufficientCapacityException e)
+        {
             return false;
         }
     }
@@ -695,12 +697,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public <A> boolean tryPublishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt, int batchSize, A[] arg0)
     {
         checkBounds(arg0, batchStartsAt, batchSize);
-        try {
+        try
+        {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
             return true;
         }
-        catch (InsufficientCapacityException e) {
+        catch (InsufficientCapacityException e)
+        {
             return false;
         }
     }
@@ -765,12 +769,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1)
     {
         checkBounds(arg0, arg1, batchStartsAt, batchSize);
-        try {
+        try
+        {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
             return true;
         }
-        catch (InsufficientCapacityException e) {
+        catch (InsufficientCapacityException e)
+        {
             return false;
         }
     }
@@ -839,12 +845,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2)
     {
         checkBounds(arg0, arg1, arg2, batchStartsAt, batchSize);
-        try {
+        try
+        {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
             return true;
         }
-        catch (InsufficientCapacityException e) {
+        catch (InsufficientCapacityException e)
+        {
             return false;
         }
     }
@@ -905,12 +913,14 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     public boolean tryPublishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args)
     {
         checkBounds(args, batchStartsAt, batchSize);
-        try {
+        try
+        {
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
             return true;
         }
-        catch (InsufficientCapacityException e) {
+        catch (InsufficientCapacityException e)
+        {
             return false;
         }
     }
@@ -1061,68 +1071,100 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
     }
 
-    private void translateAndPublishBatch(final EventTranslator<E>[] translators, int batchStartsAt, final int batchSize, final long finalSequence) {
+    private void translateAndPublishBatch(final EventTranslator<E>[] translators, int batchStartsAt,
+                                          final int batchSize, final long finalSequence)
+    {
         final long initialSequence = finalSequence - (batchSize - 1);
-        try {
+        try
+        {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
-            for (int i = batchStartsAt; i < batchEndsAt; i++) {
+            for (int i = batchStartsAt; i < batchEndsAt; i++)
+            {
                 final EventTranslator<E> translator = translators[i];
                 translator.translateTo(get(sequence), sequence++);
             }
-        } finally {
+        }
+        finally
+        {
             sequencer.publish(initialSequence, finalSequence);
         }
     }
 
-    private <A> void translateAndPublishBatch(final EventTranslatorOneArg<E, A> translator, final A[] arg0, int batchStartsAt, final int batchSize, final long finalSequence) {
+    private <A> void translateAndPublishBatch(final EventTranslatorOneArg<E, A> translator, final A[] arg0,
+                                              int batchStartsAt, final int batchSize, final long finalSequence)
+    {
         final long initialSequence = finalSequence - (batchSize - 1);
-        try {
+        try
+        {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
-            for (int i = batchStartsAt; i < batchEndsAt; i++) {
+            for (int i = batchStartsAt; i < batchEndsAt; i++)
+            {
                 translator.translateTo(get(sequence), sequence++, arg0[i]);
             }
-        } finally {
+        }
+        finally
+        {
             sequencer.publish(initialSequence, finalSequence);
         }
     }
 
-    private <A, B> void translateAndPublishBatch(final EventTranslatorTwoArg<E, A, B> translator, final A[] arg0, final B[] arg1, int batchStartsAt, int batchSize, final long finalSequence) {
+    private <A, B> void translateAndPublishBatch(final EventTranslatorTwoArg<E, A, B> translator, final A[] arg0,
+                                                 final B[] arg1, int batchStartsAt, int batchSize,
+                                                 final long finalSequence)
+    {
         final long initialSequence = finalSequence - (batchSize - 1);
-        try {
+        try
+        {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
-            for (int i = batchStartsAt; i < batchEndsAt; i++) {
+            for (int i = batchStartsAt; i < batchEndsAt; i++)
+            {
                 translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i]);
             }
-        } finally {
+        }
+        finally
+        {
             sequencer.publish(initialSequence, finalSequence);
         }
     }
 
-    private <A, B, C> void translateAndPublishBatch(final EventTranslatorThreeArg<E, A, B, C> translator, final A[] arg0, final B[] arg1, final C[] arg2, int batchStartsAt, final int batchSize, final long finalSequence) {
+    private <A, B, C> void translateAndPublishBatch(final EventTranslatorThreeArg<E, A, B, C> translator,
+                                                    final A[] arg0, final B[] arg1, final C[] arg2, int batchStartsAt,
+                                                    final int batchSize, final long finalSequence)
+    {
         final long initialSequence = finalSequence - (batchSize - 1);
-        try {
+        try
+        {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
-            for (int i = batchStartsAt; i < batchEndsAt; i++) {
+            for (int i = batchStartsAt; i < batchEndsAt; i++)
+            {
                 translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i], arg2[i]);
             }
-        } finally {
+        }
+        finally
+        {
             sequencer.publish(initialSequence, finalSequence);
         }
     }
 
-    private void translateAndPublishBatch(final EventTranslatorVararg<E> translator, int batchStartsAt, final int batchSize, final long finalSequence, final Object[][] args) {
+    private void translateAndPublishBatch(final EventTranslatorVararg<E> translator, int batchStartsAt,
+                                          final int batchSize, final long finalSequence, final Object[][] args)
+    {
         final long initialSequence = finalSequence - (batchSize - 1);
-        try {
+        try
+        {
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
-            for (int i = batchStartsAt; i < batchEndsAt; i++) {
+            for (int i = batchStartsAt; i < batchEndsAt; i++)
+            {
                 translator.translateTo(get(sequence), sequence++, args[i]);
             }
-        } finally {
+        }
+        finally
+        {
             sequencer.publish(initialSequence, finalSequence);
         }
     }
