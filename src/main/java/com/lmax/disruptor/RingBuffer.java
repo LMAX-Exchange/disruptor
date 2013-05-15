@@ -38,7 +38,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
-     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
     RingBuffer(EventFactory<E> eventFactory,
                Sequencer       sequencer)
@@ -67,7 +67,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param factory used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
-     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory,
                                                         int             bufferSize,
@@ -84,7 +84,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see MultiProducerSequencer
      * @param factory used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
-     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory, int bufferSize)
     {
@@ -98,7 +98,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param factory used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
-     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory,
                                                          int             bufferSize,
@@ -115,7 +115,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @see MultiProducerSequencer
      * @param factory used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
-     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory, int bufferSize)
     {
@@ -129,7 +129,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param factory used to create events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
-     * @throws IllegalArgumentException if bufferSize is less than 1 and not a power of 2
+     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> create(ProducerType    producerType,
                                            EventFactory<E> factory,
