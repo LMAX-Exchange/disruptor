@@ -58,7 +58,7 @@ public final class BatchEventProcessor<T>
         {
             ((SequenceReportingEventHandler<?>)eventHandler).setSequenceCallback(sequence);
         }
-        
+
         timeoutHandler = (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
     }
 
@@ -73,6 +73,12 @@ public final class BatchEventProcessor<T>
     {
         running.set(false);
         sequenceBarrier.alert();
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        return running.get();
     }
 
     /**
@@ -92,7 +98,7 @@ public final class BatchEventProcessor<T>
 
     /**
      * It is ok to have another thread rerun this method after a halt().
-     * 
+     *
      * @throws IllegalStateException if this object instance is already running in a thread
      */
     @Override
@@ -113,7 +119,7 @@ public final class BatchEventProcessor<T>
             try
             {
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                
+
                 while (nextSequence <= availableSequence)
                 {
                     event = dataProvider.get(nextSequence);
@@ -136,7 +142,14 @@ public final class BatchEventProcessor<T>
             }
             catch (final Throwable ex)
             {
-                exceptionHandler.handleEventException(ex, nextSequence, event);
+                try
+                {
+                    exceptionHandler.handleEventException(ex, nextSequence, event);
+                }
+                catch (final FatalException fatalException)
+                {
+                    break;
+                }
                 sequence.set(nextSequence);
                 nextSequence++;
             }
@@ -152,7 +165,7 @@ public final class BatchEventProcessor<T>
         try
         {
             if (timeoutHandler != null)
-            {                
+            {
                 timeoutHandler.onTimeout(availableSequence);
             }
         }

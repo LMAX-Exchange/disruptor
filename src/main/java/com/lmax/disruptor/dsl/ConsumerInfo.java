@@ -18,4 +18,6 @@ interface ConsumerInfo
     void halt();
 
     void markAsUsedInBarrier();
+
+    boolean isRunning();
 }
