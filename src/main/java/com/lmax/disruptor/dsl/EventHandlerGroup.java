@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor.dsl;
 
+import java.util.Arrays;
+
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
@@ -38,7 +40,7 @@ public class EventHandlerGroup<T>
     {
         this.disruptor = disruptor;
         this.consumerRepository = consumerRepository;
-        this.sequences = sequences;
+        this.sequences = Arrays.copyOf(sequences, sequences.length);
     }
 
     /**
