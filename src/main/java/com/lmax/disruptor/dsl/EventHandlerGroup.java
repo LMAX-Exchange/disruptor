@@ -20,6 +20,7 @@ import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.WorkHandler;
+import java.util.Arrays;
 
 /**
  * A group of {@link EventProcessor}s used as part of the {@link Disruptor}.
@@ -38,7 +39,7 @@ public class EventHandlerGroup<T>
     {
         this.disruptor = disruptor;
         this.consumerRepository = consumerRepository;
-        this.sequences = sequences;
+        this.sequences = Arrays.copyOf(sequences, sequences.length);
     }
 
     /**

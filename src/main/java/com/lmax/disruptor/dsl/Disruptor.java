@@ -275,9 +275,17 @@ public class Disruptor<T>
     {
         while (hasBacklog())
         {
-            // Busy spin
+            doPretendBusySpin();
         }
         halt();
+    }
+
+    /**
+     * Do nothing and return gracefully. Called by while loops that do nothing.
+     *
+     */
+    public void doPretendBusySpin() {
+        return;
     }
 
     /**
