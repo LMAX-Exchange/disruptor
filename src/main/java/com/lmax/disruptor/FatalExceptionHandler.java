@@ -42,7 +42,7 @@ public final class FatalExceptionHandler implements ExceptionHandler
     {
         logger.log(Level.SEVERE, "Exception processing: " + sequence + " " + event, ex);
 
-        throw new FatalException(ex);
+        throw new RuntimeException(ex);
     }
 
     @Override

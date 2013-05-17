@@ -114,50 +114,47 @@ public final class BatchEventProcessor<T>
 
         T event = null;
         long nextSequence = sequence.get() + 1L;
-        while (true)
-        {
-            try
-            {
-                final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-
-                while (nextSequence <= availableSequence)
-                {
-                    event = dataProvider.get(nextSequence);
-                    eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
-                    nextSequence++;
-                }
-
-                sequence.set(availableSequence);
-            }
-            catch (final TimeoutException e)
-            {
-                notifyTimeout(sequence.get());
-            }
-            catch (final AlertException ex)
-            {
-               if (!running.get())
-               {
-                   break;
-               }
-            }
-            catch (final Throwable ex)
+        try
+        {            
+            while (true)
             {
                 try
                 {
-                    exceptionHandler.handleEventException(ex, nextSequence, event);
+                    final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                    
+                    while (nextSequence <= availableSequence)
+                    {
+                        event = dataProvider.get(nextSequence);
+                        eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                        nextSequence++;
+                    }
+                    
+                    sequence.set(availableSequence);
                 }
-                catch (final FatalException fatalException)
+                catch (final TimeoutException e)
                 {
-                    break;
+                    notifyTimeout(sequence.get());
                 }
-                sequence.set(nextSequence);
-                nextSequence++;
+                catch (final AlertException ex)
+                {
+                    if (!running.get())
+                    {
+                        break;
+                    }
+                }
+                catch (final Throwable ex)
+                {
+                    exceptionHandler.handleEventException(ex, nextSequence, event);
+                    sequence.set(nextSequence);
+                    nextSequence++;
+                }
             }
         }
-
-        notifyShutdown();
-
-        running.set(false);
+        finally
+        {
+            notifyShutdown();
+            running.set(false);
+        }
     }
 
     private void notifyTimeout(final long availableSequence)

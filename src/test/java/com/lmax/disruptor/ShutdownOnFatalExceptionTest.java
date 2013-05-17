@@ -9,7 +9,8 @@ import org.junit.Test;
 import java.util.Random;
 import java.util.concurrent.Executors;
 
-public class ShutdownOnFatalExceptionTest {
+public class ShutdownOnFatalExceptionTest
+{
 
     private final Random random = new Random();
 
@@ -17,6 +18,7 @@ public class ShutdownOnFatalExceptionTest {
 
     private Disruptor<byte[]> disruptor;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp()
     {
@@ -64,7 +66,6 @@ public class ShutdownOnFatalExceptionTest {
 
     private static class FailingEventHandler implements EventHandler<byte[]>
     {
-
         private int count = 0;
 
         @Override
@@ -72,7 +73,8 @@ public class ShutdownOnFatalExceptionTest {
         {
             // some logging
             count++;
-            if (count == 3) {
+            if (count == 3)
+            {
                 throw new IllegalStateException();
             }
         }
@@ -80,15 +82,16 @@ public class ShutdownOnFatalExceptionTest {
 
     private static class ByteArrayFactory implements EventFactory<byte[]>
     {
-
         private int eventSize;
 
-        ByteArrayFactory(int eventSize) {
+        ByteArrayFactory(int eventSize)
+        {
             this.eventSize = eventSize;
         }
 
         @Override
-        public byte[] newInstance() {
+        public byte[] newInstance()
+        {
             return new byte[eventSize];
         }
     }
