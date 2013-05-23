@@ -60,16 +60,19 @@ public final class OnePublisherToThreeWorkerPoolThroughputTest
         }
     }
 
-    private final RingBuffer<ValueEvent> ringBuffer = 
-            RingBuffer.createSingleProducer(ValueEvent.EVENT_FACTORY, 
+    private final RingBuffer<ValueEvent> ringBuffer =
+            RingBuffer.createSingleProducer(ValueEvent.EVENT_FACTORY,
                                             BUFFER_SIZE,
                                             new YieldingWaitStrategy());
-    
-    private final WorkerPool<ValueEvent> workerPool = 
+
+    private final WorkerPool<ValueEvent> workerPool =
             new WorkerPool<ValueEvent>(ringBuffer,
                                        ringBuffer.newBarrier(),
                                        new FatalExceptionHandler(),
                                        handlers);
+    {
+        ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
