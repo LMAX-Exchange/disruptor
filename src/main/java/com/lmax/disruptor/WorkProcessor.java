@@ -101,7 +101,7 @@ public final class WorkProcessor<T>
         {
             try
             {
-                // if previous sequence was processed - fetch the next sequence and set 
+                // if previous sequence was processed - fetch the next sequence and set
                 // that we have successfully processed the previous sequence
                 // typically, this will be true
                 // this prevents the sequence getting too far forward if an exception

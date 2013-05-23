@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 /**
- * Implement this interface in your {@link EventHandler} to be notified when a thread for the 
+ * Implement this interface in your {@link EventHandler} to be notified when a thread for the
  * {@link BatchEventProcessor} starts and shuts down.<p/>
  */
 public interface LifecycleAware

@@ -23,7 +23,7 @@ import sun.misc.Unsafe;
  * <p>Concurrent sequence class used for tracking the progress of
  * the ring buffer and event processors.  Support a number
  * of concurrent operations including CAS and order writes.
- * 
+ *
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
  */
@@ -53,7 +53,7 @@ public class Sequence
 
     /**
      * Create a sequence with a specified initial value.
-     * 
+     *
      * @param initialValue The initial value for this sequence.
      */
     public Sequence(final long initialValue)
@@ -63,7 +63,7 @@ public class Sequence
 
     /**
      * Perform a volatile read of this sequence's value.
-     * 
+     *
      * @return The current value of the sequence.
      */
     public long get()
@@ -75,7 +75,7 @@ public class Sequence
      * Perform an ordered write of this sequence.  The intent is
      * a Store/Store barrier between this write and any previous
      * store.
-     * 
+     *
      * @param value The new value for the sequence.
      */
     public void set(final long value)
@@ -88,7 +88,7 @@ public class Sequence
      * a Store/Store barrier between this write and any previous
      * write and a Store/Load barrier between this write and any
      * subsequent volatile read.
-     * 
+     *
      * @param value The new value for the sequence.
      */
     public void setVolatile(final long value)
@@ -98,7 +98,7 @@ public class Sequence
 
     /**
      * Perform a compare and set operation on the sequence.
-     * 
+     *
      * @param expectedValue The expected current value.
      * @param newValue The value to update to.
      * @return true if the operation succeeds, false otherwise.
@@ -110,7 +110,7 @@ public class Sequence
 
     /**
      * Atomically increment the sequence by one.
-     * 
+     *
      * @return The value after the increment
      */
     public long incrementAndGet()
@@ -120,7 +120,7 @@ public class Sequence
 
     /**
      * Atomically add the supplied value.
-     * 
+     *
      * @param increment The value to add to the sequence.
      * @return The value after the increment.
      */

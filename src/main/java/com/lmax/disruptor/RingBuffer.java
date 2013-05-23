@@ -965,7 +965,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         batchOverRuns(translators, batchStartsAt, batchSize);
     }
 
-    private void checkBatchSizing(int batchStartsAt, int batchSize) 
+    private void checkBatchSizing(int batchStartsAt, int batchSize)
     {
         if(batchStartsAt < 0 || batchSize < 0)
         {
@@ -1008,8 +1008,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         if(batchStartsAt + batchSize > arg0.length)
         {
-            throw new IllegalArgumentException("A batchSize of: " + batchSize + 
-                                               " with batchStatsAt of: " + batchStartsAt + 
+            throw new IllegalArgumentException("A batchSize of: " + batchSize +
+                                               " with batchStatsAt of: " + batchStartsAt +
                                                " will overrun the available number of arguments: " + (arg0.length - batchStartsAt));
         }
     }

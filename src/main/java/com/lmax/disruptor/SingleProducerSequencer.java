@@ -33,7 +33,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
         /** Set to -1 as sequence starting point */
         public long nextValue = Sequence.INITIAL_VALUE, cachedValue = Sequence.INITIAL_VALUE, p2, p3, p4, p5, p6, p7;
     }
-    
+
     private final Padding pad = new Padding();
 
     /**
@@ -46,7 +46,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
     {
         super(bufferSize, waitStrategy);
     }
-    
+
     /**
      * @see Sequencer#hasAvailableCapacity(int)
      */
@@ -54,21 +54,21 @@ public final class SingleProducerSequencer extends AbstractSequencer
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
         long nextValue = pad.nextValue;
-        
+
         long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
         long cachedGatingSequence = pad.cachedValue;
-        
+
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             pad.cachedValue = minSequence;
-        
+
             if (wrapPoint > minSequence)
             {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -91,13 +91,13 @@ public final class SingleProducerSequencer extends AbstractSequencer
         {
             throw new IllegalArgumentException("n must be > 0");
         }
-        
+
         long nextValue = pad.nextValue;
-        
+
         long nextSequence = nextValue + n;
         long wrapPoint = nextSequence - bufferSize;
         long cachedGatingSequence = pad.cachedValue;
-        
+
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence;
@@ -105,12 +105,12 @@ public final class SingleProducerSequencer extends AbstractSequencer
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
-        
+
             pad.cachedValue = minSequence;
         }
-        
+
         pad.nextValue = nextSequence;
-        
+
         return nextSequence;
     }
 
@@ -133,14 +133,14 @@ public final class SingleProducerSequencer extends AbstractSequencer
         {
             throw new IllegalArgumentException("n must be > 0");
         }
-        
+
         if (!hasAvailableCapacity(n))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
 
         long nextSequence = pad.nextValue += n;
-        
+
         return nextSequence;
     }
 
@@ -151,12 +151,12 @@ public final class SingleProducerSequencer extends AbstractSequencer
     public long remainingCapacity()
     {
         long nextValue = pad.nextValue;
-        
+
         long consumed = Util.getMinimumSequence(gatingSequences, nextValue);
         long produced = nextValue;
         return getBufferSize() - (produced - consumed);
     }
-    
+
     /**
      * @see Sequencer#claim(long)
      */
@@ -175,7 +175,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
         cursor.set(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
-    
+
     /**
      * @see Sequencer#publish(long, long)
      */
@@ -193,7 +193,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
     {
         return sequence <= cursor.get();
     }
-    
+
     @Override
     public long getHighestPublishedSequence(long lowerBound, long availableSequence)
     {

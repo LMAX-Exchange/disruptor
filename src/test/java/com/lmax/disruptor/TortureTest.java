@@ -19,62 +19,62 @@ import com.lmax.disruptor.dsl.ProducerType;
 public class TortureTest
 {
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    
+
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
-        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(TestEvent.FACTORY, 1 << 16, executor, 
+        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(TestEvent.FACTORY, 1 << 16, executor,
                 ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
-        
+
         int threads = min(1, Runtime.getRuntime().availableProcessors() / 2);
-        
+
         int iterations     = 20000000;
         int publisherCount = threads;
         int handlerCount   = threads;
-        
+
         CyclicBarrier barrier = new CyclicBarrier(publisherCount);
         CountDownLatch latch = new CountDownLatch(publisherCount);
-        
+
         TestEventHandler[] handlers = initialise(disruptor, new TestEventHandler[handlerCount]);
         Publisher[] publishers = initialise(new Publisher[publisherCount], ringBuffer, iterations, barrier, latch);
-        
+
         disruptor.start();
-        
+
         for (Publisher publisher : publishers)
         {
             executor.execute(publisher);
         }
-        
+
         latch.await();
         while (ringBuffer.getCursor() < (iterations - 1))
         {
             LockSupport.parkNanos(1);
         }
-        
+
         disruptor.shutdown();
-        
+
         for (Publisher publisher : publishers)
         {
             assertThat(publisher.failed, is(false));
         }
-        
+
         for (TestEventHandler handler : handlers)
         {
             assertThat(handler.messagesSeen, is(not(0)));
             assertThat(handler.failureCount, is(0));
         }
     }
-    
-    private Publisher[] initialise(Publisher[] publishers, RingBuffer<TestEvent> buffer, 
+
+    private Publisher[] initialise(Publisher[] publishers, RingBuffer<TestEvent> buffer,
                                    int messageCount, CyclicBarrier barrier, CountDownLatch latch)
     {
         for (int i = 0; i < publishers.length; i++)
         {
             publishers[i] = new Publisher(buffer, messageCount, barrier, latch);
         }
-        
+
         return publishers;
     }
 
@@ -87,7 +87,7 @@ public class TortureTest
             disruptor.handleEventsWith(handler);
             testEventHandlers[i] = handler;
         }
-        
+
         return testEventHandlers;
     }
 
@@ -95,7 +95,7 @@ public class TortureTest
     {
         public int failureCount = 0;
         public int messagesSeen = 0;
-        
+
         public TestEventHandler()
         {
         }
@@ -110,23 +110,23 @@ public class TortureTest
             {
                 failureCount++;
             }
-            
+
             messagesSeen++;
         }
     }
-    
+
     private static class Publisher implements Runnable
     {
         private final RingBuffer<TestEvent> ringBuffer;
         private final CyclicBarrier barrier;
         private final int iterations;
         private final CountDownLatch shutdownLatch;
-        
+
         public boolean failed = false;
 
-        public Publisher(RingBuffer<TestEvent> ringBuffer, 
-                         int iterations, 
-                         CyclicBarrier barrier, 
+        public Publisher(RingBuffer<TestEvent> ringBuffer,
+                         int iterations,
+                         CyclicBarrier barrier,
                          CountDownLatch shutdownLatch)
         {
             this.ringBuffer = ringBuffer;
@@ -141,7 +141,7 @@ public class TortureTest
             try
             {
                 barrier.await();
-                
+
                 int i = iterations;
                 while (--i != -1)
                 {
@@ -164,14 +164,14 @@ public class TortureTest
             }
         }
     }
-    
+
     private static class TestEvent
     {
         public long sequence;
         public long a;
         public long b;
         public String s;
-        
+
         public static final EventFactory<TestEvent> FACTORY = new EventFactory<TortureTest.TestEvent>()
         {
             @Override

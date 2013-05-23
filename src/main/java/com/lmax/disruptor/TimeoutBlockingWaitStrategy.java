@@ -10,21 +10,21 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
     private final long timeoutInNanos;
-    
+
     public TimeoutBlockingWaitStrategy(final long timeout, final TimeUnit units)
     {
         timeoutInNanos = units.toNanos(timeout);
     }
 
     @Override
-    public long waitFor(final long sequence, 
-                        final Sequence cursorSequence, 
-                        final Sequence dependentSequence, 
+    public long waitFor(final long sequence,
+                        final Sequence cursorSequence,
+                        final Sequence dependentSequence,
                         final SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException
     {
         long nanos = timeoutInNanos;
-        
+
         long availableSequence;
         if ((availableSequence = cursorSequence.get()) < sequence)
         {

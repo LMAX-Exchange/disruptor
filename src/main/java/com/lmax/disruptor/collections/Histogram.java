@@ -24,7 +24,7 @@ import java.util.Arrays;
  *
  * This class is useful for recording timings across a large number of observations
  * when high performance is required.<p/>
- * 
+ *
  * The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
  * are [10,20,30,40,50] then there will be five buckets, accessible by index 0-4. Any value
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
@@ -63,7 +63,7 @@ public final class Histogram
     private void validateBounds(final long[] upperBounds)
     {
         long lastBound = -1L;
-        if (upperBounds.length <= 0) 
+        if (upperBounds.length <= 0)
         {
             throw new IllegalArgumentException("Must provide at least one interval");
         }
@@ -155,7 +155,7 @@ public final class Histogram
 
     /**
      * Track minimum and maximum observations
-     * 
+     *
      * @see getMin
      * @see getMax
      */

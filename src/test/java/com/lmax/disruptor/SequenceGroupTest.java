@@ -41,7 +41,7 @@ public final class SequenceGroupTest
 
         assertEquals(sequence.get(), sequenceGroup.get());
     }
-    
+
     @Test
     public void shouldNotFailIfTryingToRemoveNotExistingSequence() throws Exception
     {
@@ -126,7 +126,7 @@ public final class SequenceGroupTest
         assertEquals(expectedSequence, sequenceThree.get());
         assertEquals(expectedSequence, sequenceSeven.get());
     }
-    
+
     @Test
     public void shouldAddWhileRunning() throws Exception
     {
@@ -135,12 +135,12 @@ public final class SequenceGroupTest
         final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
         sequenceGroup.add(sequenceSeven);
-        
+
         for (int i = 0; i < 11; i++)
         {
             ringBuffer.publish(ringBuffer.next());
         }
-        
+
         sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
         assertThat(sequenceThree.get(), is(10L));
     }

@@ -56,7 +56,7 @@ public interface Sequencer extends Cursored
      * }
      * sequencer.publish(lo, hi);
      * </pre>
-     * 
+     *
      * @param n the number of sequences to claim
      * @return the highest claimed sequence value
      */
@@ -70,13 +70,13 @@ public interface Sequencer extends Cursored
      * @throws InsufficientCapacityException
      */
     long tryNext() throws InsufficientCapacityException;
-    
+
     /**
      * Attempt to claim the next n events in sequence for publishing.  Will return the
      * highest numbered slot if there is at least <code>requiredCapacity</code> slots
      * available.  Have a look at {@link Sequencer#next()} for a description on how to
      * use this method.
-     * 
+     *
      * @param n the number of sequences to claim
      * @return the claimed sequence value
      * @throws InsufficientCapacityException
@@ -92,21 +92,21 @@ public interface Sequencer extends Cursored
     /**
      * Claim a specific sequence.  Only used if initialising the ring buffer to
      * a specific value.
-     * 
+     *
      * @param sequence The sequence to initialise too.
      */
     void claim(long sequence);
-    
+
     /**
      * Publishes a sequence. Call when the event has been filled.
      *
-     * @param sequence 
+     * @param sequence
      */
     void publish(long sequence);
-    
+
     /**
      * Batch publish sequences.  Called when all of the events have been filled.
-     * 
+     *
      * @param lo first sequence number to publish
      * @param hi last sequence number to publish
      */
@@ -123,14 +123,14 @@ public interface Sequencer extends Cursored
     /**
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
-     * 
+     *
      * @param gatingSequences The sequences to add.
      */
     void addGatingSequences(Sequence... gatingSequences);
 
     /**
      * Remove the specified sequence from this sequencer.
-     * 
+     *
      * @param sequence to be removed.
      * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
      */
@@ -139,9 +139,9 @@ public interface Sequencer extends Cursored
     /**
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer given a list of sequences to track.
-     * 
+     *
      * @see SequenceBarrier
-     * @param sequencesToTrack 
+     * @param sequencesToTrack
      * @return A sequence barrier that will track the specified sequences.
      */
     SequenceBarrier newBarrier(Sequence... sequencesToTrack);
@@ -149,7 +149,7 @@ public interface Sequencer extends Cursored
     /**
      * Get the minimum sequence value from all of the gating sequences
      * added to this ringBuffer.
-     * 
+     *
      * @return The minimum gating sequence or the cursor sequence if
      * no sequences have been added.
      */

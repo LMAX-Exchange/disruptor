@@ -26,9 +26,9 @@ import com.lmax.disruptor.util.Util;
  */
 public abstract class AbstractSequencer implements Sequencer
 {
-    private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER = 
+    private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
-    
+
     protected final int bufferSize;
     protected final WaitStrategy waitStrategy;
     protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -36,7 +36,7 @@ public abstract class AbstractSequencer implements Sequencer
 
     /**
      * Create with the specified buffer size and wait strategy.
-     * 
+     *
      * @param bufferSize The total number of entries, must be a positive power of 2.
      * @param waitStrategy
      */
@@ -50,7 +50,7 @@ public abstract class AbstractSequencer implements Sequencer
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
-        
+
         this.bufferSize = bufferSize;
         this.waitStrategy = waitStrategy;
     }
@@ -81,7 +81,7 @@ public abstract class AbstractSequencer implements Sequencer
     {
         SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
     }
-    
+
     /**
      * @see Sequencer#removeGatingSequence(Sequence)
      */
@@ -90,7 +90,7 @@ public abstract class AbstractSequencer implements Sequencer
     {
         return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
     }
-    
+
     /**
      * @see Sequencer#getMinimumSequence()
      */
@@ -99,13 +99,13 @@ public abstract class AbstractSequencer implements Sequencer
     {
         return Util.getMinimumSequence(gatingSequences, cursor.get());
     }
-    
+
     /**
      * @see Sequencer#newBarrier(Sequence...)
      */
     @Override
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
-    {        
+    {
         return new ProcessingSequenceBarrier(this, waitStrategy, cursor, sequencesToTrack);
     }
 }

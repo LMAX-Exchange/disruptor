@@ -32,9 +32,9 @@ public final class MultiProducerSequencer extends AbstractSequencer
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BASE  = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
-    
+
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    
+
     // availableBuffer tracks the state of each ringbuffer slot
     // see below for more details on the approach
     private final int[] availableBuffer;
@@ -69,21 +69,21 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         long wrapPoint = (cursorValue + requiredCapacity) - bufferSize;
         long cachedGatingSequence = gatingSequenceCache.get();
-        
+
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > cursorValue)
         {
             long minSequence = Util.getMinimumSequence(gatingSequences, cursorValue);
             gatingSequenceCache.set(minSequence);
-        
+
             if (wrapPoint > minSequence)
             {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * @see Sequencer#claim(long)
      */
@@ -112,7 +112,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         {
             throw new IllegalArgumentException("n must be > 0");
         }
-        
+
         long current;
         long next;
 
@@ -165,7 +165,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         {
             throw new IllegalArgumentException("n must be > 0");
         }
-        
+
         long current;
         long next;
 
@@ -214,7 +214,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         setAvailable(sequence);
         waitStrategy.signalAllWhenBlocking();
     }
-    
+
     /**
      * @see Sequencer#publish(long, long)
      */
@@ -228,15 +228,15 @@ public final class MultiProducerSequencer extends AbstractSequencer
         waitStrategy.signalAllWhenBlocking();
     }
 
-    /** 
+    /**
      * The below methods work on the availableBuffer flag.
-     * 
+     *
      * The prime reason is to avoid a shared sequence object between publisher threads.
-     * (Keeping single pointers tracking start and end would require coordination 
-     * between the threads). 
-     * 
+     * (Keeping single pointers tracking start and end would require coordination
+     * between the threads).
+     *
      * --  Firstly we have the constraint that the delta between the cursor and minimum
-     * gating sequence will never be larger than the buffer size (the code in 
+     * gating sequence will never be larger than the buffer size (the code in
      * next/tryNext in the Sequence takes care of that).
      * -- Given that; take the sequence value and mask off the lower portion of the
      * sequence as the index into the buffer (indexMask). (aka modulo operator)
@@ -251,7 +251,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         setAvailableBufferValue(calculateIndex(sequence), calculateAvailabilityFlag(sequence));
     }
-    
+
     private void setAvailableBufferValue(int index, int flag)
     {
         long bufferAddress = (index * SCALE) + BASE;
@@ -269,7 +269,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         long bufferAddress = (index * SCALE) + BASE;
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
-    
+
     @Override
     public long getHighestPublishedSequence(long lowerBound, long availableSequence)
     {
@@ -280,10 +280,10 @@ public final class MultiProducerSequencer extends AbstractSequencer
                 return sequence - 1;
             }
         }
-        
+
         return availableSequence;
     }
-    
+
     private int calculateAvailabilityFlag(final long sequence)
     {
         return (int) (sequence >>> indexShift);

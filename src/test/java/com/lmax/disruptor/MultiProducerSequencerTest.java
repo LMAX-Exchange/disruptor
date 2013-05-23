@@ -22,14 +22,14 @@ import org.junit.Test;
 
 public class MultiProducerSequencerTest
 {
-    private Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
-        
+    private final Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+
     @Test
     public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished() throws Exception
     {
         publisher.publish(3);
         publisher.publish(5);
-        
+
         assertThat(publisher.isAvailable(0), is(false));
         assertThat(publisher.isAvailable(1), is(false));
         assertThat(publisher.isAvailable(2), is(false));

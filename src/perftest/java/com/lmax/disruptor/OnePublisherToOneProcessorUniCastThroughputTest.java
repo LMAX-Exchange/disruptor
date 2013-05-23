@@ -137,7 +137,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         handler.reset(latch, expectedCount);
         executor.submit(batchEventProcessor);
         long start = System.currentTimeMillis();
-        
+
         final RingBuffer<ValueEvent> rb = ringBuffer;
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -153,7 +153,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
         batchEventProcessor.halt();
 
         Assert.assertEquals(expectedResult, handler.getValue());
-        
+
         return opsPerSecond;
     }
 
@@ -164,7 +164,7 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
             Thread.sleep(1);
         }
     }
-    
+
     public static void main(String[] args) throws Exception
     {
         OnePublisherToOneProcessorUniCastThroughputTest test = new OnePublisherToOneProcessorUniCastThroughputTest();

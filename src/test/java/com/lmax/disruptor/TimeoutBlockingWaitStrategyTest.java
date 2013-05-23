@@ -15,26 +15,26 @@ import org.junit.runner.RunWith;
 public class TimeoutBlockingWaitStrategyTest
 {
     private final Mockery mockery = new Mockery();
-    
+
     @Test
     public void shouldTimeoutWaitFor() throws Exception
     {
         final SequenceBarrier sequenceBarrier = mockery.mock(SequenceBarrier.class);
-        
+
         long theTimeout = 500;
         TimeoutBlockingWaitStrategy waitStrategy = new TimeoutBlockingWaitStrategy(theTimeout, TimeUnit.MILLISECONDS);
         Sequence cursor = new Sequence(5);
         Sequence dependent = cursor;
-        
+
         mockery.checking(new Expectations()
         {
             {
                 allowing(sequenceBarrier).checkAlert();
             }
         });
-        
+
         long t0 = System.currentTimeMillis();
-        
+
         try
         {
             waitStrategy.waitFor(6, cursor, dependent, sequenceBarrier);
@@ -43,11 +43,11 @@ public class TimeoutBlockingWaitStrategyTest
         catch (TimeoutException e)
         {
         }
-        
+
         long t1 = System.currentTimeMillis();
-        
+
         long timeWaiting = t1 - t0;
-        
+
         assertThat(timeWaiting, greaterThanOrEqualTo(theTimeout));
     }
 }

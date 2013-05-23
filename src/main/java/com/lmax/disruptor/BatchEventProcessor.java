@@ -115,20 +115,20 @@ public final class BatchEventProcessor<T>
         T event = null;
         long nextSequence = sequence.get() + 1L;
         try
-        {            
+        {
             while (true)
             {
                 try
                 {
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                    
+
                     while (nextSequence <= availableSequence)
                     {
                         event = dataProvider.get(nextSequence);
                         eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                         nextSequence++;
                     }
-                    
+
                     sequence.set(availableSequence);
                 }
                 catch (final TimeoutException e)

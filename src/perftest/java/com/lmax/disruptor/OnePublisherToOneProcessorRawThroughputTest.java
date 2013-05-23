@@ -109,7 +109,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
         myRunnable.reset(latch, expectedCount);
         executor.submit(myRunnable);
         long start = System.currentTimeMillis();
-        
+
         final Sequencer sequencer = this.sequencer;
 
         for (long i = 0; i < ITERATIONS; i++)
@@ -132,19 +132,19 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
             Thread.sleep(1);
         }
     }
-    
+
     private static class MyRunnable implements Runnable
     {
         private CountDownLatch latch;
         private long expectedCount;
         Sequence sequence = new Sequence(-1);
-        private SequenceBarrier barrier;
+        private final SequenceBarrier barrier;
 
         public MyRunnable(Sequencer sequencer)
         {
             this.barrier = sequencer.newBarrier();
         }
-        
+
         public void reset(CountDownLatch latch, long expectedCount)
         {
             this.latch = latch;
@@ -156,7 +156,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
         {
             long expected = expectedCount;
             long processed = -1;
-            
+
             try
             {
                 do
@@ -165,7 +165,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
                     sequence.set(processed);
                 }
                 while (processed < expected);
-                
+
                 latch.countDown();
                 sequence.setVolatile(processed);
             }
@@ -175,7 +175,7 @@ public final class OnePublisherToOneProcessorRawThroughputTest extends AbstractP
             }
         }
     }
-    
+
     public static void main(String[] args) throws Exception
     {
         OnePublisherToOneProcessorRawThroughputTest test = new OnePublisherToOneProcessorRawThroughputTest();

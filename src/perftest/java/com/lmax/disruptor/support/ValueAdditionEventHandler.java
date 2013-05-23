@@ -52,7 +52,7 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
         {
             System.err.println("Expected: " + (localSequence + 1) + "found: " + sequence);
         }
-        
+
         if (count == sequence)
         {
             latch.countDown();

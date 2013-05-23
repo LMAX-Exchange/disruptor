@@ -30,7 +30,7 @@ public class DirectVsEventTranslatorWithByteArrayBenchmark extends SimpleBenchma
     private static final int BUFFER_SIZE = 1024 * 8;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
-    private final RingBuffer<byte[]> ringBuffer = 
+    private final RingBuffer<byte[]> ringBuffer =
             createSingleProducer(new ByteArrayFactory(), BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ByteArrayEventHandler handler = new ByteArrayEventHandler();
