@@ -275,7 +275,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
 
     /**
      * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
-     * is another deliberatly racy call, that should only be done in controlled circumstances, e.g. initialisation.
+     * is another deliberately racy call, that should only be done in controlled circumstances, e.g. initialisation.
      *
      * @param sequence The sequence to claim.
      * @return The preallocated event.
