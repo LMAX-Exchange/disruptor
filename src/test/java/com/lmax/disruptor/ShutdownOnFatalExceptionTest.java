@@ -1,13 +1,19 @@
 package com.lmax.disruptor;
 
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Random;
-import java.util.concurrent.Executors;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ShutdownOnFatalExceptionTest
 {
@@ -27,24 +33,34 @@ public class ShutdownOnFatalExceptionTest
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
     }
 
-    @Test(timeout = 1000)
-    public void shouldShutdownGracefulEvenWithFatalExceptionHandler()
+    @Test(timeout = 1000000)
+    public void shouldShutdownGracefulEvenWithFatalExceptionHandler() throws InterruptedException, TimeoutException, AlertException
     {
         disruptor.start();
 
         byte[] bytes;
-        for (int i = 1; i < 10; i++)
+        for (int i = 0; i < 3; i++)
         {
             bytes = new byte[32];
             random.nextBytes(bytes);
             disruptor.publishEvent(new ByteArrayTranslator(bytes));
         }
+
+        try
+        {
+            disruptor.getBarrierFor(eventHandler).waitFor(2);
+        }
+        finally
+        {
+            Thread.sleep(100); //TODO something more deterministic
+            assertThat(eventHandler.shutdown.get(), is(true));
+        }
     }
 
     @After
-    public void tearDown()
+    public void tearDown() throws TimeoutException
     {
-        disruptor.shutdown();
+        disruptor.shutdown(1, TimeUnit.SECONDS);
     }
 
     private static class ByteArrayTranslator implements EventTranslator<byte[]>
@@ -64,9 +80,10 @@ public class ShutdownOnFatalExceptionTest
         }
     }
 
-    private static class FailingEventHandler implements EventHandler<byte[]>
+    private static class FailingEventHandler implements EventHandler<byte[]>, LifecycleAware
     {
         private int count = 0;
+        private AtomicBoolean shutdown = new AtomicBoolean(false);
 
         @Override
         public void onEvent(byte[] event, long sequence, boolean endOfBatch) throws Exception
@@ -77,6 +94,18 @@ public class ShutdownOnFatalExceptionTest
             {
                 throw new IllegalStateException();
             }
+        }
+
+        @Override
+        public void onStart()
+        {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onShutdown()
+        {
+            shutdown.set(true);
         }
     }
 

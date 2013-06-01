@@ -144,9 +144,10 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final Throwable ex)
                 {
-                    exceptionHandler.handleEventException(ex, nextSequence, event);
+                    final long current = nextSequence;
                     sequence.set(nextSequence);
                     nextSequence++;
+                    exceptionHandler.handleEventException(ex, current, event);
                 }
             }
         }
