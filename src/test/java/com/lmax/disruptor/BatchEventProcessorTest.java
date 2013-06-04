@@ -15,22 +15,22 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.lmax.disruptor.support.StubEvent;
-import org.hamcrest.Description;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-import org.jmock.api.Action;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CountDownLatch;
+import static org.junit.Assert.assertEquals;
+
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static com.lmax.disruptor.support.Actions.countDown;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JMock.class)
 public final class BatchEventProcessorTest
@@ -124,20 +124,7 @@ public final class BatchEventProcessorTest
             {
                 oneOf(eventHandler).onEvent(ringBuffer.get(0), 0L, true);
                 inSequence(lifecycleSequence);
-                will(new Action()
-                {
-                    @Override
-                    public Object invoke(final Invocation invocation) throws Throwable
-                    {
-                        throw ex;
-                    }
-
-                    @Override
-                    public void describeTo(final Description description)
-                    {
-                        description.appendText("Throws exception");
-                    }
-                });
+                will(throwException(ex));
 
                 oneOf(exceptionHandler).handleEventException(ex, 0L, ringBuffer.get(0));
                 inSequence(lifecycleSequence);
