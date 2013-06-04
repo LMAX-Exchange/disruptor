@@ -33,7 +33,7 @@ public class ShutdownOnFatalExceptionTest
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
     }
 
-    @Test(timeout = 1000000)
+    @Test(timeout = 1000)
     public void shouldShutdownGracefulEvenWithFatalExceptionHandler() throws InterruptedException, TimeoutException, AlertException
     {
         disruptor.start();
