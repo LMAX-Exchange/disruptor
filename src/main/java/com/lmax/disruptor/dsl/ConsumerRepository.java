@@ -57,12 +57,12 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
-    public Sequence[] getLastSequenceInChain()
+    public Sequence[] getLastSequenceInChain(boolean includeStopped)
     {
         List<Sequence> lastSequence = new ArrayList<Sequence>();
         for (ConsumerInfo consumerInfo : consumerInfos)
         {
-            if (consumerInfo.isRunning() && consumerInfo.isEndOfChain())
+            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
             {
                 final Sequence[] sequences = consumerInfo.getSequences();
                 Collections.addAll(lastSequence, sequences);

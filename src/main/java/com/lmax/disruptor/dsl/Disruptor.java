@@ -240,7 +240,7 @@ public class Disruptor<T>
      */
     public RingBuffer<T> start()
     {
-        Sequence[] gatingSequences = consumerRepository.getLastSequenceInChain();
+        Sequence[] gatingSequences = consumerRepository.getLastSequenceInChain(true);
         ringBuffer.addGatingSequences(gatingSequences);
 
         checkOnlyStartedOnce();
@@ -342,7 +342,7 @@ public class Disruptor<T>
     private boolean hasBacklog()
     {
         final long cursor = ringBuffer.getCursor();
-        for (Sequence consumer : consumerRepository.getLastSequenceInChain())
+        for (Sequence consumer : consumerRepository.getLastSequenceInChain(false))
         {
             if (cursor > consumer.get())
             {

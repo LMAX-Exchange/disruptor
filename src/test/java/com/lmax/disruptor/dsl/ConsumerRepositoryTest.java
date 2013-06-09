@@ -95,7 +95,7 @@ public class ConsumerRepositoryTest
         consumerRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2.getSequence());
 
 
-        final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain();
+        final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain(true);
         assertThat(lastEventProcessorsInChain.length, equalTo(1));
         assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1.getSequence()));
     }
