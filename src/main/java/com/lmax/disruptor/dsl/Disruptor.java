@@ -15,11 +15,25 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.util.Util;
-
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.TimeoutException;
+import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.WorkHandler;
+import com.lmax.disruptor.WorkerPool;
+import com.lmax.disruptor.util.Util;
 
 /**
  * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
@@ -273,8 +287,35 @@ public class Disruptor<T>
      */
     public void shutdown()
     {
+        try
+        {
+            shutdown(-1, TimeUnit.MILLISECONDS);
+        }
+        catch (TimeoutException e)
+        {
+            exceptionHandler.handleOnShutdownException(e);
+        }
+    }
+
+    /**
+     * Waits until all events currently in the disruptor have been processed by all event processors
+     * and then halts the processors.
+     * <p/>
+     * <p>This method will not shutdown the executor, nor will it await the final termination of the
+     * processor threads.</p>
+     *
+     * @param timeout  the amount of time to wait for all events to be processed. <code>-1</code> will give an infinite timeout
+     * @param timeUnit the unit the timeOut is specified in
+     */
+    public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException
+    {
+        long timeOutAt = System.currentTimeMillis() + timeUnit.toMillis(timeout);
         while (hasBacklog())
         {
+            if (timeout >= 0 && System.currentTimeMillis() > timeOutAt)
+            {
+                throw TimeoutException.INSTANCE;
+            }
             // Busy spin
         }
         halt();
