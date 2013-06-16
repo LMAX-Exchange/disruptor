@@ -23,7 +23,7 @@ apply plugin: 'checkstyle'
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, revision: 1)
+version = new Version(major: 3, minor: 1, revision: 0)
 
 ext {
     fullName = 'Disruptor Framework'
