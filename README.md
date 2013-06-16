@@ -15,7 +15,7 @@ Changelog
 
 - Fix bug in Disruptor DSL where some consumers wouldn't be included in the gating sequences.
 - Add support for using the EventTranslator with batch publication.
-- Support timeouts when shutting down the Disrutpor using the DSL.
+- Support timeouts when shutting down the Disruptor using the DSL.
 
 ### 3.0.1 Released (16-Apr-2013)
 
