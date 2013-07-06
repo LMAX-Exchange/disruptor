@@ -113,11 +113,12 @@ public final class WorkProcessor<T>
                     sequence.set(nextSequence - 1L);
                 }
 
-                sequenceBarrier.waitFor(nextSequence);
-                event = ringBuffer.get(nextSequence);
-                workHandler.onEvent(event);
-
-                processedSequence = true;
+                if (sequenceBarrier.waitFor(nextSequence) >= nextSequence)
+                {
+                    event = ringBuffer.get(nextSequence);
+                    workHandler.onEvent(event);
+                    processedSequence = true;
+                }
             }
             catch (final AlertException ex)
             {
@@ -128,7 +129,7 @@ public final class WorkProcessor<T>
             }
             catch (final Throwable ex)
             {
-                // handle, mark as procesed, unless the exception handler threw an exception
+                // handle, mark as processed, unless the exception handler threw an exception
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 processedSequence = true;
             }

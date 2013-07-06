@@ -62,8 +62,8 @@ public class DisruptorTest
     private static final int TIMEOUT_IN_SECONDS = 2;
     private Disruptor<TestEvent> disruptor;
     private StubExecutor executor;
-    private Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
-    private Collection<TestWorkHandler> testWorkHandlers = new ArrayList<TestWorkHandler>();
+    private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
+    private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<TestWorkHandler>();
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
