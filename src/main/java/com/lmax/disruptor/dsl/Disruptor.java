@@ -40,9 +40,9 @@ import com.lmax.disruptor.util.Util;
  *
  * <p>A simple example of setting up the disruptor with two event handlers that must process events in order:</p>
  *
- * <pre><code> Disruptor<MyEvent> disruptor = new Disruptor<MyEvent>(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
- * EventHandler<MyEvent> handler1 = new EventHandler<MyEvent>() { ... };
- * EventHandler<MyEvent> handler2 = new EventHandler<MyEvent>() { ... };
+ * <pre><code> Disruptor&lt;MyEvent&gt; disruptor = new Disruptor&lt;MyEvent&gt;(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
+ * EventHandler&lt;MyEvent&gt; handler1 = new EventHandler&lt;MyEvent&gt;() { ... };
+ * EventHandler&lt;MyEvent&gt; handler2 = new EventHandler&lt;MyEvent&gt;() { ... };
  * disruptor.handleEventsWith(handler1);
  * disruptor.after(handler1).handleEventsWith(handler2);
  *
@@ -98,12 +98,11 @@ public class Disruptor<T>
     }
 
     /**
-     * Set up event handlers to handle events from the ring buffer. These handlers will process events
-     * as soon as they become available, in parallel.
-     * <p/>
+     * <p>Set up event handlers to handle events from the ring buffer. These handlers will process events
+     * as soon as they become available, in parallel.</p>
+     *
      * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
      * process events before handler <code>B</code>:</p>
-     * <p/>
      * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
      * @param handlers the event handlers that will process events.
@@ -147,9 +146,9 @@ public class Disruptor<T>
     }
 
     /**
-     * Specify an exception handler to be used for any future event handlers.<p/>
+     * <p>Specify an exception handler to be used for any future event handlers.</p>
      *
-     * Note that only event handlers set up after calling this method will use the exception handler.
+     * <p>Note that only event handlers set up after calling this method will use the exception handler.</p>
      *
      * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
      */
@@ -171,9 +170,9 @@ public class Disruptor<T>
     }
 
     /**
-     * Create a group of event handlers to be used as a dependency.
-     * For example if the handler <code>A</code> must process events before handler <code>B</code>:
-     * <p/>
+     * <p>Create a group of event handlers to be used as a dependency.
+     * For example if the handler <code>A</code> must process events before handler <code>B</code>:</p>
+     *
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
      * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
@@ -243,12 +242,12 @@ public class Disruptor<T>
     }
 
     /**
-     * Starts the event processors and returns the fully configured ring buffer.<p/>
+     * <p>Starts the event processors and returns the fully configured ring buffer.</p>
      *
-     * The ring buffer is set up to prevent overwriting any entry that is yet to
-     * be processed by the slowest event processor.<p/>
+     * <p>The ring buffer is set up to prevent overwriting any entry that is yet to
+     * be processed by the slowest event processor.</p>
      *
-     * This method must only be called once after all event processors have been added.
+     * <p>This method must only be called once after all event processors have been added.</p>
      *
      * @return the configured ring buffer.
      */
@@ -298,9 +297,9 @@ public class Disruptor<T>
     }
 
     /**
-     * Waits until all events currently in the disruptor have been processed by all event processors
-     * and then halts the processors.
-     * <p/>
+     * <p>Waits until all events currently in the disruptor have been processed by all event processors
+     * and then halts the processors.</p>
+     *
      * <p>This method will not shutdown the executor, nor will it await the final termination of the
      * processor threads.</p>
      *

@@ -18,10 +18,10 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
- * and ensuring appropriate barriers.<p/>
+ * <p>A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
+ * and ensuring appropriate barriers.</p>
  *
- * Generally, this will be used as part of a {@link WorkerPool}.
+ * <p>Generally, this will be used as part of a {@link WorkerPool}.</p>
  *
  * @param <T> event implementation storing the details for the work to processed.
  */

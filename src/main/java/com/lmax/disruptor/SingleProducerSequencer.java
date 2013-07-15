@@ -21,9 +21,9 @@ import java.util.concurrent.locks.LockSupport;
 
 
 /**
- * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p/>
+ * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p>
  *
- * Generally not safe for use from multiple threads as it does not implement any barriers.
+ * <p>Generally not safe for use from multiple threads as it does not implement any barriers.</p>
  */
 public final class SingleProducerSequencer extends AbstractSequencer
 {

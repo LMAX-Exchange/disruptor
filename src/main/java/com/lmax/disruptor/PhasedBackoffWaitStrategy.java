@@ -22,18 +22,17 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Phased wait strategy for waiting {@link EventProcessor}s on a barrier.<p/>
+ * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
  *
- * This strategy can be used when throughput and low-latency are not as important as CPU resource.<p/>
- *
- * Spins, then yields, then blocks on the configured BlockingStrategy.
+ * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
+ * Spins, then yields, then blocks on the configured BlockingStrategy.</p>
  */
 public final class PhasedBackoffWaitStrategy implements WaitStrategy
 {
     private static final int SPIN_TRIES = 10000;
     private final long spinTimeoutNanos;
     private final long yieldTimeoutNanos;
-    private BlockingStrategy lockingStrategy;
+    private final BlockingStrategy lockingStrategy;
 
     public PhasedBackoffWaitStrategy(long spinTimeoutMillis,
                                      long yieldTimeoutMillis,

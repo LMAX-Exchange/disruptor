@@ -20,15 +20,15 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * Histogram for tracking the frequency of observations of values below interval upper bounds.<p/>
+ * <p>Histogram for tracking the frequency of observations of values below interval upper bounds.</p>
  *
- * This class is useful for recording timings across a large number of observations
- * when high performance is required.<p/>
+ * <p>This class is useful for recording timings across a large number of observations
+ * when high performance is required.<p>
  *
- * The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
+ * <p>The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
  * are [10,20,30,40,50] then there will be five buckets, accessible by index 0-4. Any value
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
- * second bar, and so on.
+ * second bar, and so on.</p>
  */
 public final class Histogram
 {
@@ -173,9 +173,9 @@ public final class Histogram
     }
 
     /**
-     * Add observations from another Histogram into this one.<p/>
+     * <p>Add observations from another Histogram into this one.</p>
      *
-     * Histograms must have the same intervals.
+     * <p>Histograms must have the same intervals.</p>
      *
      * @param histogram from which to add the observation counts.
      * @throws IllegalArgumentException if interval count or values do not match exactly
@@ -259,12 +259,12 @@ public final class Histogram
     }
 
     /**
-     * Calculate the mean of all recorded observations.<p/>
+     * <p>Calculate the mean of all recorded observations.</p>
      *
-     * The mean is calculated by summing the mid points of each interval multiplied by the count
+     * <p>The mean is calculated by summing the mid points of each interval multiplied by the count
      * for that interval, then dividing by the total count of observations.  The max and min are
      * considered for adjusting the top and bottom bin when calculating the mid point, this
-     * minimises skew if the observed values are very far away from the possible histogram values.
+     * minimises skew if the observed values are very far away from the possible histogram values.</p>
      *
      * @return the mean of all recorded observations.
      */
@@ -324,9 +324,9 @@ public final class Histogram
     }
 
     /**
-     * Get the interval upper bound for a given factor of the observation population.<p/>
+     * <p>Get the interval upper bound for a given factor of the observation population.</p>
      *
-     * Note this does not get the actual percentile measurement, it only gets the bucket
+     * <p>Note this does not get the actual percentile measurement, it only gets the bucket</p>
      *
      * @param factor representing the size of the population.
      * @return the interval upper bound.
