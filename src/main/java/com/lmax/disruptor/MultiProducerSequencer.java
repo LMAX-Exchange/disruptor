@@ -242,7 +242,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
      * sequence as the index into the buffer (indexMask). (aka modulo operator)
      * -- The upper portion of the sequence becomes the value to check for availability.
      * ie: it tells us how many times around the ring buffer we've been (aka division)
-     * -- Beause we can't wrap without the gating sequences moving forward (i.e. the
+     * -- Because we can't wrap without the gating sequences moving forward (i.e. the
      * minimum gating sequence is effectively our last available position in the
      * buffer), when we have new data and successfully claimed a slot we can simply
      * write over the top.
