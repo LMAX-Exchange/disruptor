@@ -95,6 +95,7 @@ public final class WorkProcessor<T>
         notifyStart();
 
         boolean processedSequence = true;
+        long cachedAvailableSequence = Long.MIN_VALUE;
         long nextSequence = sequence.get();
         T event = null;
         while (true)
@@ -113,11 +114,15 @@ public final class WorkProcessor<T>
                     sequence.set(nextSequence - 1L);
                 }
 
-                if (sequenceBarrier.waitFor(nextSequence) >= nextSequence)
+                if (cachedAvailableSequence >= nextSequence)
                 {
                     event = ringBuffer.get(nextSequence);
                     workHandler.onEvent(event);
                     processedSequence = true;
+                }
+                else
+                {
+                    cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
                 }
             }
             catch (final AlertException ex)
