@@ -969,7 +969,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     {
         if(batchStartsAt < 0 || batchSize < 0)
         {
-            throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and bachSize " + batchSize);
+            throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and batchSize " + batchSize);
         }
         else if(batchSize > bufferSize)
         {
