@@ -1,6 +1,6 @@
 package com.lmax.disruptor;
 
-import static java.lang.Math.min;
+import static java.lang.Math.max;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -28,7 +28,7 @@ public class TortureTest
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
 
-        int threads = min(1, Runtime.getRuntime().availableProcessors() / 2);
+        int threads = max(1, Runtime.getRuntime().availableProcessors() / 2);
 
         int iterations     = 20000000;
         int publisherCount = threads;
