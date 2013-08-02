@@ -36,6 +36,17 @@ public final class WorkProcessor<T>
     private final ExceptionHandler exceptionHandler;
     private final Sequence workSequence;
 
+    private long nextSequence;
+
+    private final EventReleaser eventReleaser = new EventReleaser()
+    {
+        @Override
+        public void release()
+        {
+            sequence.set(nextSequence);
+        }
+    };
+
     /**
      * Construct a {@link WorkProcessor}.
      *
@@ -57,6 +68,11 @@ public final class WorkProcessor<T>
         this.workHandler = workHandler;
         this.exceptionHandler = exceptionHandler;
         this.workSequence = workSequence;
+
+        if (this.workHandler instanceof EventReleasingWorkHandler)
+        {
+            ((EventReleasingWorkHandler)this.workHandler).setEventReleaser(eventReleaser);
+        }
     }
 
     @Override
@@ -96,7 +112,7 @@ public final class WorkProcessor<T>
 
         boolean processedSequence = true;
         long cachedAvailableSequence = Long.MIN_VALUE;
-        long nextSequence = sequence.get();
+        nextSequence = sequence.get();
         T event = null;
         while (true)
         {

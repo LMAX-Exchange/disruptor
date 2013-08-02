@@ -101,11 +101,12 @@ public final class WorkerPool<T>
      */
     public Sequence[] getWorkerSequences()
     {
-        final Sequence[] sequences = new Sequence[workProcessors.length];
+        final Sequence[] sequences = new Sequence[workProcessors.length + 1];
         for (int i = 0, size = workProcessors.length; i < size; i++)
         {
             sequences[i] = workProcessors[i].getSequence();
         }
+        sequences[sequences.length - 1] = workSequence;
 
         return sequences;
     }
