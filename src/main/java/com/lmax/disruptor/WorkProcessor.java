@@ -67,9 +67,9 @@ public final class WorkProcessor<T>
         this.exceptionHandler = exceptionHandler;
         this.workSequence = workSequence;
 
-        if (this.workHandler instanceof EventReleasingWorkHandler)
+        if (this.workHandler instanceof EventReleaseAware)
         {
-            ((EventReleasingWorkHandler)this.workHandler).setEventReleaser(eventReleaser);
+            ((EventReleaseAware)this.workHandler).setEventReleaser(eventReleaser);
         }
     }
 

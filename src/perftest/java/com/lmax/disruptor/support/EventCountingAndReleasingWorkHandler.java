@@ -15,12 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
+import com.lmax.disruptor.EventReleaseAware;
 import com.lmax.disruptor.EventReleaser;
-import com.lmax.disruptor.EventReleasingWorkHandler;
+import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class EventCountingAndReleasingWorkHandler
-    implements EventReleasingWorkHandler<ValueEvent>
+    implements WorkHandler<ValueEvent>, EventReleaseAware
 {
     private final PaddedLong[] counters;
     private final int index;
