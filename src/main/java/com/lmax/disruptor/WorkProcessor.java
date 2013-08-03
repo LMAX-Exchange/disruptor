@@ -43,7 +43,7 @@ public final class WorkProcessor<T>
         @Override
         public void release()
         {
-            sequence.set(nextSequence);
+            sequence.set(Long.MAX_VALUE);
         }
     };
 
@@ -126,8 +126,12 @@ public final class WorkProcessor<T>
                 if (processedSequence)
                 {
                     processedSequence = false;
-                    nextSequence = workSequence.incrementAndGet();
-                    sequence.set(nextSequence - 1L);
+                    do
+                    {
+                        nextSequence = workSequence.get() + 1L;
+                        sequence.set(nextSequence - 1L);
+                    }
+                    while (!workSequence.compareAndSet(nextSequence - 1L, nextSequence));
                 }
 
                 if (cachedAvailableSequence >= nextSequence)
