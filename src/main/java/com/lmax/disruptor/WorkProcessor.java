@@ -36,8 +36,6 @@ public final class WorkProcessor<T>
     private final ExceptionHandler exceptionHandler;
     private final Sequence workSequence;
 
-    private long nextSequence;
-
     private final EventReleaser eventReleaser = new EventReleaser()
     {
         @Override
@@ -112,7 +110,7 @@ public final class WorkProcessor<T>
 
         boolean processedSequence = true;
         long cachedAvailableSequence = Long.MIN_VALUE;
-        nextSequence = sequence.get();
+        long nextSequence = sequence.get();
         T event = null;
         while (true)
         {
