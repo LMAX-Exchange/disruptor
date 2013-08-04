@@ -15,18 +15,27 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.collections.Histogram;
-import com.lmax.disruptor.support.*;
-import org.junit.Test;
-
-import java.io.PrintStream;
-import java.math.BigDecimal;
-import java.util.concurrent.*;
-
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.io.PrintStream;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.HdrHistogram.Histogram;
+import org.HdrHistogram.HistogramIterationValue;
+import org.junit.Test;
+
+import com.lmax.disruptor.support.FunctionStep;
+import com.lmax.disruptor.support.LatencyStepEventHandler;
+import com.lmax.disruptor.support.LatencyStepQueueProcessor;
+import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -87,23 +96,11 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 30L;
+    private static final long ITERATIONS = 1000L * 1000L * 5L;
     private static final long PAUSE_NANOS = 1000L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
-    private final Histogram histogram;
-    {
-        long[] intervals = new long[31];
-        long intervalUpperBound = 1L;
-        for (int i = 0, size = intervals.length - 1; i < size; i++)
-        {
-            intervalUpperBound *= 2;
-            intervals[i] = intervalUpperBound;
-        }
-
-        intervals[intervals.length - 1] = Long.MAX_VALUE;
-        histogram = new Histogram(intervals);
-    }
+    private final Histogram histogram = new Histogram(10000000000L, 4);
 
     // determine how long it takes to call System.nanoTime() (on average)
     private final long nanoTimeCost;
@@ -142,7 +139,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final LatencyStepEventHandler stepOneFunctionHandler = new LatencyStepEventHandler(FunctionStep.ONE, histogram, nanoTimeCost);
@@ -169,20 +166,20 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     {
         final int runs = 3;
 
-        BigDecimal[] queueMeanLatency = new BigDecimal[runs];
-        BigDecimal[] disruptorMeanLatency = new BigDecimal[runs];
+        double[] queueMeanLatency = new double[runs];
+        double[] disruptorMeanLatency = new double[runs];
 
-        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "true")))
+        if ("true".equalsIgnoreCase(System.getProperty("com.lmax.runQueueTests", "false")))
         {
             for (int i = 0; i < runs; i++)
             {
                 System.gc();
-                histogram.clear();
+                histogram.reset();
 
                 runQueuePass();
 
-                assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
-                queueMeanLatency[i] = histogram.getMean();
+                assertThat(Long.valueOf(histogram.getHistogramData().getTotalCount()), is(Long.valueOf(ITERATIONS)));
+                queueMeanLatency[i] = histogram.getHistogramData().getMean();
 
                 System.out.format("%s run %d BlockingQueue %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
                 dumpHistogram(System.out);
@@ -192,19 +189,19 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         {
             for (int i = 0; i < runs; i++)
             {
-                queueMeanLatency[i] = new BigDecimal(Long.MAX_VALUE);
+                queueMeanLatency[i] = Double.MAX_VALUE;
             }
         }
 
         for (int i = 0; i < runs; i++)
         {
             System.gc();
-            histogram.clear();
+            histogram.reset();
 
             runDisruptorPass();
 
-            assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(ITERATIONS)));
-            disruptorMeanLatency[i] = histogram.getMean();
+            assertThat(Long.valueOf(histogram.getHistogramData().getTotalCount()), is(Long.valueOf(ITERATIONS)));
+            disruptorMeanLatency[i] = histogram.getHistogramData().getMean();
 
             System.out.format("%s run %d Disruptor %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
             dumpHistogram(System.out);
@@ -212,18 +209,17 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
         for (int i = 0; i < runs; i++)
         {
-            assertTrue(queueMeanLatency[i].compareTo(disruptorMeanLatency[i]) > 0);
+            assertTrue("run: " + i, queueMeanLatency[i] > disruptorMeanLatency[i]);
         }
     }
 
     private void dumpHistogram(final PrintStream out)
     {
-        for (int i = 0, size = histogram.getSize(); i < size; i++)
+        for (HistogramIterationValue v :
+            histogram.getHistogramData().percentiles(1))
         {
-            out.print(histogram.getUpperBoundAt(i));
-            out.print('\t');
-            out.print(histogram.getCountAt(i));
-            out.println();
+//            System.out.printf("%f: %.4f%n", v.getPercentile(), v.getTotalValueToThisValue());
+            System.out.printf("%f: %d%n", v.getPercentile(), v.getTotalValueToThisValue());
         }
     }
 
@@ -237,6 +233,8 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         futures[1] = executor.submit(stepTwoQueueProcessor);
         futures[2] = executor.submit(stepThreeQueueProcessor);
 
+        Thread.sleep(1000);
+
         for (long i = 0; i < ITERATIONS; i++)
         {
             stepOneQueue.put(Long.valueOf(System.nanoTime()));
@@ -244,6 +242,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() - pauseStart))
             {
+                Thread.yield();
                 // busy spin
             }
         }
@@ -268,6 +267,8 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
         executor.submit(stepTwoBatchProcessor);
         executor.submit(stepThreeBatchProcessor);
 
+        Thread.sleep(1000);
+
         for (long i = 0; i < ITERATIONS; i++)
         {
             long t0 = System.nanoTime();
@@ -278,6 +279,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
             long pauseStart = System.nanoTime();
             while (PAUSE_NANOS > (System.nanoTime() - pauseStart))
             {
+                Thread.yield();
                 // busy spin
             }
         }

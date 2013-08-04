@@ -15,10 +15,11 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.collections.Histogram;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+
+import org.HdrHistogram.Histogram;
 
 public final class LatencyStepQueueProcessor implements Runnable
 {
@@ -83,7 +84,7 @@ public final class LatencyStepQueueProcessor implements Runnable
                         long duration = System.nanoTime() - value.longValue();
                         duration /= 3;
                         duration -= nanoTimeCost;
-                        histogram.addObservation(duration);
+                        histogram.recordValue(duration);
                         break;
                     }
                 }

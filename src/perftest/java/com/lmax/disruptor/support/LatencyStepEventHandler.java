@@ -15,10 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.collections.Histogram;
-
 import java.util.concurrent.CountDownLatch;
+
+import org.HdrHistogram.Histogram;
+
+import apple.laf.JRSUIConstants.ArrowsOnly;
+
+import com.lmax.disruptor.EventHandler;
 
 public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
 {
@@ -53,12 +56,13 @@ public final class LatencyStepEventHandler implements EventHandler<ValueEvent>
             case THREE:
                 // each value is a timestamp of when it was put on the ring
                 // calculate how long it took for the value to get to the end
-                long duration = System.nanoTime() - event.getValue();
+            long nanoTime = System.nanoTime();
+            long duration = nanoTime - event.getValue();
                 // approximate time for a single processor
-                duration /= 3;
+                duration /= 3L;
                 // adjust for nanoTime() calls
                 duration -= nanoTimeCost;
-                histogram.addObservation(duration);
+                histogram.recordValue(Math.max(0, duration));
                 break;
         }
 
