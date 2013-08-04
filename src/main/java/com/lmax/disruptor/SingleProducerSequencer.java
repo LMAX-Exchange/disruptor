@@ -103,7 +103,8 @@ public final class SingleProducerSequencer extends AbstractSequencer
             long minSequence;
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
-                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
+                Thread.yield();
+//                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
             pad.cachedValue = minSequence;

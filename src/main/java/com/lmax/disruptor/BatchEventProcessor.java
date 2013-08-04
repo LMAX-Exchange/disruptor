@@ -122,6 +122,11 @@ public final class BatchEventProcessor<T>
                 {
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
 
+                    if (nextSequence > availableSequence)
+                    {
+                        Thread.yield();
+                    }
+
                     while (nextSequence <= availableSequence)
                     {
                         event = dataProvider.get(nextSequence);
