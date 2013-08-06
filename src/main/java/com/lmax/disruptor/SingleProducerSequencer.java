@@ -17,8 +17,6 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Util;
 
-import java.util.concurrent.locks.LockSupport;
-
 
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p>

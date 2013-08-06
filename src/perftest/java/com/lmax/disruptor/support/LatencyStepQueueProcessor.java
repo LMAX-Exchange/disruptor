@@ -19,7 +19,8 @@ package com.lmax.disruptor.support;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
-import org.HdrHistogram.Histogram;
+
+import com.lmax.disruptor.Sequence;
 
 public final class LatencyStepQueueProcessor implements Runnable
 {
@@ -27,26 +28,21 @@ public final class LatencyStepQueueProcessor implements Runnable
 
     private final BlockingQueue<Long> inputQueue;
     private final BlockingQueue<Long> outputQueue;
-    private final Histogram histogram;
-    private final long nanoTimeCost;
     private final long count;
 
     private volatile boolean running;
     private long sequence;
     private CountDownLatch latch;
+    private final Sequence value = new Sequence(0);
 
     public LatencyStepQueueProcessor(final FunctionStep functionStep,
                                      final BlockingQueue<Long> inputQueue,
                                      final BlockingQueue<Long> outputQueue,
-                                     final Histogram histogram,
-                                     final long nanoTimeCost,
                                      final long count)
     {
         this.functionStep = functionStep;
         this.inputQueue = inputQueue;
         this.outputQueue = outputQueue;
-        this.histogram = histogram;
-        this.nanoTimeCost = nanoTimeCost;
         this.count = count;
     }
 
@@ -59,6 +55,11 @@ public final class LatencyStepQueueProcessor implements Runnable
     public void halt()
     {
         running = false;
+    }
+
+    public Sequence getSequence()
+    {
+        return value;
     }
 
     @Override
@@ -81,10 +82,7 @@ public final class LatencyStepQueueProcessor implements Runnable
                     case THREE:
                     {
                         Long value = inputQueue.take();
-                        long duration = System.nanoTime() - value.longValue();
-                        duration /= 3;
-                        duration -= nanoTimeCost;
-                        histogram.recordValue(duration);
+                        this.value.set(value);
                         break;
                     }
                 }
