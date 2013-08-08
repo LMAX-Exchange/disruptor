@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.HdrHistogram.Histogram;
-import org.HdrHistogram.HistogramIterationValue;
 import org.junit.Test;
 
 import com.lmax.disruptor.support.FunctionStep;
@@ -95,33 +94,12 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
-    private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 100L * 30L;
+    private static final int BUFFER_SIZE = 1024;
+    private static final long ITERATIONS = 1000L * 1000L * 30L;
     private static final long PAUSE_NANOS = 1000L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final Histogram histogram = new Histogram(10000000000L, 4);
-
-    // determine how long it takes to call System.nanoTime() (on average)
-    private final long nanoTimeCost;
-    {
-        final long iterations = 10000000;
-        long start = System.nanoTime();
-        long finish = start;
-
-        for (int i = 0; i < iterations; i++)
-        {
-            finish = System.nanoTime();
-        }
-
-        if (finish <= start)
-        {
-            throw new IllegalStateException();
-        }
-
-        finish = System.nanoTime();
-        nanoTimeCost = (finish - start) / iterations;
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +142,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
     @Test
     public void shouldCompareDisruptorVsQueues() throws Exception
     {
-        final int runs = 5;
+        final int runs = 3;
 
         double[] queueMeanLatency = new double[runs];
         double[] disruptorMeanLatency = new double[runs];
@@ -215,11 +193,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private static void dumpHistogram(Histogram histogram, final PrintStream out)
     {
-        for (HistogramIterationValue v :
-            histogram.getHistogramData().percentiles(1))
-        {
-            System.out.printf("%f: %.3f (%d)%n", v.getPercentile(), v.getValueIteratedTo() / 1000.0, v.getCountAtValueIteratedTo());
-        }
+        histogram.getHistogramData().outputPercentileDistribution(out, 1, 1000.0);
     }
 
     private void runQueuePass() throws Exception
@@ -313,7 +287,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     private long calculateLatency(long t0, long t1)
     {
-        return max(((t1 - t0) / 3) - nanoTimeCost, 0);
+        return max(t1 - t0, 0);
     }
 
     public static void main(String[] args) throws Exception
