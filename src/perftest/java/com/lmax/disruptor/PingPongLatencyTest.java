@@ -175,7 +175,6 @@ public final class PingPongLatencyTest
         barrier.await();
         latch.await();
 
-        latch.await();
         pingProcessor.halt();
         pongProcessor.halt();
     }
