@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.LockSupport;
 
 import org.HdrHistogram.Histogram;
 import org.junit.Test;
@@ -43,8 +42,24 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * Queue Based:
  * ============
+ *               +---take---+
+ *               |          |
+ *               |          V
+ *            +====+      +====+
+ *    +------>| Q1 |      | P2 |-------+
+ *    |       +====+      +====+       |
+ *   put                              put
+ *    |       +====+      +====+       |
+ *    +-------| P1 |      | Q2 |<------+
+ *            +====+      +====+
+ *               ^          |
+ *               |          |
+ *               +---take---+
  *
- * TODO
+ * P1 - QueuePinger
+ * P2 - QueuePonger
+ * Q1 - PingQueue
+ * Q2 - PongQueue
  *
  * Disruptor:
  * ==========
