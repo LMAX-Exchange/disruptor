@@ -11,6 +11,13 @@ Maintainer
 Changelog
 ==========
 
+### 3.2.0 Released (13-Aug-2013)
+
+- Fix performance bug in WorkProcessor with MultiProducerSequencer
+- Add EventRelease support to WorkProcessor (experimental)
+- Add PingPongLatencyTest
+- Switch to HdrHistogram for latency measurement
+
 ### 3.1.1 Released (9-Jul-2013)
 
 - Fix bug in WorkProcessor where consumers could get ahead of publishers
