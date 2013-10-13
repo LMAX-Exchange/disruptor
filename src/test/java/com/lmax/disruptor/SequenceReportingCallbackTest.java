@@ -70,6 +70,11 @@ public class SequenceReportingCallbackTest
         {
             sequenceCallback.set(sequence);
             callbackLatch.countDown();
+
+            if (endOfBatch)
+            {
+                onEndOfBatchLatch.await();
+            }
         }
     }
 }

@@ -103,10 +103,10 @@ public class TortureTest
         @Override
         public void onEvent(TestEvent event, long sequence, boolean endOfBatch) throws Exception
         {
-            if (event.sequence == sequence &&
-                    event.a == sequence + 13 &&
-                    event.b == sequence - 7 &&
-                    event.s == "wibble-" + sequence)
+            if (event.sequence != sequence ||
+                    event.a != sequence + 13 ||
+                    event.b != sequence - 7 ||
+                    !("wibble-" + sequence).equals(event.s))
             {
                 failureCount++;
             }
