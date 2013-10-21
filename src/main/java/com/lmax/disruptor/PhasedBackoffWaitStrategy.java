@@ -56,6 +56,18 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     /**
+     * Block with wait/notifyAll semantics, but with an adjustable bounded-timeout on the wait.
+     */
+    public static PhasedBackoffWaitStrategy withAdjustableLock(long spinTimeoutMillis,
+                                                     long yieldTimeoutMillis,
+                                                     long lockWaitTimeoutMillis,
+                                                     TimeUnit units)
+    {
+        return new PhasedBackoffWaitStrategy(spinTimeoutMillis, yieldTimeoutMillis,
+                                             units, new LockBlockingStrategy(lockWaitTimeoutMillis, units));
+    }
+
+    /**
      * Block by sleeping in a loop
      */
     public static PhasedBackoffWaitStrategy withSleep(long spinTimeoutMillis,
@@ -126,6 +138,17 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         private final Lock lock = new ReentrantLock();
         private final Condition processorNotifyCondition = lock.newCondition();
         private volatile int numWaiters = 0;
+        private final long lockWaitTimeoutMillis;
+
+        public LockBlockingStrategy()
+        {
+            this(1, TimeUnit.MILLISECONDS);
+        }
+
+        public LockBlockingStrategy(long lockWaitTimeoutMillis, TimeUnit units)
+        {
+            this.lockWaitTimeoutMillis = units.toMillis(lockWaitTimeoutMillis);
+        }
 
         @Override
         public long waitOnLock(long sequence,
@@ -141,7 +164,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
+                    processorNotifyCondition.await(lockWaitTimeoutMillis, TimeUnit.MILLISECONDS);
                 }
             }
             finally
