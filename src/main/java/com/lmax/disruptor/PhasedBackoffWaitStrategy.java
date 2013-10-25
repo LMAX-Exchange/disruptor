@@ -125,7 +125,6 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     {
         private final Lock lock = new ReentrantLock();
         private final Condition processorNotifyCondition = lock.newCondition();
-        private volatile int numWaiters = 0;
 
         @Override
         public long waitOnLock(long sequence,
@@ -137,16 +136,14 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
             lock.lock();
             try
             {
-                ++numWaiters;
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
                     barrier.checkAlert();
-                    processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
+                    processorNotifyCondition.await();
                 }
             }
             finally
             {
-                --numWaiters;
                 lock.unlock();
             }
 
@@ -161,17 +158,14 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         @Override
         public void signalAllWhenBlocking()
         {
-            if (0 != numWaiters)
+            lock.lock();
+            try
             {
-                lock.lock();
-                try
-                {
-                    processorNotifyCondition.signalAll();
-                }
-                finally
-                {
-                    lock.unlock();
-                }
+                processorNotifyCondition.signalAll();
+            }
+            finally
+            {
+                lock.unlock();
             }
         }
     }
