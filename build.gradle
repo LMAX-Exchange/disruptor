@@ -46,6 +46,10 @@ sourceSets {
 
 eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
+idea.module {
+    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+}
+
 repositories {
     mavenCentral()
 }
