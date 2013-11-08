@@ -15,3 +15,5 @@ pom.xml
 .settings
 .idea
 *.iml
+*.ipr
+*.iws
