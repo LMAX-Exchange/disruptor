@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,9 +27,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public final class LiteBlockingWaitStrategy implements WaitStrategy
 {
-    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
+    private final AtomicInteger waiters = new AtomicInteger(0);
 
     @Override
     public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
@@ -39,18 +39,20 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         if ((availableSequence = cursorSequence.get()) < sequence)
         {
             lock.lock();
+            int currentWaiters = waiters.get();
+            waiters.set(currentWaiters + 1);
+
             try
-            {                
+            {
                 while ((availableSequence = cursorSequence.get()) < sequence)
                 {
-                    signalNeeded.set(true);
-                    
                     barrier.checkAlert();
                     processorNotifyCondition.await();
                 }
             }
             finally
             {
+                waiters.lazySet(currentWaiters);
                 lock.unlock();
             }
         }
@@ -66,8 +68,8 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        if (signalNeeded.getAndSet(false))
-        {            
+        if (!waiters.compareAndSet(0, 0))
+        {
             lock.lock();
             try
             {
