@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,7 +29,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
 {
     private final Lock lock = new ReentrantLock();
     private final Condition processorNotifyCondition = lock.newCondition();
-    private final AtomicInteger waiters = new AtomicInteger(0);
+    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
     @Override
     public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
@@ -39,20 +39,25 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         if ((availableSequence = cursorSequence.get()) < sequence)
         {
             lock.lock();
-            int currentWaiters = waiters.get();
-            waiters.set(currentWaiters + 1);
-
+            
             try
             {
-                while ((availableSequence = cursorSequence.get()) < sequence)
+                do
                 {
+                    signalNeeded.set(true);
+                    
+                    if ((availableSequence = cursorSequence.get()) >= sequence)
+                    {
+                        break;
+                    }
+                    
                     barrier.checkAlert();
                     processorNotifyCondition.await();
                 }
+                while ((availableSequence = cursorSequence.get()) < sequence);
             }
             finally
             {
-                waiters.lazySet(currentWaiters);
                 lock.unlock();
             }
         }
@@ -68,7 +73,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        if (!waiters.compareAndSet(0, 0))
+        if (signalNeeded.getAndSet(false))
         {
             lock.lock();
             try
