@@ -39,18 +39,18 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         if ((availableSequence = cursorSequence.get()) < sequence)
         {
             lock.lock();
-            
+
             try
             {
                 do
                 {
                     signalNeeded.set(true);
-                    
+
                     if ((availableSequence = cursorSequence.get()) >= sequence)
                     {
                         break;
                     }
-                    
+
                     barrier.checkAlert();
                     processorNotifyCondition.await();
                 }
