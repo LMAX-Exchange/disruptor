@@ -165,4 +165,9 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
 
         return opsPerSecond;
     }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OneToThreeDiamondSequencedThroughputTest().testImplementations();
+    }
 }
