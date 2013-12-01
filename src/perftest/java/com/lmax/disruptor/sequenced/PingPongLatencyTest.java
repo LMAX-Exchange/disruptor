@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static org.junit.Assert.assertTrue;
@@ -31,6 +31,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.HdrHistogram.Histogram;
 import org.junit.Test;
 
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 

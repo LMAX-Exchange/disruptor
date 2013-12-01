@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.raw;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +21,12 @@ import java.util.concurrent.Executors;
 
 import org.junit.Test;
 
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.Sequencer;
+import com.lmax.disruptor.SingleProducerSequencer;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
@@ -66,7 +72,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * </pre>
  */
-public final class OnePublisherToOneProcessorRawBatchThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToOneRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 200L;
@@ -104,9 +110,8 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
-        int batchSize = 10;
         final CountDownLatch latch = new CountDownLatch(1);
-        long expectedCount = myRunnable.sequence.get() + (ITERATIONS * batchSize);
+        long expectedCount = myRunnable.sequence.get() + ITERATIONS;
         myRunnable.reset(latch, expectedCount);
         executor.submit(myRunnable);
         long start = System.currentTimeMillis();
@@ -115,13 +120,12 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long next = sequencer.next(batchSize);
-            sequencer.publish((next - (batchSize - 1)), next);
+            long next = sequencer.next();
+            sequencer.publish(next);
         }
 
         latch.await();
-        long end = System.currentTimeMillis();
-        long opsPerSecond = (ITERATIONS * 1000L * batchSize) / (end - start);
+        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         waitForEventProcessorSequence(expectedCount);
 
         return opsPerSecond;
@@ -169,7 +173,7 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
                 while (processed < expected);
 
                 latch.countDown();
-                sequence.set(processed);
+                sequence.setVolatile(processed);
             }
             catch (Exception e)
             {
@@ -180,7 +184,7 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
 
     public static void main(String[] args) throws Exception
     {
-        OnePublisherToOneProcessorRawBatchThroughputTest test = new OnePublisherToOneProcessorRawBatchThroughputTest();
+        OneToOneRawThroughputTest test = new OneToOneRawThroughputTest();
         test.shouldCompareDisruptorVsQueues();
     }
 }

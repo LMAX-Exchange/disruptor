@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.translator;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
@@ -23,6 +23,11 @@ import java.util.concurrent.Executors;
 
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.ValueAdditionEventHandler;
 import com.lmax.disruptor.support.ValueEvent;
 

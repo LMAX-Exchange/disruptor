@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.WorkHandler;
 
-class ValueAdditionWorkHandler implements WorkHandler<ValueEvent>
+public class ValueAdditionWorkHandler implements WorkHandler<ValueEvent>
 {
     private long total;
 

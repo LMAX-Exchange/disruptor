@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.workhandler;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 
@@ -25,6 +25,14 @@ import java.util.concurrent.locks.LockSupport;
 
 import org.junit.Test;
 
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.BusySpinWaitStrategy;
+import com.lmax.disruptor.IgnoreExceptionHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.WorkProcessor;
+import com.lmax.disruptor.support.ValueAdditionWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValuePublisher;
 
@@ -47,7 +55,7 @@ import com.lmax.disruptor.support.ValuePublisher;
  * WP2 - EventProcessor 2
  * </pre>
  */
-public final class TwoPublisherToTwoProcessorWorkProcessorThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;

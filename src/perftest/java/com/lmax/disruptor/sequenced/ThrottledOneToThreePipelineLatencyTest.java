@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static java.lang.Math.max;
@@ -30,6 +30,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.HdrHistogram.Histogram;
 import org.junit.Test;
 
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.FunctionStep;
 import com.lmax.disruptor.support.LatencyStepEventHandler;
 import com.lmax.disruptor.support.LatencyStepQueueProcessor;
@@ -91,7 +96,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
-public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
+public final class ThrottledOneToThreePipelineLatencyTest
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024;
@@ -292,7 +297,7 @@ public final class ThrottledOnePublisherToThreeProcessorPipelineLatencyTest
 
     public static void main(String[] args) throws Exception
     {
-        ThrottledOnePublisherToThreeProcessorPipelineLatencyTest test = new ThrottledOnePublisherToThreeProcessorPipelineLatencyTest();
+        ThrottledOneToThreePipelineLatencyTest test = new ThrottledOneToThreePipelineLatencyTest();
         test.shouldCompareDisruptorVsQueues();
     }
 }

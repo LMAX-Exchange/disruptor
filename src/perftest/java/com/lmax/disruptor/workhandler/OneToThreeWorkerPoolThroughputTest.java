@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.workhandler;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import com.lmax.disruptor.support.EventCountingAndReleasingWorkHandler;
-import com.lmax.disruptor.support.EventCountingQueueProcessor;
-import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.FatalExceptionHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.WorkerPool;
+import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.support.*;
 import com.lmax.disruptor.util.PaddedLong;
 
 import org.junit.Test;
 
+import java.util.concurrent.*;
+
 import static junit.framework.Assert.assertEquals;
 
-public final class OnePublisherToThreeWorkerPoolThroughputReleasingTest
+public final class OneToThreeWorkerPoolThroughputTest
     extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_WORKERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000 * 10L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
 
     private final PaddedLong[] counters = new PaddedLong[NUM_WORKERS];
@@ -59,11 +58,11 @@ public final class OnePublisherToThreeWorkerPoolThroughputReleasingTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final EventCountingAndReleasingWorkHandler[] handlers = new EventCountingAndReleasingWorkHandler[NUM_WORKERS];
+    private final EventCountingWorkHandler[] handlers = new EventCountingWorkHandler[NUM_WORKERS];
     {
         for (int i = 0; i < NUM_WORKERS; i++)
         {
-            handlers[i] = new EventCountingAndReleasingWorkHandler(counters, i);
+            handlers[i] = new EventCountingWorkHandler(counters, i);
         }
     }
 
@@ -147,10 +146,6 @@ public final class OnePublisherToThreeWorkerPoolThroughputReleasingTest
         }
 
         workerPool.drainAndHalt();
-
-        // Workaround to ensure that the last worker(s) have completed after releasing their events
-        Thread.sleep(1L);
-
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
         assertEquals(ITERATIONS, sumCounters());

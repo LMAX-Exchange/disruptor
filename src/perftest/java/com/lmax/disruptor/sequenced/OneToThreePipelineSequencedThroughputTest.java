@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.FunctionEvent;
 import com.lmax.disruptor.support.FunctionEventHandler;
 import com.lmax.disruptor.support.FunctionQueueProcessor;
 import com.lmax.disruptor.support.FunctionStep;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -79,7 +85,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class OnePublisherToThreeProcessorPipelineThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToThreePipelineSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;

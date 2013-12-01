@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
@@ -27,6 +27,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.FizzBuzzEvent;
 import com.lmax.disruptor.support.FizzBuzzEventHandler;
 import com.lmax.disruptor.support.FizzBuzzQueueProcessor;
@@ -99,7 +104,7 @@ import com.lmax.disruptor.support.FizzBuzzStep;
  *
  * </pre>
  */
-public final class OnePublisherToThreeProcessorDiamondThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;

@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.raw;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import com.lmax.disruptor.support.*;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-
-import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.*;
+import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.Sequencer;
+import com.lmax.disruptor.SingleProducerSequencer;
+import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -68,27 +72,18 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class OnePublisherToOneProcessorUniCastThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int BUFFER_SIZE = 1024 * 64;
-    private static final long ITERATIONS = 1000L * 1000L * 100L;
+    private static final long ITERATIONS = 1000L * 1000L * 200L;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
-    private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final RingBuffer<ValueEvent> ringBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-    private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
+    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
+    private final MyRunnable myRunnable = new MyRunnable(sequencer);
     {
-        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
+        sequencer.addGatingSequences(myRunnable.sequence);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,65 +104,89 @@ public final class OnePublisherToOneProcessorUniCastThroughputTest extends Abstr
     @Override
     protected long runQueuePass() throws InterruptedException
     {
-        final CountDownLatch latch = new CountDownLatch(1);
-        queueProcessor.reset(latch);
-        Future<?> future = executor.submit(queueProcessor);
-        long start = System.currentTimeMillis();
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            blockingQueue.put(Long.valueOf(i));
-        }
-
-        latch.await();
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        queueProcessor.halt();
-        future.cancel(true);
-
-        Assert.assertEquals(expectedResult, queueProcessor.getValue());
-
-        return opsPerSecond;
+        return 0;
     }
 
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
+        int batchSize = 10;
         final CountDownLatch latch = new CountDownLatch(1);
-        long expectedCount = batchEventProcessor.getSequence().get() + ITERATIONS;
-        handler.reset(latch, expectedCount);
-        executor.submit(batchEventProcessor);
+        long expectedCount = myRunnable.sequence.get() + (ITERATIONS * batchSize);
+        myRunnable.reset(latch, expectedCount);
+        executor.submit(myRunnable);
         long start = System.currentTimeMillis();
 
-        final RingBuffer<ValueEvent> rb = ringBuffer;
+        final Sequencer sequencer = this.sequencer;
 
         for (long i = 0; i < ITERATIONS; i++)
         {
-            long next = rb.next();
-            rb.get(next).setValue(i);
-            rb.publish(next);
+            long next = sequencer.next(batchSize);
+            sequencer.publish((next - (batchSize - 1)), next);
         }
 
         latch.await();
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        long end = System.currentTimeMillis();
+        long opsPerSecond = (ITERATIONS * 1000L * batchSize) / (end - start);
         waitForEventProcessorSequence(expectedCount);
-        batchEventProcessor.halt();
-
-        Assert.assertEquals(expectedResult, handler.getValue());
 
         return opsPerSecond;
     }
 
     private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
     {
-        while (batchEventProcessor.getSequence().get() != expectedCount)
+        while (myRunnable.sequence.get() != expectedCount)
         {
             Thread.sleep(1);
         }
     }
 
+    private static class MyRunnable implements Runnable
+    {
+        private CountDownLatch latch;
+        private long expectedCount;
+        Sequence sequence = new Sequence(-1);
+        private final SequenceBarrier barrier;
+
+        public MyRunnable(Sequencer sequencer)
+        {
+            this.barrier = sequencer.newBarrier();
+        }
+
+        public void reset(CountDownLatch latch, long expectedCount)
+        {
+            this.latch = latch;
+            this.expectedCount = expectedCount;
+        }
+
+        @Override
+        public void run()
+        {
+            long expected = expectedCount;
+            long processed = -1;
+
+            try
+            {
+                do
+                {
+                    processed = barrier.waitFor(sequence.get() + 1);
+                    sequence.set(processed);
+                }
+                while (processed < expected);
+
+                latch.countDown();
+                sequence.set(processed);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception
     {
-        OnePublisherToOneProcessorUniCastThroughputTest test = new OnePublisherToOneProcessorUniCastThroughputTest();
+        OneToOneRawBatchThroughputTest test = new OneToOneRawBatchThroughputTest();
         test.shouldCompareDisruptorVsQueues();
     }
 }
