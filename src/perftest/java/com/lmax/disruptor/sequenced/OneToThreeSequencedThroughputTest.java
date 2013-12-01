@@ -17,7 +17,13 @@ package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
-import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.junit.Assert;
+
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -25,12 +31,6 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
-import com.lmax.disruptor.support.ValueMutationQueueProcessor;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -48,31 +48,6 @@ import java.util.concurrent.*;
  *    |      +-----+
  *    +----->| EP3 |
  *           +-----+
- *
- *
- * Queue Based:
- * ============
- *                 take
- *   put     +====+    +-----+
- *    +----->| Q1 |<---| EP1 |
- *    |      +====+    +-----+
- *    |
- * +----+    +====+    +-----+
- * | P1 |--->| Q2 |<---| EP2 |
- * +----+    +====+    +-----+
- *    |
- *    |      +====+    +-----+
- *    +----->| Q3 |<---| EP3 |
- *           +====+    +-----+
- *
- * P1  - Publisher 1
- * Q1  - Queue 1
- * Q2  - Queue 2
- * Q3  - Queue 3
- * EP1 - EventProcessor 1
- * EP2 - EventProcessor 2
- * EP3 - EventProcessor 3
- *
  *
  * Disruptor:
  * ==========
@@ -97,7 +72,7 @@ import java.util.concurrent.*;
  *
  * </pre>
  */
-public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDisruptor
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
@@ -112,23 +87,6 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestQue
             results[1] = Operation.SUBTRACTION.op(results[1], i);
             results[2] = Operation.AND.op(results[2], i);
         }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    @SuppressWarnings("unchecked")
-    private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
-    {
-        blockingQueues[0] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-        blockingQueues[1] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-        blockingQueues[2] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    }
-
-    private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
-    {
-        queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION, ITERATIONS - 1);
-        queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION, ITERATIONS - 1);
-        queueProcessors[2] = new ValueMutationQueueProcessor(blockingQueues[2], Operation.AND, ITERATIONS - 1);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,47 +122,6 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestQue
         return 4;
     }
 
-    @Test
-    @Override
-    public void shouldCompareDisruptorVsQueues() throws Exception
-    {
-        testImplementations();
-    }
-
-    @Override
-    protected long runQueuePass() throws InterruptedException
-    {
-        CountDownLatch latch = new CountDownLatch(NUM_EVENT_PROCESSORS);
-        Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
-        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
-        {
-            queueProcessors[i].reset(latch);
-            futures[i] = executor.submit(queueProcessors[i]);
-        }
-
-        long start = System.currentTimeMillis();
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            final Long value = Long.valueOf(i);
-            for (BlockingQueue<Long> queue : blockingQueues)
-            {
-                queue.put(value);
-            }
-        }
-
-        latch.await();
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        for (int i = 0; i < NUM_EVENT_PROCESSORS; i++)
-        {
-            queueProcessors[i].halt();
-            futures[i].cancel(true);
-            Assert.assertEquals(results[i], queueProcessors[i].getValue());
-        }
-
-        return opsPerSecond;
-    }
-
     @Override
     protected long runDisruptorPass() throws InterruptedException
     {
@@ -233,5 +150,10 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestQue
         }
 
         return opsPerSecond;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OneToThreeSequencedThroughputTest().testImplementations();
     }
 }
