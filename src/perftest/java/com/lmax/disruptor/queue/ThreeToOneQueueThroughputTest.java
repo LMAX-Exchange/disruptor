@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor.sequenced;
+package com.lmax.disruptor.queue;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BusySpinWaitStrategy;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueEvent;
-import com.lmax.disruptor.support.ValuePublisher;
+import com.lmax.disruptor.AbstractPerfTestQueue;
+import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
+import com.lmax.disruptor.support.ValueQueuePublisher;
 
 /**
  * <pre>
@@ -50,20 +45,17 @@ import com.lmax.disruptor.support.ValuePublisher;
  * +----+
  *
  *
- * Disruptor:
- * ==========
- *             track to prevent wrap
- *             +--------------------+
- *             |                    |
- *             |                    v
- * +----+    +====+    +====+    +-----+
- * | P1 |--->| RB |<---| SB |    | EP1 |
- * +----+    +====+    +====+    +-----+
- *             ^   get    ^         |
- * +----+      |          |         |
- * | P2 |------+          +---------+
- * +----+      |            waitFor
- *             |
+ * Queue Based:
+ * ============
+ *
+ * +----+  put
+ * | P1 |------+
+ * +----+      |
+ *             v   take
+ * +----+    +====+    +-----+
+ * | P2 |--->| Q1 |<---| EP1 |
+ * +----+    +====+    +-----+
+ *             ^
  * +----+      |
  * | P3 |------+
  * +----+
@@ -71,13 +63,12 @@ import com.lmax.disruptor.support.ValuePublisher;
  * P1  - Publisher 1
  * P2  - Publisher 2
  * P3  - Publisher 3
- * RB  - RingBuffer
- * SB  - SequenceBarrier
+ * Q1  - Queue 1
  * EP1 - EventProcessor 1
  *
  * </pre>
  */
-public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDisruptor
+public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
@@ -87,20 +78,15 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RingBuffer<ValueEvent> ringBuffer =
-        createMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
-
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-    private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
-    private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
+    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final ValueAdditionQueueProcessor queueProcessor =
+        new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
+    private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS);
+            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
         }
-
-        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,17 +98,17 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
     }
 
     @Override
-    protected long runDisruptorPass() throws Exception
+    protected long runQueuePass() throws Exception
     {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
+        queueProcessor.reset(latch);
 
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            futures[i] = executor.submit(valuePublishers[i]);
+            futures[i] = executor.submit(valueQueuePublishers[i]);
         }
-        executor.submit(batchEventProcessor);
+        Future<?> processorFuture = executor.submit(queueProcessor);
 
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
@@ -135,13 +121,14 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
         latch.await();
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        batchEventProcessor.halt();
+        queueProcessor.halt();
+        processorFuture.cancel(true);
 
         return opsPerSecond;
     }
 
     public static void main(String[] args) throws Exception
     {
-        new ThreeToOneSequencedThroughputTest().testImplementations();
+        new ThreeToOneQueueThroughputTest().testImplementations();
     }
 }

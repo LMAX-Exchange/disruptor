@@ -17,16 +17,20 @@ package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 
-import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.support.*;
-
-import org.junit.Test;
-
-import java.util.concurrent.*;
+import com.lmax.disruptor.support.ValueAdditionEventHandler;
+import com.lmax.disruptor.support.ValueBatchPublisher;
+import com.lmax.disruptor.support.ValueEvent;
 
 /**
  * <pre>
@@ -44,29 +48,6 @@ import java.util.concurrent.*;
  * +----+      |
  * | P3 |------+
  * +----+
- *
- *
- * Queue Based:
- * ============
- *
- * +----+  put
- * | P1 |------+
- * +----+      |
- *             v   take
- * +----+    +====+    +-----+
- * | P2 |--->| Q1 |<---| EP1 |
- * +----+    +====+    +-----+
- *             ^
- * +----+      |
- * | P3 |------+
- * +----+
- *
- * P1  - Publisher 1
- * P2  - Publisher 2
- * P3  - Publisher 3
- * Q1  - Queue 1
- * EP1 - EventProcessor 1
- *
  *
  * Disruptor:
  * ==========
@@ -99,26 +80,13 @@ import java.util.concurrent.*;
  * @author mikeb01
  *
  */
-public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTestDisruptor
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor =
-        new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
-    private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
-    {
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
-            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
-        }
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -144,43 +112,6 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
     protected int getRequiredProcessorCount()
     {
         return 4;
-    }
-
-    @Test
-    @Override
-    public void shouldCompareDisruptorVsQueues() throws Exception
-    {
-        testImplementations();
-    }
-
-    @Override
-    protected long runQueuePass() throws Exception
-    {
-        final CountDownLatch latch = new CountDownLatch(1);
-        queueProcessor.reset(latch);
-
-        Future<?>[] futures = new Future[NUM_PUBLISHERS];
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
-            futures[i] = executor.submit(valueQueuePublishers[i]);
-        }
-        Future<?> processorFuture = executor.submit(queueProcessor);
-
-        long start = System.currentTimeMillis();
-        cyclicBarrier.await();
-
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
-            futures[i].get();
-        }
-
-        latch.await();
-
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-        queueProcessor.halt();
-        processorFuture.cancel(true);
-
-        return opsPerSecond;
     }
 
     @Override
@@ -210,5 +141,10 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
         batchEventProcessor.halt();
 
         return opsPerSecond;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        new ThreeToOneSequencedBatchThroughputTest().testImplementations();
     }
 }
