@@ -17,21 +17,11 @@ package com.lmax.disruptor;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
+import com.lmax.disruptor.support.*;
 
 import org.junit.Test;
 
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
-import com.lmax.disruptor.support.ValueEvent;
-import com.lmax.disruptor.support.ValuePublisher;
-import com.lmax.disruptor.support.ValueQueuePublisher;
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -100,11 +90,15 @@ import com.lmax.disruptor.support.ValueQueuePublisher;
  *
  * </pre>
  */
-public final class ThreePublisherToOneProcessorSequencedThroughputTest extends AbstractPerfTestQueueVsDisruptor
+/**
+ * @author mikeb01
+ *
+ */
+public final class ThreePublisherToOneProcessorBatchThroughputTest extends AbstractPerfTestQueueVsDisruptor
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
-    private static final long ITERATIONS = 1000L * 1000L * 20L;
+    private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
@@ -129,11 +123,11 @@ public final class ThreePublisherToOneProcessorSequencedThroughputTest extends A
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
-    private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
+    private final ValueBatchPublisher[] valuePublishers = new ValueBatchPublisher[NUM_PUBLISHERS];
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valuePublishers[i] = new ValuePublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS);
+            valuePublishers[i] = new ValueBatchPublisher(cyclicBarrier, ringBuffer, ITERATIONS / NUM_PUBLISHERS, 10);
         }
 
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());

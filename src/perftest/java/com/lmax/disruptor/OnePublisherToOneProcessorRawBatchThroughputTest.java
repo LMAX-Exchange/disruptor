@@ -169,7 +169,7 @@ public final class OnePublisherToOneProcessorRawBatchThroughputTest extends Abst
                 while (processed < expected);
 
                 latch.countDown();
-                sequence.setVolatile(processed);
+                sequence.set(processed);
             }
             catch (Exception e)
             {
