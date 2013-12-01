@@ -15,28 +15,22 @@
  */
 package com.lmax.disruptor.workhandler;
 
-import java.util.concurrent.BlockingQueue;
+import static junit.framework.Assert.assertEquals;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.FatalExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.WorkerPool;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.EventCountingAndReleasingWorkHandler;
-import com.lmax.disruptor.support.EventCountingQueueProcessor;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.PaddedLong;
 
-import org.junit.Test;
-
-import static junit.framework.Assert.assertEquals;
-
 public final class OneToThreeReleasingWorkerPoolThroughputTest
-    extends AbstractPerfTestQueueVsDisruptor
+    extends AbstractPerfTestDisruptor
 {
     private static final int NUM_WORKERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
@@ -48,17 +42,6 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
         for (int i = 0; i < NUM_WORKERS; i++)
         {
             counters[i] = new PaddedLong();
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final EventCountingQueueProcessor[] queueWorkers = new EventCountingQueueProcessor[NUM_WORKERS];
-    {
-        for (int i = 0; i < NUM_WORKERS; i++)
-        {
-            queueWorkers[i] = new EventCountingQueueProcessor(blockingQueue, counters, i);
         }
     }
 
@@ -92,48 +75,6 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
     protected int getRequiredProcessorCount()
     {
         return 4;
-    }
-
-    @Test
-    @Override
-    public void shouldCompareDisruptorVsQueues() throws Exception
-    {
-        testImplementations();
-    }
-
-    @Override
-    protected long runQueuePass() throws InterruptedException
-    {
-        resetCounters();
-        Future<?>[] futures = new Future[NUM_WORKERS];
-        for (int i = 0; i < NUM_WORKERS; i++)
-        {
-            futures[i] = executor.submit(queueWorkers[i]);
-        }
-
-        long start = System.currentTimeMillis();
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
-            blockingQueue.put(Long.valueOf(i));
-        }
-
-        while (blockingQueue.size() > 0)
-        {
-            // spin while queue drains
-        }
-
-        for (int i = 0; i < NUM_WORKERS; i++)
-        {
-            queueWorkers[i].halt();
-            futures[i].cancel(true);
-        }
-
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-
-        assertEquals(ITERATIONS, sumCounters());
-
-        return opsPerSecond;
     }
 
     @Override
@@ -180,5 +121,10 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
         }
 
         return sumJobs;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        new OneToThreeReleasingWorkerPoolThroughputTest().testImplementations();
     }
 }

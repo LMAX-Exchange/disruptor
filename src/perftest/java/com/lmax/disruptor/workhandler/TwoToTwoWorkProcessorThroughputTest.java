@@ -23,9 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.LockSupport;
 
-import org.junit.Test;
-
-import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
@@ -55,7 +53,7 @@ import com.lmax.disruptor.support.ValuePublisher;
  * WP2 - EventProcessor 2
  * </pre>
  */
-public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestDisruptor
 {
     private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;
@@ -106,19 +104,6 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestQ
         return 4;
     }
 
-    @Test
-    @Override
-    public void shouldCompareDisruptorVsQueues() throws Exception
-    {
-        testImplementations();
-    }
-
-    @Override
-    protected long runQueuePass() throws Exception
-    {
-        return 0;
-    }
-
     @Override
     protected long runDisruptorPass() throws Exception
     {
@@ -157,5 +142,10 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestQ
         }
 
         return opsPerSecond;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        new TwoToTwoWorkProcessorThroughputTest().testImplementations();
     }
 }

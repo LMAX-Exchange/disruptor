@@ -19,9 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Test;
-
-import com.lmax.disruptor.AbstractPerfTestQueueVsDisruptor;
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.Sequencer;
@@ -72,7 +70,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * </pre>
  */
-public final class OneToOneRawThroughputTest extends AbstractPerfTestQueueVsDisruptor
+public final class OneToOneRawThroughputTest extends AbstractPerfTestDisruptor
 {
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 200L;
@@ -92,19 +90,6 @@ public final class OneToOneRawThroughputTest extends AbstractPerfTestQueueVsDisr
     protected int getRequiredProcessorCount()
     {
         return 2;
-    }
-
-    @Test
-    @Override
-    public void shouldCompareDisruptorVsQueues() throws Exception
-    {
-        testImplementations();
-    }
-
-    @Override
-    protected long runQueuePass() throws InterruptedException
-    {
-        return 0;
     }
 
     @Override
@@ -185,6 +170,6 @@ public final class OneToOneRawThroughputTest extends AbstractPerfTestQueueVsDisr
     public static void main(String[] args) throws Exception
     {
         OneToOneRawThroughputTest test = new OneToOneRawThroughputTest();
-        test.shouldCompareDisruptorVsQueues();
+        test.testImplementations();
     }
 }
