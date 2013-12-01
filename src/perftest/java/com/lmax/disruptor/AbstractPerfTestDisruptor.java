@@ -18,7 +18,7 @@ package com.lmax.disruptor;
 
 public abstract class AbstractPerfTestDisruptor
 {
-    public static final int RUNS = 20;
+    public static final int RUNS = 7;
 
     protected void testImplementations()
         throws Exception
