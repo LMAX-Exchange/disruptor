@@ -46,7 +46,7 @@ public final class EventCountingQueueProcessor implements Runnable
         {
             try
             {
-                long value = blockingQueue.take().longValue();
+                blockingQueue.take();
                 counters[index].set(counters[index].get() + 1L);
             }
             catch (InterruptedException ex)
