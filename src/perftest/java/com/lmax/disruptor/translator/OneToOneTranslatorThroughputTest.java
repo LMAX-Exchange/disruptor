@@ -103,8 +103,9 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
 
         final RingBuffer<ValueEvent> rb = ringBuffer;
 
-        for (value.set(0); value.get() < ITERATIONS; value.increment())
+        for (long l = 0; l < ITERATIONS; l++)
         {
+            value.set(l);
             rb.publishEvent(Translator.INSTANCE, value);
         }
 
