@@ -58,4 +58,12 @@ public class MutableLong
     {
         this.value = value;
     }
+
+    /**
+     * Increments the value
+     */
+    public void increment()
+    {
+        value++;
+    }
 }
