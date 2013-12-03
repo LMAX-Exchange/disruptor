@@ -15,11 +15,11 @@
  */
 package com.lmax.disruptor.translator;
 
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.junit.Assert;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.EventTranslatorOneArg;
@@ -77,7 +77,11 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
     @SuppressWarnings("unchecked")
     public OneToOneTranslatorThroughputTest()
     {
-        Disruptor disruptor = new Disruptor<ValueEvent>(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, executor, ProducerType.SINGLE, new YieldingWaitStrategy());
+        Disruptor<ValueEvent> disruptor =
+                new Disruptor<ValueEvent>(ValueEvent.EVENT_FACTORY,
+                                          BUFFER_SIZE, executor,
+                                          ProducerType.SINGLE,
+                                          new YieldingWaitStrategy());
         disruptor.handleEventsWith(handler);
         this.ringBuffer = disruptor.start();
     }
@@ -113,7 +117,7 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         waitForEventProcessorSequence(expectedCount);
 
-        Assert.assertEquals(expectedResult, handler.getValue());
+        failIfNot(expectedResult, handler.getValue());
 
         return opsPerSecond;
     }

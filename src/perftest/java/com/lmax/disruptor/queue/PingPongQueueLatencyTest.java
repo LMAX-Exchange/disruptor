@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor.queue;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.PrintStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -89,8 +87,6 @@ public final class PingPongQueueLatencyTest
             histogram.reset();
 
             runQueuePass();
-
-            assertTrue(histogram.getHistogramData().getTotalCount() >= ITERATIONS);
 
             System.out.format("%s run %d BlockingQueue %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
             dumpHistogram(histogram, System.out);

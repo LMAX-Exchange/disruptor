@@ -16,7 +16,6 @@
 package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
-import static org.junit.Assert.assertTrue;
 
 import java.io.PrintStream;
 import java.util.concurrent.BrokenBarrierException;
@@ -105,17 +104,12 @@ public final class PingPongSequencedLatencyTest
     {
         final int runs = 3;
 
-        double[] disruptorMeanLatency = new double[runs];
-
         for (int i = 0; i < runs; i++)
         {
             System.gc();
             histogram.reset();
 
             runDisruptorPass();
-
-            assertTrue(histogram.getHistogramData().getTotalCount() >= ITERATIONS);
-            disruptorMeanLatency[i] = histogram.getHistogramData().getMean();
 
             System.out.format("%s run %d Disruptor %s\n", getClass().getSimpleName(), Long.valueOf(i), histogram);
             dumpHistogram(histogram, System.out);

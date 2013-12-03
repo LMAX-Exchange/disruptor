@@ -16,12 +16,11 @@
 package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.junit.Assert;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
@@ -161,7 +160,7 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
         batchProcessorBuzz.halt();
         batchProcessorFizzBuzz.halt();
 
-        Assert.assertEquals(expectedResult, fizzBuzzHandler.getFizzBuzzCounter());
+        failIfNot(expectedResult, fizzBuzzHandler.getFizzBuzzCounter());
 
         return opsPerSecond;
     }

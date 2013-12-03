@@ -16,12 +16,11 @@
 package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.junit.Assert;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
@@ -111,7 +110,7 @@ public final class OneToOneSequencedThroughputTest extends AbstractPerfTestDisru
         waitForEventProcessorSequence(expectedCount);
         batchEventProcessor.halt();
 
-        Assert.assertEquals(expectedResult, handler.getValue());
+        failIfNot(expectedResult, handler.getValue());
 
         return opsPerSecond;
     }

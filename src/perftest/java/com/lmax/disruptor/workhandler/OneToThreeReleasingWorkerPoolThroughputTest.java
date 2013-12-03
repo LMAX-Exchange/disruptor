@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.workhandler;
 
-import static junit.framework.Assert.assertEquals;
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -99,7 +99,7 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
 
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
 
-        assertEquals(ITERATIONS, sumCounters());
+        failIfNot(ITERATIONS, sumCounters());
 
         return opsPerSecond;
     }

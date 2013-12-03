@@ -56,7 +56,7 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
-    perfCompile 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
+    perfCompile 'com.google.caliper:caliper:0.5-rc1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
 }
 
 sourceCompatibility = 1.6

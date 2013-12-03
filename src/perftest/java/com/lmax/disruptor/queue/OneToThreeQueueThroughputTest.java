@@ -15,14 +15,14 @@
  */
 package com.lmax.disruptor.queue;
 
+import static com.lmax.disruptor.support.PerfTestUtil.failIf;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.junit.Assert;
 
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.Operation;
@@ -75,7 +75,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
 {
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
-    private static final long ITERATIONS = 1000L * 1000L * 10L;
+    private static final long ITERATIONS = 1000L * 1000L * 1L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
@@ -141,7 +141,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
         {
             queueProcessors[i].halt();
             futures[i].cancel(true);
-            Assert.assertEquals(results[i], queueProcessors[i].getValue());
+            failIf(queueProcessors[i].getValue(), -1);
         }
 
         return opsPerSecond;

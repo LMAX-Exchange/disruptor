@@ -1,8 +1,5 @@
 package com.lmax.disruptor.offheap;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -76,8 +73,6 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         waitForEventProcessorSequence(expectedCount);
         processor.halt();
-
-        assertThat(handler.getTotal(), is(not(0L)));
 
         return opsPerSecond;
     }
