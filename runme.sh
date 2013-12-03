@@ -3,7 +3,7 @@
 rm *-gc.log
 
 echo "Running Simple..."
-$JAVA_HOME/bin/java -Xloggc:simple-gc.log \
+time $JAVA_HOME/bin/java -mx128m -Xloggc:simple-gc.log \
      -verbose:gc \
      -XX:+PrintGCDateStamps \
      -XX:+PrintGCApplicationStoppedTime \
@@ -14,7 +14,7 @@ echo "Done"
 grep 'stopped:' simple-gc.log | sed 's/.*stopped: \([0-9.]*\) seconds/\1/' | sort -n | awk '{ printf "%1.3f\n", $1 }' | (echo " Count Millis" ; uniq -c )
      
 echo "Running Custom..."
-$JAVA_HOME/bin/java -Xloggc:custom-gc.log \
+time $JAVA_HOME/bin/java -mx128m -Xloggc:custom-gc.log \
      -verbose:gc \
      -XX:+PrintGCDateStamps \
      -XX:+PrintGCApplicationStoppedTime \
