@@ -127,7 +127,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         }
     }
 
-    private static class BufferFactory implements EventFactory<ByteBuffer>
+    private static final class BufferFactory implements EventFactory<ByteBuffer>
     {
         private final boolean isDirect;
         private final int size;
