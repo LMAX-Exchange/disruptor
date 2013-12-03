@@ -17,3 +17,4 @@ pom.xml
 *.iml
 *.ipr
 *.iws
+*-gc.log
