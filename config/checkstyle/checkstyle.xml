@@ -9,6 +9,10 @@
     <module name="FileTabCharacter">
         <property name="eachLine" value="true" />
     </module>
+    
+    <module name="SuppressionFilter">
+        <property name="file" value="config/checkstyle/suppress.xml" />
+    </module>
 
     <module name="TreeWalker">
         <property name="tabWidth" value="4" />
@@ -133,6 +137,6 @@
             <property name="format" value="[ \t]+$" />
             <property name="illegalPattern" value="true" />
             <property name="message" value="Trailing whitespace" />
-        </module>
+        </module>        
     </module>
 </module>

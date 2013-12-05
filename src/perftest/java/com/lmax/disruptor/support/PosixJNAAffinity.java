@@ -16,6 +16,8 @@
 
 package com.lmax.disruptor.support;
 
+import static java.lang.String.format;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,10 +51,10 @@ public enum PosixJNAAffinity
      */
     private interface CLibrary extends Library
     {
-        public static final CLibrary INSTANCE = (CLibrary) Native.loadLibrary(LIBRARY_NAME, CLibrary.class);
-        public int sched_setaffinity(final int pid, final int cpusetsize, final PointerType cpuset)
+        CLibrary INSTANCE = (CLibrary) Native.loadLibrary(LIBRARY_NAME, CLibrary.class);
+        int sched_setaffinity(final int pid, final int cpusetsize, final PointerType cpuset)
                 throws LastErrorException;
-        public int sched_getaffinity(final int pid, final int cpusetsize, final PointerType cpuset)
+        int sched_getaffinity(final int pid, final int cpusetsize, final PointerType cpuset)
                 throws LastErrorException;
     }
 
@@ -80,14 +82,15 @@ public enum PosixJNAAffinity
         {
             final int ret = lib.sched_getaffinity(0, Long.SIZE / 8, cpuset);
             if (ret < 0)
-                throw new IllegalStateException("sched_getaffinity((" + Long.SIZE / 8 + ") , &(" + cpuset
-                                                + ") ) return " + ret);
+                throw new IllegalStateException(format("sched_getaffinity((%d) , &(%d)) return %d",
+                                                       Long.SIZE / 8, cpuset, ret));
+
             return cpuset.getValue();
         }
         catch (LastErrorException e)
         {
-            throw new IllegalStateException("sched_getaffinity((" + Long.SIZE / 8 + ") , &(" + cpuset + ") ) errorNo="
-                                            + e.getErrorCode(), e);
+            throw new IllegalStateException(format("sched_getaffinity((%d) , &(%d)) errorNo = %d",
+                                                   Long.SIZE / 8, cpuset, e.getErrorCode()));
         }
     }
 
@@ -100,14 +103,14 @@ public enum PosixJNAAffinity
             final int ret = lib.sched_setaffinity(0, Long.SIZE / 8, new LongByReference(affinity));
             if (ret < 0)
             {
-                throw new IllegalStateException("sched_setaffinity((" + Long.SIZE / 8 + ") , &(" + affinity
-                                                + ") ) return " + ret);
+                throw new IllegalStateException(format("sched_setaffinity((%d) , &(%d)) return %d",
+                                                       Long.SIZE / 8, affinity, ret));
             }
         }
         catch (LastErrorException e)
         {
-            throw new IllegalStateException("sched_getaffinity((" + Long.SIZE / 8 + ") , &(" + affinity
-                                            + ") ) errorNo=" + e.getErrorCode(), e);
+            throw new IllegalStateException(format("sched_setaffinity((%d) , &(%d)) errorNo = %d",
+                                                   Long.SIZE / 8, affinity, e.getErrorCode()));
         }
     }
 }
