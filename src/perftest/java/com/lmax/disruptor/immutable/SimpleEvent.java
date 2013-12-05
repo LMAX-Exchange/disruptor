@@ -19,4 +19,10 @@ public class SimpleEvent
     {
         return v1;
     }
+
+    @Override
+    public String toString()
+    {
+        return "SimpleEvent [id=" + id + ", v1=" + v1 + ", v2=" + v2 + ", v3=" + v3 + "]";
+    }
 }

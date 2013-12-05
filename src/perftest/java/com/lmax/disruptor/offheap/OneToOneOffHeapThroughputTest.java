@@ -23,7 +23,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
 {
     private static final int BLOCK_SIZE = 256;
     private static final int BUFFER_SIZE = 1024 * 1024;
-    private static final long ITERATIONS = 1000 * 1000 * 100L;
+    private static final long ITERATIONS = 1000 * 1000 * 10L;
 
     private final Executor executor = Executors.newFixedThreadPool(1, DaemonThreadFactory.INSTANCE);
     private final WaitStrategy waitStrategy = new YieldingWaitStrategy();
