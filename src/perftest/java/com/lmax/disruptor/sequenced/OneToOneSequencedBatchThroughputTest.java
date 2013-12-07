@@ -103,7 +103,8 @@ public final class OneToOneSequencedBatchThroughputTest extends AbstractPerfTest
         {
             long hi = rb.next(BATCH_SIZE);
             long lo = hi - (BATCH_SIZE - 1);
-            for (long l = lo; l <= hi; l++) {
+            for (long l = lo; l <= hi; l++)
+            {
                 rb.get(l).setValue(i);
             }
             rb.publish(lo, hi);
