@@ -25,23 +25,23 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
  *
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
- * Spins, then yields, then blocks on the configured BlockingStrategy.</p>
+ * Spins, then yields, then waits using the configured fallback WaitStrategy.</p>
  */
 public final class PhasedBackoffWaitStrategy implements WaitStrategy
 {
     private static final int SPIN_TRIES = 10000;
     private final long spinTimeoutNanos;
     private final long yieldTimeoutNanos;
-    private final BlockingStrategy lockingStrategy;
+    private final WaitStrategy fallbackStrategy;
 
     public PhasedBackoffWaitStrategy(long spinTimeout,
                                      long yieldTimeout,
                                      TimeUnit units,
-                                     BlockingStrategy lockingStrategy)
+                                     WaitStrategy fallbackStrategy)
     {
         this.spinTimeoutNanos = units.toNanos(spinTimeout);
         this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeout);
-        this.lockingStrategy = lockingStrategy;
+        this.fallbackStrategy = fallbackStrategy;
     }
 
     /**
@@ -52,7 +52,17 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                                                      TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new LockBlockingStrategy());
+                                             units, new BlockingWaitStrategy());
+    }
+
+    /**
+     * Block with wait/notifyAll semantics
+     */
+    public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout,
+                                                         long yieldTimeout,
+                                                         TimeUnit units) {
+        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
+                                             units, new LiteBlockingWaitStrategy());
     }
 
     /**
@@ -63,12 +73,12 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                                                       TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new SleepBlockingStrategy());
+                                             units, new SleepingWaitStrategy(0));
     }
 
     @Override
     public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+        throws AlertException, InterruptedException, TimeoutException
     {
         long availableSequence;
         long startTime = 0;
@@ -92,7 +102,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
-                        return lockingStrategy.waitOnLock(sequence, cursor, dependentSequence, barrier);
+                        return fallbackStrategy.waitFor(sequence, cursor, dependentSequence, barrier);
                     }
                     else if (timeDelta > spinTimeoutNanos)
                     {
@@ -108,88 +118,6 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        lockingStrategy.signalAllWhenBlocking();
-    }
-
-    private interface BlockingStrategy
-    {
-        long waitOnLock(long sequence,
-                        Sequence cursorSequence,
-                        Sequence dependentSequence, SequenceBarrier barrier)
-                throws AlertException, InterruptedException;
-
-        void signalAllWhenBlocking();
-    }
-
-    private static class LockBlockingStrategy implements BlockingStrategy
-    {
-        private final Lock lock = new ReentrantLock();
-        private final Condition processorNotifyCondition = lock.newCondition();
-
-        @Override
-        public long waitOnLock(long sequence,
-                               Sequence cursorSequence,
-                               Sequence dependentSequence,
-                               SequenceBarrier barrier) throws AlertException, InterruptedException
-        {
-            long availableSequence;
-            lock.lock();
-            try
-            {
-                while ((availableSequence = cursorSequence.get()) < sequence)
-                {
-                    barrier.checkAlert();
-                    processorNotifyCondition.await();
-                }
-            }
-            finally
-            {
-                lock.unlock();
-            }
-
-            while ((availableSequence = dependentSequence.get()) < sequence)
-            {
-                barrier.checkAlert();
-            }
-
-            return availableSequence;
-        }
-
-        @Override
-        public void signalAllWhenBlocking()
-        {
-            lock.lock();
-            try
-            {
-                processorNotifyCondition.signalAll();
-            }
-            finally
-            {
-                lock.unlock();
-            }
-        }
-    }
-
-    private static class SleepBlockingStrategy implements BlockingStrategy
-    {
-        public long waitOnLock(final long sequence,
-                                Sequence cursorSequence,
-                                final Sequence dependentSequence, final SequenceBarrier barrier)
-                throws AlertException, InterruptedException
-        {
-            long availableSequence;
-
-            while ((availableSequence = dependentSequence.get()) < sequence)
-            {
-                LockSupport.parkNanos(1);
-            }
-
-            return availableSequence;
-        }
-
-        @Override
-        public void signalAllWhenBlocking()
-        {
-        }
+        fallbackStrategy.signalAllWhenBlocking();
     }
 }

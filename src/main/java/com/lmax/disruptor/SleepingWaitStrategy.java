@@ -25,14 +25,24 @@ import java.util.concurrent.locks.LockSupport;
  */
 public final class SleepingWaitStrategy implements WaitStrategy
 {
-    private static final int RETRIES = 200;
+    private static final int DEFAULT_RETRIES = 200;
+
+    private final int retries;
+
+    public SleepingWaitStrategy() {
+        this(DEFAULT_RETRIES);
+    }
+
+    public SleepingWaitStrategy(int retries) {
+        this.retries = retries;
+    }
 
     @Override
     public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        int counter = RETRIES;
+        int counter = retries;
 
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
