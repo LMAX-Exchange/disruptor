@@ -34,35 +34,35 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private final long yieldTimeoutNanos;
     private final BlockingStrategy lockingStrategy;
 
-    public PhasedBackoffWaitStrategy(long spinTimeoutMillis,
-                                     long yieldTimeoutMillis,
+    public PhasedBackoffWaitStrategy(long spinTimeout,
+                                     long yieldTimeout,
                                      TimeUnit units,
                                      BlockingStrategy lockingStrategy)
     {
-        this.spinTimeoutNanos = units.toNanos(spinTimeoutMillis);
-        this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeoutMillis);
+        this.spinTimeoutNanos = units.toNanos(spinTimeout);
+        this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeout);
         this.lockingStrategy = lockingStrategy;
     }
 
     /**
      * Block with wait/notifyAll semantics
      */
-    public static PhasedBackoffWaitStrategy withLock(long spinTimeoutMillis,
-                                                     long yieldTimeoutMillis,
+    public static PhasedBackoffWaitStrategy withLock(long spinTimeout,
+                                                     long yieldTimeout,
                                                      TimeUnit units)
     {
-        return new PhasedBackoffWaitStrategy(spinTimeoutMillis, yieldTimeoutMillis,
+        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
                                              units, new LockBlockingStrategy());
     }
 
     /**
      * Block by sleeping in a loop
      */
-    public static PhasedBackoffWaitStrategy withSleep(long spinTimeoutMillis,
-                                                      long yieldTimeoutMillis,
+    public static PhasedBackoffWaitStrategy withSleep(long spinTimeout,
+                                                      long yieldTimeout,
                                                       TimeUnit units)
     {
-        return new PhasedBackoffWaitStrategy(spinTimeoutMillis, yieldTimeoutMillis,
+        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
                                              units, new SleepBlockingStrategy());
     }
 
