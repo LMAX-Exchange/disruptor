@@ -15,20 +15,22 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.support.PerfTestUtil;
-import com.lmax.disruptor.support.ValueAdditionEventHandler;
-import com.lmax.disruptor.support.ValueEvent;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-
-import org.junit.Assert;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import com.lmax.disruptor.AbstractPerfTestDisruptor;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.support.PerfTestUtil;
+import com.lmax.disruptor.support.ValueAdditionEventHandler;
+import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -112,7 +114,7 @@ public final class OneToOneSequencedBatchThroughputTest extends AbstractPerfTest
         waitForEventProcessorSequence(expectedCount);
         batchEventProcessor.halt();
 
-        Assert.assertEquals(expectedResult, handler.getValue());
+        failIfNot(expectedResult, handler.getValue());
 
         return opsPerSecond;
     }

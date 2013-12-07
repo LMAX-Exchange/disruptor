@@ -16,10 +16,6 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.LockSupport;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
@@ -60,7 +56,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
      */
     public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout,
                                                          long yieldTimeout,
-                                                         TimeUnit units) {
+                                                         TimeUnit units)
+    {
         return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
                                              units, new LiteBlockingWaitStrategy());
     }

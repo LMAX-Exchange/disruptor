@@ -29,11 +29,13 @@ public final class SleepingWaitStrategy implements WaitStrategy
 
     private final int retries;
 
-    public SleepingWaitStrategy() {
+    public SleepingWaitStrategy()
+    {
         this(DEFAULT_RETRIES);
     }
 
-    public SleepingWaitStrategy(int retries) {
+    public SleepingWaitStrategy(int retries)
+    {
         this.retries = retries;
     }
 
