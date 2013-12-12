@@ -63,8 +63,8 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  */
 public final class OneToOneSequencedBatchThroughputTest extends AbstractPerfTestDisruptor
 {
-    public static final int BATCH_SIZE = 10;
-    private static final int BUFFER_SIZE = 1024 * 64;
+    public static final int BATCH_SIZE = 2048;
+    private static final int BUFFER_SIZE = 1024 * 1024;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
     private final long expectedResult = PerfTestUtil.accumulatedAddition(ITERATIONS) * BATCH_SIZE;
