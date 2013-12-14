@@ -81,7 +81,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     private static final int NUM_PUBLISHERS = 3;
     private static final int ARRAY_SIZE = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
-    private static final long ITERATIONS = 1000L * 1000L * 900L;
+    private static final long ITERATIONS = 1000L * 1000L * 90L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
@@ -111,7 +111,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
             barriers[i] = buffers[i].newBarrier();
             valuePublishers[i] = new LongArrayPublisher(cyclicBarrier,
                                                         buffers[i],
-                                                        ITERATIONS / NUM_PUBLISHERS / ARRAY_SIZE,
+                                                        ITERATIONS / NUM_PUBLISHERS,
                                                         ARRAY_SIZE);
         }
 

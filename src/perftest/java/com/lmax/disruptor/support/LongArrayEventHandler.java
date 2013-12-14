@@ -46,9 +46,7 @@ public final class LongArrayEventHandler implements EventHandler<long[]>
             value.set(value.get() + event[i]);
         }
 
-        count -= event.length;
-
-        if (count == 0)
+        if (--count == 0)
         {
             latch.countDown();
         }
