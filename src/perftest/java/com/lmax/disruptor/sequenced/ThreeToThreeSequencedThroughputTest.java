@@ -36,43 +36,30 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * Sequence a series of events from multiple publishers going to one event processor.
  *
- * +----+
- * | P1 |------+
- * +----+      |
- *             v
- * +----+    +-----+
- * | P1 |--->| EP1 |
- * +----+    +-----+
- *             ^
- * +----+      |
- * | P3 |------+
- * +----+
- *
- *
  * Disruptor:
  * ==========
  *             track to prevent wrap
  *             +--------------------+
  *             |                    |
- *             |                    v
- * +----+    +====+    +====+    +-----+
- * | P1 |--->| RB |<---| SB |    | EP1 |
- * +----+    +====+    +====+    +-----+
- *             ^   get    ^         |
- * +----+      |          |         |
- * | P2 |------+          +---------+
- * +----+      |            waitFor
- *             |
- * +----+      |
- * | P3 |------+
- * +----+
+ *             |                    |
+ * +----+    +====+    +====+       |
+ * | P1 |--->| RB |--->| SB |--+    |
+ * +----+    +====+    +====+  |    |
+ *                             |    v
+ * +----+    +====+    +====+  | +----+
+ * | P2 |--->| RB |--->| SB |--+>| EP |
+ * +----+    +====+    +====+  | +----+
+ *                             |
+ * +----+    +====+    +====+  |
+ * | P3 |--->| RB |--->| SB |--+
+ * +----+    +====+    +====+
  *
- * P1  - Publisher 1
- * P2  - Publisher 2
- * P3  - Publisher 3
- * RB  - RingBuffer
- * SB  - SequenceBarrier
- * EP1 - EventProcessor 1
+ * P1 - Publisher 1
+ * P2 - Publisher 2
+ * P3 - Publisher 3
+ * RB - RingBuffer
+ * SB - SequenceBarrier
+ * EP - EventProcessor
  *
  * </pre>
  */
@@ -81,7 +68,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     private static final int NUM_PUBLISHERS = 3;
     private static final int ARRAY_SIZE = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
-    private static final long ITERATIONS = 1000L * 1000L * 90L;
+    private static final long ITERATIONS = 1000L * 1000L * 180L;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
