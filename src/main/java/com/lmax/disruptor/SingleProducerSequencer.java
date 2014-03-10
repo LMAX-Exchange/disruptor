@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.locks.LockSupport;
+
 import com.lmax.disruptor.util.Util;
 
 
@@ -101,8 +103,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
             long minSequence;
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
-                Thread.yield();
-//                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
+                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
             pad.cachedValue = minSequence;
