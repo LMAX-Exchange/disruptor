@@ -361,10 +361,9 @@ public class DisruptorTest
         publishEvent();
         publishEvent();
 
-        workHandler2.processEvent();
-
         assertThat(disruptor.getBarrierFor(delayedEventHandler).getCursor(), equalTo(-1L));
-
+        
+        workHandler2.processEvent();
         workHandler1.processEvent();
 
         delayedEventHandler.processEvent();
