@@ -156,4 +156,6 @@ public interface Sequencer extends Cursored
     long getMinimumSequence();
 
     long getHighestPublishedSequence(long sequence, long availableSequence);
+
+    <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence...gatingSequences);
 }

@@ -15,12 +15,25 @@
  */
 package com.lmax.disruptor.dsl;
 
+import static java.lang.Thread.yield;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BlockingWaitStrategy;
@@ -40,21 +53,6 @@ import com.lmax.disruptor.dsl.stubs.StubExecutor;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
 import com.lmax.disruptor.support.TestEvent;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-
-import static java.lang.Thread.yield;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @SuppressWarnings(value = {"unchecked"})
 public class DisruptorTest
@@ -362,7 +360,7 @@ public class DisruptorTest
         publishEvent();
 
         assertThat(disruptor.getBarrierFor(delayedEventHandler).getCursor(), equalTo(-1L));
-        
+
         workHandler2.processEvent();
         workHandler1.processEvent();
 

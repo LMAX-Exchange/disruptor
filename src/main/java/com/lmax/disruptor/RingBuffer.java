@@ -162,6 +162,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param sequence for the event
      * @return the event for the given sequence
      */
+    @Override
     @SuppressWarnings("unchecked")
     public E get(long sequence)
     {
@@ -345,10 +346,22 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
 
     /**
+     * Creates an event poller for this ring buffer gated on the supplied sequences.
+     *
+     * @param gatingSequences
+     * @return A poller that will gate on this ring buffer and the supplied sequences.
+     */
+    public EventPoller<E> newPoller(Sequence... gatingSequences)
+    {
+        return sequencer.newPoller(this, gatingSequences);
+    }
+
+    /**
      * Get the current cursor value for the ring buffer.  The cursor value is
      * the last value that was published, or the highest available sequence
      * that can be consumed.
      */
+    @Override
     public long getCursor()
     {
         return sequencer.getCursor();
