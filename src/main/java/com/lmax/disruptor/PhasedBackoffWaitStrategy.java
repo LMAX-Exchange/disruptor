@@ -52,17 +52,6 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     /**
-     * Block with wait/notifyAll semantics
-     */
-    public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout,
-                                                         long yieldTimeout,
-                                                         TimeUnit units)
-    {
-        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new LiteBlockingWaitStrategy());
-    }
-
-    /**
      * Block by sleeping in a loop
      */
     public static PhasedBackoffWaitStrategy withSleep(long spinTimeout,
