@@ -9,7 +9,7 @@ public class EventPoller<T>
 
     public interface Handler<T>
     {
-        boolean onEvent(T event, long sequence, boolean endOfBatch);
+        boolean onEvent(T event, long sequence, boolean endOfBatch) throws Exception;
     }
 
     public enum PollState
@@ -28,32 +28,36 @@ public class EventPoller<T>
         this.gatingSequence = gatingSequence;
     }
 
-    public PollState poll(Handler<T> eventHandler)
+    public PollState poll(Handler<T> eventHandler) throws Exception
     {
         long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
-        long availableSequence = sequencer.getHighestPublishedSequence(sequence.get(), gatingSequence.get());
+        long availableSequence = sequencer.getHighestPublishedSequence(currentSequence, gatingSequence.get());
 
-        if (gatingSequence.get() >= nextSequence)
+        if (nextSequence <= availableSequence)
         {
-            long eventSequence = nextSequence;
-            while (eventSequence <= availableSequence)
+            boolean processNextEvent;
+            long processedSequence = currentSequence;
+
+            try
             {
-                T event = dataProvider.get(eventSequence);
-                boolean processNextEvent = eventHandler.onEvent(event, eventSequence, eventSequence == availableSequence);
-                eventSequence++;
-
-                if (!processNextEvent)
+                do
                 {
-                    break;
-                }
-            }
+                    T event = dataProvider.get(nextSequence);
+                    processNextEvent = eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                    processedSequence = nextSequence;
+                    nextSequence++;
 
-            sequence.set(eventSequence);
+                } while (nextSequence <= availableSequence & processNextEvent);
+            }
+            finally
+            {
+                sequence.set(processedSequence);
+            }
 
             return PollState.PROCESSING;
         }
-        else if (sequencer.getHighestPublishedSequence(sequence.get(), sequencer.getCursor()) >= nextSequence)
+        else if (sequencer.getCursor() >= nextSequence)
         {
             return PollState.GATING;
         }
@@ -84,5 +88,10 @@ public class EventPoller<T>
         }
 
         return new EventPoller<T>(dataProvider, sequencer, sequence, gatingSequence);
+    }
+
+    public Sequence getSequence()
+    {
+        return sequence;
     }
 }
