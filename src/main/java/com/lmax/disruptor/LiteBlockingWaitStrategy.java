@@ -44,7 +44,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
             {
                 do
                 {
-                    signalNeeded.set(true);
+                    signalNeeded.getAndSet(true);
 
                     if ((availableSequence = cursorSequence.get()) >= sequence)
                     {
