@@ -24,7 +24,7 @@ apply plugin: 'idea'
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, minor: 2, revision: 0)
+version = new Version(major: 3, minor: 2, revision: 1)
 
 ext {
     fullName = 'Disruptor Framework'
@@ -56,7 +56,7 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
-    perfCompile 'net.java.dev.jna:jna:4.0.0', 'net.java.dev.jna:jna-platform:4.0.0', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
+    perfCompile files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
 }
 
 sourceCompatibility = 1.6
