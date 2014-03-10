@@ -11,6 +11,16 @@ Maintainer
 Changelog
 ==========
 
+### 3.2.1 Released (10-Mar-2014)
+
+- Minor build and IDE updates
+- Rewrite of performance tests to run without JUnit and separate Queues in to their own tests
+- Remove old throttled performance test
+- Add performance tests for immutable message example
+- Add performance tests for off-heap example
+- Remove old Caliper tests
+- Remove some stray yield() calls
+
 ### 3.2.0 Released (13-Aug-2013)
 
 - Fix performance bug in WorkProcessor with MultiProducerSequencer
