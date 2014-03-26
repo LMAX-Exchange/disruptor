@@ -586,6 +586,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
+     * <p>
+     * With this call the data that is to be inserted into the ring
+     * buffer will be a field (either explicitly or captured anonymously),
+     * therefore this call will require an instance of the translator
+     * for each value that is to be inserted into the ring buffer.
      *
      * @param translators The user specified translation for each event
      */
@@ -599,6 +604,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
+     * <p>
+     * With this call the data that is to be inserted into the ring
+     * buffer will be a field (either explicitly or captured anonymously),
+     * therefore this call will require an instance of the translator
+     * for each value that is to be inserted into the ring buffer.
      *
      * @param translators   The user specified translation for each event
      * @param batchStartsAt The first element of the array which is within the batch.
