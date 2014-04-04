@@ -1,21 +1,17 @@
 ## LMAX Disruptor
-==============
 
 A High Performance Inter-Thread Messaging Library
 
 ## Maintainer
-==========
 
 [Michael Barker](https://github.com/mikeb01)
 
 ## Documentation
-=============
 
 * [Introduction](wiki/Introduction)
 * [Getting Started](wiki/Getting-Started)
 
 ## Changelog
-==========
 
 ### 3.2.1 Released (10-Mar-2014)
 
