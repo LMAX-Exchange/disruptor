@@ -8,8 +8,8 @@ A High Performance Inter-Thread Messaging Library
 
 ## Documentation
 
-* [Introduction](wiki/Introduction)
-* [Getting Started](wiki/Getting-Started)
+* [Introduction](Introduction)
+* [Getting Started](Getting-Started)
 
 ## Changelog
 
