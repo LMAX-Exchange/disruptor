@@ -8,8 +8,8 @@ A High Performance Inter-Thread Messaging Library
 
 ## Documentation
 
-* [Introduction](Introduction)
-* [Getting Started](Getting-Started)
+* [Introduction](https://github.com/LMAX-Exchange/disruptor/wiki/Introduction)
+* [Getting Started](https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started)
 
 ## Changelog
 
