@@ -8,6 +8,12 @@ Maintainer
 
 [Michael Barker](https://github.com/mikeb01)
 
+Documentation
+=============
+
+* [Introduction](wiki/Introduction)
+* [Getting Started](wiki/Getting-Started)
+
 Changelog
 ==========
 
