@@ -16,7 +16,7 @@ import com.lmax.disruptor.EventPoller.PollState;
 public class EventPollerTest
 {
     private final Mockery mockery = new Mockery();
-
+    
     @Test
     @SuppressWarnings("unchecked")
     public void shouldPollForEvents() throws Exception
@@ -25,9 +25,10 @@ public class EventPollerTest
         final Sequence bufferSequence = new Sequence();
         final Sequence gatingSequence = new Sequence();
         final Sequencer sequencer = mockery.mock(Sequencer.class);
-        final DataProvider<Object> provider = mockery.mock(DataProvider.class);
         final EventPoller.Handler<Object> handler = mockery.mock(EventPoller.Handler.class);
-        final EventPoller<Object> poller = EventPoller.newInstance(provider, sequencer, pollSequence, bufferSequence, gatingSequence);
+        final DataProvider<Object> provider = mockery.mock(DataProvider.class);
+        final EventPoller<Object> poller = EventPoller.newInstance(provider, sequencer, pollSequence, bufferSequence,
+                                                                   gatingSequence);
         final Object event = new Object();
 
         final States states = mockery.states("polling");
@@ -47,10 +48,10 @@ public class EventPollerTest
                 will(returnValue(0L));
                 when(states.is("processing"));
 
-                allowing(sequencer).getHighestPublishedSequence(-1L, -1L);
+                allowing(sequencer).getHighestPublishedSequence(0L, -1L);
                 will(returnValue(-1L));
 
-                allowing(sequencer).getHighestPublishedSequence(-1L, 0L);
+                allowing(sequencer).getHighestPublishedSequence(0L, 0L);
                 will(returnValue(0L));
 
                 allowing(provider).get(0);
@@ -74,5 +75,45 @@ public class EventPollerTest
         states.become("processing");
         gatingSequence.incrementAndGet();
         assertThat(poller.poll(handler), is(PollState.PROCESSING));
+    }
+
+    @Test
+    public void shouldSuccessfullyPollWhenBufferIsFull() throws Exception
+    {
+        @SuppressWarnings("unchecked")
+        final EventPoller.Handler<byte[]> handler = mockery.mock(EventPoller.Handler.class);
+        
+        EventFactory<byte[]> factory = new EventFactory<byte[]>()
+        {
+            public byte[] newInstance()
+            {
+                return new byte[1];
+            }
+        };
+         
+        final RingBuffer<byte[]> ringBuffer = RingBuffer.createMultiProducer(factory, 0x4, new SleepingWaitStrategy());
+
+        final EventPoller<byte[]> poller = ringBuffer.newPoller();
+        ringBuffer.addGatingSequences(poller.getSequence());
+
+        int count = 4;
+
+        for (byte i = 1; i <= count; ++i)
+        {
+            long next = ringBuffer.next();
+            ringBuffer.get(next)[0] = i;
+            ringBuffer.publish(next);
+        }
+        
+        mockery.checking(new Expectations()
+        {
+            {
+                exactly(4).of(handler).onEvent(with(any(byte[].class)), with(any(Long.TYPE)), with(any(Boolean.TYPE)));
+                will(returnValue(true));
+            }
+        });
+        
+        // think of another thread
+        poller.poll(handler);
     }
 }

@@ -32,7 +32,7 @@ public class EventPoller<T>
     {
         long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
-        long availableSequence = sequencer.getHighestPublishedSequence(currentSequence, gatingSequence.get());
+        long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
 
         if (nextSequence <= availableSequence)
         {
