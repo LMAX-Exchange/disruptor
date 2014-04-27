@@ -16,7 +16,7 @@ import com.lmax.disruptor.EventPoller.PollState;
 public class EventPollerTest
 {
     private final Mockery mockery = new Mockery();
-    
+
     @Test
     @SuppressWarnings("unchecked")
     public void shouldPollForEvents() throws Exception
@@ -82,15 +82,16 @@ public class EventPollerTest
     {
         @SuppressWarnings("unchecked")
         final EventPoller.Handler<byte[]> handler = mockery.mock(EventPoller.Handler.class);
-        
+
         EventFactory<byte[]> factory = new EventFactory<byte[]>()
         {
+            @Override
             public byte[] newInstance()
             {
                 return new byte[1];
             }
         };
-         
+
         final RingBuffer<byte[]> ringBuffer = RingBuffer.createMultiProducer(factory, 0x4, new SleepingWaitStrategy());
 
         final EventPoller<byte[]> poller = ringBuffer.newPoller();
@@ -104,7 +105,7 @@ public class EventPollerTest
             ringBuffer.get(next)[0] = i;
             ringBuffer.publish(next);
         }
-        
+
         mockery.checking(new Expectations()
         {
             {
@@ -112,7 +113,7 @@ public class EventPollerTest
                 will(returnValue(true));
             }
         });
-        
+
         // think of another thread
         poller.poll(handler);
     }
