@@ -1,5 +1,8 @@
 package com.lmax.disruptor;
 
+/**
+ * Experimental poll-based interface for the Disruptor.
+ */
 public class EventPoller<T>
 {
     private final DataProvider<T> dataProvider;
