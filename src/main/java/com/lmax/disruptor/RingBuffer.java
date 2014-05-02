@@ -261,8 +261,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
 
     /**
-     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth not
-     * that it is a racy thing to do and should only be used in controlled circumstances.  E.g. during
+     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth noting
+     * that it is a risky thing to do and should only be used in controlled circumstances.  E.g. during
      * initialisation.
      *
      * @param sequence The sequence to reset too.
@@ -276,7 +276,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
 
     /**
      * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
-     * is another deliberately racy call, that should only be done in controlled circumstances, e.g. initialisation.
+     * is another deliberately risky call, that should only be done in controlled circumstances, e.g. initialisation.
      *
      * @param sequence The sequence to claim.
      * @return The preallocated event.
