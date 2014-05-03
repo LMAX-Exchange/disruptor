@@ -262,7 +262,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
 
     /**
      * Resets the cursor to a specific value.  This can be applied at any time, but it is worth noting
-     * that it can cause a data rate and should only be used in controlled circumstances.  E.g. during
+     * that it can cause a data race and should only be used in controlled circumstances.  E.g. during
      * initialisation.
      *
      * @param sequence The sequence to reset too.
