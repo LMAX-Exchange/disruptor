@@ -466,6 +466,28 @@ public class DisruptorTest
         assertThat(disruptor.getRingBuffer().remainingCapacity(), is(ringBuffer.getBufferSize() - 0L));
     }
 
+    @Test
+    public void shouldAllowEventHandlerWithSuperType() throws Exception {
+        final Object[] receivedEvent = {null};
+        //Given
+        final EventHandler<Object> objectHandler = new EventHandler<Object>()
+        {
+            @Override
+            public void onEvent(final Object event, long sequence, boolean endOfBatch) throws Exception {
+                receivedEvent[0] = event;
+            }
+        };
+
+        disruptor.handleEventsWith(objectHandler);
+
+        //When
+        final Object expectedEvent = publishEvent();
+
+        //Then
+        Thread.sleep(10);
+        assertSame(receivedEvent[0], expectedEvent);
+    }
+
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,
                                                                  final DelayedEventHandler... dependencies)
         throws InterruptedException, BrokenBarrierException
