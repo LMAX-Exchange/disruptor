@@ -341,13 +341,6 @@ public class DisruptorTest
         workHandler2.processEvent();
     }
 
-    private TestWorkHandler createTestWorkHandler()
-    {
-        final TestWorkHandler testWorkHandler = new TestWorkHandler();
-        testWorkHandlers.add(testWorkHandler);
-        return testWorkHandler;
-    }
-
     @Test
     public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
     {
@@ -486,6 +479,13 @@ public class DisruptorTest
         //Then
         Thread.sleep(10);
         assertSame(receivedEvent[0], expectedEvent);
+    }
+
+    private TestWorkHandler createTestWorkHandler()
+    {
+        final TestWorkHandler testWorkHandler = new TestWorkHandler();
+        testWorkHandlers.add(testWorkHandler);
+        return testWorkHandler;
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,
