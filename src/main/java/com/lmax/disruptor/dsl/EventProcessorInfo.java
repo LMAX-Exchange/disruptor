@@ -32,11 +32,11 @@ import java.util.concurrent.Executor;
 class EventProcessorInfo<T> implements ConsumerInfo
 {
     private final EventProcessor eventprocessor;
-    private final EventHandler<T> handler;
+    private final EventHandler<? super T> handler;
     private final SequenceBarrier barrier;
     private boolean endOfChain = true;
 
-    EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<T> handler, final SequenceBarrier barrier)
+    EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<? super T> handler, final SequenceBarrier barrier)
     {
         this.eventprocessor = eventprocessor;
         this.handler = handler;
@@ -54,7 +54,7 @@ class EventProcessorInfo<T> implements ConsumerInfo
         return new Sequence[] { eventprocessor.getSequence() };
     }
 
-    public EventHandler<T> getHandler()
+    public EventHandler<? super T> getHandler()
     {
         return handler;
     }

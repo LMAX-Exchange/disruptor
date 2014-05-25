@@ -34,7 +34,7 @@ public final class BatchEventProcessor<T>
     private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final EventHandler<T> eventHandler;
+    private final EventHandler<? super T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
 
@@ -48,7 +48,7 @@ public final class BatchEventProcessor<T>
      */
     public BatchEventProcessor(final DataProvider<T> dataProvider,
                                final SequenceBarrier sequenceBarrier,
-                               final EventHandler<T> eventHandler)
+                               final EventHandler<? super T> eventHandler)
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
