@@ -341,13 +341,6 @@ public class DisruptorTest
         workHandler2.processEvent();
     }
 
-    private TestWorkHandler createTestWorkHandler()
-    {
-        final TestWorkHandler testWorkHandler = new TestWorkHandler();
-        testWorkHandlers.add(testWorkHandler);
-        return testWorkHandler;
-    }
-
     @Test
     public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
     {
@@ -464,6 +457,35 @@ public class DisruptorTest
         }
         assertThat(remainingCapacity[0], is(ringBuffer.getBufferSize() - 1L));
         assertThat(disruptor.getRingBuffer().remainingCapacity(), is(ringBuffer.getBufferSize() - 0L));
+    }
+
+    @Test
+    public void shouldAllowEventHandlerWithSuperType() throws Exception {
+        final Object[] receivedEvent = {null};
+        //Given
+        final EventHandler<Object> objectHandler = new EventHandler<Object>()
+        {
+            @Override
+            public void onEvent(final Object event, long sequence, boolean endOfBatch) throws Exception {
+                receivedEvent[0] = event;
+            }
+        };
+
+        disruptor.handleEventsWith(objectHandler);
+
+        //When
+        final Object expectedEvent = publishEvent();
+
+        //Then
+        Thread.sleep(10);
+        assertSame(receivedEvent[0], expectedEvent);
+    }
+
+    private TestWorkHandler createTestWorkHandler()
+    {
+        final TestWorkHandler testWorkHandler = new TestWorkHandler();
+        testWorkHandlers.add(testWorkHandler);
+        return testWorkHandler;
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(final CountDownLatch countDownLatch,

@@ -109,7 +109,7 @@ public class Disruptor<T>
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
     @SuppressWarnings("varargs")
-    public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
+    public EventHandlerGroup<T> handleEventsWith(final EventHandler<? super T>... handlers)
     {
         return createEventProcessors(new Sequence[0], handlers);
     }
@@ -393,7 +393,7 @@ public class Disruptor<T>
     }
 
     EventHandlerGroup<T> createEventProcessors(final Sequence[] barrierSequences,
-                                               final EventHandler<T>[] eventHandlers)
+                                               final EventHandler<? super T>[] eventHandlers)
     {
         checkNotStarted();
 
@@ -402,7 +402,7 @@ public class Disruptor<T>
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
-            final EventHandler<T> eventHandler = eventHandlers[i];
+            final EventHandler<? super T> eventHandler = eventHandlers[i];
 
             final BatchEventProcessor<T> batchEventProcessor = new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
 

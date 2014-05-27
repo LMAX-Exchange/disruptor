@@ -31,7 +31,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
 
     public void add(final EventProcessor eventprocessor,
-                    final EventHandler<T> handler,
+                    final EventHandler<? super T> handler,
                     final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
@@ -96,6 +96,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
+    @Override
     public Iterator<ConsumerInfo> iterator()
     {
         return consumerInfos.iterator();

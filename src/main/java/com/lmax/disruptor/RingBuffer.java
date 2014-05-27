@@ -261,8 +261,8 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     }
 
     /**
-     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth not
-     * that it is a racy thing to do and should only be used in controlled circumstances.  E.g. during
+     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth noting
+     * that it can cause a data race and should only be used in controlled circumstances.  E.g. during
      * initialisation.
      *
      * @param sequence The sequence to reset too.
@@ -276,7 +276,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
 
     /**
      * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
-     * is another deliberately racy call, that should only be done in controlled circumstances, e.g. initialisation.
+     * can cause a data race and should only be done in controlled circumstances, e.g. during initialisation.
      *
      * @param sequence The sequence to claim.
      * @return The preallocated event.
@@ -586,6 +586,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
+     * <p>
+     * With this call the data that is to be inserted into the ring
+     * buffer will be a field (either explicitly or captured anonymously),
+     * therefore this call will require an instance of the translator
+     * for each value that is to be inserted into the ring buffer.
      *
      * @param translators The user specified translation for each event
      */
@@ -599,6 +604,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * claiming the next sequence, getting the current (uninitialised)
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
+     * <p>
+     * With this call the data that is to be inserted into the ring
+     * buffer will be a field (either explicitly or captured anonymously),
+     * therefore this call will require an instance of the translator
+     * for each value that is to be inserted into the ring buffer.
      *
      * @param translators   The user specified translation for each event
      * @param batchStartsAt The first element of the array which is within the batch.

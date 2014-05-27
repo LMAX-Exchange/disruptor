@@ -56,7 +56,8 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
-    perfCompile files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
+    perfCompile 'com.github.jnr:jnr-ffi:1.0.10', 
+                files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
 }
 
 sourceCompatibility = 1.6
@@ -193,7 +194,7 @@ task tempLibs(type: Sync) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.5'
+    gradleVersion = '1.11'
 }
 
 class Version {

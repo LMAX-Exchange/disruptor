@@ -1,5 +1,8 @@
 package com.lmax.disruptor;
 
+/**
+ * Experimental poll-based interface for the Disruptor.
+ */
 public class EventPoller<T>
 {
     private final DataProvider<T> dataProvider;
@@ -32,7 +35,7 @@ public class EventPoller<T>
     {
         long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
-        long availableSequence = sequencer.getHighestPublishedSequence(currentSequence, gatingSequence.get());
+        long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
 
         if (nextSequence <= availableSequence)
         {
