@@ -21,9 +21,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Blocking strategy that uses a lock and condition variable for {@link EventProcessor}s waiting on a barrier.
- *
- * This strategy can be used when throughput and low-latency are not as important as CPU resource.
+ * Variation of the {@link BlockingWaitStrategy} that attempts to elide conditional wake-ups when
+ * the lock is uncontended.  Shows performance improvements on microbenchmarks.  However this
+ * wait strategy should be considered experimental as I have not full proved the correctness of
+ * the lock elision code.
  */
 public final class LiteBlockingWaitStrategy implements WaitStrategy
 {
