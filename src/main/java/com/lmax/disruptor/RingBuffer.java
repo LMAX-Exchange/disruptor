@@ -21,23 +21,19 @@ import sun.misc.Unsafe;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.Util;
 
-/**
- * Ring based store of reusable entries containing the data representing
- * an event being exchanged between event producer and {@link EventProcessor}s.
- *
- * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
- */
 abstract class RingBufferPad
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
 }
+
 abstract class RingBufferFields<E> extends RingBufferPad
 {
     private static final int BUFFER_PAD;
     private static final long REF_ARRAY_BASE;
     private static final int REF_ELEMENT_SHIFT;
     private static final Unsafe UNSAFE = Util.getUnsafe();
-    static {
+    static
+    {
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
         if (4 == scale)
         {
@@ -61,18 +57,11 @@ abstract class RingBufferFields<E> extends RingBufferPad
     protected final int bufferSize;
     protected final Sequencer sequencer;
 
-    /**
-     * Construct a RingBuffer with the full option set.
-     *
-     * @param eventFactory to newInstance entries for filling the RingBuffer
-     * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
-     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
-     */
     RingBufferFields(EventFactory<E> eventFactory,
-               Sequencer       sequencer)
+                     Sequencer       sequencer)
     {
-        this.sequencer    = sequencer;
-        this.bufferSize   = sequencer.getBufferSize();
+        this.sequencer  = sequencer;
+        this.bufferSize = sequencer.getBufferSize();
 
         if (bufferSize < 1)
         {
@@ -102,10 +91,18 @@ abstract class RingBufferFields<E> extends RingBufferPad
         return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
     }
 }
+
+/**
+ * Ring based store of reusable entries containing the data representing
+ * an event being exchanged between event producer and {@link EventProcessor}s.
+ *
+ * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
+ */
 public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored, DataProvider<E>
 {
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
     protected long p1, p2, p3, p4, p5, p6, p7;
+
     /**
      * Construct a RingBuffer with the full option set.
      *

@@ -27,6 +27,7 @@ abstract class SingleProducerSequencerPad extends AbstractSequencer
         super(bufferSize, waitStrategy);
     }
 }
+
 abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 {
     public SingleProducerSequencerFields(int bufferSize, WaitStrategy waitStrategy)
@@ -38,6 +39,7 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     protected long nextValue = Sequence.INITIAL_VALUE;
     protected long cachedValue = Sequence.INITIAL_VALUE;
 }
+
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p>
  *
