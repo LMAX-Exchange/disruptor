@@ -27,31 +27,39 @@ import com.lmax.disruptor.util.Util;
  *
  * @param <E> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class RingBuffer<E> implements Cursored, DataProvider<E>
+abstract class RingBufferPad
 {
-    protected static final int BUFFER_PAD = 32;
+    protected long p1, p2, p3, p4, p5, p6, p7;
+}
+abstract class RingBufferFields<E> extends RingBufferPad
+{
+    private static final int BUFFER_PAD;
     private static final long REF_ARRAY_BASE;
     private static final int REF_ELEMENT_SHIFT;
     private static final Unsafe UNSAFE = Util.getUnsafe();
     static {
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
-        if (4 == scale) {
+        if (4 == scale)
+        {
             REF_ELEMENT_SHIFT = 2;
-        } else if (8 == scale) {
+        }
+        else if (8 == scale)
+        {
             REF_ELEMENT_SHIFT = 3;
-        } else {
+        }
+        else
+        {
             throw new IllegalStateException("Unknown pointer size");
         }
+        BUFFER_PAD = 128 / scale;
         // Including the buffer pad in the array base offset
-        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class)
-                + (BUFFER_PAD << REF_ELEMENT_SHIFT);
+        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << REF_ELEMENT_SHIFT);
     }
-    public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
 
     private final long indexMask;
     private final Object[] entries;
-    private final int bufferSize;
-    private final Sequencer sequencer;
+    protected final int bufferSize;
+    protected final Sequencer sequencer;
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -60,7 +68,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
-    RingBuffer(EventFactory<E> eventFactory,
+    RingBufferFields(EventFactory<E> eventFactory,
                Sequencer       sequencer)
     {
         this.sequencer    = sequencer;
@@ -78,6 +86,37 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         this.indexMask = bufferSize - 1;
         this.entries   = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
         fill(eventFactory);
+    }
+    
+    private void fill(EventFactory<E> eventFactory)
+    {
+        for (int i = 0; i < bufferSize; i++)
+        {
+            entries[BUFFER_PAD + i] = eventFactory.newInstance();
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected final E elementAt(long sequence)
+    {
+        return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
+    }
+}
+public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored, DataProvider<E>
+{
+    public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
+    protected long p1, p2, p3, p4, p5, p6, p7;
+    /**
+     * Construct a RingBuffer with the full option set.
+     *
+     * @param eventFactory to newInstance entries for filling the RingBuffer
+     * @param sequencer sequencer to handle the ordering of events moving through the RingBuffer.
+     * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
+     */
+    RingBuffer(EventFactory<E> eventFactory,
+               Sequencer       sequencer)
+    {
+        super(eventFactory, sequencer);
     }
 
     /**
@@ -183,13 +222,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
      * @return the event for the given sequence
      */
     @Override
-    @SuppressWarnings("unchecked")
     public E get(long sequence)
     {
-        return (E) UNSAFE.getObject(entries, calcOffset(sequence));
-    }
-    private long calcOffset(long index) {
-        return REF_ARRAY_BASE + ((index & indexMask) << REF_ELEMENT_SHIFT);
+        return elementAt(sequence);
     }
     /**
      * @deprecated Use {@link RingBuffer#get(long)}
@@ -1215,14 +1250,6 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         finally
         {
             sequencer.publish(initialSequence, finalSequence);
-        }
-    }
-
-    private void fill(EventFactory<E> eventFactory)
-    {
-        for (int i = 0; i < bufferSize; i++)
-        {
-            entries[BUFFER_PAD + i] = eventFactory.newInstance();
         }
     }
 }
