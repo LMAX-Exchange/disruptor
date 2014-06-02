@@ -87,7 +87,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         this.entries   = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
         fill(eventFactory);
     }
-    
+
     private void fill(EventFactory<E> eventFactory)
     {
         for (int i = 0; i < bufferSize; i++)
@@ -95,7 +95,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
             entries[BUFFER_PAD + i] = eventFactory.newInstance();
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {

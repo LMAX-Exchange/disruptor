@@ -460,13 +460,15 @@ public class DisruptorTest
     }
 
     @Test
-    public void shouldAllowEventHandlerWithSuperType() throws Exception {
+    public void shouldAllowEventHandlerWithSuperType() throws Exception
+    {
         final Object[] receivedEvent = {null};
         //Given
         final EventHandler<Object> objectHandler = new EventHandler<Object>()
         {
             @Override
-            public void onEvent(final Object event, long sequence, boolean endOfBatch) throws Exception {
+            public void onEvent(final Object event, long sequence, boolean endOfBatch) throws Exception
+            {
                 receivedEvent[0] = event;
             }
         };
