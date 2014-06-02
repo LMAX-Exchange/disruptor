@@ -16,7 +16,10 @@
 package com.lmax.disruptor;
 
 
+import sun.misc.Unsafe;
+
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.Util;
 
 /**
  * Ring based store of reusable entries containing the data representing
@@ -26,9 +29,26 @@ import com.lmax.disruptor.dsl.ProducerType;
  */
 public final class RingBuffer<E> implements Cursored, DataProvider<E>
 {
+    protected static final int BUFFER_PAD = 32;
+    private static final long REF_ARRAY_BASE;
+    private static final int REF_ELEMENT_SHIFT;
+    private static final Unsafe UNSAFE = Util.getUnsafe();
+    static {
+        final int scale = UNSAFE.arrayIndexScale(Object[].class);
+        if (4 == scale) {
+            REF_ELEMENT_SHIFT = 2;
+        } else if (8 == scale) {
+            REF_ELEMENT_SHIFT = 3;
+        } else {
+            throw new IllegalStateException("Unknown pointer size");
+        }
+        // Including the buffer pad in the array base offset
+        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class)
+                + (BUFFER_PAD << REF_ELEMENT_SHIFT);
+    }
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
 
-    private final int indexMask;
+    private final long indexMask;
     private final Object[] entries;
     private final int bufferSize;
     private final Sequencer sequencer;
@@ -56,7 +76,7 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
         }
 
         this.indexMask = bufferSize - 1;
-        this.entries   = new Object[sequencer.getBufferSize()];
+        this.entries   = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
         fill(eventFactory);
     }
 
@@ -166,9 +186,11 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
     @SuppressWarnings("unchecked")
     public E get(long sequence)
     {
-        return (E)entries[(int)sequence & indexMask];
+        return (E) UNSAFE.getObject(entries, calcOffset(sequence));
     }
-
+    private long calcOffset(long index) {
+        return REF_ARRAY_BASE + ((index & indexMask) << REF_ELEMENT_SHIFT);
+    }
     /**
      * @deprecated Use {@link RingBuffer#get(long)}
      */
@@ -1198,9 +1220,9 @@ public final class RingBuffer<E> implements Cursored, DataProvider<E>
 
     private void fill(EventFactory<E> eventFactory)
     {
-        for (int i = 0; i < entries.length; i++)
+        for (int i = 0; i < bufferSize; i++)
         {
-            entries[i] = eventFactory.newInstance();
+            entries[BUFFER_PAD + i] = eventFactory.newInstance();
         }
     }
 }
