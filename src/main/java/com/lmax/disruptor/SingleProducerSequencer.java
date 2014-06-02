@@ -19,22 +19,34 @@ import java.util.concurrent.locks.LockSupport;
 
 import com.lmax.disruptor.util.Util;
 
+abstract class SingleProducerSequencerPad extends AbstractSequencer
+{
+    protected long p1, p2, p3, p4, p5, p6, p7;
+    public SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
+    {
+        super(bufferSize, waitStrategy);
+    }
+}
+abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
+{
+    public SingleProducerSequencerFields(int bufferSize, WaitStrategy waitStrategy)
+    {
+        super(bufferSize, waitStrategy);
+    }
 
+    /** Set to -1 as sequence starting point */
+    protected long nextValue = Sequence.INITIAL_VALUE;
+    protected long cachedValue = Sequence.INITIAL_VALUE;
+}
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.<p>
  *
  * <p>Generally not safe for use from multiple threads as it does not implement any barriers.</p>
  */
-public final class SingleProducerSequencer extends AbstractSequencer
-{
-    @SuppressWarnings("unused")
-    private static class Padding
-    {
-        /** Set to -1 as sequence starting point */
-        public long nextValue = Sequence.INITIAL_VALUE, cachedValue = Sequence.INITIAL_VALUE, p2, p3, p4, p5, p6, p7;
-    }
 
-    private final Padding pad = new Padding();
+public final class SingleProducerSequencer extends SingleProducerSequencerFields
+{
+    protected long p1, p2, p3, p4, p5, p6, p7;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -53,15 +65,15 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
-        long nextValue = pad.nextValue;
+        long nextValue = this.nextValue;
 
         long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
-        long cachedGatingSequence = pad.cachedValue;
+        long cachedGatingSequence = this.cachedValue;
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
-            pad.cachedValue = minSequence;
+            this.cachedValue = minSequence;
 
             if (wrapPoint > minSequence)
             {
@@ -92,11 +104,11 @@ public final class SingleProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        long nextValue = pad.nextValue;
+        long nextValue = this.nextValue;
 
         long nextSequence = nextValue + n;
         long wrapPoint = nextSequence - bufferSize;
-        long cachedGatingSequence = pad.cachedValue;
+        long cachedGatingSequence = this.cachedValue;
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
@@ -106,10 +118,10 @@ public final class SingleProducerSequencer extends AbstractSequencer
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
-            pad.cachedValue = minSequence;
+            this.cachedValue = minSequence;
         }
 
-        pad.nextValue = nextSequence;
+        this.nextValue = nextSequence;
 
         return nextSequence;
     }
@@ -139,7 +151,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
             throw InsufficientCapacityException.INSTANCE;
         }
 
-        long nextSequence = pad.nextValue += n;
+        long nextSequence = this.nextValue += n;
 
         return nextSequence;
     }
@@ -150,7 +162,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public long remainingCapacity()
     {
-        long nextValue = pad.nextValue;
+        long nextValue = this.nextValue;
 
         long consumed = Util.getMinimumSequence(gatingSequences, nextValue);
         long produced = nextValue;
@@ -163,7 +175,7 @@ public final class SingleProducerSequencer extends AbstractSequencer
     @Override
     public void claim(long sequence)
     {
-        pad.nextValue = sequence;
+        this.nextValue = sequence;
     }
 
     /**
