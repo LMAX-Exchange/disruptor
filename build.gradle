@@ -109,7 +109,7 @@ javadoc {
     options.bottom = "<i>Copyright &#169; 2011 - ${Calendar.instance[Calendar.YEAR]} LMAX Ltd. All Rights Reserved.</i>"
     options.use = true
     options.version = true
-    options.windowTitle = 'Disruptor API'
+    options.showFromPublic()
 }
 
 jar {
