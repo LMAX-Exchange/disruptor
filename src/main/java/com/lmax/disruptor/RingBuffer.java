@@ -411,9 +411,11 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Get the current cursor value for the ring buffer.  The cursor value is
-     * the last value that was published, or the highest available sequence
-     * that can be consumed.
+     * Get the current cursor value for the ring buffer.  The actual value recieved
+     * will depend on the type of {@link Sequencer} that is being used.
+     *
+     * @see MultiProducerSequencer
+     * @see SingleProducerSequencer
      */
     @Override
     public long getCursor()

@@ -155,7 +155,19 @@ public interface Sequencer extends Cursored
      */
     long getMinimumSequence();
 
-    long getHighestPublishedSequence(long sequence, long availableSequence);
+    /**
+     * Get the highest sequence number that can be safely read from the ring buffer.  Depending
+     * on the implementation of the Sequencer this call may need to scan a number of values
+     * in the Sequencer.  The scan will range from nextSequence to availableSequence.  If
+     * there are no available values <code>&gt;= nextSequence</code> the return value will be
+     * <code>nextSequence - 1</code>.  To work correctly a consumer should pass a value that
+     * it 1 higher than the last sequence that was successfully processed.
+     *
+     * @param nextSequence The sequence to start scanning from.
+     * @param availableSequence The sequence to scan to.
+     * @return The highest value that can be safely read, will be at least <code>nextSequence - 1</code>.
+     */
+    long getHighestPublishedSequence(long nextSequence, long availableSequence);
 
     <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence...gatingSequences);
 }
