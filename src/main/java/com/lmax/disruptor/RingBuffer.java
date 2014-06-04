@@ -223,23 +223,6 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         return elementAt(sequence);
     }
-    /**
-     * @deprecated Use {@link RingBuffer#get(long)}
-     */
-    @Deprecated
-    public E getPreallocated(long sequence)
-    {
-        return get(sequence);
-    }
-
-    /**
-     * @deprecated Use {@link RingBuffer#get(long)}
-     */
-    @Deprecated
-    public E getPublished(long sequence)
-    {
-        return get(sequence);
-    }
 
     /**
      * Increment and return the next sequence for the ring buffer.  Calls of this
