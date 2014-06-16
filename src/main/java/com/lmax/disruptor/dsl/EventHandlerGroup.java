@@ -104,7 +104,7 @@ public class EventHandlerGroup<T>
      * @param eventProcessorFactories the event processor factories to use to create the event processors that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
-    public EventHandlerGroup<T> then(final EventProcessorFactory... eventProcessorFactories)
+    public EventHandlerGroup<T> then(final EventProcessorFactory<T>... eventProcessorFactories)
     {
         return handleEventsWith(eventProcessorFactories);
     }
@@ -156,7 +156,7 @@ public class EventHandlerGroup<T>
      * @param eventProcessorFactories the event processor factories to use to create the event processors that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
-    public EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory... eventProcessorFactories)
+    public EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory<T>... eventProcessorFactories)
     {
         return disruptor.createEventProcessors(sequences, eventProcessorFactories);
     }

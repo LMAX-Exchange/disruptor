@@ -490,13 +490,13 @@ public class DisruptorTest
         final CountDownLatch countDownLatch = new CountDownLatch(2);
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub(countDownLatch);
 
-        disruptor.handleEventsWith(new EventProcessorFactory()
+        disruptor.handleEventsWith(new EventProcessorFactory<TestEvent>()
         {
             @Override
-            public EventProcessor createEventProcessor(final Sequence[] barrierSequences)
+            public EventProcessor createEventProcessor(final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
             {
                 assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
-                return new BatchEventProcessor<TestEvent>(disruptor.getRingBuffer(), disruptor.getRingBuffer().newBarrier(barrierSequences), eventHandler);
+                return new BatchEventProcessor<TestEvent>(disruptor.getRingBuffer(), ringBuffer.newBarrier(barrierSequences), eventHandler);
             }
         });
 
@@ -510,13 +510,13 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub(countDownLatch);
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
 
-        disruptor.handleEventsWith(delayedEventHandler).then(new EventProcessorFactory()
+        disruptor.handleEventsWith(delayedEventHandler).then(new EventProcessorFactory<TestEvent>()
         {
             @Override
-            public EventProcessor createEventProcessor(final Sequence[] barrierSequences)
+            public EventProcessor createEventProcessor(final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
             {
                 assertSame("Should have had a barrier sequence", 1, barrierSequences.length);
-                return new BatchEventProcessor<TestEvent>(disruptor.getRingBuffer(), disruptor.getRingBuffer().newBarrier(barrierSequences), eventHandler);
+                return new BatchEventProcessor<TestEvent>(disruptor.getRingBuffer(), ringBuffer.newBarrier(barrierSequences), eventHandler);
             }
         });
 

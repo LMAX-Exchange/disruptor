@@ -130,7 +130,7 @@ public class Disruptor<T>
      * @param eventProcessorFactories the event processor factories to use to create the event processors that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
-    public EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory... eventProcessorFactories)
+    public EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory<T>... eventProcessorFactories)
     {
         final Sequence[] barrierSequences = new Sequence[0];
         return createEventProcessors(barrierSequences, eventProcessorFactories);
@@ -449,12 +449,12 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
     }
 
-    EventHandlerGroup<T> createEventProcessors(final Sequence[] barrierSequences, final EventProcessorFactory[] processorFactories)
+    EventHandlerGroup<T> createEventProcessors(final Sequence[] barrierSequences, final EventProcessorFactory<T>[] processorFactories)
     {
         final EventProcessor[] eventProcessors = new EventProcessor[processorFactories.length];
         for (int i = 0; i < processorFactories.length; i++)
         {
-            eventProcessors[i] = processorFactories[i].createEventProcessor(barrierSequences);
+            eventProcessors[i] = processorFactories[i].createEventProcessor(ringBuffer, barrierSequences);
         }
         return handleEventsWith(eventProcessors);
     }
