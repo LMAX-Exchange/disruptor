@@ -16,11 +16,10 @@
 package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.support.TestEvent;
 
 import java.util.concurrent.CountDownLatch;
 
-public class EventHandlerStub implements EventHandler<TestEvent>
+public class EventHandlerStub<T> implements EventHandler<T>
 {
     private final CountDownLatch countDownLatch;
 
@@ -30,7 +29,7 @@ public class EventHandlerStub implements EventHandler<TestEvent>
     }
 
     @Override
-    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
+    public void onEvent(final T entry, final long sequence, final boolean endOfBatch) throws Exception
     {
         countDownLatch.countDown();
     }

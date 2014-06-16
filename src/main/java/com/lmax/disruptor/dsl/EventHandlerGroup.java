@@ -89,7 +89,7 @@ public class EventHandlerGroup<T>
      * @param handlers the batch handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
      */
-    public EventHandlerGroup<T> then(final EventHandler<T>... handlers)
+    public EventHandlerGroup<T> then(final EventHandler<? super T>... handlers)
     {
         return handleEventsWith(handlers);
     }
@@ -122,7 +122,7 @@ public class EventHandlerGroup<T>
      * @param handlers the work handlers that will process events. Each work handler instance will provide an extra thread in the worker pool.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
      */
-    public EventHandlerGroup<T> thenHandleEventsWithWorkerPool(final WorkHandler<T>... handlers)
+    public EventHandlerGroup<T> thenHandleEventsWithWorkerPool(final WorkHandler<? super T>... handlers)
     {
         return handleEventsWithWorkerPool(handlers);
     }
@@ -139,7 +139,7 @@ public class EventHandlerGroup<T>
      * @param handlers the batch handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
      */
-    public EventHandlerGroup<T> handleEventsWith(final EventHandler<T>... handlers)
+    public EventHandlerGroup<T> handleEventsWith(final EventHandler<? super T>... handlers)
     {
         return disruptor.createEventProcessors(sequences, handlers);
     }
@@ -174,7 +174,7 @@ public class EventHandlerGroup<T>
      * @param handlers the work handlers that will process events. Each work handler instance will provide an extra thread in the worker pool.
      * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
      */
-    public EventHandlerGroup<T> handleEventsWithWorkerPool(final WorkHandler<T>... handlers)
+    public EventHandlerGroup<T> handleEventsWithWorkerPool(final WorkHandler<? super T>... handlers)
     {
         return disruptor.createWorkerPool(sequences, handlers);
     }

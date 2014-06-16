@@ -32,7 +32,7 @@ public final class WorkProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
-    private final WorkHandler<T> workHandler;
+    private final WorkHandler<? super T> workHandler;
     private final ExceptionHandler exceptionHandler;
     private final Sequence workSequence;
 
@@ -57,7 +57,7 @@ public final class WorkProcessor<T>
      */
     public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
-                         final WorkHandler<T> workHandler,
+                         final WorkHandler<? super T> workHandler,
                          final ExceptionHandler exceptionHandler,
                          final Sequence workSequence)
     {

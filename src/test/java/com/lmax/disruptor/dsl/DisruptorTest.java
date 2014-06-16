@@ -420,7 +420,7 @@ public class DisruptorTest
     }
 
     @Test(expected = TimeoutException.class, timeout = 2000)
-    public void shouldThrowTimeoutExceptionIfShutdownDoesntCompleteNormally() throws Exception
+    public void shouldThrowTimeoutExceptionIfShutdownDoesNotCompleteNormally() throws Exception
     {
         //Given
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
@@ -464,25 +464,24 @@ public class DisruptorTest
     @Test
     public void shouldAllowEventHandlerWithSuperType() throws Exception
     {
-        final Object[] receivedEvent = {null};
-        //Given
-        final EventHandler<Object> objectHandler = new EventHandler<Object>()
-        {
-            @Override
-            public void onEvent(final Object event, long sequence, boolean endOfBatch) throws Exception
-            {
-                receivedEvent[0] = event;
-            }
-        };
+        final CountDownLatch latch = new CountDownLatch(2);
+        final EventHandler<Object> objectHandler = new EventHandlerStub<Object>(latch);
 
         disruptor.handleEventsWith(objectHandler);
 
-        //When
-        final Object expectedEvent = publishEvent();
+        ensureTwoEventsProcessedAccordingToDependencies(latch);
+    }
 
-        //Then
-        Thread.sleep(10);
-        assertSame(receivedEvent[0], expectedEvent);
+    @Test
+    public void shouldAllowChainingEventHandlersWithSuperType() throws Exception
+    {
+        final CountDownLatch latch = new CountDownLatch(2);
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        final EventHandler<Object> objectHandler = new EventHandlerStub<Object>(latch);
+
+        disruptor.handleEventsWith(delayedEventHandler).then(objectHandler);
+
+        ensureTwoEventsProcessedAccordingToDependencies(latch, delayedEventHandler);
     }
 
     @Test
