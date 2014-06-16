@@ -15,10 +15,6 @@
  */
 package com.lmax.disruptor.dsl;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
@@ -34,6 +30,10 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.WorkerPool;
 import com.lmax.disruptor.util.Util;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
@@ -115,8 +115,34 @@ public class Disruptor<T>
     }
 
     /**
-     * Set up custom event processors to handle events from the ring buffer. The Disruptor will
-     * automatically start this processors when {@link #start()} is called.
+     * <p>Set up custom event processors to handle events from the ring buffer. The Disruptor will
+     * automatically start these processors when {@link #start()} is called.</p>
+     *
+     * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
+     * process events before handler <code>B</code>:</p>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
+     *
+     * <p>Since this is the start of the chain, the processor factories will always be passed an empty <code>Sequence</code>
+     * array, so the factory isn't necessary in this case. This method is provided for consistency with
+     * {@link EventHandlerGroup#handleEventsWith(EventProcessorFactory...)} and {@link EventHandlerGroup#then(EventProcessorFactory...)}
+     * which do have barrier sequences to provide.</p>
+     *
+     * @param eventProcessorFactories the event processor factories to use to create the event processors that will process events.
+     * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
+     */
+    public EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory... eventProcessorFactories)
+    {
+        final Sequence[] barrierSequences = new Sequence[0];
+        return createEventProcessors(barrierSequences, eventProcessorFactories);
+    }
+
+    /**
+     * <p>Set up custom event processors to handle events from the ring buffer. The Disruptor will
+     * automatically start this processors when {@link #start()} is called.</p>
+     *
+     * <p>This method can be used as the start of a chain. For example if the processor <code>A</code> must
+     * process events before handler <code>B</code>:</p>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
      * @param processors the event processors that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
@@ -421,6 +447,16 @@ public class Disruptor<T>
         }
 
         return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
+    }
+
+    EventHandlerGroup<T> createEventProcessors(final Sequence[] barrierSequences, final EventProcessorFactory[] processorFactories)
+    {
+        final EventProcessor[] eventProcessors = new EventProcessor[processorFactories.length];
+        for (int i = 0; i < processorFactories.length; i++)
+        {
+            eventProcessors[i] = processorFactories[i].createEventProcessor(barrierSequences);
+        }
+        return handleEventsWith(eventProcessors);
     }
 
     EventHandlerGroup<T> createWorkerPool(final Sequence[] barrierSequences, final WorkHandler<T>[] workHandlers)
