@@ -48,6 +48,7 @@ eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
 idea.module {
     testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+    scopes.TEST.plus += sourceSets.perf.compileClasspath
 }
 
 repositories {
@@ -56,7 +57,7 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
-    perfCompile 'com.github.jnr:jnr-ffi:1.0.10', 
+    perfCompile 'com.github.jnr:jnr-ffi:1.0.10',
                 files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
 }
 
