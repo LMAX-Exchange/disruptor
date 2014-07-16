@@ -40,15 +40,6 @@ ext {
     if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:0.9.0-M3'
-    }
-}
-
 sourceSets {
     perf.java.srcDir 'src/perftest/java'
 }
@@ -65,11 +56,12 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1', files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
+    testCompile 'junit:junit:4.5', 
+                'org.jmock:jmock-junit4:2.5.1', 
+                'org.jmock:jmock-legacy:2.5.1', 
+                files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
     perfCompile 'com.github.jnr:jnr-ffi:1.0.10',
-                files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar'),
-                'org.openjdk.jmh:jmh-core:0.9',
-     			'org.openjdk.jmh:jmh-generator-annprocess:0.9'
+                files('lib/test/hdrhistogram-1.0-SNAPSHOT.jar')
 }
 
 sourceCompatibility = 1.6
@@ -216,26 +208,5 @@ class Version {
 
     String toString() {
         "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
-    }
-}
-
-task benchmarks(dependsOn: perfClasses) {
-
-    apply plugin: 'com.github.johnrengelman.shadow'
-
-    shadowJar {
-        classifier = "benchmarks"
-
-        from sourceSets.perf.output
-        from sourceSets.main.output
-        from project.configurations.perfRuntime
-
-        appendManifest {
-            attributes "Main-Class": "org.openjdk.jmh.Main"
-        }
-    }
-
-    doLast {
-        shadowJar.execute()
     }
 }
