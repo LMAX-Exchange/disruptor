@@ -59,8 +59,7 @@ dependencies {
     testCompile 'junit:junit:4.5', 
                 'org.jmock:jmock-junit4:2.5.1', 
                 'org.jmock:jmock-legacy:2.5.1'
-    perfCompile 'com.github.jnr:jnr-ffi:1.0.10',
-                'org.hdrhistogram:HdrHistogram:1.2.1'
+    perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
 
 sourceCompatibility = 1.6
