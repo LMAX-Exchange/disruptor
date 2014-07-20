@@ -24,27 +24,6 @@ public interface Sequencer extends Cursored, Sequenced
     long INITIAL_CURSOR_VALUE = -1L;
 
     /**
-     * The capacity of the data structure to hold entries.
-     *
-     * @return the size of the RingBuffer.
-     */
-    int getBufferSize();
-
-    /**
-     * Has the buffer got capacity to allocate another sequence.  This is a concurrent
-     * method so the response should only be taken as an indication of available capacity.
-     * @param requiredCapacity in the buffer
-     * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
-     */
-    boolean hasAvailableCapacity(final int requiredCapacity);
-
-    /**
-     * Get the remaining capacity for this sequencer.
-     * @return The number of slots remaining.
-     */
-    long remainingCapacity();
-
-    /**
      * Claim a specific sequence.  Only used if initialising the ring buffer to
      * a specific value.
      *
