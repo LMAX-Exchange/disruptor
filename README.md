@@ -13,6 +13,14 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.0
+
+- Inheritence based Padding for RingBuffer and Sequencers.
+- Better DSL support for adding custom EventProcessors.
+- Remove deprecated methods (slightly breaking change)
+- Experimental LiteBlockingWaitStrategy
+- Experimental EventPoller for polling for data instead of waiting.
+
 ### 3.2.1 Released (10-Mar-2014)
 
 - Minor build and IDE updates
@@ -80,9 +88,9 @@ A High Performance Inter-Thread Messaging Library
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
 - Introduce new multi-producer publisher algorithm (faster and more scalable).
-- Introduce more flexible EventPublisher interface that allow for static definition of translators 
+- Introduce more flexible EventPublisher interface that allow for static definition of translators
 that can handle local values.
-- Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow 
+- Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow
 messages to be sent and the ring buffer to wrap if there are no gating sequences defined.
 - Remove batch writes to the ring buffer.
 - Remove timeout read methods.
