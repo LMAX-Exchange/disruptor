@@ -56,7 +56,7 @@ public class Sequence extends RhsPadding
         {
             VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             throw new RuntimeException(e);
         }
@@ -87,7 +87,7 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        return UNSAFE.getLongVolatile(this, VALUE_OFFSET);
+        return value;
     }
 
     /**
