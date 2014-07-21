@@ -20,10 +20,10 @@ public class EventPoller<T>
         PROCESSING, GATING, IDLE
     }
 
-    public EventPoller(DataProvider<T> dataProvider,
-                       Sequencer sequencer,
-                       Sequence sequence,
-                       Sequence gatingSequence)
+    public EventPoller(final DataProvider<T> dataProvider,
+                       final Sequencer sequencer,
+                       final Sequence sequence,
+                       final Sequence gatingSequence)
     {
         this.dataProvider = dataProvider;
         this.sequencer = sequencer;
@@ -31,11 +31,11 @@ public class EventPoller<T>
         this.gatingSequence = gatingSequence;
     }
 
-    public PollState poll(Handler<T> eventHandler) throws Exception
+    public PollState poll(final Handler<T> eventHandler) throws Exception
     {
-        long currentSequence = sequence.get();
+        final long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
-        long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
+        final long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
 
         if (nextSequence <= availableSequence)
         {
@@ -46,12 +46,13 @@ public class EventPoller<T>
             {
                 do
                 {
-                    T event = dataProvider.get(nextSequence);
+                    final T event = dataProvider.get(nextSequence);
                     processNextEvent = eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     processedSequence = nextSequence;
                     nextSequence++;
 
-                } while (nextSequence <= availableSequence & processNextEvent);
+                }
+                while (nextSequence <= availableSequence & processNextEvent);
             }
             finally
             {
@@ -70,11 +71,11 @@ public class EventPoller<T>
         }
     }
 
-    public static <T> EventPoller<T> newInstance(DataProvider<T> dataProvider,
-                                                 Sequencer sequencer,
-                                                 Sequence sequence,
-                                                 Sequence cursorSequence,
-                                                 Sequence...gatingSequences)
+    public static <T> EventPoller<T> newInstance(final DataProvider<T> dataProvider,
+                                                 final Sequencer sequencer,
+                                                 final Sequence sequence,
+                                                 final Sequence cursorSequence,
+                                                 final Sequence...gatingSequences)
     {
         Sequence gatingSequence;
         if (gatingSequences.length == 0)
