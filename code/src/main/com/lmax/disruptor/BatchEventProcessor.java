@@ -111,10 +111,9 @@ public final class BatchEventProcessor<T>
                 {
                     event = ringBuffer.get(nextSequence);
                     eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+	            sequence.set(nextSequence); // advance the sequence once we've finished with the slot
                     nextSequence++;
                 }
-
-                sequence.set(nextSequence - 1L);
             }
             catch (final AlertException ex)
             {
