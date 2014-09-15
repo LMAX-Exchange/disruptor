@@ -81,28 +81,6 @@ compilePerfJava {
     classpath += sourceSets.main.runtimeClasspath
 }
 
-def perfTests = [Test: '**/*', Throughput: '**/*ThroughputTest.class', ThroughputMultiThreaded: '**/Three*ThroughputTest.class', Latency: '**/*LatencyTest.class']
-
-def createPerfTest = { type, pattern ->
-    task("perf$type", type: Test, dependsOn: ['classes', 'perfClasses'], group: 'Performance test') {
-        outputs.upToDateWhen { false }    // always run perf tests, even if no inputs have changed
-        testClassesDir = sourceSets.perf.output.classesDir
-        classpath = sourceSets.perf.runtimeClasspath + sourceSets.main.runtimeClasspath
-        include pattern
-        testLogging.showStandardStreams = true
-    }
-}
-
-perfTests.each(createPerfTest)
-
-tasks.addRule('Pattern: perfTestSingle<ClassName>') { taskName ->
-    if (taskName.startsWith('perfTestSingle')) {
-        def type = taskName - 'perf'
-        def pattern = "**/${taskName - 'perfTestSingle'}.class"
-        createPerfTest(type, pattern)
-    }
-}
-
 javadoc {
     title = '<h1>Disruptor</h1>'
 
