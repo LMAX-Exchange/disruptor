@@ -8,7 +8,7 @@ import com.lmax.disruptor.Sequence;
  * A factory interface to make it possible to include custom event processors in a chain:
  *
  * <pre><code>
- * disruptor.handleEventsWith(handler1).then((ringBuffer, barrierSequences) -> new CustomEventProcessor(ringBuffer, barrierSequences));
+ * disruptor.handleEventsWith(handler1).then((ringBuffer, barrierSequences) -&gt; new CustomEventProcessor(ringBuffer, barrierSequences));
  * </code></pre>
  */
 public interface EventProcessorFactory<T>
