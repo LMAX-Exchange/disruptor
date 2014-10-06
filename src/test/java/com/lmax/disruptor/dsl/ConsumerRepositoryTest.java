@@ -124,7 +124,7 @@ public class ConsumerRepositoryTest
         boolean seen2 = false;
         for (ConsumerInfo testEntryEventProcessorInfo : consumerRepository)
         {
-            final EventProcessorInfo eventProcessorInfo = (EventProcessorInfo) testEntryEventProcessorInfo;
+            final EventProcessorInfo<?> eventProcessorInfo = (EventProcessorInfo<?>) testEntryEventProcessorInfo;
             if (!seen1 && eventProcessorInfo.getEventProcessor() == eventProcessor1 &&
                 eventProcessorInfo.getHandler() == handler1)
             {
