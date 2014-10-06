@@ -82,7 +82,7 @@ compilePerfJava {
 }
 
 javadoc {
-    title = '<h1>Disruptor</h1>'
+    title = 'Disruptor'
 
     options.addStringOption('XDignore.symbol.file', '-quiet')
     options.author = true
