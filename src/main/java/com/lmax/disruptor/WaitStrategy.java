@@ -38,7 +38,8 @@ public interface WaitStrategy
      * @throws InterruptedException if the thread is interrupted.
      * @throws TimeoutException
      */
-    long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
+    long waitFor(long sequence, Sequence cursor, Sequence dependentSequence,
+                 Backchannel backchannel, SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException;
 
     /**

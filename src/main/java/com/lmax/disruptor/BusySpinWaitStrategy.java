@@ -25,12 +25,14 @@ package com.lmax.disruptor;
 public final class BusySpinWaitStrategy implements WaitStrategy
 {
     @Override
-    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence,
+                        final Backchannel backchannel, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
 
-        while ((availableSequence = dependentSequence.get()) < sequence)
+        while ((availableSequence = dependentSequence.get()) < sequence &&
+               !backchannel.shouldProcess())
         {
             barrier.checkAlert();
         }

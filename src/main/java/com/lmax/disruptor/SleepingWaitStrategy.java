@@ -28,13 +28,15 @@ public final class SleepingWaitStrategy implements WaitStrategy
     private static final int RETRIES = 200;
 
     @Override
-    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence,
+                        final Backchannel backchannel, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
         int counter = RETRIES;
 
-        while ((availableSequence = dependentSequence.get()) < sequence)
+        while ((availableSequence = dependentSequence.get()) < sequence &&
+               !backchannel.shouldProcess())
         {
             counter = applyWaitMethod(barrier, counter);
         }

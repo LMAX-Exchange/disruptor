@@ -67,7 +67,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
+    public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence,
+                        Backchannel backchannel, SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
@@ -76,7 +77,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
 
         do
         {
-            if ((availableSequence = dependentSequence.get()) >= sequence)
+            if ((availableSequence = dependentSequence.get()) >= sequence &&
+                !backchannel.shouldProcess())
             {
                 return availableSequence;
             }
@@ -92,7 +94,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
-                        return lockingStrategy.waitOnLock(sequence, cursor, dependentSequence, barrier);
+                        return lockingStrategy.waitOnLock(sequence, cursor, dependentSequence,
+                                                          backchannel, barrier);
                     }
                     else if (timeDelta > spinTimeoutNanos)
                     {
@@ -115,7 +118,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     {
         long waitOnLock(long sequence,
                         Sequence cursorSequence,
-                        Sequence dependentSequence, SequenceBarrier barrier)
+                        Sequence dependentSequence,
+                        Backchannel backchannel,
+                        SequenceBarrier barrier)
                 throws AlertException, InterruptedException;
 
         void signalAllWhenBlocking();
@@ -131,6 +136,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
         public long waitOnLock(long sequence,
                                Sequence cursorSequence,
                                Sequence dependentSequence,
+                               Backchannel backchannel,
                                SequenceBarrier barrier) throws AlertException, InterruptedException
         {
             long availableSequence;
@@ -138,7 +144,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
             try
             {
                 ++numWaiters;
-                while ((availableSequence = cursorSequence.get()) < sequence)
+                while ((availableSequence = cursorSequence.get()) < sequence &&
+                       !backchannel.shouldProcess())
                 {
                     barrier.checkAlert();
                     processorNotifyCondition.await(1, TimeUnit.MILLISECONDS);
@@ -150,7 +157,8 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 lock.unlock();
             }
 
-            while ((availableSequence = dependentSequence.get()) < sequence)
+            while ((availableSequence = dependentSequence.get()) < sequence &&
+                   !backchannel.shouldProcess())
             {
                 barrier.checkAlert();
             }
@@ -179,13 +187,16 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private static class SleepBlockingStrategy implements BlockingStrategy
     {
         public long waitOnLock(final long sequence,
-                                Sequence cursorSequence,
-                                final Sequence dependentSequence, final SequenceBarrier barrier)
+                               Sequence cursorSequence,
+                               final Sequence dependentSequence,
+                               final Backchannel backchannel,
+                               final SequenceBarrier barrier)
                 throws AlertException, InterruptedException
         {
             long availableSequence;
 
-            while ((availableSequence = dependentSequence.get()) < sequence)
+            while ((availableSequence = dependentSequence.get()) < sequence &&
+                   !backchannel.shouldProcess())
             {
                 LockSupport.parkNanos(1);
             }

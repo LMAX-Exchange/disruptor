@@ -31,7 +31,11 @@ public interface SequenceBarrier
      * @throws InterruptedException if the thread needs awaking on a condition variable.
      * @throws TimeoutException
      */
-    long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException;
+    long waitFor(long sequence)
+        throws AlertException, InterruptedException, TimeoutException;
+
+    long waitFor(long sequence, Backchannel backchannel)
+        throws AlertException, InterruptedException, TimeoutException;
 
     /**
      * Get the current cursor value that can be read.

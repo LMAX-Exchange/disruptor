@@ -20,18 +20,21 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
     public long waitFor(final long sequence,
                         final Sequence cursorSequence,
                         final Sequence dependentSequence,
+                        final Backchannel backchannel,
                         final SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException
     {
         long nanos = timeoutInNanos;
 
         long availableSequence;
-        if ((availableSequence = cursorSequence.get()) < sequence)
+        if ((availableSequence = cursorSequence.get()) < sequence &&
+            !backchannel.shouldProcess())
         {
             lock.lock();
             try
             {
-                while ((availableSequence = cursorSequence.get()) < sequence)
+                while ((availableSequence = cursorSequence.get()) < sequence &&
+                       !backchannel.shouldProcess())
                 {
                     barrier.checkAlert();
                     nanos = processorNotifyCondition.awaitNanos(nanos);
@@ -47,7 +50,8 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
             }
         }
 
-        while ((availableSequence = dependentSequence.get()) < sequence)
+        while ((availableSequence = dependentSequence.get()) < sequence &&
+               !backchannel.shouldProcess())
         {
             barrier.checkAlert();
         }

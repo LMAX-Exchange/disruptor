@@ -37,6 +37,7 @@ public final class BatchEventProcessor<T>
     private final EventHandler<T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
+    private final Backchannel backchannel;
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -50,9 +51,27 @@ public final class BatchEventProcessor<T>
                                final SequenceBarrier sequenceBarrier,
                                final EventHandler<T> eventHandler)
     {
+        this(dataProvider, sequenceBarrier, eventHandler, Backchannel.NONE);
+    }
+
+    /**
+     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
+     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
+     *
+     * @param dataProvider to which events are published.
+     * @param sequenceBarrier on which it is waiting.
+     * @param eventHandler is the delegate to which events are dispatched.
+     * @param backchannel is a backchannel through work can be fed into this processor.
+     */
+    public BatchEventProcessor(final DataProvider<T> dataProvider,
+                               final SequenceBarrier sequenceBarrier,
+                               final EventHandler<T> eventHandler,
+                               final Backchannel backchannel)
+    {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
+        this.backchannel = backchannel;
 
         if (eventHandler instanceof SequenceReportingEventHandler)
         {
@@ -120,7 +139,7 @@ public final class BatchEventProcessor<T>
             {
                 try
                 {
-                    final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                    final long availableSequence = sequenceBarrier.waitFor(nextSequence, backchannel);
 
                     if (nextSequence > availableSequence)
                     {
@@ -135,6 +154,8 @@ public final class BatchEventProcessor<T>
                     }
 
                     sequence.set(availableSequence);
+
+                    backchannel.process();
                 }
                 catch (final TimeoutException e)
                 {

@@ -50,9 +50,19 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     public long waitFor(final long sequence)
         throws AlertException, InterruptedException, TimeoutException
     {
+        return waitFor(sequence, Backchannel.NONE);
+    }
+
+    @Override
+    public long waitFor(final long sequence, final Backchannel backchannel)
+        throws AlertException, InterruptedException, TimeoutException
+    {
         checkAlert();
 
-        long availableSequence = waitStrategy.waitFor(sequence, cursorSequence, dependentSequence, this);
+        backchannel.prepareWait(waitStrategy);
+        long availableSequence = waitStrategy.waitFor(sequence, cursorSequence, dependentSequence,
+                                                      backchannel, this);
+        backchannel.waitDone();
 
         if (availableSequence < sequence)
         {

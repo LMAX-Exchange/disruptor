@@ -30,16 +30,19 @@ public final class BlockingWaitStrategy implements WaitStrategy
     private final Condition processorNotifyCondition = lock.newCondition();
 
     @Override
-    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
+    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence,
+                        Backchannel backchannel, SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = cursorSequence.get()) < sequence)
+        if ((availableSequence = cursorSequence.get()) < sequence &&
+            !backchannel.shouldProcess())
         {
             lock.lock();
             try
             {
-                while ((availableSequence = cursorSequence.get()) < sequence)
+                while ((availableSequence = cursorSequence.get()) < sequence &&
+                       !backchannel.shouldProcess())
                 {
                     barrier.checkAlert();
                     processorNotifyCondition.await();
@@ -51,7 +54,8 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
         }
 
-        while ((availableSequence = dependentSequence.get()) < sequence)
+        while ((availableSequence = dependentSequence.get()) < sequence &&
+               !backchannel.shouldProcess())
         {
             barrier.checkAlert();
         }

@@ -37,7 +37,7 @@ public class TimeoutBlockingWaitStrategyTest
 
         try
         {
-            waitStrategy.waitFor(6, cursor, dependent, sequenceBarrier);
+            waitStrategy.waitFor(6, cursor, dependent, Backchannel.NONE, sequenceBarrier);
             fail("TimeoutException should have been thrown");
         }
         catch (TimeoutException e)

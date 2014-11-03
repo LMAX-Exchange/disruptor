@@ -140,7 +140,7 @@ public final class WorkProcessor<T>
                 }
                 else
                 {
-                    cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
+                    cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence, Backchannel.NONE);
                 }
             }
             catch (final AlertException ex)

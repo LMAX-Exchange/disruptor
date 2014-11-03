@@ -25,6 +25,12 @@ class DummySequenceBarrier implements SequenceBarrier
     }
 
     @Override
+    public long waitFor(long sequence, Backchannel backchannel) throws AlertException, InterruptedException
+    {
+        return 0;
+    }
+
+    @Override
     public long getCursor()
     {
         return 0;
