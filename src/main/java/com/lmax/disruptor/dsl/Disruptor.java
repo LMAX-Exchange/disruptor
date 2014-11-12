@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
@@ -66,16 +65,16 @@ public class Disruptor<T>
     private ExceptionHandler exceptionHandler;
 
     /**
-	 * Create a new Disruptor. Will default to {@link BlockingWaitStrategy} and
-	 * {@link ProducerType}.MULTI
-	 *
-	 * @param eventFactory
-	 *            the factory to create events in the ring buffer.
-	 * @param ringBufferSize
-	 *            the size of the ring buffer.
-	 * @param executor
-	 *            an {@link Executor} to execute event processors.
-	 */
+     * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
+     * {@link ProducerType}.MULTI
+     *
+     * @param eventFactory
+     *            the factory to create events in the ring buffer.
+     * @param ringBufferSize
+     *            the size of the ring buffer.
+     * @param executor
+     *            an {@link Executor} to execute event processors.
+     */
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
     {
         this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
@@ -262,6 +261,7 @@ public class Disruptor<T>
      *
      * @param eventTranslator the translator that will load data into the event.
      * @param arg A single argument to load into the event
+     * @param <A> templatized argument type
      */
     public <A> void publishEvent(final EventTranslatorOneArg<T, A> eventTranslator, A arg)
     {
@@ -273,6 +273,7 @@ public class Disruptor<T>
      *
      * @param eventTranslator the translator that will load data into the event.
      * @param arg An array single arguments to load into the events. One Per event.
+     * @param <A> templatized argument type
      */
     public <A> void publishEvents(final EventTranslatorOneArg<T, A> eventTranslator, A[] arg)
     {
@@ -343,6 +344,7 @@ public class Disruptor<T>
      *
      * @param timeout  the amount of time to wait for all events to be processed. <code>-1</code> will give an infinite timeout
      * @param timeUnit the unit the timeOut is specified in
+     * @throws TimeoutException thrown if shutdown not completed within the timeout specified
      */
     public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException
     {
