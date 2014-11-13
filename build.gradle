@@ -168,9 +168,11 @@ task listJars << {
     configurations.perfCompile.each { file -> println file.name }
 }
 
-task tempLibs(type: Sync) {
-    from configurations.perfCompile
-    into('templib')
+task perfJar(type: Jar) {
+    baseName = project.name + '-perf'
+    from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.perf.output 
+    with jar
 }
 
 task wrapper(type: Wrapper) {
