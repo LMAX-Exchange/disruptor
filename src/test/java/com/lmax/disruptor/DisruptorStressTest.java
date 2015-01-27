@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-public class TortureTest
+public class DisruptorStressTest
 {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -172,7 +172,7 @@ public class TortureTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<TortureTest.TestEvent>()
+        public static final EventFactory<TestEvent> FACTORY = new EventFactory<DisruptorStressTest.TestEvent>()
         {
             @Override
             public TestEvent newInstance()
