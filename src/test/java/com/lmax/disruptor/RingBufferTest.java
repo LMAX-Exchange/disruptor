@@ -1167,6 +1167,7 @@ public class RingBufferTest
         assertHandleResetAndNotWrap(RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 4));
     }
 
+    @SuppressWarnings("deprecation")
     private void assertHandleResetAndNotWrap(RingBuffer<StubEvent> rb)
     {
         Sequence sequence = new Sequence();

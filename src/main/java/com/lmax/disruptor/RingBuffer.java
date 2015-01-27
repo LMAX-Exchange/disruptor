@@ -309,6 +309,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param sequence The sequence to reset too.
      * @throws IllegalStateException If any gating sequences have already been specified.
      */
+    @Deprecated
     public void resetTo(long sequence)
     {
         sequencer.claim(sequence);
