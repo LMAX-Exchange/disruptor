@@ -20,7 +20,7 @@ public class ThreeToOneDisruptor
             output = new Object[size];
         }
 
-        public static EventFactory<DataEvent> FACTORY = new EventFactory<DataEvent>()
+        public static final EventFactory<DataEvent> FACTORY = new EventFactory<DataEvent>()
         {
             @Override
             public DataEvent newInstance()
