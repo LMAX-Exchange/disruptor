@@ -31,7 +31,7 @@ public final class BatchEventProcessor<T>
     implements EventProcessor
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
+    private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<? super T> eventHandler;
@@ -86,7 +86,7 @@ public final class BatchEventProcessor<T>
      *
      * @param exceptionHandler to replace the existing exceptionHandler.
      */
-    public void setExceptionHandler(final ExceptionHandler exceptionHandler)
+    public void setExceptionHandler(final ExceptionHandler<? super T> exceptionHandler)
     {
         if (null == exceptionHandler)
         {
