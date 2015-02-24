@@ -13,9 +13,14 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.1
+
+- Minor Javadoc fixes, example code and file renames.
+- Make ExceptionHandler type parametrised.
+
 ### 3.3.0
 
-- Inheritence based Padding for RingBuffer and Sequencers.
+- Inheritance based Padding for RingBuffer and Sequencers.
 - Better DSL support for adding custom EventProcessors.
 - Remove deprecated methods (slightly breaking change)
 - Experimental LiteBlockingWaitStrategy
@@ -69,7 +74,7 @@ A High Performance Inter-Thread Messaging Library
 
 ### 3.0.0.beta4 Released (08-Apr-2013)
 
-- Refactoring, merge Publisher back into Sequencer and some of the gating sequence repsonsibilities up to the sequencer.
+- Refactoring, merge Publisher back into Sequencer and some of the gating sequence responsibilities up to the sequencer.
 
 ### 3.0.0.beta3 Released (20-Feb-2013)
 
