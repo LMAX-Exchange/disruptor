@@ -62,7 +62,7 @@ public class Disruptor<T>
     private final Executor executor;
     private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<T>();
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private ExceptionHandler exceptionHandler;
+    private ExceptionHandler<? super T> exceptionHandler;
 
     /**
      * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
@@ -189,7 +189,7 @@ public class Disruptor<T>
      *
      * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
      */
-    public void handleExceptionsWith(final ExceptionHandler exceptionHandler)
+    public void handleExceptionsWith(final ExceptionHandler<? super T> exceptionHandler)
     {
         this.exceptionHandler = exceptionHandler;
     }
@@ -201,7 +201,7 @@ public class Disruptor<T>
      * @param eventHandler the event handler to set a different exception handler for.
      * @return an ExceptionHandlerSetting dsl object - intended to be used by chaining the with method call.
      */
-    public ExceptionHandlerSetting<?> handleExceptionsFor(final EventHandler<T> eventHandler)
+    public ExceptionHandlerSetting<T> handleExceptionsFor(final EventHandler<T> eventHandler)
     {
         return new ExceptionHandlerSetting<T>(eventHandler, consumerRepository);
     }

@@ -47,6 +47,9 @@ public final class BatchEventProcessorTest
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
+    @SuppressWarnings("unchecked")
+    private final ExceptionHandler<StubEvent> exceptionHandler = context.mock(ExceptionHandler.class);
+
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
@@ -116,7 +119,6 @@ public final class BatchEventProcessorTest
         throws Exception
     {
         final Exception ex = new Exception();
-        final ExceptionHandler exceptionHandler = context.mock(ExceptionHandler.class);
         batchEventProcessor.setExceptionHandler(exceptionHandler);
 
         context.checking(new Expectations()
