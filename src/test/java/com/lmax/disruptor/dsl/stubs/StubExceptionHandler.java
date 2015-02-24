@@ -19,7 +19,7 @@ import com.lmax.disruptor.ExceptionHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class StubExceptionHandler implements ExceptionHandler
+public class StubExceptionHandler implements ExceptionHandler<Object>
 {
     private final AtomicReference<Throwable> exceptionHandled;
 
