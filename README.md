@@ -13,6 +13,11 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.2
+
+- Minor Javadoc fixes, example code and file renames.
+- Additional generics for parametrised ExceptionHandler.
+
 ### 3.3.1
 
 - Minor Javadoc fixes, example code and file renames.
