@@ -169,7 +169,7 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublish() throws Exception
     {
         final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
-        final Sequencer    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
+        final Sequenced    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
 
         mockery.checking(new Expectations()
         {
@@ -187,7 +187,7 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublishBatch() throws Exception
     {
         final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
-        final Sequencer    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
+        final Sequenced    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
 
         mockery.checking(new Expectations()
         {

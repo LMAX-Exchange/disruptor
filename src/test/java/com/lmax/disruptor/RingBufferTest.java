@@ -15,6 +15,16 @@
  */
 package com.lmax.disruptor;
 
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBufferEventMatcher.ringBufferWithEvents;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
@@ -24,28 +34,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.Test;
+
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
-import org.hamcrest.Description;
-import org.hamcrest.Factory;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static com.lmax.disruptor.RingBufferTest.RingBufferEventMatcher.ringBufferWithEvents;
 
 public class RingBufferTest
 {
@@ -168,12 +161,12 @@ public class RingBufferTest
     @Test
     public void shouldPreventPublishersOvertakingEventProcessorWrapPoint() throws InterruptedException
     {
-        final int ringBufferSize = 4;
+        final int ringBufferSize = 16;
         final CountDownLatch latch = new CountDownLatch(ringBufferSize);
         final AtomicBoolean publisherComplete = new AtomicBoolean(false);
-        final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, ringBufferSize);
-        final TestEventProcessor processor = new TestEventProcessor(ringBuffer.newBarrier());
-        ringBuffer.addGatingSequences(processor.getSequence());
+        final RingBuffer<StubEvent> buffer2 = createMultiProducer(StubEvent.EVENT_FACTORY, ringBufferSize);
+        final TestEventProcessor processor = new TestEventProcessor(buffer2.newBarrier());
+        buffer2.addGatingSequences(processor.getSequence());
 
         Thread thread = new Thread(new Runnable()
         {
@@ -182,10 +175,10 @@ public class RingBufferTest
             {
                 for (int i = 0; i <= ringBufferSize; i++)
                 {
-                    long sequence = ringBuffer.next();
-                    StubEvent event = ringBuffer.get(sequence);
+                    long sequence = buffer2.next();
+                    StubEvent event = buffer2.get(sequence);
                     event.setValue(i);
-                    ringBuffer.publish(sequence);
+                    buffer2.publish(sequence);
                     latch.countDown();
                 }
 
@@ -195,7 +188,7 @@ public class RingBufferTest
         thread.start();
 
         latch.await();
-        assertThat(Long.valueOf(ringBuffer.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
+        assertThat(Long.valueOf(buffer2.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
         assertFalse(publisherComplete.get());
 
         processor.run();
@@ -1174,6 +1167,7 @@ public class RingBufferTest
         assertHandleResetAndNotWrap(RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 4));
     }
 
+    @SuppressWarnings("deprecation")
     private void assertHandleResetAndNotWrap(RingBuffer<StubEvent> rb)
     {
         Sequence sequence = new Sequence();
@@ -1283,53 +1277,6 @@ public class RingBufferTest
         public Object[] newInstance()
         {
             return new Object[size];
-        }
-    }
-
-    static final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
-    {
-        private final Matcher<?>[] expectedValueMatchers;
-
-        private RingBufferEventMatcher(final Matcher<?>[] expectedValueMatchers)
-        {
-            this.expectedValueMatchers = expectedValueMatchers;
-        }
-
-        @Factory
-        public static RingBufferEventMatcher ringBufferWithEvents(final Matcher<?>... valueMatchers)
-        {
-            return new RingBufferEventMatcher(valueMatchers);
-        }
-
-        @Factory
-        public static RingBufferEventMatcher ringBufferWithEvents(final Object... values)
-        {
-            Matcher<?>[] valueMatchers = new Matcher[values.length];
-            for (int i = 0; i < values.length; i++)
-            {
-                final Object value = values[i];
-                valueMatchers[i] = is(value);
-            }
-            return new RingBufferEventMatcher(valueMatchers);
-        }
-
-        @Override
-        public boolean matchesSafely(final RingBuffer<Object[]> ringBuffer)
-        {
-            boolean matches = true;
-            for (int i = 0; i < expectedValueMatchers.length; i++)
-            {
-                final Matcher<?> expectedValueMatcher = expectedValueMatchers[i];
-                matches &= expectedValueMatcher.matches(ringBuffer.get(i)[0]);
-            }
-            return matches;
-        }
-
-        @Override
-        public void describeTo(final Description description)
-        {
-            description.appendText("Expected ring buffer with events matching: ");
-            allOf(expectedValueMatchers).describeTo(description);
         }
     }
 

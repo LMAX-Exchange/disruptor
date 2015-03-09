@@ -52,7 +52,7 @@ public final class FatalExceptionHandlerTest
             }
         });
 
-        ExceptionHandler exceptionHandler = new FatalExceptionHandler(logger);
+        ExceptionHandler<Object> exceptionHandler = new FatalExceptionHandler(logger);
 
         try
         {

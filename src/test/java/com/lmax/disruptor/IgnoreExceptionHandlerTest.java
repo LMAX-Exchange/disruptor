@@ -51,7 +51,7 @@ public final class IgnoreExceptionHandlerTest
             }
         });
 
-        ExceptionHandler exceptionHandler = new IgnoreExceptionHandler(logger);
+        ExceptionHandler<Object> exceptionHandler = new IgnoreExceptionHandler(logger);
         exceptionHandler.handleEventException(ex, 0L, event);
     }
 }

@@ -1,15 +1,45 @@
-LMAX Disruptor
-==============
+## LMAX Disruptor
 
 A High Performance Inter-Thread Messaging Library
 
-Maintainer
-==========
+## Maintainer
 
 [Michael Barker](https://github.com/mikeb01)
 
-Changelog
-==========
+## Documentation
+
+* [Introduction](https://github.com/LMAX-Exchange/disruptor/wiki/Introduction)
+* [Getting Started](https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started)
+
+## Changelog
+
+### 3.3.2
+
+- Minor Javadoc fixes, example code and file renames.
+- Additional generics for parametrised ExceptionHandler.
+
+### 3.3.1
+
+- Minor Javadoc fixes, example code and file renames.
+- Make ExceptionHandler type parametrised.
+
+### 3.3.0
+
+- Inheritance based Padding for RingBuffer and Sequencers.
+- Better DSL support for adding custom EventProcessors.
+- Remove deprecated methods (slightly breaking change)
+- Experimental LiteBlockingWaitStrategy
+- Experimental EventPoller for polling for data instead of waiting.
+
+### 3.2.1 Released (10-Mar-2014)
+
+- Minor build and IDE updates
+- Rewrite of performance tests to run without JUnit and separate Queues in to their own tests
+- Remove old throttled performance test
+- Add performance tests for immutable message example
+- Add performance tests for off-heap example
+- Remove old Caliper tests
+- Remove some stray yield() calls
 
 ### 3.2.0 Released (13-Aug-2013)
 
@@ -36,7 +66,7 @@ Changelog
 - Fix off by one bug in MultiProducerSequencer.publish(lo, hi).
 - Improve testing for Sequencers.
 
-## 3.0.0 Released (10-Apr-2013)
+### 3.0.0 Released (10-Apr-2013)
 
 - Add remaining capacity to RingBuffer
 - Add batch publish methods to Sequencer
@@ -49,7 +79,7 @@ Changelog
 
 ### 3.0.0.beta4 Released (08-Apr-2013)
 
-- Refactoring, merge Publisher back into Sequencer and some of the gating sequence repsonsibilities up to the sequencer.
+- Refactoring, merge Publisher back into Sequencer and some of the gating sequence responsibilities up to the sequencer.
 
 ### 3.0.0.beta3 Released (20-Feb-2013)
 
@@ -68,9 +98,9 @@ Changelog
 
 - Remove claim strategies and replace with Publishers/Sequences, remove pluggability of claim strategies.
 - Introduce new multi-producer publisher algorithm (faster and more scalable).
-- Introduce more flexible EventPublisher interface that allow for static definition of translators 
+- Introduce more flexible EventPublisher interface that allow for static definition of translators
 that can handle local values.
-- Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow 
+- Allow for dynamic addition of gating sequences to ring buffer.  Default it to empty, will allow
 messages to be sent and the ring buffer to wrap if there are no gating sequences defined.
 - Remove batch writes to the ring buffer.
 - Remove timeout read methods.
@@ -97,7 +127,7 @@ RingBuffer.getPublished for consumers.
 - Bug fix, correct OSGI metadata.
 - Remove unnecessary code in wait strategies.
 
-## 2.10 (13-May-2012)
+### 2.10 (13-May-2012)
 
 - Remove deprecated timeout methods.
 - Added OSGI metadata to jar file.
@@ -106,13 +136,13 @@ RingBuffer.getPublished for consumers.
 - Change Sequence implementation to work around IBM JDK bug and improve performance by ~10%.
 - Add a remainingCapacity() call to the Sequencer class.
 
-## 2.9 (8-Apr-2012)
+### 2.9 (8-Apr-2012)
 
 - Deprecate timeout methods for publishing.
 - Add tryNext and tryPublishEvent for events that shouldn't block during delivery.
 - Small performance enhancement for MultithreadClaimStrategy.
 
-## 2.8 (6-Feb-2012)
+### 2.8 (6-Feb-2012)
 
 - Create new MultithreadClaimStrategy that works between when threads are highly contended. Previous implementation is now called MultithreadLowContentionClaimStrategy
 - Fix for bug where EventProcessors weren't being added as gating sequences to the ring buffer.
@@ -122,7 +152,7 @@ RingBuffer.getPublished for consumers.
 
 - Artefacts made available via maven central repository. (groupId:com.googlecode.disruptor, artifactId:disruptor) See UsingDisruptorInYourProject for details.
 
-## 2.7 (12-Nov-2011)
+### 2.7 (12-Nov-2011)
 
 - Changed construction API to allow user supplied claim and wait strategies
 - Added AggregateEventHandler to support multiple EventHandlers from a single BatchEventProcessor
@@ -132,7 +162,7 @@ RingBuffer.getPublished for consumers.
 - Reworked performance tests to better support profiling and use LinkedBlockingQueue for comparison because it performs better on the latest processors
 - Minor bugfixes
 
-## 2.6
+### 2.6
 
 - Introduced WorkerPool to allow the one time consumption of events by a worker in a pool of EventProcessors.
 - New internal implementation of SequenceGroup which is lock free at all times and garbage free for get and set operations.
@@ -146,7 +176,7 @@ RingBuffer.getPublished for consumers.
 - Change SequenceBarrier to always check alert status before entering waitFor cycle.  Previously this was only checked when the requested sequence was not available.
 - Change ClaimStrategy to not spin when the buffer has no available capacity, instead go straight to yielding to allow event processors to catch up.
 
-## 2.5
+### 2.5
 
 - Changed RingBuffer and publisher API so any mutable object can be placed in the RingBuffer without having to extend AbstractEvent
 - Added EventPublisher implementation to allow the publishing steps to be combined into one action
@@ -167,7 +197,7 @@ RingBuffer.getPublished for consumers.
 - Fixed bug in YieldingStrategy that was busy spinning more than yielding and introduced SleepingStrategy
 - Removed code duplication in Unicast perf tests for expected result
 
-## 2.0.0
+### 2.0.0
 
 - New API to reflect naming changes
 - Producer -> Publisher
@@ -190,12 +220,12 @@ RingBuffer.getPublished for consumers.
 - Bug fix for setting the sequence in the ForceFillProducerBarrier.
 - Code syntax tidy up.
 
-## 1.2.0
+### 1.2.0
 
 - Bug fix for regression introduced inlining multi-thread producer commit tracking code.  This was a critical bug for the multi-threaded producer scenario.
 - Added new ProducerBarrier method for claiming a batch of sequences.  This feature can give a significant throughput increase.
 
-## 1.1.0
+### 1.1.0
 
 - Off by one regression bug in ProducerBarrier introduced in 1.0.9.
 - Clarified the algorithm for initial cursor value in the ClaimStrategy.

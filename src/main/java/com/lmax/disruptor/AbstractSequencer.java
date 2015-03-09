@@ -108,4 +108,18 @@ public abstract class AbstractSequencer implements Sequencer
     {
         return new ProcessingSequenceBarrier(this, waitStrategy, cursor, sequencesToTrack);
     }
+
+    /**
+     * Creates an event poller for this sequence that will use the supplied data provider and
+     * gating sequences.
+     *
+     * @param dataProvider The data source for users of this event poller
+     * @param gatingSequences Sequence to be gated on.
+     * @return A poller that will gate on this ring buffer and the supplied sequences.
+     */
+    @Override
+    public <T> EventPoller<T> newPoller(DataProvider<T> dataProvider, Sequence... gatingSequences)
+    {
+        return EventPoller.newInstance(dataProvider, this, new Sequence(), cursor, gatingSequences);
+    }
 }

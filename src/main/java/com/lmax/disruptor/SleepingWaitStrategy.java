@@ -18,10 +18,13 @@ package com.lmax.disruptor;
 import java.util.concurrent.locks.LockSupport;
 
 /**
- * Sleeping strategy that initially spins, then uses a Thread.yield(), and eventually for the minimum number of nanos
- * the OS and JVM will allow while the {@link com.lmax.disruptor.EventProcessor}s are waiting on a barrier.
+ * Sleeping strategy that initially spins, then uses a Thread.yield(), and
+ * eventually sleep (<code>LockSupport.parkNanos(1)</code>) for the minimum
+ * number of nanos the OS and JVM will allow while the
+ * {@link com.lmax.disruptor.EventProcessor}s are waiting on a barrier.
  *
- * This strategy is a good compromise between performance and CPU resource. Latency spikes can occur after quiet periods.
+ * This strategy is a good compromise between performance and CPU resource.
+ * Latency spikes can occur after quiet periods.
  */
 public final class SleepingWaitStrategy implements WaitStrategy
 {

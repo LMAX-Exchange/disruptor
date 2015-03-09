@@ -116,15 +116,15 @@ public final class PingPongSequencedLatencyTest
         }
     }
 
-    private static void dumpHistogram(Histogram histogram, final PrintStream out)
+    private static void dumpHistogram(final Histogram histogram, final PrintStream out)
     {
-        histogram.getHistogramData().outputPercentileDistribution(out, 1, 1000.0);
+        histogram.outputPercentileDistribution(out, 1, 1000.0);
     }
 
     private void runDisruptorPass() throws InterruptedException, BrokenBarrierException
     {
-        CountDownLatch latch = new CountDownLatch(1);
-        CyclicBarrier barrier = new CyclicBarrier(3);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final CyclicBarrier barrier = new CyclicBarrier(3);
         pinger.reset(barrier, latch, histogram);
         ponger.reset(barrier);
 
@@ -138,9 +138,9 @@ public final class PingPongSequencedLatencyTest
         pongProcessor.halt();
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
-        PingPongSequencedLatencyTest test = new PingPongSequencedLatencyTest();
+        final PingPongSequencedLatencyTest test = new PingPongSequencedLatencyTest();
         test.shouldCompareDisruptorVsQueues();
     }
 
@@ -156,7 +156,7 @@ public final class PingPongSequencedLatencyTest
         private Histogram histogram;
         private long t0;
 
-        public Pinger(RingBuffer<ValueEvent> buffer, long maxEvents, long pauseTimeNs)
+        public Pinger(final RingBuffer<ValueEvent> buffer, final long maxEvents, final long pauseTimeNs)
         {
             this.buffer = buffer;
             this.maxEvents = maxEvents;
@@ -164,11 +164,11 @@ public final class PingPongSequencedLatencyTest
         }
 
         @Override
-        public void onEvent(ValueEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            long t1 = System.nanoTime();
+            final long t1 = System.nanoTime();
 
-            histogram.recordValue(t1 - t0, pauseTimeNs);
+            histogram.recordValueWithExpectedInterval(t1 - t0, pauseTimeNs);
 
             if (event.getValue() < maxEvents)
             {
@@ -188,7 +188,7 @@ public final class PingPongSequencedLatencyTest
         private void send()
         {
             t0 = System.nanoTime();
-            long next = buffer.next();
+            final long next = buffer.next();
             buffer.get(next).setValue(counter);
             buffer.publish(next);
 
@@ -205,7 +205,7 @@ public final class PingPongSequencedLatencyTest
                 Thread.sleep(1000);
                 send();
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 throw new RuntimeException(e);
             }
@@ -216,7 +216,7 @@ public final class PingPongSequencedLatencyTest
         {
         }
 
-        public void reset(CyclicBarrier barrier, CountDownLatch latch, Histogram histogram)
+        public void reset(final CyclicBarrier barrier, final CountDownLatch latch, final Histogram histogram)
         {
             this.histogram = histogram;
             this.barrier = barrier;
@@ -232,15 +232,15 @@ public final class PingPongSequencedLatencyTest
 
         private CyclicBarrier barrier;
 
-        public Ponger(RingBuffer<ValueEvent> buffer)
+        public Ponger(final RingBuffer<ValueEvent> buffer)
         {
             this.buffer = buffer;
         }
 
         @Override
-        public void onEvent(ValueEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            long next = buffer.next();
+            final long next = buffer.next();
             buffer.get(next).setValue(event.getValue());
             buffer.publish(next);
         }
@@ -252,7 +252,7 @@ public final class PingPongSequencedLatencyTest
             {
                 barrier.await();
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 throw new RuntimeException(e);
             }
@@ -263,7 +263,7 @@ public final class PingPongSequencedLatencyTest
         {
         }
 
-        public void reset(CyclicBarrier barrier)
+        public void reset(final CyclicBarrier barrier)
         {
             this.barrier = barrier;
         }

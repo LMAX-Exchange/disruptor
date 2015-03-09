@@ -32,8 +32,8 @@ public final class WorkProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
-    private final WorkHandler<T> workHandler;
-    private final ExceptionHandler exceptionHandler;
+    private final WorkHandler<? super T> workHandler;
+    private final ExceptionHandler<? super T> exceptionHandler;
     private final Sequence workSequence;
 
     private final EventReleaser eventReleaser = new EventReleaser()
@@ -57,8 +57,8 @@ public final class WorkProcessor<T>
      */
     public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
-                         final WorkHandler<T> workHandler,
-                         final ExceptionHandler exceptionHandler,
+                         final WorkHandler<? super T> workHandler,
+                         final ExceptionHandler<? super T> exceptionHandler,
                          final Sequence workSequence)
     {
         this.ringBuffer = ringBuffer;

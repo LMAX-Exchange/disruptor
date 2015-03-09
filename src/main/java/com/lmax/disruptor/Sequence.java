@@ -15,9 +15,25 @@
  */
 package com.lmax.disruptor;
 
+import sun.misc.Unsafe;
+
 import com.lmax.disruptor.util.Util;
 
-import sun.misc.Unsafe;
+
+class LhsPadding
+{
+    protected long p1, p2, p3, p4, p5, p6, p7;
+}
+
+class Value extends LhsPadding
+{
+    protected volatile long value;
+}
+
+class RhsPadding extends Value
+{
+    protected long p9, p10, p11, p12, p13, p14, p15;
+}
 
 /**
  * <p>Concurrent sequence class used for tracking the progress of
@@ -27,7 +43,7 @@ import sun.misc.Unsafe;
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
  */
-public class Sequence
+public class Sequence extends RhsPadding
 {
     static final long INITIAL_VALUE = -1L;
     private static final Unsafe UNSAFE;
@@ -36,12 +52,15 @@ public class Sequence
     static
     {
         UNSAFE = Util.getUnsafe();
-        final int base = UNSAFE.arrayBaseOffset(long[].class);
-        final int scale = UNSAFE.arrayIndexScale(long[].class);
-        VALUE_OFFSET = base + (scale * 7);
+        try
+        {
+            VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
+        }
+        catch (final Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
-
-    private final long[] paddedValue = new long[15];
 
     /**
      * Create a sequence initialised to -1.
@@ -58,7 +77,7 @@ public class Sequence
      */
     public Sequence(final long initialValue)
     {
-        UNSAFE.putOrderedLong(paddedValue, VALUE_OFFSET, initialValue);
+        UNSAFE.putOrderedLong(this, VALUE_OFFSET, initialValue);
     }
 
     /**
@@ -68,7 +87,7 @@ public class Sequence
      */
     public long get()
     {
-        return UNSAFE.getLongVolatile(paddedValue, VALUE_OFFSET);
+        return value;
     }
 
     /**
@@ -80,7 +99,7 @@ public class Sequence
      */
     public void set(final long value)
     {
-        UNSAFE.putOrderedLong(paddedValue, VALUE_OFFSET, value);
+        UNSAFE.putOrderedLong(this, VALUE_OFFSET, value);
     }
 
     /**
@@ -93,7 +112,7 @@ public class Sequence
      */
     public void setVolatile(final long value)
     {
-        UNSAFE.putLongVolatile(paddedValue, VALUE_OFFSET, value);
+        UNSAFE.putLongVolatile(this, VALUE_OFFSET, value);
     }
 
     /**
@@ -105,7 +124,7 @@ public class Sequence
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return UNSAFE.compareAndSwapLong(paddedValue, VALUE_OFFSET, expectedValue, newValue);
+        return UNSAFE.compareAndSwapLong(this, VALUE_OFFSET, expectedValue, newValue);
     }
 
     /**
@@ -139,6 +158,7 @@ public class Sequence
         return newValue;
     }
 
+    @Override
     public String toString()
     {
         return Long.toString(get());

@@ -47,8 +47,8 @@ public final class WorkerPool<T>
      */
     public WorkerPool(final RingBuffer<T> ringBuffer,
                       final SequenceBarrier sequenceBarrier,
-                      final ExceptionHandler exceptionHandler,
-                      final WorkHandler<T>... workHandlers)
+                      final ExceptionHandler<? super T> exceptionHandler,
+                      final WorkHandler<? super T>... workHandlers)
     {
         this.ringBuffer = ringBuffer;
         final int numWorkers = workHandlers.length;
@@ -74,8 +74,8 @@ public final class WorkerPool<T>
      * @param workHandlers to distribute the work load across.
      */
     public WorkerPool(final EventFactory<T> eventFactory,
-                      final ExceptionHandler exceptionHandler,
-                      final WorkHandler<T>... workHandlers)
+                      final ExceptionHandler<? super T> exceptionHandler,
+                      final WorkHandler<? super T>... workHandlers)
     {
         ringBuffer = RingBuffer.createMultiProducer(eventFactory, 1024, new BlockingWaitStrategy());
         final SequenceBarrier barrier = ringBuffer.newBarrier();

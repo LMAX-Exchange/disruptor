@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * Provides a repository mechanism to associate {@link EventHandler}s with {@link EventProcessor}s
  *
- * @param T the type of the {@link EventHandler}
+ * @param <T> the type of the {@link EventHandler}
  */
 class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 {
@@ -31,7 +31,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
 
     public void add(final EventProcessor eventprocessor,
-                    final EventHandler<T> handler,
+                    final EventHandler<? super T> handler,
                     final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
@@ -74,7 +74,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
     {
-        final EventProcessorInfo<?> eventprocessorInfo = getEventProcessorInfo(handler);
+        final EventProcessorInfo<T> eventprocessorInfo = getEventProcessorInfo(handler);
         if (eventprocessorInfo == null)
         {
             throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
@@ -96,6 +96,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
+    @Override
     public Iterator<ConsumerInfo> iterator()
     {
         return consumerInfos.iterator();

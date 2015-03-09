@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * Convenience implementation of an exception handler that using standard JDK logging to log
  * the exception as {@link Level}.SEVERE and re-throw it wrapped in a {@link RuntimeException}
  */
-public final class FatalExceptionHandler implements ExceptionHandler
+public final class FatalExceptionHandler implements ExceptionHandler<Object>
 {
     private static final Logger LOGGER = Logger.getLogger(FatalExceptionHandler.class.getName());
     private final Logger logger;

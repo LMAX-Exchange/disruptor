@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.Sequenced;
 import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.YieldingWaitStrategy;
@@ -102,7 +103,7 @@ public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestDisrup
         executor.submit(myRunnable);
         long start = System.currentTimeMillis();
 
-        final Sequencer sequencer = this.sequencer;
+        final Sequenced sequencer = this.sequencer;
 
         for (long i = 0; i < ITERATIONS; i++)
         {

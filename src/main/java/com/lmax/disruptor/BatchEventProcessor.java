@@ -31,10 +31,10 @@ public final class BatchEventProcessor<T>
     implements EventProcessor
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private ExceptionHandler exceptionHandler = new FatalExceptionHandler();
+    private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final EventHandler<T> eventHandler;
+    private final EventHandler<? super T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
 
@@ -48,7 +48,7 @@ public final class BatchEventProcessor<T>
      */
     public BatchEventProcessor(final DataProvider<T> dataProvider,
                                final SequenceBarrier sequenceBarrier,
-                               final EventHandler<T> eventHandler)
+                               final EventHandler<? super T> eventHandler)
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
@@ -86,7 +86,7 @@ public final class BatchEventProcessor<T>
      *
      * @param exceptionHandler to replace the existing exceptionHandler.
      */
-    public void setExceptionHandler(final ExceptionHandler exceptionHandler)
+    public void setExceptionHandler(final ExceptionHandler<? super T> exceptionHandler)
     {
         if (null == exceptionHandler)
         {
@@ -121,11 +121,6 @@ public final class BatchEventProcessor<T>
                 try
                 {
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-
-                    if (nextSequence > availableSequence)
-                    {
-                        Thread.yield();
-                    }
 
                     while (nextSequence <= availableSequence)
                     {

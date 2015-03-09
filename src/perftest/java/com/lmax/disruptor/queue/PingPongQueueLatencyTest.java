@@ -93,20 +93,20 @@ public final class PingPongQueueLatencyTest
         }
     }
 
-    private static void dumpHistogram(Histogram histogram, final PrintStream out)
+    private static void dumpHistogram(final Histogram histogram, final PrintStream out)
     {
-        histogram.getHistogramData().outputPercentileDistribution(out, 1, 1000.0);
+        histogram.outputPercentileDistribution(out, 1, 1000.0);
     }
 
     private void runQueuePass() throws Exception
     {
-        CountDownLatch latch = new CountDownLatch(1);
-        CyclicBarrier barrier = new CyclicBarrier(3);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final CyclicBarrier barrier = new CyclicBarrier(3);
         qPinger.reset(barrier, latch, histogram);
         qPonger.reset(barrier);
 
-        Future<?> pingFuture = executor.submit(qPinger);
-        Future<?> pongFuture = executor.submit(qPonger);
+        final Future<?> pingFuture = executor.submit(qPinger);
+        final Future<?> pongFuture = executor.submit(qPonger);
 
         barrier.await();
         latch.await();
@@ -115,9 +115,9 @@ public final class PingPongQueueLatencyTest
         pongFuture.cancel(true);
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
-        PingPongQueueLatencyTest test = new PingPongQueueLatencyTest();
+        final PingPongQueueLatencyTest test = new PingPongQueueLatencyTest();
         test.testImplementation();
     }
 
@@ -133,7 +133,7 @@ public final class PingPongQueueLatencyTest
         private long counter;
         private final long maxEvents;
 
-        public QueuePinger(BlockingQueue<Long> pingQueue, BlockingQueue<Long> pongQueue, long maxEvents, long pauseTimeNs)
+        public QueuePinger(final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents, final long pauseTimeNs)
         {
             this.pingQueue = pingQueue;
             this.pongQueue = pongQueue;
@@ -154,12 +154,12 @@ public final class PingPongQueueLatencyTest
 
                 while (response < maxEvents)
                 {
-                    long t0 = System.nanoTime();
+                    final long t0 = System.nanoTime();
                     pingQueue.put(counter++);
                     response = pongQueue.take();
-                    long t1 = System.nanoTime();
+                    final long t1 = System.nanoTime();
 
-                    histogram.recordValue(t1 - t0, pauseTimeNs);
+                    histogram.recordValueWithExpectedInterval(t1 - t0, pauseTimeNs);
 
                     while (pauseTimeNs > (System.nanoTime() - t1))
                     {
@@ -169,14 +169,14 @@ public final class PingPongQueueLatencyTest
 
                 latch.countDown();
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 e.printStackTrace();
                 return;
             }
         }
 
-        public void reset(CyclicBarrier barrier, CountDownLatch latch, Histogram histogram)
+        public void reset(final CyclicBarrier barrier, final CountDownLatch latch, final Histogram histogram)
         {
             this.histogram = histogram;
             this.barrier = barrier;
@@ -192,7 +192,7 @@ public final class PingPongQueueLatencyTest
         private final BlockingQueue<Long> pongQueue;
         private CyclicBarrier barrier;
 
-        public QueuePonger(BlockingQueue<Long> pingQueue, BlockingQueue<Long> pongQueue)
+        public QueuePonger(final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue)
         {
             this.pingQueue = pingQueue;
             this.pongQueue = pongQueue;
@@ -201,28 +201,28 @@ public final class PingPongQueueLatencyTest
         @Override
         public void run()
         {
-            Thread thread = Thread.currentThread();
+            final Thread thread = Thread.currentThread();
             try
             {
                 barrier.await();
 
                 while (!thread.isInterrupted())
                 {
-                    Long value = pingQueue.take();
+                    final Long value = pingQueue.take();
                     pongQueue.put(value);
                 }
             }
-            catch (InterruptedException e)
+            catch (final InterruptedException e)
             {
                 // do-nothing.
             }
-            catch (Exception e)
+            catch (final Exception e)
             {
                 e.printStackTrace();
             }
         }
 
-        public void reset(CyclicBarrier barrier)
+        public void reset(final CyclicBarrier barrier)
         {
             this.barrier = barrier;
         }
