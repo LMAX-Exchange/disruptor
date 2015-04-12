@@ -27,4 +27,20 @@ public final class PerfTestUtil
 
         return temp;
     }
+
+    public static void failIf(long a, long b)
+    {
+        if (a == b)
+        {
+            throw new RuntimeException();
+        }
+    }
+
+    public static void failIfNot(long a, long b)
+    {
+        if (a != b)
+        {
+            throw new RuntimeException();
+        }
+    }
 }

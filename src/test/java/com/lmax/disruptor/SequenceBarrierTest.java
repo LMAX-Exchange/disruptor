@@ -15,10 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.Util;
 import org.jmock.Expectations;
@@ -29,6 +25,11 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(JMock.class)
@@ -97,7 +98,7 @@ public final class SequenceBarrierTest
             public void run()
             {
                 long sequence = ringBuffer.next();
-                StubEvent event = ringBuffer.getPreallocated(sequence);
+                StubEvent event = ringBuffer.get(sequence);
                 event.setValue((int) sequence);
                 ringBuffer.publish(sequence);
 
@@ -156,7 +157,7 @@ public final class SequenceBarrierTest
                 {
                     alerted[0] = true;
                 }
-                catch (InterruptedException e)
+                catch (Exception e)
                 {
                     // don't care
                 }
@@ -225,7 +226,7 @@ public final class SequenceBarrierTest
         for (long i = 0; i < expectedNumberMessages; i++)
         {
             long sequence = ringBuffer.next();
-            StubEvent event = ringBuffer.getPreallocated(sequence);
+            StubEvent event = ringBuffer.get(sequence);
             event.setValue((int) i);
             ringBuffer.publish(sequence);
         }
@@ -234,6 +235,7 @@ public final class SequenceBarrierTest
     private static final class StubEventProcessor implements EventProcessor
     {
         private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+        private final AtomicBoolean running = new AtomicBoolean(false);
 
         public void setSequence(long sequence)
         {
@@ -249,15 +251,26 @@ public final class SequenceBarrierTest
         @Override
         public void halt()
         {
+            running.set(false);
+        }
+
+        @Override
+        public boolean isRunning()
+        {
+            return running.get();
         }
 
         @Override
         public void run()
         {
+            if (!running.compareAndSet(false, true))
+            {
+                throw new IllegalStateException("Already running");
+            }
         }
     }
 
-    private final static class CountDownLatchSequence extends Sequence
+    private static final class CountDownLatchSequence extends Sequence
     {
         private final CountDownLatch latch;
 

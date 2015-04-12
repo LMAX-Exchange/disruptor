@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+    <module name="SeverityMatchFilter">
+        <property name="severity" value="info" />
+        <property name="acceptOnMatch" value="false" />
+    </module>
+
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true" />
+    </module>
+    
+    <module name="SuppressionFilter">
+        <property name="file" value="config/checkstyle/suppress.xml" />
+    </module>
+
+    <module name="TreeWalker">
+        <property name="tabWidth" value="4" />
+        <property name="severity" value="error" />
+
+        <module name="ConstantName" />
+
+        <module name="LocalFinalVariableName" />
+
+        <module name="LocalVariableName" />
+
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+        </module>
+
+        <module name="MethodName" />
+
+        <module name="PackageName" />
+
+        <module name="ParameterName" />
+
+        <module name="StaticVariableName" />
+
+        <module name="TypeName" />
+
+        <module name="RedundantImport" />
+
+        <module name="UnusedImports" />
+
+        <module name="LineLength">
+            <property name="max" value="200" />
+            <property name="ignorePattern" value="^[ \t]*\*.*@.*$" />
+        </module>
+
+        <module name="EmptyForInitializerPad" />
+
+        <module name="MethodParamPad" />
+
+        <module name="NoWhitespaceBefore" />
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI" />
+        </module>
+
+        <module name="OperatorWrap">
+            <property name="tokens" value="PLUS, ASSIGN" />
+            <property name="option" value="eol" />
+        </module>
+
+        <module name="ParenPad" />
+
+        <module name="TypecastParenPad" />
+
+        <module name="ModifierOrder" />
+
+        <module name="RedundantModifier" />
+
+        <module name="NestedTryDepth">
+            <property name="max" value="2" />
+        </module>
+
+        <module name="CovariantEquals" />
+
+        <module name="LeftCurly">
+            <property name="option" value="nl" />
+        </module>
+
+        <module name="RightCurly">
+            <property name="option" value="alone" />
+        </module>
+
+        <module name="EmptyStatement" />
+
+        <module name="EqualsHashCode" />
+
+        <module name="DefaultComesLast" />
+
+        <module name="SimplifyBooleanExpression" />
+
+        <module name="SimplifyBooleanReturn" />
+
+        <module name="StringLiteralEquality" />
+
+        <module name="PackageDeclaration" />
+
+        <module name="ReturnCount">
+            <property name="max" value="3" />
+        </module>
+
+        <module name="FallThrough" />
+
+        <module name="FinalClass" />
+
+        <module name="MutableException" />
+
+        <module name="ArrayTypeStyle" />
+
+        <module name="TodoComment">
+            <property name="severity" value="info" />
+            <property name="format" value="TODO" />
+        </module>
+
+        <module name="UpperEll" />
+
+        <module name="JUnitTestCase" />
+
+        <module name="IllegalType">
+            <property name="legalAbstractClassNames"
+                value="AbstractBeanDefinition, AbstractAccountEvInstruction, AbstractEmsInstruction, AbstractEvInstruction, AbstractEmsAction, AbstractInstrumentAction, AbstractEntry" />
+            <property name="illegalClassNames"
+                value="java.util.GregorianCalendar, java.util.Hashtable, java.util.HashSet, java.util.HashMap, java.util.ArrayList, java.util.LinkedHashSet, java.util.TreeSet, java.util.TreeMap, java.util.Vector" />
+        </module>
+
+        <module name="DescendantToken">
+            <property name="tokens" value="LITERAL_ASSERT" />
+            <property name="limitedTokens"
+                value="ASSIGN,DEC,INC,POST_DEC,POST_INC,PLUS_ASSIGN,MINUS_ASSIGN,STAR_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,BSR_ASSIGN,SR_ASSIGN,SL_ASSIGN,BAND_ASSIGN,BXOR_ASSIGN,BOR_ASSIGN,METHOD_CALL" />
+            <property name="maximumNumber" value="2" />
+        </module>
+    
+        <module name="Regexp">
+            <property name="format" value="[ \t]+$" />
+            <property name="illegalPattern" value="true" />
+            <property name="message" value="Trailing whitespace" />
+        </module>        
+    </module>
+</module>

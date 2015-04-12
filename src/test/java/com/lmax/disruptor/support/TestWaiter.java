@@ -53,7 +53,7 @@ public final class TestWaiter implements Callable<List<StubEvent>>
         final List<StubEvent> messages = new ArrayList<StubEvent>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)
         {
-            messages.add(ringBuffer.getPublished(l));
+            messages.add(ringBuffer.get(l));
         }
 
         return messages;

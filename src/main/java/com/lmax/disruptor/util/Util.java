@@ -67,7 +67,7 @@ public final class Util
         for (int i = 0, n = sequences.length; i < n; i++)
         {
             long value = sequences[i].get();
-            minimum = minimum < value ? minimum : value;
+            minimum = Math.min(minimum, value);
         }
 
         return minimum;

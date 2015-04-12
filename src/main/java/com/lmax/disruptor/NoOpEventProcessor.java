@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * No operation version of a {@link EventProcessor} that simply tracks a {@link Sequence}.
  *
@@ -23,6 +25,7 @@ package com.lmax.disruptor;
 public final class NoOpEventProcessor implements EventProcessor
 {
     private final SequencerFollowingSequence sequence;
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
      * Construct a {@link EventProcessor} that simply tracks a {@link Sequence} object.
@@ -43,11 +46,22 @@ public final class NoOpEventProcessor implements EventProcessor
     @Override
     public void halt()
     {
+        running.set(false);
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        return running.get();
     }
 
     @Override
     public void run()
     {
+        if (!running.compareAndSet(false, true))
+        {
+            throw new IllegalStateException("Thread is already running");
+        }
     }
 
     /**

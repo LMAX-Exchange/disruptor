@@ -18,10 +18,10 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
- * and ensuring appropriate barriers.<p/>
+ * <p>A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
+ * and ensuring appropriate barriers.</p>
  *
- * Generally, this will be used as part of a {@link WorkerPool}.
+ * <p>Generally, this will be used as part of a {@link WorkerPool}.</p>
  *
  * @param <T> event implementation storing the details for the work to processed.
  */
@@ -32,9 +32,18 @@ public final class WorkProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
-    private final WorkHandler<T> workHandler;
-    private final ExceptionHandler exceptionHandler;
+    private final WorkHandler<? super T> workHandler;
+    private final ExceptionHandler<? super T> exceptionHandler;
     private final Sequence workSequence;
+
+    private final EventReleaser eventReleaser = new EventReleaser()
+    {
+        @Override
+        public void release()
+        {
+            sequence.set(Long.MAX_VALUE);
+        }
+    };
 
     /**
      * Construct a {@link WorkProcessor}.
@@ -48,8 +57,8 @@ public final class WorkProcessor<T>
      */
     public WorkProcessor(final RingBuffer<T> ringBuffer,
                          final SequenceBarrier sequenceBarrier,
-                         final WorkHandler<T> workHandler,
-                         final ExceptionHandler exceptionHandler,
+                         final WorkHandler<? super T> workHandler,
+                         final ExceptionHandler<? super T> exceptionHandler,
                          final Sequence workSequence)
     {
         this.ringBuffer = ringBuffer;
@@ -57,6 +66,11 @@ public final class WorkProcessor<T>
         this.workHandler = workHandler;
         this.exceptionHandler = exceptionHandler;
         this.workSequence = workSequence;
+
+        if (this.workHandler instanceof EventReleaseAware)
+        {
+            ((EventReleaseAware)this.workHandler).setEventReleaser(eventReleaser);
+        }
     }
 
     @Override
@@ -70,6 +84,12 @@ public final class WorkProcessor<T>
     {
         running.set(false);
         sequenceBarrier.alert();
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        return running.get();
     }
 
     /**
@@ -89,13 +109,14 @@ public final class WorkProcessor<T>
         notifyStart();
 
         boolean processedSequence = true;
+        long cachedAvailableSequence = Long.MIN_VALUE;
         long nextSequence = sequence.get();
         T event = null;
         while (true)
         {
             try
             {
-                // if previous sequence was processed - fetch the next sequence and set 
+                // if previous sequence was processed - fetch the next sequence and set
                 // that we have successfully processed the previous sequence
                 // typically, this will be true
                 // this prevents the sequence getting too far forward if an exception
@@ -103,15 +124,24 @@ public final class WorkProcessor<T>
                 if (processedSequence)
                 {
                     processedSequence = false;
-                    nextSequence = workSequence.incrementAndGet();
-                    sequence.set(nextSequence - 1L);
+                    do
+                    {
+                        nextSequence = workSequence.get() + 1L;
+                        sequence.set(nextSequence - 1L);
+                    }
+                    while (!workSequence.compareAndSet(nextSequence - 1L, nextSequence));
                 }
 
-                sequenceBarrier.waitFor(nextSequence);
-                event = ringBuffer.getPublished(nextSequence);
-                workHandler.onEvent(event);
-
-                processedSequence = true;
+                if (cachedAvailableSequence >= nextSequence)
+                {
+                    event = ringBuffer.get(nextSequence);
+                    workHandler.onEvent(event);
+                    processedSequence = true;
+                }
+                else
+                {
+                    cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
+                }
             }
             catch (final AlertException ex)
             {
@@ -122,7 +152,7 @@ public final class WorkProcessor<T>
             }
             catch (final Throwable ex)
             {
-                // handle, mark as procesed, unless the exception handler threw an exception
+                // handle, mark as processed, unless the exception handler threw an exception
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 processedSequence = true;
             }

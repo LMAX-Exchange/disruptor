@@ -18,60 +18,75 @@ package com.lmax.disruptor;
 /**
  * Coordinates claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-interface Sequencer
+public interface Sequencer extends Cursored, Sequenced
 {
     /** Set to -1 as sequence starting point */
-    public static final long INITIAL_CURSOR_VALUE = -1L;
-
-    /**
-     * The capacity of the data structure to hold entries.
-     *
-     * @return the size of the RingBuffer.
-     */
-    int getBufferSize();
-
-    /**
-     * Has the buffer got capacity to allocate another sequence.  This is a concurrent
-     * method so the response should only be taken as an indication of available capacity.
-     * @param gatingSequences to gate on
-     * @param requiredCapacity in the buffer
-     *
-     * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
-     */
-    boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity);
-
-    /**
-     * Claim the next event in sequence for publishing.
-     * @param gatingSequences to gate on
-     *
-     * @return the claimed sequence value
-     */
-    long next(Sequence[] gatingSequences);
-
-    /**
-     * Attempt to claim the next event in sequence for publishing.  Will return the
-     * number of the slot if there is at least <code>requiredCapacity</code> slots
-     * available.
-     * @param gatingSequences to gate on
-     *
-     * @return the claimed sequence value
-     * @throws InsufficientCapacityException
-     */
-    long tryNext(Sequence[] gatingSequences) throws InsufficientCapacityException;
-
-    /**
-     * Get the remaining capacity for this sequencer.
-     * @param gatingSequences to gate on
-     *
-     * @return The number of slots remaining.
-     */
-    long remainingCapacity(Sequence[] gatingSequences);
+    long INITIAL_CURSOR_VALUE = -1L;
 
     /**
      * Claim a specific sequence.  Only used if initialising the ring buffer to
      * a specific value.
-     * 
+     *
      * @param sequence The sequence to initialise too.
      */
     void claim(long sequence);
+
+    /**
+     * Confirms if a sequence is published and the event is available for use; non-blocking.
+     *
+     * @param sequence of the buffer to check
+     * @return true if the sequence is available for use, false if not
+     */
+    boolean isAvailable(long sequence);
+
+    /**
+     * Add the specified gating sequences to this instance of the Disruptor.  They will
+     * safely and atomically added to the list of gating sequences.
+     *
+     * @param gatingSequences The sequences to add.
+     */
+    void addGatingSequences(Sequence... gatingSequences);
+
+    /**
+     * Remove the specified sequence from this sequencer.
+     *
+     * @param sequence to be removed.
+     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     */
+    boolean removeGatingSequence(Sequence sequence);
+
+    /**
+     * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
+     * are available to be read from the ring buffer given a list of sequences to track.
+     *
+     * @see SequenceBarrier
+     * @param sequencesToTrack
+     * @return A sequence barrier that will track the specified sequences.
+     */
+    SequenceBarrier newBarrier(Sequence... sequencesToTrack);
+
+    /**
+     * Get the minimum sequence value from all of the gating sequences
+     * added to this ringBuffer.
+     *
+     * @return The minimum gating sequence or the cursor sequence if
+     * no sequences have been added.
+     */
+    long getMinimumSequence();
+
+    /**
+     * Get the highest sequence number that can be safely read from the ring buffer.  Depending
+     * on the implementation of the Sequencer this call may need to scan a number of values
+     * in the Sequencer.  The scan will range from nextSequence to availableSequence.  If
+     * there are no available values <code>&gt;= nextSequence</code> the return value will be
+     * <code>nextSequence - 1</code>.  To work correctly a consumer should pass a value that
+     * it 1 higher than the last sequence that was successfully processed.
+     *
+     * @param nextSequence The sequence to start scanning from.
+     * @param availableSequence The sequence to scan to.
+     * @return The highest value that can be safely read, will be at least <code>nextSequence - 1</code>.
+     */
+    long getHighestPublishedSequence(long nextSequence, long availableSequence);
+
+    <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence...gatingSequences);
 }

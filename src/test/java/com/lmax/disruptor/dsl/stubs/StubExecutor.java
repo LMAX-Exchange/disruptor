@@ -51,6 +51,7 @@ public class StubExecutor implements Executor
             {
                 try
                 {
+                    thread.interrupt();
                     thread.join(5000);
                 }
                 catch (InterruptedException e)

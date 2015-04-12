@@ -34,4 +34,6 @@ public interface EventProcessor extends Runnable
      * It will call {@link SequenceBarrier#alert()} to notify the thread to check status.
      */
     void halt();
+
+    boolean isRunning();
 }

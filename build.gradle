@@ -18,11 +18,13 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
+apply plugin: 'checkstyle'
+apply plugin: 'idea'
 
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, stage: 'beta2')
+version = new Version(major: 3, minor: 3, revision: 2)
 
 ext {
     fullName = 'Disruptor Framework'
@@ -33,6 +35,7 @@ ext {
 
     javaCompilerExecutable = System.env['JAVA_HOME'] ? System.env['JAVA_HOME'] + '/bin/javac' : 'javac'
 
+    if (!project.hasProperty('sonatypeUrl')) sonatypeUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
     if (!project.hasProperty('sonatypeUsername')) sonatypeUsername = ''
     if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
@@ -43,61 +46,50 @@ sourceSets {
 
 eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
+idea.module {
+    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+    scopes.TEST.plus += sourceSets.perf.compileClasspath
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5', 'org.jmock:jmock-junit4:2.5.1', 'org.jmock:jmock-legacy:2.5.1'
-    perfCompile 'com.google.caliper:caliper:0.5-rc1', 'junit:junit:4.5'
+    testCompile 'junit:junit:4.5', 
+                'org.jmock:jmock-junit4:2.5.1', 
+                'org.jmock:jmock-legacy:2.5.1'
+    perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 tasks.withType(Compile) {
-    options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked'
+    options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked' << '-Xlint:deprecation'
     options.debug = true
     options.fork = true
     options.forkOptions.executable = javaCompilerExecutable
     options.warnings = false
 }
 
+tasks.withType(Test) {
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2
+}
+
 compilePerfJava {
     classpath += sourceSets.main.runtimeClasspath
 }
 
-def perfTests = [Test: '**/*', Throughput: '**/*ThroughputTest.class', ThroughputMultiThreaded: '**/Three*ThroughputTest.class', Latency: '**/*LatencyTest.class']
-
-def createPerfTest = { type, pattern ->
-    task("perf$type", type: Test, dependsOn: ['classes', 'perfClasses'], group: 'Performance test') {
-        outputs.upToDateWhen { false }    // always run perf tests, even if no inputs have changed
-        testClassesDir = sourceSets.perf.output.classesDir
-        classpath = sourceSets.perf.runtimeClasspath + sourceSets.main.runtimeClasspath
-        include pattern
-        testLogging.showStandardStreams = true
-    }
-}
-
-perfTests.each(createPerfTest)
-
-tasks.addRule('Pattern: perfTestSingle<ClassName>') { taskName ->
-    if (taskName.startsWith('perfTestSingle')) {
-        def type = taskName - 'perf'
-        def pattern = "**/${taskName - 'perfTestSingle'}.class"
-        createPerfTest(type, pattern)
-    }
-}
-
 javadoc {
-    title = '<h1>Disruptor</h1>'
+    title = 'Disruptor'
 
     options.addStringOption('XDignore.symbol.file', '-quiet')
     options.author = true
     options.bottom = "<i>Copyright &#169; 2011 - ${Calendar.instance[Calendar.YEAR]} LMAX Ltd. All Rights Reserved.</i>"
     options.use = true
     options.version = true
-    options.windowTitle = 'Disruptor API'
+    options.showFromPublic()
 }
 
 jar {
@@ -162,7 +154,7 @@ uploadArchives {
     repositories.mavenDeployer {
         beforeDeployment { deployment -> signing.signPom(deployment) }
 
-        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+        repository(url: sonatypeUrl) {
             authentication(userName: sonatypeUsername, password: sonatypePassword)
         }
 
@@ -176,16 +168,23 @@ task listJars << {
     configurations.perfCompile.each { file -> println file.name }
 }
 
-task tempLibs(type: Sync) {
-    from configurations.perfCompile
-    into('templib')
+task perfJar(type: Jar) {
+    baseName = project.name + '-perf'
+    from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.perf.output 
+    with jar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
 }
 
 class Version {
     int major, minor = 0, revision = 0
+    boolean snapshot
     String stage
-    
+
     String toString() {
-        "$major.$minor.$revision${stage ? '.' + stage : ''}"
+        "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
     }
 }

@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.Util;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.lmax.disruptor.util.Util;
 
 /**
  * WorkerPool contains a pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers.
@@ -47,8 +47,8 @@ public final class WorkerPool<T>
      */
     public WorkerPool(final RingBuffer<T> ringBuffer,
                       final SequenceBarrier sequenceBarrier,
-                      final ExceptionHandler exceptionHandler,
-                      final WorkHandler<T>... workHandlers)
+                      final ExceptionHandler<? super T> exceptionHandler,
+                      final WorkHandler<? super T>... workHandlers)
     {
         this.ringBuffer = ringBuffer;
         final int numWorkers = workHandlers.length;
@@ -74,8 +74,8 @@ public final class WorkerPool<T>
      * @param workHandlers to distribute the work load across.
      */
     public WorkerPool(final EventFactory<T> eventFactory,
-                      final ExceptionHandler exceptionHandler,
-                      final WorkHandler<T>... workHandlers)
+                      final ExceptionHandler<? super T> exceptionHandler,
+                      final WorkHandler<? super T>... workHandlers)
     {
         ringBuffer = RingBuffer.createMultiProducer(eventFactory, 1024, new BlockingWaitStrategy());
         final SequenceBarrier barrier = ringBuffer.newBarrier();
@@ -101,11 +101,12 @@ public final class WorkerPool<T>
      */
     public Sequence[] getWorkerSequences()
     {
-        final Sequence[] sequences = new Sequence[workProcessors.length];
+        final Sequence[] sequences = new Sequence[workProcessors.length + 1];
         for (int i = 0, size = workProcessors.length; i < size; i++)
         {
             sequences[i] = workProcessors[i].getSequence();
         }
+        sequences[sequences.length - 1] = workSequence;
 
         return sequences;
     }
@@ -166,5 +167,10 @@ public final class WorkerPool<T>
         }
 
         started.set(false);
+    }
+
+    public boolean isRunning()
+    {
+        return started.get();
     }
 }
