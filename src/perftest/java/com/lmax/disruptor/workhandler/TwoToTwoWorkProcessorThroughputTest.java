@@ -33,6 +33,7 @@ import com.lmax.disruptor.WorkProcessor;
 import com.lmax.disruptor.support.ValueAdditionWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValuePublisher;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -58,7 +59,7 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 1L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

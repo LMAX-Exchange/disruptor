@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
 import com.lmax.disruptor.support.ValueQueuePublisher;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -73,7 +74,7 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 20L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

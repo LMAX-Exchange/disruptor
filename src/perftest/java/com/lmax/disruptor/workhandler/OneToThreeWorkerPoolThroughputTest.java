@@ -30,6 +30,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.EventCountingQueueProcessor;
 import com.lmax.disruptor.support.EventCountingWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class OneToThreeWorkerPoolThroughputTest
@@ -38,7 +39,7 @@ public final class OneToThreeWorkerPoolThroughputTest
     private static final int NUM_WORKERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS, DaemonThreadFactory.INSTANCE);
 
     private final PaddedLong[] counters = new PaddedLong[NUM_WORKERS];
     {

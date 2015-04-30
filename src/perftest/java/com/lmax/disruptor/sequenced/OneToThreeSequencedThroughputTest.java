@@ -30,6 +30,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -76,7 +77,7 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
     {
