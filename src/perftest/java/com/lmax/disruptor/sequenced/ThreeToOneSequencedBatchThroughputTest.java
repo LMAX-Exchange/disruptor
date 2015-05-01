@@ -31,6 +31,7 @@ import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.support.ValueAdditionEventHandler;
 import com.lmax.disruptor.support.ValueBatchPublisher;
 import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -85,7 +86,7 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
