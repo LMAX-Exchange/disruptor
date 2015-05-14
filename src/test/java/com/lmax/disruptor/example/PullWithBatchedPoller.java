@@ -59,9 +59,8 @@ class BatchedPoller<T>
     }
 
     private EventPoller.PollState loadNextValues(EventPoller<BatchedPoller.DataEvent<T>> poller, final BatchedData<T> batch)
-                                                                                                              throws Exception
+            throws Exception
     {
-
         return poller.poll(new EventPoller.Handler<BatchedPoller.DataEvent<T>>()
         {
             @Override
