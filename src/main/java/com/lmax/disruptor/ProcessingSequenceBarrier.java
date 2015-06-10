@@ -28,10 +28,11 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final Sequence cursorSequence;
     private final Sequencer sequencer;
 
-    public ProcessingSequenceBarrier(final Sequencer sequencer,
-                                     final WaitStrategy waitStrategy,
-                                     final Sequence cursorSequence,
-                                     final Sequence[] dependentSequences)
+    public ProcessingSequenceBarrier(
+        final Sequencer sequencer,
+        final WaitStrategy waitStrategy,
+        final Sequence cursorSequence,
+        final Sequence[] dependentSequences)
     {
         this.sequencer = sequencer;
         this.waitStrategy = waitStrategy;

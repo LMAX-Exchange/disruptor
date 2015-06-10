@@ -27,41 +27,43 @@ public class EventPollerTest
         final Sequencer sequencer = mockery.mock(Sequencer.class);
         final EventPoller.Handler<Object> handler = mockery.mock(EventPoller.Handler.class);
         final DataProvider<Object> provider = mockery.mock(DataProvider.class);
-        final EventPoller<Object> poller = EventPoller.newInstance(provider, sequencer, pollSequence, bufferSequence,
-                                                                   gatingSequence);
+        final EventPoller<Object> poller = EventPoller.newInstance(
+            provider, sequencer, pollSequence, bufferSequence,
+            gatingSequence);
         final Object event = new Object();
 
         final States states = mockery.states("polling");
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                allowing(sequencer).getCursor();
-                will(returnValue(-1L));
-                when(states.is("idle"));
+                {
+                    allowing(sequencer).getCursor();
+                    will(returnValue(-1L));
+                    when(states.is("idle"));
 
-                allowing(sequencer).getCursor();
-                will(returnValue(0L));
-                when(states.is("gating"));
+                    allowing(sequencer).getCursor();
+                    will(returnValue(0L));
+                    when(states.is("gating"));
 
-                allowing(sequencer).getCursor();
-                will(returnValue(0L));
-                when(states.is("processing"));
+                    allowing(sequencer).getCursor();
+                    will(returnValue(0L));
+                    when(states.is("processing"));
 
-                allowing(sequencer).getHighestPublishedSequence(0L, -1L);
-                will(returnValue(-1L));
+                    allowing(sequencer).getHighestPublishedSequence(0L, -1L);
+                    will(returnValue(-1L));
 
-                allowing(sequencer).getHighestPublishedSequence(0L, 0L);
-                will(returnValue(0L));
+                    allowing(sequencer).getHighestPublishedSequence(0L, 0L);
+                    will(returnValue(0L));
 
-                allowing(provider).get(0);
-                will(returnValue(event));
-                when(states.is("processing"));
+                    allowing(provider).get(0);
+                    will(returnValue(event));
+                    when(states.is("processing"));
 
-                one(handler).onEvent(event, 0, true);
-                when(states.is("processing"));
-            }
-        });
+                    one(handler).onEvent(event, 0, true);
+                    when(states.is("processing"));
+                }
+            });
 
         // Initial State - nothing published.
         states.become("idle");
@@ -106,13 +108,17 @@ public class EventPollerTest
             ringBuffer.publish(next);
         }
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                exactly(4).of(handler).onEvent(with(any(byte[].class)), with(any(Long.TYPE)), with(any(Boolean.TYPE)));
-                will(returnValue(true));
-            }
-        });
+                {
+                    exactly(4).of(handler).onEvent(
+                        with(any(byte[].class)), with(any(Long.TYPE)), with(
+                            any(
+                                Boolean.TYPE)));
+                    will(returnValue(true));
+                }
+            });
 
         // think of another thread
         poller.poll(handler);

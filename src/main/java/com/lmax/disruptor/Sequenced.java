@@ -12,6 +12,7 @@ public interface Sequenced
     /**
      * Has the buffer got capacity to allocate another sequence.  This is a concurrent
      * method so the response should only be taken as an indication of available capacity.
+     *
      * @param requiredCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
@@ -19,12 +20,14 @@ public interface Sequenced
 
     /**
      * Get the remaining capacity for this sequencer.
+     *
      * @return The number of slots remaining.
      */
     long remainingCapacity();
 
     /**
      * Claim the next event in sequence for publishing.
+     *
      * @return the claimed sequence value
      */
     long next();
@@ -51,6 +54,7 @@ public interface Sequenced
      * Attempt to claim the next event in sequence for publishing.  Will return the
      * number of the slot if there is at least <code>requiredCapacity</code> slots
      * available.
+     *
      * @return the claimed sequence value
      * @throws InsufficientCapacityException
      */

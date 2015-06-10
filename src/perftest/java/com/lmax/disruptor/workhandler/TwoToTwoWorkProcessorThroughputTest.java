@@ -71,6 +71,7 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     private final Sequence workSequence = new Sequence(-1);
 
     private final ValueAdditionWorkHandler[] handlers = new ValueAdditionWorkHandler[2];
+
     {
         handlers[0] = new ValueAdditionWorkHandler();
         handlers[1] = new ValueAdditionWorkHandler();
@@ -78,16 +79,20 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
 
     @SuppressWarnings("unchecked")
     private final WorkProcessor<ValueEvent>[] workProcessors = new WorkProcessor[2];
+
     {
-       workProcessors[0] = new WorkProcessor<ValueEvent>(ringBuffer, sequenceBarrier,
-                                                        handlers[0], new IgnoreExceptionHandler(),
-                                                        workSequence);
-       workProcessors[1] = new WorkProcessor<ValueEvent>(ringBuffer, sequenceBarrier,
-                                                        handlers[1], new IgnoreExceptionHandler(),
-                                                        workSequence);
-    };
+        workProcessors[0] = new WorkProcessor<ValueEvent>(
+            ringBuffer, sequenceBarrier,
+            handlers[0], new IgnoreExceptionHandler(),
+            workSequence);
+        workProcessors[1] = new WorkProcessor<ValueEvent>(
+            ringBuffer, sequenceBarrier,
+            handlers[1], new IgnoreExceptionHandler(),
+            workSequence);
+    }
 
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
+
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {

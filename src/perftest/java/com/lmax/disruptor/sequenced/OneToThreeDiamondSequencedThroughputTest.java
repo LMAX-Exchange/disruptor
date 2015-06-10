@@ -85,6 +85,7 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long expectedResult;
+
     {
         long temp = 0L;
 
@@ -105,7 +106,7 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FizzBuzzEvent> ringBuffer =
-            createSingleProducer(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -122,7 +123,8 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
 
     private final FizzBuzzEventHandler fizzBuzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
-            new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
+        new BatchEventProcessor<FizzBuzzEvent>(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
+
     {
         ringBuffer.addGatingSequences(batchProcessorFizzBuzz.getSequence());
     }

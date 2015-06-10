@@ -77,9 +77,9 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * </pre>
  */
+
 /**
  * @author mikeb01
- *
  */
 public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTestDisruptor
 {
@@ -96,8 +96,10 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor =
+        new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     private final ValueBatchPublisher[] valuePublishers = new ValueBatchPublisher[NUM_PUBLISHERS];
+
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
@@ -119,7 +121,8 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
     protected long runDisruptorPass() throws Exception
     {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
+        handler
+            .reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
 
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)

@@ -88,9 +88,10 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
     public BatchEventProcessor<EventAccessor<T>> createHandler(final EventHandler<T> handler)
     {
         BatchEventProcessor<EventAccessor<T>> processor =
-                new BatchEventProcessor<EventAccessor<T>>(this,
-                        sequencer.newBarrier(),
-                        new AccessorEventHandler<T>(handler));
+            new BatchEventProcessor<EventAccessor<T>>(
+                this,
+                sequencer.newBarrier(),
+                new AccessorEventHandler<T>(handler));
         sequencer.addGatingSequences(processor.getSequence());
 
         return processor;

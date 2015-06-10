@@ -22,7 +22,7 @@ import java.util.concurrent.locks.LockSupport;
  * eventually sleep (<code>LockSupport.parkNanos(1)</code>) for the minimum
  * number of nanos the OS and JVM will allow while the
  * {@link com.lmax.disruptor.EventProcessor}s are waiting on a barrier.
- *
+ * <p>
  * This strategy is a good compromise between performance and CPU resource.
  * Latency spikes can occur after quiet periods.
  */
@@ -43,7 +43,8 @@ public final class SleepingWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+    public long waitFor(
+        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;

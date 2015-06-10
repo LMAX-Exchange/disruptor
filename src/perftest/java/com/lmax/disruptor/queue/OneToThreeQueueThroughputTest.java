@@ -80,6 +80,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
+
     {
         for (long i = 0; i < ITERATIONS; i++)
         {
@@ -93,6 +94,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
 
     @SuppressWarnings("unchecked")
     private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
+
     {
         blockingQueues[0] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
         blockingQueues[1] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
@@ -100,6 +102,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
+
     {
         queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION, ITERATIONS - 1);
         queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION, ITERATIONS - 1);

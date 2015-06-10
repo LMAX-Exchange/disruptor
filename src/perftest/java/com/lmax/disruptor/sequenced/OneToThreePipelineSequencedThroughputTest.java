@@ -77,6 +77,7 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
     private final long expectedResult;
+
     {
         long temp = 0L;
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
@@ -114,6 +115,7 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
+
     {
         ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());
     }

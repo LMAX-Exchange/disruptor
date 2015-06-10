@@ -29,7 +29,8 @@ public final class ValueMutationQueueProcessor implements Runnable
     private final Operation operation;
     private final long count;
 
-    public ValueMutationQueueProcessor(final BlockingQueue<Long> blockingQueue, final Operation operation, final long count)
+    public ValueMutationQueueProcessor(
+        final BlockingQueue<Long> blockingQueue, final Operation operation, final long count)
     {
         this.blockingQueue = blockingQueue;
         this.operation = operation;

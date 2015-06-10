@@ -61,7 +61,8 @@ public final class OneToOneQueueThroughputTest extends AbstractPerfTestQueue
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor = new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
+    private final ValueAdditionQueueProcessor queueProcessor =
+        new ValueAdditionQueueProcessor(blockingQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

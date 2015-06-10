@@ -29,7 +29,7 @@ public class TestWorkHandler implements WorkHandler<TestEvent>
     private void waitForAndSetFlag(final boolean newValue)
     {
         while (!stopped && !Thread.currentThread().isInterrupted() &&
-               !readyToProcessEvent.compareAndSet(!newValue, newValue))
+            !readyToProcessEvent.compareAndSet(!newValue, newValue))
         {
             Thread.yield();
         }

@@ -40,10 +40,10 @@ public class SequencerTest
     public static Collection<Object[]> generateData()
     {
         Object[][] allocators =
-        {
-            { ProducerType.SINGLE, new BlockingWaitStrategy() },
-            { ProducerType.MULTI,  new BlockingWaitStrategy() },
-        };
+            {
+                {ProducerType.SINGLE, new BlockingWaitStrategy()},
+                {ProducerType.MULTI, new BlockingWaitStrategy()},
+            };
         return Arrays.asList(allocators);
     }
 
@@ -98,19 +98,20 @@ public class SequencerTest
         final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
         assertThat(sequencer.getCursor(), is(expectedFullSequence));
 
-        executor.submit(new Runnable()
-        {
-            @Override
-            public void run()
+        executor.submit(
+            new Runnable()
             {
-                waitingLatch.countDown();
+                @Override
+                public void run()
+                {
+                    waitingLatch.countDown();
 
-                long next = sequencer.next();
-                sequencer.publish(next);
+                    long next = sequencer.next();
+                    sequencer.publish(next);
 
-                doneLatch.countDown();
-            }
-        });
+                    doneLatch.countDown();
+                }
+            });
 
         waitingLatch.await();
         assertThat(sequencer.getCursor(), is(expectedFullSequence));
@@ -169,14 +170,15 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublish() throws Exception
     {
         final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
-        final Sequenced    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
+        final Sequenced sequencer = newProducer(producerType, BUFFER_SIZE, waitStrategy);
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(waitStrategy).signalAllWhenBlocking();
-            }
-        });
+                {
+                    one(waitStrategy).signalAllWhenBlocking();
+                }
+            });
 
         sequencer.publish(sequencer.next());
 
@@ -187,14 +189,15 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublishBatch() throws Exception
     {
         final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
-        final Sequenced    sequencer    = newProducer(producerType, BUFFER_SIZE, waitStrategy);
+        final Sequenced sequencer = newProducer(producerType, BUFFER_SIZE, waitStrategy);
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(waitStrategy).signalAllWhenBlocking();
-            }
-        });
+                {
+                    one(waitStrategy).signalAllWhenBlocking();
+                }
+            });
 
         long next = sequencer.next(4);
         sequencer.publish(next - (4 - 1), next);
@@ -208,8 +211,8 @@ public class SequencerTest
         SequenceBarrier barrier = sequencer.newBarrier();
 
         long next = sequencer.next(10);
-        long lo   = next - (10 - 1);
-        long mid  = next - 5;
+        long lo = next - (10 - 1);
+        long mid = next - 5;
 
         for (long l = lo; l < mid; l++)
         {
@@ -285,12 +288,12 @@ public class SequencerTest
     {
         switch (producerType)
         {
-        case SINGLE:
-            return new SingleProducerSequencer(bufferSize, waitStrategy);
-        case MULTI:
-            return new MultiProducerSequencer(bufferSize, waitStrategy);
-        default:
-            throw new IllegalStateException(producerType.toString());
+            case SINGLE:
+                return new SingleProducerSequencer(bufferSize, waitStrategy);
+            case MULTI:
+                return new MultiProducerSequencer(bufferSize, waitStrategy);
+            default:
+                throw new IllegalStateException(producerType.toString());
         }
     }
 }

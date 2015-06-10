@@ -28,13 +28,15 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
     private final Executor executor = Executors.newFixedThreadPool(1, DaemonThreadFactory.INSTANCE);
     private final WaitStrategy waitStrategy = new YieldingWaitStrategy();
     private final OffHeapRingBuffer buffer =
-            new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
+        new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
     private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
-            new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+        new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+
     {
         buffer.addGatingSequences(processor.getSequence());
     }
+
     private final Random r = new Random(1);
     private final byte[] data = new byte[BLOCK_SIZE];
 

@@ -20,10 +20,11 @@ public class EventPoller<T>
         PROCESSING, GATING, IDLE
     }
 
-    public EventPoller(final DataProvider<T> dataProvider,
-                       final Sequencer sequencer,
-                       final Sequence sequence,
-                       final Sequence gatingSequence)
+    public EventPoller(
+        final DataProvider<T> dataProvider,
+        final Sequencer sequencer,
+        final Sequence sequence,
+        final Sequence gatingSequence)
     {
         this.dataProvider = dataProvider;
         this.sequencer = sequencer;
@@ -71,11 +72,12 @@ public class EventPoller<T>
         }
     }
 
-    public static <T> EventPoller<T> newInstance(final DataProvider<T> dataProvider,
-                                                 final Sequencer sequencer,
-                                                 final Sequence sequence,
-                                                 final Sequence cursorSequence,
-                                                 final Sequence...gatingSequences)
+    public static <T> EventPoller<T> newInstance(
+        final DataProvider<T> dataProvider,
+        final Sequencer sequencer,
+        final Sequence sequence,
+        final Sequence cursorSequence,
+        final Sequence... gatingSequences)
     {
         Sequence gatingSequence;
         if (gatingSequences.length == 0)

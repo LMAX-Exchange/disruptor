@@ -83,7 +83,8 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 20L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
+    private final ExecutorService executor =
+        Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,8 +94,10 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
-    private final BatchEventProcessor<ValueEvent> batchEventProcessor = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
+    private final BatchEventProcessor<ValueEvent> batchEventProcessor =
+        new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
+
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
@@ -116,7 +119,8 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
     protected long runDisruptorPass() throws Exception
     {
         final CountDownLatch latch = new CountDownLatch(1);
-        handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
+        handler
+            .reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
 
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)

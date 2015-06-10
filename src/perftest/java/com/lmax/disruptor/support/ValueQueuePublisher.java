@@ -24,7 +24,8 @@ public final class ValueQueuePublisher implements Runnable
     private final BlockingQueue<Long> blockingQueue;
     private final long iterations;
 
-    public ValueQueuePublisher(final CyclicBarrier cyclicBarrier, final BlockingQueue<Long> blockingQueue, final long iterations)
+    public ValueQueuePublisher(
+        final CyclicBarrier cyclicBarrier, final BlockingQueue<Long> blockingQueue, final long iterations)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.blockingQueue = blockingQueue;

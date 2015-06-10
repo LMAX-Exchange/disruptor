@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available events to an {@link EventHandler}.
- *
+ * <p>
  * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
  * is started and just before the thread is shutdown.
  *
@@ -42,13 +42,14 @@ public final class BatchEventProcessor<T>
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
-     * @param dataProvider to which events are published.
+     * @param dataProvider    to which events are published.
      * @param sequenceBarrier on which it is waiting.
-     * @param eventHandler is the delegate to which events are dispatched.
+     * @param eventHandler    is the delegate to which events are dispatched.
      */
-    public BatchEventProcessor(final DataProvider<T> dataProvider,
-                               final SequenceBarrier sequenceBarrier,
-                               final EventHandler<? super T> eventHandler)
+    public BatchEventProcessor(
+        final DataProvider<T> dataProvider,
+        final SequenceBarrier sequenceBarrier,
+        final EventHandler<? super T> eventHandler)
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
@@ -56,7 +57,7 @@ public final class BatchEventProcessor<T>
 
         if (eventHandler instanceof SequenceReportingEventHandler)
         {
-            ((SequenceReportingEventHandler<?>)eventHandler).setSequenceCallback(sequence);
+            ((SequenceReportingEventHandler<?>) eventHandler).setSequenceCallback(sequence);
         }
 
         timeoutHandler = (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
@@ -181,7 +182,7 @@ public final class BatchEventProcessor<T>
         {
             try
             {
-                ((LifecycleAware)eventHandler).onStart();
+                ((LifecycleAware) eventHandler).onStart();
             }
             catch (final Throwable ex)
             {
@@ -199,7 +200,7 @@ public final class BatchEventProcessor<T>
         {
             try
             {
-                ((LifecycleAware)eventHandler).onShutdown();
+                ((LifecycleAware) eventHandler).onShutdown();
             }
             catch (final Throwable ex)
             {

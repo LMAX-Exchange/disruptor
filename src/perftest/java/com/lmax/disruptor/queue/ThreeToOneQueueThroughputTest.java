@@ -83,10 +83,12 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
     private final ValueAdditionQueueProcessor queueProcessor =
         new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
+
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
+            valueQueuePublishers[i] =
+                new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
         }
     }
 

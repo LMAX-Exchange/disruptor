@@ -29,7 +29,7 @@ public class BatchingTest
     @Parameters
     public static Collection<Object[]> generateData()
     {
-        Object[][] producerTypes = { { ProducerType.MULTI }, { ProducerType.SINGLE } };
+        Object[][] producerTypes = {{ProducerType.MULTI}, {ProducerType.SINGLE}};
         return Arrays.asList(producerTypes);
     }
 
@@ -78,8 +78,9 @@ public class BatchingTest
     @Test
     public void shouldBatch() throws Exception
     {
-        Disruptor<LongEvent> d = new Disruptor<LongEvent>(LongEvent.FACTORY, 2048, Executors.newCachedThreadPool(),
-                producerType, new SleepingWaitStrategy());
+        Disruptor<LongEvent> d = new Disruptor<LongEvent>(
+            LongEvent.FACTORY, 2048, Executors.newCachedThreadPool(),
+            producerType, new SleepingWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
         ParallelEventHandler handler2 = new ParallelEventHandler(1, 1);
@@ -104,7 +105,7 @@ public class BatchingTest
         }
 
         while (handler1.processed != eventCount - 1 ||
-               handler2.processed != eventCount - 1)
+            handler2.processed != eventCount - 1)
         {
             Thread.sleep(1);
         }

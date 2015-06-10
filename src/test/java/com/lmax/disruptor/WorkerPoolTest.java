@@ -19,8 +19,9 @@ public class WorkerPoolTest
     public void shouldProcessEachMessageByOnlyOneWorker() throws Exception
     {
         Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
-        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(new AtomicLongEventFactory(), new FatalExceptionHandler(),
-                new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
+        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
+            new AtomicLongEventFactory(), new FatalExceptionHandler(),
+            new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
         RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
 
@@ -40,8 +41,9 @@ public class WorkerPoolTest
     public void shouldProcessOnlyOnceItHasBeenPublished() throws Exception
     {
         Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
-        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(new AtomicLongEventFactory(), new FatalExceptionHandler(),
-                new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
+        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
+            new AtomicLongEventFactory(), new FatalExceptionHandler(),
+            new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
         RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
 

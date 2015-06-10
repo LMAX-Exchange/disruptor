@@ -57,22 +57,24 @@ public final class SequenceBarrierTest
         final Sequence sequence2 = new Sequence(expectedWorkSequence);
         final Sequence sequence3 = new Sequence(expectedNumberMessages);
 
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                one(eventProcessor1).getSequence();
-                will(returnValue(sequence1));
+                {
+                    one(eventProcessor1).getSequence();
+                    will(returnValue(sequence1));
 
-                one(eventProcessor2).getSequence();
-                will(returnValue(sequence2));
+                    one(eventProcessor2).getSequence();
+                    will(returnValue(sequence2));
 
-                one(eventProcessor3).getSequence();
-                will(returnValue(sequence3));
-            }
-        });
+                    one(eventProcessor3).getSequence();
+                    will(returnValue(sequence3));
+                }
+            });
 
         SequenceBarrier sequenceBarrier =
-            ringBuffer.newBarrier(eventProcessor1.getSequence(), eventProcessor2.getSequence(), eventProcessor3.getSequence());
+            ringBuffer.newBarrier(
+                eventProcessor1.getSequence(), eventProcessor2.getSequence(), eventProcessor3.getSequence());
 
         long completedWorkSequence = sequenceBarrier.waitFor(expectedWorkSequence);
         assertTrue(completedWorkSequence >= expectedWorkSequence);
@@ -127,42 +129,44 @@ public final class SequenceBarrierTest
         final Sequence sequence2 = new CountDownLatchSequence(8L, latch);
         final Sequence sequence3 = new CountDownLatchSequence(8L, latch);
 
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                one(eventProcessor1).getSequence();
-                will(returnValue(sequence1));
+                {
+                    one(eventProcessor1).getSequence();
+                    will(returnValue(sequence1));
 
-                one(eventProcessor2).getSequence();
-                will(returnValue(sequence2));
+                    one(eventProcessor2).getSequence();
+                    will(returnValue(sequence2));
 
-                one(eventProcessor3).getSequence();
-                will(returnValue(sequence3));
-            }
-        });
+                    one(eventProcessor3).getSequence();
+                    will(returnValue(sequence3));
+                }
+            });
 
         final SequenceBarrier sequenceBarrier =
             ringBuffer.newBarrier(Util.getSequencesFor(eventProcessor1, eventProcessor2, eventProcessor3));
 
-        final boolean[] alerted = { false };
-        Thread t = new Thread(new Runnable()
-        {
-            public void run()
+        final boolean[] alerted = {false};
+        Thread t = new Thread(
+            new Runnable()
             {
-                try
+                public void run()
                 {
-                    sequenceBarrier.waitFor(expectedNumberMessages - 1);
+                    try
+                    {
+                        sequenceBarrier.waitFor(expectedNumberMessages - 1);
+                    }
+                    catch (AlertException e)
+                    {
+                        alerted[0] = true;
+                    }
+                    catch (Exception e)
+                    {
+                        // don't care
+                    }
                 }
-                catch (AlertException e)
-                {
-                    alerted[0] = true;
-                }
-                catch (Exception e)
-                {
-                    // don't care
-                }
-            }
-        });
+            });
 
         t.start();
         latch.await(3, TimeUnit.SECONDS);

@@ -1,20 +1,20 @@
 package com.lmax.disruptor.example;
 
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventTranslatorThreeArg;
-import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 
 import java.util.concurrent.Executors;
 
 public class MultiProducerWithTranslator
 {
     private static class IMessage
-    {}
+    {
+    }
 
     private static class ITransportable
-    {}
+    {
+    }
 
     private static class ObjectBox
     {
@@ -67,23 +67,32 @@ public class MultiProducerWithTranslator
         }
     }
 
+    static final int RING_SIZE = 1024;
+
     public static void main(String[] args) throws InterruptedException
     {
-        Disruptor<ObjectBox> disruptor = new Disruptor<ObjectBox>(ObjectBox.FACTORY, 1024, Executors.newCachedThreadPool());
-        disruptor.handleEventsWith(new Consumer());
-
-        disruptor.start();
+        Disruptor<ObjectBox> disruptor = new Disruptor<ObjectBox>(
+            ObjectBox.FACTORY, RING_SIZE, Executors.newCachedThreadPool(), ProducerType.MULTI,
+            new BlockingWaitStrategy());
+        disruptor.handleEventsWith(new Consumer()).then(new Consumer());
         final RingBuffer<ObjectBox> ringBuffer = disruptor.getRingBuffer();
-
         Publisher p = new Publisher();
         IMessage message = new IMessage();
         ITransportable transportable = new ITransportable();
         String streamName = "com.lmax.wibble";
-
+        System.out.println("publishing " + RING_SIZE + " messages");
+        for (int i = 0; i < RING_SIZE; i++)
+        {
+            ringBuffer.publishEvent(p, message, transportable, streamName);
+            Thread.sleep(10);
+        }
+        System.out.println("start disruptor");
+        disruptor.start();
+        System.out.println("continue publishing");
         while (true)
         {
             ringBuffer.publishEvent(p, message, transportable, streamName);
-//            Thread.sleep(1000);
+            Thread.sleep(10);
         }
     }
 }

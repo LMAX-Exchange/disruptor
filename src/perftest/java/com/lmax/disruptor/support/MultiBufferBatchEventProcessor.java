@@ -22,9 +22,10 @@ public class MultiBufferBatchEventProcessor<T>
     private final Sequence[] sequences;
     private long count;
 
-    public MultiBufferBatchEventProcessor(DataProvider<T>[] providers,
-                                          SequenceBarrier[] barriers,
-                                          EventHandler<T> handler)
+    public MultiBufferBatchEventProcessor(
+        DataProvider<T>[] providers,
+        SequenceBarrier[] barriers,
+        EventHandler<T> handler)
     {
         if (providers.length != barriers.length)
         {
@@ -52,7 +53,7 @@ public class MultiBufferBatchEventProcessor<T>
 
         for (SequenceBarrier barrier : barriers)
         {
-             barrier.clearAlert();
+            barrier.clearAlert();
         }
 
         final int barrierLength = barriers.length;

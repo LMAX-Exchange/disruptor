@@ -20,9 +20,13 @@ package com.lmax.disruptor.dsl;
  */
 public enum ProducerType
 {
-    /** Create a RingBuffer with a single event publisher to the RingBuffer */
+    /**
+     * Create a RingBuffer with a single event publisher to the RingBuffer
+     */
     SINGLE,
 
-    /** Create a RingBuffer supporting multiple event publishers to the one RingBuffer */
+    /**
+     * Create a RingBuffer supporting multiple event publishers to the one RingBuffer
+     */
     MULTI
 }

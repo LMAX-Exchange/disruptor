@@ -104,6 +104,7 @@ public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTest
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long expectedResult;
+
     {
         long temp = 0L;
 

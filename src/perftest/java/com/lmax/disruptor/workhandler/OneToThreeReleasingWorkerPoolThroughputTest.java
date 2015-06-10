@@ -39,6 +39,7 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS, DaemonThreadFactory.INSTANCE);
 
     private final PaddedLong[] counters = new PaddedLong[NUM_WORKERS];
+
     {
         for (int i = 0; i < NUM_WORKERS; i++)
         {
@@ -48,7 +49,9 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final EventCountingAndReleasingWorkHandler[] handlers = new EventCountingAndReleasingWorkHandler[NUM_WORKERS];
+    private final EventCountingAndReleasingWorkHandler[] handlers =
+        new EventCountingAndReleasingWorkHandler[NUM_WORKERS];
+
     {
         for (int i = 0; i < NUM_WORKERS; i++)
         {
@@ -57,15 +60,18 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
     }
 
     private final RingBuffer<ValueEvent> ringBuffer =
-            RingBuffer.createSingleProducer(ValueEvent.EVENT_FACTORY,
-                                            BUFFER_SIZE,
-                                            new YieldingWaitStrategy());
+        RingBuffer.createSingleProducer(
+            ValueEvent.EVENT_FACTORY,
+            BUFFER_SIZE,
+            new YieldingWaitStrategy());
 
     private final WorkerPool<ValueEvent> workerPool =
-            new WorkerPool<ValueEvent>(ringBuffer,
-                                       ringBuffer.newBarrier(),
-                                       new FatalExceptionHandler(),
-                                       handlers);
+        new WorkerPool<ValueEvent>(
+            ringBuffer,
+            ringBuffer.newBarrier(),
+            new FatalExceptionHandler(),
+            handlers);
+
     {
         ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
     }

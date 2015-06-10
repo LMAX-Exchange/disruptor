@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * <p>A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
  * and ensuring appropriate barriers.</p>
- *
+ * <p>
  * <p>Generally, this will be used as part of a {@link WorkerPool}.</p>
  *
  * @param <T> event implementation storing the details for the work to processed.
@@ -48,18 +48,19 @@ public final class WorkProcessor<T>
     /**
      * Construct a {@link WorkProcessor}.
      *
-     * @param ringBuffer to which events are published.
-     * @param sequenceBarrier on which it is waiting.
-     * @param workHandler is the delegate to which events are dispatched.
+     * @param ringBuffer       to which events are published.
+     * @param sequenceBarrier  on which it is waiting.
+     * @param workHandler      is the delegate to which events are dispatched.
      * @param exceptionHandler to be called back when an error occurs
-     * @param workSequence from which to claim the next event to be worked on.  It should always be initialised
-     * as {@link Sequencer#INITIAL_CURSOR_VALUE}
+     * @param workSequence     from which to claim the next event to be worked on.  It should always be initialised
+     *                         as {@link Sequencer#INITIAL_CURSOR_VALUE}
      */
-    public WorkProcessor(final RingBuffer<T> ringBuffer,
-                         final SequenceBarrier sequenceBarrier,
-                         final WorkHandler<? super T> workHandler,
-                         final ExceptionHandler<? super T> exceptionHandler,
-                         final Sequence workSequence)
+    public WorkProcessor(
+        final RingBuffer<T> ringBuffer,
+        final SequenceBarrier sequenceBarrier,
+        final WorkHandler<? super T> workHandler,
+        final ExceptionHandler<? super T> exceptionHandler,
+        final Sequence workSequence)
     {
         this.ringBuffer = ringBuffer;
         this.sequenceBarrier = sequenceBarrier;
@@ -69,7 +70,7 @@ public final class WorkProcessor<T>
 
         if (this.workHandler instanceof EventReleaseAware)
         {
-            ((EventReleaseAware)this.workHandler).setEventReleaser(eventReleaser);
+            ((EventReleaseAware) this.workHandler).setEventReleaser(eventReleaser);
         }
     }
 
@@ -169,7 +170,7 @@ public final class WorkProcessor<T>
         {
             try
             {
-                ((LifecycleAware)workHandler).onStart();
+                ((LifecycleAware) workHandler).onStart();
             }
             catch (final Throwable ex)
             {
@@ -184,7 +185,7 @@ public final class WorkProcessor<T>
         {
             try
             {
-                ((LifecycleAware)workHandler).onShutdown();
+                ((LifecycleAware) workHandler).onShutdown();
             }
             catch (final Throwable ex)
             {

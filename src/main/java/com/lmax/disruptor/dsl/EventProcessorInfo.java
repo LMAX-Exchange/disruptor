@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
 
 /**
  * <p>Wrapper class to tie together a particular event processing stage</p>
- *
+ * <p>
  * <p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
  *
  * @param T the type of the configured {@link EventHandler}
@@ -36,7 +36,8 @@ class EventProcessorInfo<T> implements ConsumerInfo
     private final SequenceBarrier barrier;
     private boolean endOfChain = true;
 
-    EventProcessorInfo(final EventProcessor eventprocessor, final EventHandler<? super T> handler, final SequenceBarrier barrier)
+    EventProcessorInfo(
+        final EventProcessor eventprocessor, final EventHandler<? super T> handler, final SequenceBarrier barrier)
     {
         this.eventprocessor = eventprocessor;
         this.handler = handler;
@@ -51,7 +52,7 @@ class EventProcessorInfo<T> implements ConsumerInfo
     @Override
     public Sequence[] getSequences()
     {
-        return new Sequence[] { eventprocessor.getSequence() };
+        return new Sequence[]{eventprocessor.getSequence()};
     }
 
     public EventHandler<? super T> getHandler()

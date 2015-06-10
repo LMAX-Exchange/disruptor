@@ -26,12 +26,13 @@ public class TimeoutBlockingWaitStrategyTest
         Sequence cursor = new Sequence(5);
         Sequence dependent = cursor;
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                allowing(sequenceBarrier).checkAlert();
-            }
-        });
+                {
+                    allowing(sequenceBarrier).checkAlert();
+                }
+            });
 
         long t0 = System.currentTimeMillis();
 
