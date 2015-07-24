@@ -79,7 +79,7 @@ public class Sequence extends RhsPadding
      */
     public Sequence(final long initialValue)
     {
-        VALUE_FIELD.setRelease(this, value);
+        VALUE_FIELD.setVolatile(this, value);
     }
 
     /**
@@ -89,7 +89,7 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        return (long) VALUE_FIELD.getAcquire(this);
+        return (long) VALUE_FIELD.getVolatile(this);
     }
 
     /**
@@ -101,7 +101,7 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        VALUE_FIELD.setRelease(this, value);
+        VALUE_FIELD.setVolatile(this, value);
     }
 
     /**
