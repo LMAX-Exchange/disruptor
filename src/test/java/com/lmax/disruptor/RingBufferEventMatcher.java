@@ -51,6 +51,6 @@ final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
     public void describeTo(final Description description)
     {
         description.appendText("Expected ring buffer with events matching: ");
-        allOf(expectedValueMatchers).describeTo(description);
+//        allOf(expectedValueMatchers).describeTo(description);
     }
 }
