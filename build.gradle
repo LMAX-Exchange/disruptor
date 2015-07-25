@@ -18,7 +18,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-apply plugin: 'checkstyle'
+//apply plugin: 'checkstyle'
 apply plugin: 'idea'
 
 defaultTasks 'build'
@@ -44,11 +44,11 @@ sourceSets {
     perf.java.srcDir 'src/perftest/java'
 }
 
-eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
+//eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
 idea.module {
-    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
-    scopes.TEST.plus += sourceSets.perf.compileClasspath
+//    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+//    scopes.TEST.plus += sourceSets.perf.compileClasspath
 }
 
 repositories {
@@ -56,22 +56,12 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5', 
-                'org.jmock:jmock-junit4:2.5.1', 
+    testCompile 'junit:junit:4.5',
+                'org.jmock:jmock-junit4:2.5.1',
                 'org.jmock:jmock-legacy:2.5.1'
     perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-tasks.withType(Compile) {
-    options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked' << '-Xlint:deprecation'
-    options.debug = true
-    options.fork = true
-    options.forkOptions.executable = javaCompilerExecutable
-    options.warnings = false
-}
 
 tasks.withType(Test) {
     maxParallelForks = Runtime.runtime.availableProcessors() / 2
@@ -171,12 +161,12 @@ task listJars << {
 task perfJar(type: Jar) {
     baseName = project.name + '-perf'
     from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
-    from sourceSets.perf.output 
+    from sourceSets.perf.output
     with jar
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '2.5'
 }
 
 class Version {
