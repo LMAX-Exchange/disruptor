@@ -16,10 +16,7 @@
 package com.lmax.disruptor;
 
 
-import sun.misc.Unsafe;
-
 import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.util.Util;
 
 abstract class RingBufferPad
 {
@@ -28,30 +25,7 @@ abstract class RingBufferPad
 
 abstract class RingBufferFields<E> extends RingBufferPad
 {
-    private static final int BUFFER_PAD;
-    private static final long REF_ARRAY_BASE;
-    private static final int REF_ELEMENT_SHIFT;
-    private static final Unsafe UNSAFE = Util.getUnsafe();
-
-    static
-    {
-        final int scale = UNSAFE.arrayIndexScale(Object[].class);
-        if (4 == scale)
-        {
-            REF_ELEMENT_SHIFT = 2;
-        }
-        else if (8 == scale)
-        {
-            REF_ELEMENT_SHIFT = 3;
-        }
-        else
-        {
-            throw new IllegalStateException("Unknown pointer size");
-        }
-        BUFFER_PAD = 128 / scale;
-        // Including the buffer pad in the array base offset
-        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << REF_ELEMENT_SHIFT);
-    }
+    private static final int BUFFER_PAD = 128 / 8;
 
     private final long indexMask;
     private final Object[] entries;
@@ -90,7 +64,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {
-        return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
+        return (E) entries[BUFFER_PAD + (int) (sequence & indexMask)];
     }
 }
 

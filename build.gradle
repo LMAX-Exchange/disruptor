@@ -18,13 +18,13 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-apply plugin: 'checkstyle'
+//apply plugin: 'checkstyle'
 apply plugin: 'idea'
 
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, minor: 3, revision: 5)
+version = new Version(major: 3, minor: 3, revision: 2)
 
 ext {
     fullName = 'Disruptor Framework'
