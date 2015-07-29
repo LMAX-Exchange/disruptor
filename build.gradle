@@ -44,11 +44,11 @@ sourceSets {
     perf.java.srcDir 'src/perftest/java'
 }
 
-eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
+//eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
 
 idea.module {
-    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
-    scopes.TEST.plus += sourceSets.perf.compileClasspath
+//    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+//    scopes.TEST.plus += sourceSets.perf.compileClasspath
 }
 
 repositories {
@@ -65,10 +65,12 @@ dependencies {
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-tasks.withType(Compile) {
-    options.compilerArgs << '-XDignore.symbol.file' << '-Xlint:unchecked' << '-Xlint:deprecation'
-    options.debug = true
+
+compileJava {
+    // Suppress warnings about using Unsafe and sun.misc
+    options.compilerArgs << '-XDignore.symbol.file'
     options.fork = true
+    options.debug = true
     options.forkOptions.executable = javaCompilerExecutable
     options.warnings = false
 }
@@ -176,7 +178,7 @@ task perfJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '2.5'
 }
 
 class Version {
