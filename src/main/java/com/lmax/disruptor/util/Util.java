@@ -60,7 +60,8 @@ public final class Util
      * @param sequences to compare.
      * @param minimum   an initial default minimum.  If the array is empty this value will be
      *                  returned.
-     * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
+     * @return the smaller of minimum sequence value found in {@code sequences} and {@code minimum};
+     * {@code minimum} if {@code sequences} is empty
      */
     public static long getMinimumSequence(final Sequence[] sequences, long minimum)
     {
