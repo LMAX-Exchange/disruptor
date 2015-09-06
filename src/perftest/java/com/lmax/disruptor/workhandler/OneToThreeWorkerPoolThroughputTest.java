@@ -28,7 +28,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.EventCountingQueueProcessor;
 import com.lmax.disruptor.support.EventCountingWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
-import com.lmax.disruptor.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class OneToThreeWorkerPoolThroughputTest

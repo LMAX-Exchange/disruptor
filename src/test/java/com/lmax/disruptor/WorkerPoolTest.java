@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Test;
 
 

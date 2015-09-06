@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Assert;
 
 import java.util.Collection;

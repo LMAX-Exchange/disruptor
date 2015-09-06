@@ -29,7 +29,7 @@ import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.LongArrayEventHandler;
 import com.lmax.disruptor.support.PerfTestUtil;
-import com.lmax.disruptor.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 
 /**
  * <pre>

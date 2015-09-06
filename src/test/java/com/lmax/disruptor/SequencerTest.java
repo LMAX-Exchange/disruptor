@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

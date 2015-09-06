@@ -26,7 +26,7 @@ import com.lmax.disruptor.Sequenced;
 import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 
 /**
  * <pre>

@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.LockSupport;
 
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Test;
 
 import com.lmax.disruptor.dsl.Disruptor;
