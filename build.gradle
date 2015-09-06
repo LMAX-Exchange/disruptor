@@ -41,25 +41,26 @@ ext {
 }
 
 sourceSets {
-    perf.java.srcDir 'src/perftest/java'
+    perf.java.srcDir file('src/perftest/java')
 }
 
 //eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
-
-idea.module {
-//    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
-//    scopes.TEST.plus += sourceSets.perf.compileClasspath
-}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5', 
+    testCompile 'junit:junit:4.5',
                 'org.jmock:jmock-junit4:2.5.1', 
                 'org.jmock:jmock-legacy:2.5.1'
+    
     perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
+}
+
+idea.module {
+    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+    scopes.TEST.plus += [ configurations.perfCompile ]
 }
 
 sourceCompatibility = 1.6
