@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
-import java.util.concurrent.Executors;
 
 public class ShutdownOnFatalExceptionTest
 {
@@ -23,7 +22,7 @@ public class ShutdownOnFatalExceptionTest
     public void setUp()
     {
         disruptor = new Disruptor<byte[]>(
-            new ByteArrayFactory(256), 1024, Executors.newCachedThreadPool(), ProducerType.SINGLE,
+            new ByteArrayFactory(256), 1024, ProducerType.SINGLE,
             new BlockingWaitStrategy());
         disruptor.handleEventsWith(eventHandler);
         disruptor.handleExceptionsWith(new FatalExceptionHandler());

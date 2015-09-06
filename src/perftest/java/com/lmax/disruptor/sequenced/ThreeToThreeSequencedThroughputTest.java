@@ -29,7 +29,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.LongArrayEventHandler;
 import com.lmax.disruptor.support.LongArrayPublisher;
 import com.lmax.disruptor.support.MultiBufferBatchEventProcessor;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.DaemonThreadFactory;
 
 /**
  * <pre>

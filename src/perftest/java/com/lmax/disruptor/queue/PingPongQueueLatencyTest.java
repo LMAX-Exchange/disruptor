@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.HdrHistogram.Histogram;
 
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.DaemonThreadFactory;
 
 /**
  * <pre>

@@ -3,11 +3,9 @@ package com.lmax.disruptor.example;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.support.StubEvent;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.DaemonThreadFactory;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DynamiclyAddHandler
 {
@@ -40,10 +38,8 @@ public class DynamiclyAddHandler
 
     public static void main(String[] args) throws InterruptedException
     {
-        ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
-
         // Build a disruptor and start it.
-        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(StubEvent.EVENT_FACTORY, 1024, executor);
+        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(StubEvent.EVENT_FACTORY, 1024);
         RingBuffer<StubEvent> ringBuffer = disruptor.start();
 
         // Construct 2 batch event processors.
@@ -59,8 +55,8 @@ public class DynamiclyAddHandler
         ringBuffer.addGatingSequences(processor1.getSequence(), processor2.getSequence());
 
         // Start the new batch processors.
-        executor.execute(processor1);
-        executor.execute(processor2);
+        DaemonThreadFactory.INSTANCE.newThread(processor1).start();
+        DaemonThreadFactory.INSTANCE.newThread(processor2).start();
 
         // Remove a processor.
 

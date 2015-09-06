@@ -3,13 +3,9 @@ package com.lmax.disruptor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
-
-import com.lmax.disruptor.util.DaemonThreadFactory;
 
 
 public class WorkerPoolTest
@@ -18,12 +14,11 @@ public class WorkerPoolTest
     @Test
     public void shouldProcessEachMessageByOnlyOneWorker() throws Exception
     {
-        Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
         WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
             new AtomicLongEventFactory(), new FatalExceptionHandler(),
             new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
-        RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
+        RingBuffer<AtomicLong> ringBuffer = pool.start(DaemonThreadFactory.INSTANCE);
 
         ringBuffer.next();
         ringBuffer.next();
@@ -40,12 +35,11 @@ public class WorkerPoolTest
     @Test
     public void shouldProcessOnlyOnceItHasBeenPublished() throws Exception
     {
-        Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
         WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
             new AtomicLongEventFactory(), new FatalExceptionHandler(),
             new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
-        RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
+        RingBuffer<AtomicLong> ringBuffer = pool.start(DaemonThreadFactory.INSTANCE);
 
         ringBuffer.next();
         ringBuffer.next();

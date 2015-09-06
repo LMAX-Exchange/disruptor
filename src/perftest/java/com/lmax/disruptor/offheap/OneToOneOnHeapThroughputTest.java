@@ -14,7 +14,7 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.DaemonThreadFactory;
 
 public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
 {

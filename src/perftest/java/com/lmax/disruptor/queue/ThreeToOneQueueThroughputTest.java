@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
 import com.lmax.disruptor.support.ValueQueuePublisher;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.DaemonThreadFactory;
 
 /**
  * <pre>

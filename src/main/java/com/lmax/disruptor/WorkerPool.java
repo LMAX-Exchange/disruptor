@@ -17,7 +17,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Util;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -118,11 +118,11 @@ public final class WorkerPool<T>
     /**
      * Start the worker pool processing events in sequence.
      *
-     * @param executor providing threads for running the workers.
+     * @param threadFactory providing threads for running the workers.
      * @return the {@link RingBuffer} used for the work queue.
      * @throws IllegalStateException if the pool has already been started and not halted yet
      */
-    public RingBuffer<T> start(final Executor executor)
+    public RingBuffer<T> start(final ThreadFactory threadFactory)
     {
         if (!started.compareAndSet(false, true))
         {
@@ -135,7 +135,7 @@ public final class WorkerPool<T>
         for (WorkProcessor<?> processor : workProcessors)
         {
             processor.getSequence().set(cursor);
-            executor.execute(processor);
+            threadFactory.newThread(processor).start();
         }
 
         return ringBuffer;
