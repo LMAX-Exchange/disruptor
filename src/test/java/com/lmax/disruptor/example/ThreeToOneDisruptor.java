@@ -4,6 +4,7 @@ package com.lmax.disruptor.example;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -70,7 +71,8 @@ public class ThreeToOneDisruptor
     public static void main(String[] args)
     {
         Executor executor = Executors.newFixedThreadPool(4);
-        Disruptor<DataEvent> disruptor = new Disruptor<DataEvent>(DataEvent.FACTORY, 1024, executor);
+        Disruptor<DataEvent> disruptor = new Disruptor<DataEvent>(
+            DataEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         TransformingHandler handler1 = new TransformingHandler(0);
         TransformingHandler handler2 = new TransformingHandler(1);

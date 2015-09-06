@@ -1,10 +1,9 @@
 package com.lmax.disruptor;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.Executors;
-import java.util.concurrent.locks.LockSupport;
-
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,9 +11,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.support.LongEvent;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.locks.LockSupport;
 
 @RunWith(Parameterized.class)
 public class BatchingTest
@@ -79,7 +78,7 @@ public class BatchingTest
     public void shouldBatch() throws Exception
     {
         Disruptor<LongEvent> d = new Disruptor<LongEvent>(
-            LongEvent.FACTORY, 2048, Executors.newCachedThreadPool(),
+            LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
             producerType, new SleepingWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);

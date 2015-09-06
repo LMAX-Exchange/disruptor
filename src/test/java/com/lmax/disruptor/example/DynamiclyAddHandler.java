@@ -43,7 +43,8 @@ public class DynamiclyAddHandler
         ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 
         // Build a disruptor and start it.
-        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(StubEvent.EVENT_FACTORY, 1024, executor);
+        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(
+            StubEvent.EVENT_FACTORY, 1024, DaemonThreadFactory.INSTANCE);
         RingBuffer<StubEvent> ringBuffer = disruptor.start();
 
         // Construct 2 batch event processors.
