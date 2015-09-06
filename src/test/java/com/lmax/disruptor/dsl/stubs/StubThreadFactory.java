@@ -15,33 +15,21 @@
  */
 package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Assert;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StubExecutor implements Executor
+public class StubThreadFactory implements ThreadFactory
 {
     private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
     private final Collection<Thread> threads = new CopyOnWriteArrayList<Thread>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
-
-    public void execute(final Runnable command)
-    {
-        executionCount.getAndIncrement();
-        if (!ignoreExecutions.get())
-        {
-            Thread t = threadFactory.newThread(command);
-            t.setName(command.toString());
-            threads.add(t);
-            t.start();
-        }
-    }
 
     public void joinAllThreads()
     {
@@ -74,5 +62,23 @@ public class StubExecutor implements Executor
     public int getExecutionCount()
     {
         return executionCount.get();
+    }
+
+    @Override
+    public Thread newThread(Runnable command)
+    {
+        executionCount.getAndIncrement();
+        Thread t;
+        if (!ignoreExecutions.get())
+        {
+            t = threadFactory.newThread(command);
+            t.setName(command.toString());
+            threads.add(t);
+        }
+        else
+        {
+            t = new Thread();
+        }
+        return t;
     }
 }

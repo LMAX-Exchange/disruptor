@@ -34,11 +34,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Test;
 
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class RingBufferTest
 {

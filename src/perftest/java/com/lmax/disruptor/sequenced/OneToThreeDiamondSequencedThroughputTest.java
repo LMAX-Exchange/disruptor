@@ -30,7 +30,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.FizzBuzzEvent;
 import com.lmax.disruptor.support.FizzBuzzEventHandler;
 import com.lmax.disruptor.support.FizzBuzzStep;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 
 /**
  * <pre>

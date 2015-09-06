@@ -16,23 +16,11 @@
 package com.lmax.disruptor.dsl;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.EventTranslatorOneArg;
-import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.WorkHandler;
-import com.lmax.disruptor.WorkerPool;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.util.Util;
 
 /**
@@ -59,7 +47,7 @@ import com.lmax.disruptor.util.Util;
 public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
-    private final Executor executor;
+    private final ThreadFactory threadFactory;
     private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<T>();
     private final AtomicBoolean started = new AtomicBoolean(false);
     private ExceptionHandler<? super T> exceptionHandler;
@@ -71,21 +59,50 @@ public class Disruptor<T>
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
+     * @deprecated executor is not required anymore, use {@link #Disruptor(EventFactory, int, ThreadFactory)} or {@link #Disruptor(EventFactory, int)}
      */
+    @Deprecated
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
     {
-        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
+        this(eventFactory, ringBufferSize);
     }
 
     /**
-     * Create a new Disruptor.
+     * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
+     * {@link ProducerType}.MULTI
+     *
+     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param ringBufferSize the size of the ring buffer.
+     * @param threadFactory  providing threads for executing EventProcessors.
+     */
+    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final ThreadFactory threadFactory)
+    {
+        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), threadFactory);
+    }
+
+    /**
+     * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy},
+     * {@link ProducerType}.MULTI and {@link DaemonThreadFactory}
+     *
+     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param ringBufferSize the size of the ring buffer.
+     */
+    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize)
+    {
+        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), DaemonThreadFactory.INSTANCE);
+    }
+
+    /**
+     * Create a new Disruptor, {@link DaemonThreadFactory} will be used as threadFactory implementation
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer, must be power of 2.
      * @param executor       an {@link Executor} to execute event processors.
      * @param producerType   the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
+     * @deprecated executor is not required anymore, use {@link #Disruptor(EventFactory, int, ThreadFactory, ProducerType, WaitStrategy)} or {@link #Disruptor(EventFactory, int, ProducerType, WaitStrategy)}
      */
+    @Deprecated
     public Disruptor(
         final EventFactory<T> eventFactory,
         final int ringBufferSize,
@@ -93,18 +110,56 @@ public class Disruptor<T>
         final ProducerType producerType,
         final WaitStrategy waitStrategy)
     {
+        this(eventFactory, ringBufferSize, producerType, waitStrategy);
+    }
+
+    /**
+     * Create a new Disruptor.
+     *
+     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param ringBufferSize the size of the ring buffer, must be power of 2.
+     * @param threadFactory  providing threads for executing EventProcessors.
+     * @param producerType   the claim strategy to use for the ring buffer.
+     * @param waitStrategy   the wait strategy to use for the ring buffer.
+     */
+    public Disruptor(
+            final EventFactory<T> eventFactory,
+            final int ringBufferSize,
+            final ThreadFactory threadFactory,
+            final ProducerType producerType,
+            final WaitStrategy waitStrategy)
+    {
         this(
             RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
-            executor);
+            threadFactory);
+    }
+
+    /**
+     * Create a new Disruptor, {@link DaemonThreadFactory} will be used as threadFactory implementation
+     *
+     * @param eventFactory   the factory to create events in the ring buffer.
+     * @param ringBufferSize the size of the ring buffer, must be power of 2.
+     * @param producerType   the claim strategy to use for the ring buffer.
+     * @param waitStrategy   the wait strategy to use for the ring buffer.
+     */
+    public Disruptor(
+            final EventFactory<T> eventFactory,
+            final int ringBufferSize,
+            final ProducerType producerType,
+            final WaitStrategy waitStrategy)
+    {
+        this(
+            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+            DaemonThreadFactory.INSTANCE);
     }
 
     /**
      * Private constructor helper
      */
-    private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)
+    private Disruptor(final RingBuffer<T> ringBuffer, final ThreadFactory threadFactory)
     {
         this.ringBuffer = ringBuffer;
-        this.executor = executor;
+        this.threadFactory = threadFactory;
     }
 
     /**
@@ -295,7 +350,7 @@ public class Disruptor<T>
         checkOnlyStartedOnce();
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
-            consumerInfo.start(executor);
+            consumerInfo.start(threadFactory);
         }
 
         return ringBuffer;

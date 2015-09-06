@@ -17,7 +17,7 @@ import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 
 public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
 {

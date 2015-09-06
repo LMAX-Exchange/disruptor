@@ -25,15 +25,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.dsl.stubs.DelayedEventHandler;
-import com.lmax.disruptor.dsl.stubs.EventHandlerStub;
-import com.lmax.disruptor.dsl.stubs.EvilEqualsEventHandler;
-import com.lmax.disruptor.dsl.stubs.ExceptionThrowingEventHandler;
-import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
-import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
-import com.lmax.disruptor.dsl.stubs.StubExecutor;
-import com.lmax.disruptor.dsl.stubs.StubPublisher;
-import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
+import com.lmax.disruptor.dsl.stubs.*;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Thread.yield;
@@ -61,7 +53,7 @@ public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
     private Disruptor<TestEvent> disruptor;
-    private StubExecutor executor;
+    private StubThreadFactory threadFactory;
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
     private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<TestWorkHandler>();
     private RingBuffer<TestEvent> ringBuffer;
@@ -86,14 +78,14 @@ public class DisruptorTest
         }
 
         disruptor.halt();
-        executor.joinAllThreads();
+        threadFactory.joinAllThreads();
     }
 
     @Test
     public void shouldCreateEventProcessorGroupForFirstEventProcessors()
         throws Exception
     {
-        executor.ignoreExecutions();
+        threadFactory.ignoreExecutions();
         final EventHandler<TestEvent> eventHandler1 = new SleepingEventHandler();
         EventHandler<TestEvent> eventHandler2 = new SleepingEventHandler();
 
@@ -102,7 +94,7 @@ public class DisruptorTest
         disruptor.start();
 
         assertNotNull(eventHandlerGroup);
-        assertThat(Integer.valueOf(executor.getExecutionCount()), equalTo(Integer.valueOf(2)));
+        assertThat(Integer.valueOf(threadFactory.getExecutionCount()), equalTo(Integer.valueOf(2)));
     }
 
     @Test
@@ -214,7 +206,7 @@ public class DisruptorTest
         final StubPublisher stubPublisher = new StubPublisher(ringBuffer);
         try
         {
-            executor.execute(stubPublisher);
+            threadFactory.newThread(stubPublisher).start();
 
             assertProducerReaches(stubPublisher, 4, true);
 
@@ -253,7 +245,7 @@ public class DisruptorTest
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated()
         throws Exception
     {
-        executor.ignoreExecutions();
+        threadFactory.ignoreExecutions();
         disruptor.handleEventsWith(new SleepingEventHandler());
         disruptor.start();
         disruptor.handleEventsWith(new SleepingEventHandler());
@@ -263,7 +255,7 @@ public class DisruptorTest
     public void shouldThrowExceptionIfStartIsCalledTwice()
         throws Exception
     {
-        executor.ignoreExecutions();
+        threadFactory.ignoreExecutions();
         disruptor.handleEventsWith(new SleepingEventHandler());
         disruptor.start();
         disruptor.start();
@@ -585,14 +577,14 @@ public class DisruptorTest
 
     private void createDisruptor()
     {
-        executor = new StubExecutor();
-        createDisruptor(executor);
+        threadFactory = new StubThreadFactory();
+        createDisruptor(threadFactory);
     }
 
-    private void createDisruptor(final Executor executor)
+    private void createDisruptor(final ThreadFactory threadFactory)
     {
         disruptor = new Disruptor<TestEvent>(
-            TestEvent.EVENT_FACTORY, 4, executor,
+            TestEvent.EVENT_FACTORY, 4, threadFactory,
             ProducerType.SINGLE, new BlockingWaitStrategy());
     }
 

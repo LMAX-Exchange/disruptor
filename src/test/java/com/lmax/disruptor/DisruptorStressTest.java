@@ -7,10 +7,9 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
+import com.lmax.disruptor.dsl.DaemonThreadFactory;
 import org.junit.Test;
 
 import com.lmax.disruptor.dsl.Disruptor;
@@ -18,13 +17,11 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 public class DisruptorStressTest
 {
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
         Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-            TestEvent.FACTORY, 1 << 16, executor,
+            TestEvent.FACTORY, 1 << 16,
             ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.handleExceptionsWith(new FatalExceptionHandler());
@@ -45,7 +42,7 @@ public class DisruptorStressTest
 
         for (Publisher publisher : publishers)
         {
-            executor.execute(publisher);
+            DaemonThreadFactory.INSTANCE.newThread(publisher).start();
         }
 
         latch.await();

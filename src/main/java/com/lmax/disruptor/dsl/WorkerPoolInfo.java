@@ -2,7 +2,7 @@ package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.*;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 
 class WorkerPoolInfo<T> implements ConsumerInfo
 {
@@ -35,9 +35,9 @@ class WorkerPoolInfo<T> implements ConsumerInfo
     }
 
     @Override
-    public void start(final Executor executor)
+    public void start(final ThreadFactory threadFactory)
     {
-        workerPool.start(executor);
+        workerPool.start(threadFactory);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.lmax.disruptor;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
 import org.hamcrest.CoreMatchers;
@@ -79,7 +78,7 @@ public class BatchingTest
     public void shouldBatch() throws Exception
     {
         Disruptor<LongEvent> d = new Disruptor<LongEvent>(
-            LongEvent.FACTORY, 2048, Executors.newCachedThreadPool(),
+            LongEvent.FACTORY, 2048,
             producerType, new SleepingWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
