@@ -248,7 +248,7 @@ public class Disruptor<T>
         checkNotStarted();
         if (!(this.exceptionHandler instanceof ExceptionHandlerWrapper))
         {
-            throw new IllegalStateException("Mixing calls to handleExceptionsWith and setDefaultExceptionHandler is not supported.");
+            throw new IllegalStateException("setDefaultExceptionHandler can not be used after handleExceptionsWith");
         }
         ((ExceptionHandlerWrapper<T>)this.exceptionHandler).switchTo(exceptionHandler);
     }
