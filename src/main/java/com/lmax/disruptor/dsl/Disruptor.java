@@ -250,7 +250,7 @@ public class Disruptor<T>
         {
             throw new IllegalStateException("Mixing calls to handleExceptionsWith and setDefaultExceptionHandler is not supported.");
         }
-        ((ExceptionHandlerWrapper<T>)this.exceptionHandler).setDelegate(exceptionHandler);
+        ((ExceptionHandlerWrapper<T>)this.exceptionHandler).switchTo(exceptionHandler);
     }
 
     /**

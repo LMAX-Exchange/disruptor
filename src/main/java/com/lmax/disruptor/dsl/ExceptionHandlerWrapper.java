@@ -7,7 +7,7 @@ public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
 {
     private ExceptionHandler<? super T> delegate = new FatalExceptionHandler();
 
-    public void setDelegate(final ExceptionHandler<? super T> exceptionHandler)
+    public void switchTo(final ExceptionHandler<? super T> exceptionHandler)
     {
         this.delegate = exceptionHandler;
     }
