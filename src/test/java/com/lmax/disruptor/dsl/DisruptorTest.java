@@ -21,6 +21,7 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.FatalExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -184,7 +185,7 @@ public class DisruptorTest
     }
 
     @Test
-    public void shouldSupportSpecifyingADefaultExceptionHandlerForEventProcessors()
+    public void shouldSupportSpecifyingAExceptionHandlerForEventProcessors()
         throws Exception
     {
         AtomicReference<Throwable> eventHandled = new AtomicReference<Throwable>();
@@ -194,6 +195,61 @@ public class DisruptorTest
 
         disruptor.handleExceptionsWith(exceptionHandler);
         disruptor.handleEventsWith(handler);
+
+        publishEvent();
+
+        final Throwable actualException = waitFor(eventHandled);
+        assertSame(testException, actualException);
+    }
+
+    @Test
+    public void shouldOnlyApplyExceptionsHandlersSpecifiedViaHandleExceptionsWithOnNewEventProcessors()
+        throws Exception
+    {
+        AtomicReference<Throwable> eventHandled = new AtomicReference<Throwable>();
+        ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
+        RuntimeException testException = new RuntimeException();
+        ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
+
+        disruptor.handleExceptionsWith(exceptionHandler);
+        disruptor.handleEventsWith(handler);
+        disruptor.handleExceptionsWith(new FatalExceptionHandler());
+
+        publishEvent();
+
+        final Throwable actualException = waitFor(eventHandled);
+        assertSame(testException, actualException);
+    }
+
+    @Test
+    public void shouldSupportSpecifyingADefaultExceptionHandlerForEventProcessors()
+        throws Exception
+    {
+        AtomicReference<Throwable> eventHandled = new AtomicReference<Throwable>();
+        ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
+        RuntimeException testException = new RuntimeException();
+        ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
+
+        disruptor.setDefaultExceptionHandler(exceptionHandler);
+        disruptor.handleEventsWith(handler);
+
+        publishEvent();
+
+        final Throwable actualException = waitFor(eventHandled);
+        assertSame(testException, actualException);
+    }
+
+    @Test
+    public void shouldApplyDefaultExceptionHandlerToExistingEventProcessors()
+        throws Exception
+    {
+        AtomicReference<Throwable> eventHandled = new AtomicReference<Throwable>();
+        ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
+        RuntimeException testException = new RuntimeException();
+        ExceptionThrowingEventHandler handler = new ExceptionThrowingEventHandler(testException);
+
+        disruptor.handleEventsWith(handler);
+        disruptor.setDefaultExceptionHandler(exceptionHandler);
 
         publishEvent();
 
@@ -493,18 +549,18 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub<TestEvent>(countDownLatch);
 
         disruptor.handleEventsWith(
-            new EventProcessorFactory<TestEvent>()
-            {
-                @Override
-                public EventProcessor createEventProcessor(
-                    final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
-                {
-                    assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
-                    return new BatchEventProcessor<TestEvent>(
-                        disruptor.getRingBuffer(), ringBuffer.newBarrier(
-                        barrierSequences), eventHandler);
-                }
-            });
+                                   new EventProcessorFactory<TestEvent>()
+                                   {
+                                       @Override
+                                       public EventProcessor createEventProcessor(
+                                                                                  final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
+                                       {
+                                           assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
+                                           return new BatchEventProcessor<TestEvent>(
+                                                                                     disruptor.getRingBuffer(), ringBuffer.newBarrier(
+                                                                                                                                      barrierSequences), eventHandler);
+                                       }
+                                   });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch);
     }

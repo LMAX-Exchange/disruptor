@@ -22,7 +22,6 @@ import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.FatalExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -64,7 +63,7 @@ public class Disruptor<T>
     private final Executor executor;
     private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<T>();
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
+    private ExceptionHandler<? super T> exceptionHandler = new ExceptionHandlerWrapper<T>();
 
     /**
      * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
@@ -136,7 +135,7 @@ public class Disruptor<T>
             final WaitStrategy waitStrategy)
     {
         this(RingBuffer.create(
-                        producerType, eventFactory, ringBufferSize, waitStrategy),
+                               producerType, eventFactory, ringBufferSize, waitStrategy),
                 new BasicExecutor(threadFactory));
     }
 
@@ -229,10 +228,29 @@ public class Disruptor<T>
      * <p>Note that only event handlers set up after calling this method will use the exception handler.</p>
      *
      * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
+     * @deprecated This method only applies to future event handlers. Use setDefaultExceptionHandler instead which applies to existing and new event handlers.
      */
     public void handleExceptionsWith(final ExceptionHandler<? super T> exceptionHandler)
     {
         this.exceptionHandler = exceptionHandler;
+    }
+
+    /**
+     * <p>Specify an exception handler to be used for event handlers and worker pools created by this Disruptor.</p>
+     * <p>
+     * <p>The exception handler will be used by existing and future event handlers and worker pools created by this Disruptor instance.</p>
+     *
+     * @param exceptionHandler the exception handler to use.
+     */
+    @SuppressWarnings("unchecked")
+    public void setDefaultExceptionHandler(final ExceptionHandler<? super T> exceptionHandler)
+    {
+        checkNotStarted();
+        if (!(this.exceptionHandler instanceof ExceptionHandlerWrapper))
+        {
+            throw new IllegalStateException("Mixing calls to handleExceptionsWith and setDefaultExceptionHandler is not supported.");
+        }
+        ((ExceptionHandlerWrapper<T>)this.exceptionHandler).setDelegate(exceptionHandler);
     }
 
     /**

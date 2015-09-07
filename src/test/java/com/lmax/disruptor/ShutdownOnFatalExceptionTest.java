@@ -26,7 +26,7 @@ public class ShutdownOnFatalExceptionTest
             new ByteArrayFactory(256), 1024, Executors.newCachedThreadPool(), ProducerType.SINGLE,
             new BlockingWaitStrategy());
         disruptor.handleEventsWith(eventHandler);
-        disruptor.handleExceptionsWith(new FatalExceptionHandler());
+        disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
     }
 
     @Test(timeout = 1000)
