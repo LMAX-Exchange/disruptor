@@ -1,9 +1,8 @@
 package com.lmax.disruptor;
 
-import static java.lang.Math.max;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -11,10 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
-import org.junit.Test;
-
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
+import static java.lang.Math.max;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 public class DisruptorStressTest
 {
@@ -27,7 +26,7 @@ public class DisruptorStressTest
             TestEvent.FACTORY, 1 << 16, executor,
             ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
-        disruptor.handleExceptionsWith(new FatalExceptionHandler());
+        disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
         int threads = max(1, Runtime.getRuntime().availableProcessors() / 2);
 
