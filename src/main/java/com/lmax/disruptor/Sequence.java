@@ -145,17 +145,8 @@ public class Sequence extends RhsPadding
      */
     public long addAndGet(final long increment)
     {
-        long currentValue;
-        long newValue;
-
-        do
-        {
-            currentValue = get();
-            newValue = currentValue + increment;
-        }
-        while (!compareAndSet(currentValue, newValue));
-
-        return newValue;
+        long result = UNSAFE.getAndAddLong(this, VALUE_OFFSET, increment);
+        return result + increment;
     }
 
     @Override

@@ -16,6 +16,7 @@
 package com.lmax.disruptor.sequenced;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBuffer.createWaitFreeMultiProducer;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -90,7 +91,7 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
+        createWaitFreeMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();

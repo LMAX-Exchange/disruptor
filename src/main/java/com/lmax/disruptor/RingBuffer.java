@@ -138,6 +138,16 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         return new RingBuffer<E>(factory, sequencer);
     }
 
+    public static <E> RingBuffer<E> createWaitFreeMultiProducer(
+        EventFactory<E> factory,
+        int bufferSize,
+        WaitStrategy waitStrategy)
+    {
+        WaitFreeMultiProducerSequencer sequencer = new WaitFreeMultiProducerSequencer(bufferSize, waitStrategy);
+
+        return new RingBuffer<E>(factory, sequencer);
+    }
+
     /**
      * Create a new multiple producer RingBuffer using the default wait strategy  {@link BlockingWaitStrategy}.
      *
