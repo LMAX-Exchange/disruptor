@@ -37,12 +37,16 @@ public interface ExceptionHandler<T>
      *
      * @param ex throw during the starting process.
      */
-    void handleOnStartException(Throwable ex);
+    default void handleOnStartException(Throwable ex)
+    {
+    }
 
     /**
      * Callback to notify of an exception during {@link LifecycleAware#onShutdown()}
      *
      * @param ex throw during the shutdown process.
      */
-    void handleOnShutdownException(Throwable ex);
+    default void handleOnShutdownException(Throwable ex)
+    {
+    }
 }

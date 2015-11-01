@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.EventHandlerBuilder;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.jmock.Mockery;
-import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,100 +52,21 @@ public final class BatchEventProcessorTest
         batchEventProcessor.setExceptionHandler(null);
     }
 
-    private static class LifeCycleEventHandler implements LifecycleAware
-    {
-        private final CountDownLatch startLatch;
-
-        public LifeCycleEventHandler(CountDownLatch startLatch)
-        {
-            this.startLatch = startLatch;
-        }
-
-        @Override
-        public void onStart()
-        {
-            startLatch.countDown();
-        }
-
-        @Override
-        public void onShutdown()
-        {
-
-        }
-    }
-
-    private static class LatchEventHandler extends LifeCycleEventHandler implements EventHandler<StubEvent>
-    {
-        private final CountDownLatch eventLatch;
-
-        public LatchEventHandler(CountDownLatch startLatch, CountDownLatch eventLatch)
-        {
-            super(startLatch);
-            this.eventLatch = eventLatch;
-        }
-
-        @Override
-        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
-        {
-            eventLatch.countDown();
-        }
-    }
-
-    private static class ExceptionEventHandler extends LifeCycleEventHandler implements EventHandler<StubEvent>
-    {
-        private final Exception ex;
-
-        public ExceptionEventHandler(CountDownLatch startLatch, Exception ex)
-        {
-            super(startLatch);
-            this.ex = ex;
-        }
-
-        @Override
-        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
-        {
-            throw ex;
-        }
-    }
-
-    private static class LatchExceptionHandler implements ExceptionHandler<StubEvent>
-    {
-        private final CountDownLatch exceptionLatch;
-
-        public LatchExceptionHandler(CountDownLatch exceptionLatch)
-        {
-            this.exceptionLatch = exceptionLatch;
-        }
-
-        @Override
-        public void handleEventException(final Throwable ex, final long sequence, final StubEvent event)
-        {
-            exceptionLatch.countDown();
-        }
-
-        @Override
-        public void handleOnStartException(final Throwable ex)
-        {
-
-        }
-
-        @Override
-        public void handleOnShutdownException(final Throwable ex)
-        {
-
-        }
-    }
-
     @Test
     public void shouldCallMethodsInLifecycleOrder()
         throws Exception
     {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch eventLatch = new CountDownLatch(1);
-        final LatchEventHandler latchProcessor = new LatchEventHandler(startLatch, eventLatch);
+
+        final EventHandler<StubEvent> handler =
+            EventHandlerBuilder.<StubEvent>aHandler()
+                .onEvent((a, b, c) -> eventLatch.countDown())
+                .onStart(startLatch::countDown)
+                .newInstance();
 
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, latchProcessor);
+            ringBuffer, sequenceBarrier, handler);
 
         Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
@@ -169,10 +90,15 @@ public final class BatchEventProcessorTest
     {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch eventLatch = new CountDownLatch(3);
-        final LatchEventHandler latchProcessor = new LatchEventHandler(startLatch, eventLatch);
+
+        final EventHandler<StubEvent> handler =
+            EventHandlerBuilder.<StubEvent>aHandler()
+                .onEvent((a, b, c) -> eventLatch.countDown())
+                .onStart(startLatch::countDown)
+                .newInstance();
 
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, latchProcessor);
+            ringBuffer, sequenceBarrier, handler);
 
         Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
@@ -200,13 +126,16 @@ public final class BatchEventProcessorTest
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch exceptionLatch = new CountDownLatch(1);
 
-        ExceptionEventHandler exceptionEventHandler = new ExceptionEventHandler(startLatch, ex);
-        LatchExceptionHandler latchExceptionHandler = new LatchExceptionHandler(exceptionLatch);
+        final EventHandler<StubEvent> handler =
+            EventHandlerBuilder.<StubEvent>aHandler()
+                .onEvent((a, b, c) -> { throw ex; })
+                .onStart(startLatch::countDown)
+                .newInstance();
 
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, exceptionEventHandler);
+            ringBuffer, sequenceBarrier, handler);
 
-        batchEventProcessor.setExceptionHandler(latchExceptionHandler);
+        batchEventProcessor.setExceptionHandler(((ex1, sequence, event) -> exceptionLatch.countDown()));
 
         Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
