@@ -15,18 +15,40 @@
  */
 package com.lmax.disruptor.dsl;
 
+import com.lmax.disruptor.*;
+
 /**
  * Defines producer types to support creation of RingBuffer with correct sequencer and publisher.
  */
-public enum ProducerType
+public enum ProducerType implements SequencerFactory
 {
     /**
      * Create a RingBuffer with a single event publisher to the RingBuffer
      */
-    SINGLE,
+    SINGLE
+        {
+            @Override
+            public Sequencer newInstance(final int bufferSize, final WaitStrategy waitStrategy)
+            {
+                return new SingleProducerSequencer(bufferSize, waitStrategy);
+            }
+        },
 
     /**
      * Create a RingBuffer supporting multiple event publishers to the one RingBuffer
      */
     MULTI
+        {
+            @Override
+            public Sequencer newInstance(final int bufferSize, final WaitStrategy waitStrategy)
+            {
+                return new MultiProducerSequencer(bufferSize, waitStrategy);
+            }
+        };
+
+    public static SequencerFactory waitFree(int reserveSize)
+    {
+        return ((bufferSize, waitStrategy) ->
+            new WaitFreeSequencer(bufferSize, waitStrategy, reserveSize));
+    }
 }

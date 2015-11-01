@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.hamcrest.CoreMatchers;
@@ -18,17 +19,18 @@ import java.util.concurrent.locks.LockSupport;
 @RunWith(Parameterized.class)
 public class BatchingTest
 {
-    private final ProducerType producerType;
+    private final SequencerFactory producerType;
 
-    public BatchingTest(ProducerType producerType)
+    public BatchingTest(String name, SequencerFactory producerType)
     {
         this.producerType = producerType;
     }
 
-    @Parameters
+    @Parameters(name = "{0}")
     public static Collection<Object[]> generateData()
     {
-        Object[][] producerTypes = {{ProducerType.MULTI}, {ProducerType.SINGLE}};
+        Object[][] producerTypes =
+            {{"Multi", ProducerType.MULTI}, {"Single", ProducerType.SINGLE}, {"WaitFree", ProducerType.waitFree(64)}};
         return Arrays.asList(producerTypes);
     }
 

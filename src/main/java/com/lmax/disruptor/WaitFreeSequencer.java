@@ -23,18 +23,21 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
- * Suitable for use for sequencing across multiple publisher threads.</p>
+ * Suitable for use for sequencing across multiple publisher threads.  The implementation attempts to be wait-free.
+ * This condition can hold if user configures the sequencer correctly.  The main configuration option is the size of
+ * the reserved space between the cursor and the minimum consumed sequence.  This value needs to be larger than
+ * the sum of all of the producing threads' maximum possible batch size.  If this is not the case then it is possible
+ * that even the tryNext call will block.</p>
  * <p>
  * <p> * <p>Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
  * to {@link Sequencer#next()}, to determine the highest available sequence that can be read, then
  * {@link Sequencer#getHighestPublishedSequence(long, long)} should be used.
  */
-public final class WaitFreeMultiProducerSequencer extends AbstractSequencer
+public final class WaitFreeSequencer extends AbstractSequencer
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
-    private static final int RESERVE = 64;
 
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
@@ -43,16 +46,25 @@ public final class WaitFreeMultiProducerSequencer extends AbstractSequencer
     private final int[] availableBuffer;
     private final int indexMask;
     private final int indexShift;
+    private final int reserveSize;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
-     *
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
+     * @param reserveSize the space to leave between the consumer and publisher sequences
+     *                    when approaching the wrap limit.
      */
-    public WaitFreeMultiProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
+    public WaitFreeSequencer(int bufferSize, final WaitStrategy waitStrategy, final int reserveSize)
     {
         super(bufferSize, waitStrategy);
+
+        if (reserveSize > bufferSize / 2)
+        {
+            throw new IllegalArgumentException("'reserveSize' can not be larger than half of bufferSize");
+        }
+
+        this.reserveSize = reserveSize;
         availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
@@ -157,7 +169,7 @@ public final class WaitFreeMultiProducerSequencer extends AbstractSequencer
         final long current = cursor.get();
         long next;
 
-        if (hasAvailableCapacity(gatingSequences, n + RESERVE, current))
+        if (hasAvailableCapacity(gatingSequences, n + reserveSize, current))
         {
             next = cursor.incrementAndGet();
 

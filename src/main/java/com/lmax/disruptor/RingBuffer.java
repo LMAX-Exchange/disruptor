@@ -16,10 +16,9 @@
 package com.lmax.disruptor;
 
 
-import sun.misc.Unsafe;
-
-import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.util.Util;
+import sun.misc.Unsafe;
 
 abstract class RingBufferPad
 {
@@ -58,9 +57,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     protected final int bufferSize;
     protected final Sequencer sequencer;
 
-    RingBufferFields(
-        EventFactory<E> eventFactory,
-        Sequencer sequencer)
+    RingBufferFields(EventFactory<E> eventFactory, Sequencer sequencer)
     {
         this.sequencer = sequencer;
         this.bufferSize = sequencer.getBufferSize();
@@ -112,9 +109,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param sequencer    sequencer to handle the ordering of events moving through the RingBuffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
-    RingBuffer(
-        EventFactory<E> eventFactory,
-        Sequencer sequencer)
+    RingBuffer(EventFactory<E> eventFactory, Sequencer sequencer)
     {
         super(eventFactory, sequencer);
     }
@@ -141,9 +136,10 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     public static <E> RingBuffer<E> createWaitFreeMultiProducer(
         EventFactory<E> factory,
         int bufferSize,
-        WaitStrategy waitStrategy)
+        WaitStrategy waitStrategy,
+        int reserveSize)
     {
-        WaitFreeMultiProducerSequencer sequencer = new WaitFreeMultiProducerSequencer(bufferSize, waitStrategy);
+        WaitFreeSequencer sequencer = new WaitFreeSequencer(bufferSize, waitStrategy, reserveSize);
 
         return new RingBuffer<E>(factory, sequencer);
     }
@@ -196,27 +192,19 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     /**
      * Create a new Ring Buffer with the specified producer type (SINGLE or MULTI)
      *
-     * @param producerType producer type to use {@link ProducerType}.
+     * @param producerType producer type to use {@link com.lmax.disruptor.dsl.ProducerType}.
      * @param factory      used to create events within the ring buffer.
      * @param bufferSize   number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
     public static <E> RingBuffer<E> create(
-        ProducerType producerType,
+        SequencerFactory producerType,
         EventFactory<E> factory,
         int bufferSize,
         WaitStrategy waitStrategy)
     {
-        switch (producerType)
-        {
-            case SINGLE:
-                return createSingleProducer(factory, bufferSize, waitStrategy);
-            case MULTI:
-                return createMultiProducer(factory, bufferSize, waitStrategy);
-            default:
-                throw new IllegalStateException(producerType.toString());
-        }
+        return new RingBuffer<E>(factory, producerType.newInstance(bufferSize, waitStrategy));
     }
 
     /**

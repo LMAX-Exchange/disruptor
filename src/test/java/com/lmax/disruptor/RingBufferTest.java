@@ -15,30 +15,20 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.StubEvent;
+import com.lmax.disruptor.support.TestWaiter;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static com.lmax.disruptor.RingBufferEventMatcher.ringBufferWithEvents;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Test;
-
-import com.lmax.disruptor.support.StubEvent;
-import com.lmax.disruptor.support.TestWaiter;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import static org.junit.Assert.*;
 
 public class RingBufferTest
 {
@@ -154,7 +144,7 @@ public class RingBufferTest
             ringBuffer.tryNext();
             fail("Exception should have been thrown");
         }
-        catch (InsufficientCapacityException e)
+        catch (InsufficientCapacityException ignored)
         {
         }
     }
@@ -190,7 +180,7 @@ public class RingBufferTest
         thread.start();
 
         latch.await();
-        assertThat(Long.valueOf(buffer2.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
+        assertThat(buffer2.getCursor(), is((long) (ringBufferSize - 1)));
         assertFalse(publisherComplete.get());
 
         processor.run();

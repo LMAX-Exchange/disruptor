@@ -16,28 +16,24 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
-import org.hamcrest.Description;
-import org.jmock.Expectations;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-import org.jmock.api.Action;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static com.lmax.disruptor.support.Actions.countDown;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 @RunWith(JMock.class)
 public final class BatchEventProcessorTest
 {
     private final Mockery context = new Mockery();
-    private final Sequence lifecycleSequence = context.sequence("lifecycleSequence");
-    private final CountDownLatch latch = new CountDownLatch(1);
 
     private final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
@@ -50,38 +46,118 @@ public final class BatchEventProcessorTest
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }
 
-    @SuppressWarnings("unchecked")
-    private final ExceptionHandler<StubEvent> exceptionHandler = context.mock(ExceptionHandler.class);
-
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
         batchEventProcessor.setExceptionHandler(null);
     }
 
+    private static class LifeCycleEventHandler implements LifecycleAware
+    {
+        private final CountDownLatch startLatch;
+
+        public LifeCycleEventHandler(CountDownLatch startLatch)
+        {
+            this.startLatch = startLatch;
+        }
+
+        @Override
+        public void onStart()
+        {
+            startLatch.countDown();
+        }
+
+        @Override
+        public void onShutdown()
+        {
+
+        }
+    }
+
+    private static class LatchEventHandler extends LifeCycleEventHandler implements EventHandler<StubEvent>
+    {
+        private final CountDownLatch eventLatch;
+
+        public LatchEventHandler(CountDownLatch startLatch, CountDownLatch eventLatch)
+        {
+            super(startLatch);
+            this.eventLatch = eventLatch;
+        }
+
+        @Override
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
+        {
+            eventLatch.countDown();
+        }
+    }
+
+    private static class ExceptionEventHandler extends LifeCycleEventHandler implements EventHandler<StubEvent>
+    {
+        private final Exception ex;
+
+        public ExceptionEventHandler(CountDownLatch startLatch, Exception ex)
+        {
+            super(startLatch);
+            this.ex = ex;
+        }
+
+        @Override
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
+        {
+            throw ex;
+        }
+    }
+
+    private static class LatchExceptionHandler implements ExceptionHandler<StubEvent>
+    {
+        private final CountDownLatch exceptionLatch;
+
+        public LatchExceptionHandler(CountDownLatch exceptionLatch)
+        {
+            this.exceptionLatch = exceptionLatch;
+        }
+
+        @Override
+        public void handleEventException(final Throwable ex, final long sequence, final StubEvent event)
+        {
+            exceptionLatch.countDown();
+        }
+
+        @Override
+        public void handleOnStartException(final Throwable ex)
+        {
+
+        }
+
+        @Override
+        public void handleOnShutdownException(final Throwable ex)
+        {
+
+        }
+    }
+
     @Test
     public void shouldCallMethodsInLifecycleOrder()
         throws Exception
     {
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, true);
-                    inSequence(lifecycleSequence);
+        final CountDownLatch startLatch = new CountDownLatch(1);
+        final CountDownLatch eventLatch = new CountDownLatch(1);
+        final LatchEventHandler latchProcessor = new LatchEventHandler(startLatch, eventLatch);
 
-                    will(countDown(latch));
-                }
-            });
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
+            ringBuffer, sequenceBarrier, latchProcessor);
 
-        Thread thread = new Thread(batchEventProcessor);
+        Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
+
+        assertTrue("Latch never released", startLatch.await(2, TimeUnit.SECONDS));
+        assertThat(eventLatch.getCount(), is(1L));
 
         assertEquals(-1L, batchEventProcessor.getSequence().get());
 
         ringBuffer.publish(ringBuffer.next());
 
-        latch.await();
+        assertTrue("Latch never released", eventLatch.await(2, TimeUnit.SECONDS));
 
         batchEventProcessor.halt();
         thread.join();
@@ -91,29 +167,26 @@ public final class BatchEventProcessorTest
     public void shouldCallMethodsInLifecycleOrderForBatch()
         throws Exception
     {
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eventHandler).onEvent(ringBuffer.get(0L), 0L, false);
-                    inSequence(lifecycleSequence);
-                    oneOf(eventHandler).onEvent(ringBuffer.get(1L), 1L, false);
-                    inSequence(lifecycleSequence);
-                    oneOf(eventHandler).onEvent(ringBuffer.get(2L), 2L, true);
-                    inSequence(lifecycleSequence);
+        final CountDownLatch startLatch = new CountDownLatch(1);
+        final CountDownLatch eventLatch = new CountDownLatch(3);
+        final LatchEventHandler latchProcessor = new LatchEventHandler(startLatch, eventLatch);
 
-                    will(countDown(latch));
-                }
-            });
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
+            ringBuffer, sequenceBarrier, latchProcessor);
 
-        ringBuffer.publish(ringBuffer.next());
-        ringBuffer.publish(ringBuffer.next());
-        ringBuffer.publish(ringBuffer.next());
-
-        Thread thread = new Thread(batchEventProcessor);
+        Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
 
-        latch.await();
+        assertTrue("Latch never released", startLatch.await(2, TimeUnit.SECONDS));
+        assertThat(eventLatch.getCount(), is(3L));
+
+        assertEquals(-1L, batchEventProcessor.getSequence().get());
+
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+
+        assertTrue("Latch never released", eventLatch.await(2, TimeUnit.SECONDS));
 
         batchEventProcessor.halt();
         thread.join();
@@ -124,42 +197,25 @@ public final class BatchEventProcessorTest
         throws Exception
     {
         final Exception ex = new Exception();
-        batchEventProcessor.setExceptionHandler(exceptionHandler);
+        final CountDownLatch startLatch = new CountDownLatch(1);
+        final CountDownLatch exceptionLatch = new CountDownLatch(1);
 
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eventHandler).onEvent(ringBuffer.get(0), 0L, true);
-                    inSequence(lifecycleSequence);
-                    will(
-                        new Action()
-                        {
-                            @Override
-                            public Object invoke(final Invocation invocation) throws Throwable
-                            {
-                                throw ex;
-                            }
+        ExceptionEventHandler exceptionEventHandler = new ExceptionEventHandler(startLatch, ex);
+        LatchExceptionHandler latchExceptionHandler = new LatchExceptionHandler(exceptionLatch);
 
-                            @Override
-                            public void describeTo(final Description description)
-                            {
-                                description.appendText("Throws exception");
-                            }
-                        });
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
+            ringBuffer, sequenceBarrier, exceptionEventHandler);
 
-                    oneOf(exceptionHandler).handleEventException(ex, 0L, ringBuffer.get(0));
-                    inSequence(lifecycleSequence);
-                    will(countDown(latch));
-                }
-            });
+        batchEventProcessor.setExceptionHandler(latchExceptionHandler);
 
-        Thread thread = new Thread(batchEventProcessor);
+        Thread thread = DaemonThreadFactory.INSTANCE.newThread(batchEventProcessor);
         thread.start();
+
+        assertTrue("Latch never released", startLatch.await(2, TimeUnit.SECONDS));
 
         ringBuffer.publish(ringBuffer.next());
 
-        latch.await();
+        assertTrue("Latch never released", exceptionLatch.await(2, TimeUnit.SECONDS));
 
         batchEventProcessor.halt();
         thread.join();

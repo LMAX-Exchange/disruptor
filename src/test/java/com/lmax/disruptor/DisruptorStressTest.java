@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertThat;
 
 public class DisruptorStressTest
 {
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 
     @Test
     public void shouldHandleLotsOfThreads() throws Exception

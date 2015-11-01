@@ -1,16 +1,14 @@
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.junit.Test;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
-
-import com.lmax.disruptor.util.DaemonThreadFactory;
-
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WorkerPoolTest
 {

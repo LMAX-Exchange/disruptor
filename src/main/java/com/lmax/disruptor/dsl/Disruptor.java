@@ -15,20 +15,7 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.EventTranslatorOneArg;
-import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.WorkHandler;
-import com.lmax.disruptor.WorkerPool;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.Executor;
@@ -99,7 +86,7 @@ public class Disruptor<T>
         final EventFactory<T> eventFactory,
         final int ringBufferSize,
         final Executor executor,
-        final ProducerType producerType,
+        final SequencerFactory producerType,
         final WaitStrategy waitStrategy)
     {
         this(RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy), executor);
@@ -131,12 +118,12 @@ public class Disruptor<T>
             final EventFactory<T> eventFactory,
             final int ringBufferSize,
             final ThreadFactory threadFactory,
-            final ProducerType producerType,
+            final SequencerFactory producerType,
             final WaitStrategy waitStrategy)
     {
-        this(RingBuffer.create(
-                               producerType, eventFactory, ringBufferSize, waitStrategy),
-                new BasicExecutor(threadFactory));
+        this(
+            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+            new BasicExecutor(threadFactory));
     }
 
     /**
