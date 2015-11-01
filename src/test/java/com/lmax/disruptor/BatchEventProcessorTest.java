@@ -18,10 +18,7 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.EventHandlerBuilder;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,26 +27,15 @@ import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-@RunWith(JMock.class)
 public final class BatchEventProcessorTest
 {
-    private final Mockery context = new Mockery();
-
     private final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-    @SuppressWarnings("unchecked")
-    private final EventHandler<StubEvent> eventHandler = context.mock(EventHandler.class);
-    private final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-        ringBuffer, sequenceBarrier, eventHandler);
-
-    {
-        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
-    }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
-        batchEventProcessor.setExceptionHandler(null);
+        new BatchEventProcessor<>(ringBuffer, sequenceBarrier, (a, b, c) -> {}).setExceptionHandler(null);
     }
 
     @Test

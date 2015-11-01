@@ -30,7 +30,6 @@ import org.junit.runner.RunWith;
 
 import com.lmax.disruptor.Sequence;
 
-@RunWith(JMock.class)
 public final class UtilTest
 {
     private final Mockery context = new Mockery();
@@ -58,24 +57,9 @@ public final class UtilTest
 
         context.setImposteriser(ClassImposteriser.INSTANCE);
 
-        sequences[0] = context.mock(Sequence.class, "s0");
-        sequences[1] = context.mock(Sequence.class, "s1");
-        sequences[2] = context.mock(Sequence.class, "s2");
-
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(sequences[0]).get();
-                    will(returnValue(Long.valueOf(7L)));
-
-                    oneOf(sequences[1]).get();
-                    will(returnValue(Long.valueOf(3L)));
-
-                    oneOf(sequences[2]).get();
-                    will(returnValue(Long.valueOf(12L)));
-                }
-            });
+        sequences[0] = new Sequence(7);
+        sequences[1] = new Sequence(3);
+        sequences[2] = new Sequence(12);
 
         Assert.assertEquals(3L, Util.getMinimumSequence(sequences));
     }
