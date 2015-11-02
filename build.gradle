@@ -44,7 +44,7 @@ sourceSets {
     perf.java.srcDir file('src/perftest/java')
 }
 
-//eclipse.classpath.plusConfigurations += sourceSets.perf.compileClasspath
+eclipse.classpath.plusConfigurations += [ sourceSets.perf.compileClasspath ]
 
 repositories {
     mavenCentral()
@@ -52,9 +52,9 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.5',
-                'org.jmock:jmock-junit4:2.5.1', 
+                'org.jmock:jmock-junit4:2.5.1',
                 'org.jmock:jmock-legacy:2.5.1'
-    
+
     perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
 
@@ -174,12 +174,12 @@ task listJars << {
 task perfJar(type: Jar) {
     baseName = project.name + '-perf'
     from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
-    from sourceSets.perf.output 
+    from sourceSets.perf.output
     with jar
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.8'
 }
 
 class Version {
