@@ -28,8 +28,6 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 

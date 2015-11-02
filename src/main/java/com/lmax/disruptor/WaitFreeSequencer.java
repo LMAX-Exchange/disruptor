@@ -77,7 +77,7 @@ public final class WaitFreeSequencer extends AbstractSequencer
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
-        return hasAvailableCapacity(gatingSequences, requiredCapacity, cursor.get());
+        return hasAvailableCapacity(gatingSequences, requiredCapacity + reserveSize, cursor.get());
     }
 
     private boolean hasAvailableCapacity(Sequence[] gatingSequences, final int requiredCapacity, long cursorValue)
