@@ -1,9 +1,9 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.support.SequencerFactories;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.LockSupport;
 
@@ -29,9 +28,7 @@ public class BatchingTest
     @Parameters(name = "{0}")
     public static Collection<Object[]> generateData()
     {
-        Object[][] producerTypes =
-            {{"Multi", ProducerType.MULTI}, {"Single", ProducerType.SINGLE}, {"WaitFree", ProducerType.waitFree(64)}};
-        return Arrays.asList(producerTypes);
+        return SequencerFactories.asParameters();
     }
 
     private static class ParallelEventHandler implements EventHandler<LongEvent>

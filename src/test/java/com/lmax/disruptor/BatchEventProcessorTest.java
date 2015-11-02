@@ -15,22 +15,41 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.EventHandlerBuilder;
+import com.lmax.disruptor.support.SequencerFactories;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public final class BatchEventProcessorTest
 {
-    private final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+    private final RingBuffer<StubEvent> ringBuffer;
+    private final SequenceBarrier sequenceBarrier;
+
+    public BatchEventProcessorTest(String name, SequencerFactory factory)
+    {
+        this.ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, factory.newInstance(16, new BlockingWaitStrategy()));
+        this.sequenceBarrier = ringBuffer.newBarrier();
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters()
+    {
+        return SequencerFactories.asParameters();
+    }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
@@ -90,9 +109,9 @@ public final class BatchEventProcessorTest
         thread.start();
 
         assertTrue("Latch never released", startLatch.await(2, TimeUnit.SECONDS));
+        assertEquals(-1L, batchEventProcessor.getSequence().get());
         assertThat(eventLatch.getCount(), is(3L));
 
-        assertEquals(-1L, batchEventProcessor.getSequence().get());
 
         ringBuffer.publish(ringBuffer.next());
         ringBuffer.publish(ringBuffer.next());
