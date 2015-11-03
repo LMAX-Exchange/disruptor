@@ -17,19 +17,18 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@RunWith(JMock.class)
 public final class IgnoreExceptionHandlerTest
 {
-    private final Mockery context = new Mockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
 
     public IgnoreExceptionHandlerTest()
     {

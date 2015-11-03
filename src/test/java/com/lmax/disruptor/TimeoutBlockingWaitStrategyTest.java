@@ -1,10 +1,9 @@
 package com.lmax.disruptor;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,10 +11,10 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@RunWith(JMock.class)
 public class TimeoutBlockingWaitStrategyTest
 {
-    private final Mockery mockery = new Mockery();
+    @Rule
+    public final JUnitRuleMockery mockery = new JUnitRuleMockery();
 
     @Test
     public void shouldTimeoutWaitFor() throws Exception

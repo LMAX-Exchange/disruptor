@@ -1,21 +1,19 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.EventPoller.PollState;
+import org.jmock.Expectations;
+import org.jmock.States;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.States;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.lmax.disruptor.EventPoller.PollState;
-
-@RunWith(JMock.class)
 public class EventPollerTest
 {
-    private final Mockery mockery = new Mockery();
+    @Rule
+    public final JUnitRuleMockery mockery = new JUnitRuleMockery();
 
     @Test
     @SuppressWarnings("unchecked")
@@ -60,7 +58,7 @@ public class EventPollerTest
                     will(returnValue(event));
                     when(states.is("processing"));
 
-                    one(handler).onEvent(event, 0, true);
+                    oneOf(handler).onEvent(event, 0, true);
                     when(states.is("processing"));
                 }
             });

@@ -1,18 +1,16 @@
 package com.lmax.disruptor;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.lmax.disruptor.support.StubEvent;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-@RunWith(JMock.class)
 public class RingBufferWithMocksTest
 {
-    private final Mockery mockery = new Mockery();
+    @Rule
+    public final JUnitRuleMockery mockery = new JUnitRuleMockery();
 
     private RingBuffer<StubEvent> ringBuffer;
     private Sequencer sequencer;
@@ -42,11 +40,11 @@ public class RingBufferWithMocksTest
             new Expectations()
             {
                 {
-                    one(sequencer).next();
+                    oneOf(sequencer).next();
                     inSequence(sequence);
                     will(returnValue(34L));
 
-                    one(sequencer).publish(34L);
+                    oneOf(sequencer).publish(34L);
                     inSequence(sequence);
                 }
             });
@@ -62,11 +60,11 @@ public class RingBufferWithMocksTest
             new Expectations()
             {
                 {
-                    one(sequencer).tryNext();
+                    oneOf(sequencer).tryNext();
                     inSequence(sequence);
                     will(returnValue(34L));
 
-                    one(sequencer).publish(34L);
+                    oneOf(sequencer).publish(34L);
                     inSequence(sequence);
                 }
             });
@@ -82,11 +80,11 @@ public class RingBufferWithMocksTest
             new Expectations()
             {
                 {
-                    one(sequencer).next(10);
+                    oneOf(sequencer).next(10);
                     inSequence(sequence);
                     will(returnValue(34L));
 
-                    one(sequencer).publish(25L, 34L);
+                    oneOf(sequencer).publish(25L, 34L);
                     inSequence(sequence);
                 }
             });
@@ -103,11 +101,11 @@ public class RingBufferWithMocksTest
             new Expectations()
             {
                 {
-                    one(sequencer).tryNext(10);
+                    oneOf(sequencer).tryNext(10);
                     inSequence(sequence);
                     will(returnValue(34L));
 
-                    one(sequencer).publish(25L, 34L);
+                    oneOf(sequencer).publish(25L, 34L);
                     inSequence(sequence);
                 }
             });

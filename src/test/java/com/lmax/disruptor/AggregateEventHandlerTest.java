@@ -15,17 +15,17 @@
  */
 package com.lmax.disruptor;
 
-import org.jmock.*;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 @SuppressWarnings("unchecked")
 public final class AggregateEventHandlerTest
 {
-    private Mockery context = new Mockery()
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery()
     {
         {
             setImposteriser(ClassImposteriser.INSTANCE);

@@ -174,7 +174,7 @@ public class SequencerTest
             new Expectations()
             {
                 {
-                    one(waitStrategy).signalAllWhenBlocking();
+                    oneOf(waitStrategy).signalAllWhenBlocking();
                 }
             });
 
@@ -193,7 +193,7 @@ public class SequencerTest
             new Expectations()
             {
                 {
-                    one(waitStrategy).signalAllWhenBlocking();
+                    oneOf(waitStrategy).signalAllWhenBlocking();
                 }
             });
 
