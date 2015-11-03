@@ -15,14 +15,16 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.Util;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,19 +33,31 @@ import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
-@RunWith(JMock.class)
+@RunWith(Parameterized.class)
 public final class SequenceBarrierTest
 {
-    private Mockery context = new Mockery();
-    private final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 64);
-    private EventProcessor eventProcessor1 = context.mock(EventProcessor.class, "ep1");
-    private EventProcessor eventProcessor2 = context.mock(EventProcessor.class, "ep2");
-    private EventProcessor eventProcessor3 = context.mock(EventProcessor.class, "ep3");
+    private final RingBuffer<StubEvent> ringBuffer;
+    private StubEventProcessor eventProcessor1 = new StubEventProcessor();
+    private StubEventProcessor eventProcessor2 = new StubEventProcessor();
+    private StubEventProcessor eventProcessor3 = new StubEventProcessor();
 
-    public SequenceBarrierTest()
+    public SequenceBarrierTest(String name, SequencerFactory sequencerFactory)
     {
+        ringBuffer = new RingBuffer<>(
+            StubEvent.EVENT_FACTORY, sequencerFactory.newInstance(256, new BlockingWaitStrategy()));
+
         ringBuffer.addGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters()
+    {
+        Object[][] params = new Object[][] {
+            {"waitfree", ProducerType.waitFree(64)},
+            {"multi", ProducerType.MULTI}
+        };
+
+        return Arrays.asList(params);
     }
 
     @Test
@@ -53,24 +67,9 @@ public final class SequenceBarrierTest
         final long expectedWorkSequence = 9;
         fillRingBuffer(expectedNumberMessages);
 
-        final Sequence sequence1 = new Sequence(expectedNumberMessages);
-        final Sequence sequence2 = new Sequence(expectedWorkSequence);
-        final Sequence sequence3 = new Sequence(expectedNumberMessages);
-
-        context.checking(
-            new Expectations()
-            {
-                {
-                    one(eventProcessor1).getSequence();
-                    will(returnValue(sequence1));
-
-                    one(eventProcessor2).getSequence();
-                    will(returnValue(sequence2));
-
-                    one(eventProcessor3).getSequence();
-                    will(returnValue(sequence3));
-                }
-            });
+        eventProcessor1.setSequence(expectedNumberMessages);
+        eventProcessor2.setSequence(expectedWorkSequence);
+        eventProcessor3.setSequence(expectedNumberMessages);
 
         SequenceBarrier sequenceBarrier =
             ringBuffer.newBarrier(
@@ -113,9 +112,8 @@ public final class SequenceBarrierTest
 
         new Thread(runnable).start();
 
-        long expectedWorkSequence = expectedNumberMessages;
         long completedWorkSequence = sequenceBarrier.waitFor(expectedNumberMessages);
-        assertTrue(completedWorkSequence >= expectedWorkSequence);
+        assertTrue(completedWorkSequence >= expectedNumberMessages);
     }
 
     @Test
@@ -125,24 +123,9 @@ public final class SequenceBarrierTest
         fillRingBuffer(expectedNumberMessages);
 
         final CountDownLatch latch = new CountDownLatch(3);
-        final Sequence sequence1 = new CountDownLatchSequence(8L, latch);
-        final Sequence sequence2 = new CountDownLatchSequence(8L, latch);
-        final Sequence sequence3 = new CountDownLatchSequence(8L, latch);
-
-        context.checking(
-            new Expectations()
-            {
-                {
-                    one(eventProcessor1).getSequence();
-                    will(returnValue(sequence1));
-
-                    one(eventProcessor2).getSequence();
-                    will(returnValue(sequence2));
-
-                    one(eventProcessor3).getSequence();
-                    will(returnValue(sequence3));
-                }
-            });
+        eventProcessor1.set(new CountDownLatchSequence(8L, latch));
+        eventProcessor2.set(new CountDownLatchSequence(8L, latch));
+        eventProcessor3.set(new CountDownLatchSequence(8L, latch));
 
         final SequenceBarrier sequenceBarrier =
             ringBuffer.newBarrier(Util.getSequencesFor(eventProcessor1, eventProcessor2, eventProcessor3));
@@ -238,7 +221,7 @@ public final class SequenceBarrierTest
 
     private static final class StubEventProcessor implements EventProcessor
     {
-        private final Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
+        private Sequence sequence = new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE);
         private final AtomicBoolean running = new AtomicBoolean(false);
 
         public void setSequence(long sequence)
@@ -250,6 +233,11 @@ public final class SequenceBarrierTest
         public Sequence getSequence()
         {
             return sequence;
+        }
+
+        public void set(Sequence sequence)
+        {
+            this.sequence = sequence;
         }
 
         @Override

@@ -15,15 +15,16 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.EventHandlerBuilder;
-import com.lmax.disruptor.support.SequencerFactories;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,13 @@ public final class BatchEventProcessorTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        return SequencerFactories.asParameters();
+        Object[][] params = new Object[][] {
+            {"waitfree", ProducerType.waitFree(4)},
+            {"multi", ProducerType.MULTI},
+            {"single", ProducerType.SINGLE},
+        };
+
+        return Arrays.asList(params);
     }
 
     @Test(expected = NullPointerException.class)

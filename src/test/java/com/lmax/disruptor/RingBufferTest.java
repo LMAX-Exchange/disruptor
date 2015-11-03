@@ -15,11 +15,17 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.support.TestWaiter;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,16 +34,32 @@ import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static com.lmax.disruptor.RingBufferEventMatcher.ringBufferWithEvents;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class RingBufferTest
 {
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
-    private final RingBuffer<StubEvent> ringBuffer = RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 32);
-    private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+    private final RingBuffer<StubEvent> ringBuffer;
+    private final SequenceBarrier sequenceBarrier;
 
+    public RingBufferTest(String name, SequencerFactory sequencerFactory)
     {
+        ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, sequencerFactory.newInstance(256, new BlockingWaitStrategy()));
         ringBuffer.addGatingSequences(new NoOpEventProcessor(ringBuffer).getSequence());
+        sequenceBarrier = ringBuffer.newBarrier();
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters()
+    {
+        Object[][] params = new Object[][] {
+            {"waitfree", ProducerType.waitFree(64)},
+            {"multi", ProducerType.MULTI}
+        };
+
+        return Arrays.asList(params);
     }
 
     @Test
@@ -127,17 +149,21 @@ public class RingBufferTest
     {
         ringBuffer.addGatingSequences(new Sequence(ringBuffer.getBufferSize()));
 
+        int count = 0;
         try
         {
-            for (int i = 0; i < ringBuffer.getBufferSize(); i++)
+            while (ringBuffer.hasAvailableCapacity(1))
             {
                 ringBuffer.publish(ringBuffer.tryNext());
+                count++;
             }
         }
         catch (Exception e)
         {
             fail("Should not of thrown exception");
         }
+
+        assertThat(count, greaterThan(0));
 
         try
         {
@@ -1273,9 +1299,7 @@ public class RingBufferTest
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
         final Future<List<StubEvent>> f = executor.submit(
-            new TestWaiter(
-                cyclicBarrier, sequenceBarrier, ringBuffer,
-                initial, toWaitFor));
+            new TestWaiter(cyclicBarrier, sequenceBarrier, ringBuffer, initial, toWaitFor));
 
         cyclicBarrier.await();
 

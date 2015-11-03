@@ -2,13 +2,16 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.Math.max;
@@ -16,16 +19,33 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
+@RunWith(Parameterized.class)
 public class DisruptorStressTest
 {
-    private final ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
+    private final SequencerFactory factory;
+
+    public DisruptorStressTest(String name, SequencerFactory factory)
+    {
+        this.factory = factory;
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters()
+    {
+        Object[][] params = new Object[][] {
+            {"waitfree", ProducerType.waitFree(64)},
+            {"multi", ProducerType.MULTI}
+        };
+
+        return Arrays.asList(params);
+    }
 
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
         Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-            TestEvent.FACTORY, 1 << 16, executor,
-            ProducerType.MULTI, new BusySpinWaitStrategy());
+            TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
+            factory, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
@@ -45,7 +65,8 @@ public class DisruptorStressTest
 
         for (Publisher publisher : publishers)
         {
-            executor.execute(publisher);
+            Thread thread = DaemonThreadFactory.INSTANCE.newThread(publisher);
+            thread.start();
         }
 
         latch.await();

@@ -15,13 +15,14 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.dsl.SequencerFactory;
 import com.lmax.disruptor.support.LongEvent;
-import com.lmax.disruptor.support.SequencerFactories;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -42,7 +43,13 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Parameterized.Parameters
     public static Collection<Object[]> parameters()
     {
-        return SequencerFactories.asParameters();
+        Object[][] params = new Object[][] {
+            {"waitfree", ProducerType.waitFree(4)},
+            {"multi", ProducerType.MULTI},
+            {"single", ProducerType.SINGLE},
+        };
+
+        return Arrays.asList(params);
     }
 
     @Test
