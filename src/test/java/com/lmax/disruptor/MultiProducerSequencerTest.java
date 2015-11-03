@@ -15,23 +15,24 @@
  */
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.dsl.SequencerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(Parameterized.class)
 public class MultiProducerSequencerTest
 {
     private final Sequencer publisher;
 
+    @SuppressWarnings("unused")
     public MultiProducerSequencerTest(String name, SequencerFactory sequencerFactory)
     {
         publisher = sequencerFactory.newInstance(1024, new BlockingWaitStrategy());
@@ -40,12 +41,11 @@ public class MultiProducerSequencerTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(64)},
-            {"multi", ProducerType.MULTI}
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(64)},
+                {"multi", ProducerType.MULTI}
+            });
     }
 
     @Test

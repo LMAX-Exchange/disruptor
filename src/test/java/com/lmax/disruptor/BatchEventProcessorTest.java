@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
@@ -38,6 +38,7 @@ public final class BatchEventProcessorTest
     private final RingBuffer<StubEvent> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
 
+    @SuppressWarnings("unused")
     public BatchEventProcessorTest(String name, SequencerFactory factory)
     {
         this.ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, factory.newInstance(16, new BlockingWaitStrategy()));
@@ -47,13 +48,12 @@ public final class BatchEventProcessorTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(4)},
-            {"multi", ProducerType.MULTI},
-            {"single", ProducerType.SINGLE},
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(4)},
+                {"multi", ProducerType.MULTI},
+                {"single", ProducerType.SINGLE},
+            });
     }
 
     @Test(expected = NullPointerException.class)

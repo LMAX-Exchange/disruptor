@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
@@ -32,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static com.lmax.disruptor.RingBufferEventMatcher.ringBufferWithEvents;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
@@ -44,6 +44,7 @@ public class RingBufferTest
     private final RingBuffer<StubEvent> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
 
+    @SuppressWarnings("unused")
     public RingBufferTest(String name, SequencerFactory sequencerFactory)
     {
         ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, sequencerFactory.newInstance(256, new BlockingWaitStrategy()));
@@ -54,12 +55,11 @@ public class RingBufferTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(64)},
-            {"multi", ProducerType.MULTI}
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(64)},
+                {"multi", ProducerType.MULTI}
+            });
     }
 
     @Test

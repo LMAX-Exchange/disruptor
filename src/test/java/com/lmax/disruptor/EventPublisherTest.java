@@ -22,9 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -35,6 +35,7 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     private static final int BUFFER_SIZE = 32;
     private RingBuffer<LongEvent> ringBuffer;
 
+    @SuppressWarnings("unused")
     public EventPublisherTest(String name, SequencerFactory factory)
     {
         ringBuffer = new RingBuffer<>(LongEvent.FACTORY, factory.newInstance(BUFFER_SIZE, new BlockingWaitStrategy()));
@@ -43,13 +44,12 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
     @Parameterized.Parameters
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(4)},
-            {"multi", ProducerType.MULTI},
-            {"single", ProducerType.SINGLE},
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(4)},
+                {"multi", ProducerType.MULTI},
+                {"single", ProducerType.SINGLE},
+            });
     }
 
     @Test

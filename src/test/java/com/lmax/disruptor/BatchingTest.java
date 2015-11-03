@@ -12,30 +12,32 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.LockSupport;
+
+import static java.util.Arrays.asList;
 
 @RunWith(Parameterized.class)
 public class BatchingTest
 {
     private final SequencerFactory producerType;
 
+    @SuppressWarnings("unused")
     public BatchingTest(String name, SequencerFactory producerType)
     {
         this.producerType = producerType;
     }
 
     @Parameters(name = "{0}")
-    public static Collection<Object[]> generateData()
+    public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(4)},
-            {"multi", ProducerType.MULTI},
-            {"single", ProducerType.SINGLE},
-        };
 
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(4)},
+                {"multi", ProducerType.MULTI},
+                {"single", ProducerType.SINGLE},
+            });
     }
 
     private static class ParallelEventHandler implements EventHandler<LongEvent>

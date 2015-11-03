@@ -23,13 +23,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -41,6 +40,7 @@ public final class SequenceBarrierTest
     private StubEventProcessor eventProcessor2 = new StubEventProcessor();
     private StubEventProcessor eventProcessor3 = new StubEventProcessor();
 
+    @SuppressWarnings("unused")
     public SequenceBarrierTest(String name, SequencerFactory sequencerFactory)
     {
         ringBuffer = new RingBuffer<>(
@@ -52,12 +52,11 @@ public final class SequenceBarrierTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(64)},
-            {"multi", ProducerType.MULTI}
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][]{
+                {"waitfree", ProducerType.waitFree(64)},
+                {"multi", ProducerType.MULTI}
+            });
     }
 
     @Test

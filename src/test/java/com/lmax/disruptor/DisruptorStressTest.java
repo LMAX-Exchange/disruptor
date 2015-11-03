@@ -8,13 +8,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.Math.max;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -24,6 +24,7 @@ public class DisruptorStressTest
 {
     private final SequencerFactory factory;
 
+    @SuppressWarnings("unused")
     public DisruptorStressTest(String name, SequencerFactory factory)
     {
         this.factory = factory;
@@ -32,12 +33,11 @@ public class DisruptorStressTest
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> parameters()
     {
-        Object[][] params = new Object[][] {
-            {"waitfree", ProducerType.waitFree(64)},
-            {"multi", ProducerType.MULTI}
-        };
-
-        return Arrays.asList(params);
+        return asList(
+            new Object[][] {
+                {"waitfree", ProducerType.waitFree(64)},
+                {"multi", ProducerType.MULTI}
+            });
     }
 
     @Test

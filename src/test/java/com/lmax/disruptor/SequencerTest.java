@@ -1,14 +1,7 @@
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -16,8 +9,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class SequencerTest
@@ -37,14 +36,13 @@ public class SequencerTest
     }
 
     @Parameters
-    public static Collection<Object[]> generateData()
+    public static Collection<Object[]> parameters()
     {
-        Object[][] allocators =
-            {
+        return asList(
+            new Object[][]{
                 {ProducerType.SINGLE, new BlockingWaitStrategy()},
                 {ProducerType.MULTI, new BlockingWaitStrategy()},
-            };
-        return Arrays.asList(allocators);
+            });
     }
 
     @Test
