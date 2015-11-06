@@ -26,10 +26,11 @@ public final class LongArrayPublisher implements Runnable
     private final long iterations;
     private final long arraySize;
 
-    public LongArrayPublisher(final CyclicBarrier cyclicBarrier,
-                              final RingBuffer<long[]> ringBuffer,
-                              final long iterations,
-                              final long arraySize)
+    public LongArrayPublisher(
+        final CyclicBarrier cyclicBarrier,
+        final RingBuffer<long[]> ringBuffer,
+        final long iterations,
+        final long arraySize)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.ringBuffer = ringBuffer;

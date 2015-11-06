@@ -34,7 +34,7 @@ public final class LifecycleAwareTest
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LifecycleAwareEventHandler handler = new LifecycleAwareEventHandler();
     private final BatchEventProcessor<StubEvent> batchEventProcessor =
-            new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, handler);
+        new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, handler);
 
     @Test
     public void shouldNotifyOfBatchProcessorLifecycle() throws Exception

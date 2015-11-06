@@ -32,11 +32,12 @@ public final class FizzBuzzQueueProcessor implements Runnable
     private long sequence;
     private CountDownLatch latch = null;
 
-    public FizzBuzzQueueProcessor(final FizzBuzzStep fizzBuzzStep,
-                                  final BlockingQueue<Long> fizzInputQueue,
-                                  final BlockingQueue<Long> buzzInputQueue,
-                                  final BlockingQueue<Boolean> fizzOutputQueue,
-                                  final BlockingQueue<Boolean> buzzOutputQueue, final long count)
+    public FizzBuzzQueueProcessor(
+        final FizzBuzzStep fizzBuzzStep,
+        final BlockingQueue<Long> fizzInputQueue,
+        final BlockingQueue<Long> buzzInputQueue,
+        final BlockingQueue<Boolean> fizzOutputQueue,
+        final BlockingQueue<Boolean> buzzOutputQueue, final long count)
     {
         this.fizzBuzzStep = fizzBuzzStep;
 

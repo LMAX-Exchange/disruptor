@@ -31,11 +31,12 @@ public final class TestWaiter implements Callable<List<StubEvent>>
     private final SequenceBarrier sequenceBarrier;
     private final RingBuffer<StubEvent> ringBuffer;
 
-    public TestWaiter(final CyclicBarrier cyclicBarrier,
-                      final SequenceBarrier sequenceBarrier,
-                      final RingBuffer<StubEvent> ringBuffer,
-                      final long initialSequence,
-                      final long toWaitForSequence)
+    public TestWaiter(
+        final CyclicBarrier cyclicBarrier,
+        final SequenceBarrier sequenceBarrier,
+        final RingBuffer<StubEvent> ringBuffer,
+        final long initialSequence,
+        final long toWaitForSequence)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.initialSequence = initialSequence;

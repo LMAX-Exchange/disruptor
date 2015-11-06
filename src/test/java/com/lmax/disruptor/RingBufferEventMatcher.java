@@ -1,12 +1,11 @@
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+
+import static org.hamcrest.CoreMatchers.is;
 
 final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
 {
@@ -51,6 +50,10 @@ final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
     public void describeTo(final Description description)
     {
         description.appendText("Expected ring buffer with events matching: ");
-        allOf(expectedValueMatchers).describeTo(description);
+
+        for (Matcher<?> expectedValueMatcher : expectedValueMatchers)
+        {
+            expectedValueMatcher.describeTo(description);
+        }
     }
 }

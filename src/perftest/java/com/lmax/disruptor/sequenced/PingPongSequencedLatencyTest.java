@@ -65,7 +65,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  * SB2 - PongBarrier
  *
  * </pre>
- *
+ * <p>
  * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
 public final class PingPongSequencedLatencyTest
@@ -82,7 +82,7 @@ public final class PingPongSequencedLatencyTest
     private final RingBuffer<ValueEvent> pingBuffer =
         createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final RingBuffer<ValueEvent> pongBuffer =
-            createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier pongBarrier = pongBuffer.newBarrier();
     private final Pinger pinger = new Pinger(pingBuffer, ITERATIONS, PAUSE_NANOS);
@@ -93,6 +93,7 @@ public final class PingPongSequencedLatencyTest
     private final Ponger ponger = new Ponger(pongBuffer);
     private final BatchEventProcessor<ValueEvent> pongProcessor =
         new BatchEventProcessor<ValueEvent>(pingBuffer, pingBarrier, ponger);
+
     {
         pingBuffer.addGatingSequences(pongProcessor.getSequence());
         pongBuffer.addGatingSequences(pingProcessor.getSequence());

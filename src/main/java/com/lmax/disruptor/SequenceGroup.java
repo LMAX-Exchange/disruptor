@@ -29,7 +29,7 @@ import com.lmax.disruptor.util.Util;
 public final class SequenceGroup extends Sequence
 {
     private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER =
-            AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
+        AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
     private volatile Sequence[] sequences = new Sequence[0];
 
     /**
@@ -70,8 +70,8 @@ public final class SequenceGroup extends Sequence
      * Add a {@link Sequence} into this aggregate.  This should only be used during
      * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
-     * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      * @param sequence to be added to the aggregate.
+     * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      */
     public void add(final Sequence sequence)
     {
@@ -115,7 +115,7 @@ public final class SequenceGroup extends Sequence
      * just after adding them.  This should prevent any nasty rewind/wrapping effects.
      *
      * @param cursored The data structure that the owner of this sequence group will
-     * be pulling it's events from.
+     *                 be pulling it's events from.
      * @param sequence The sequence to add.
      */
     public void addWhileRunning(Cursored cursored, Sequence sequence)

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 public final class HistogramTest
 {
-    public static final long[] INTERVALS = new long[]{ 1, 10, 100, 1000, Long.MAX_VALUE };
+    public static final long[] INTERVALS = new long[]{1, 10, 100, 1000, Long.MAX_VALUE};
     private Histogram histogram = new Histogram(INTERVALS);
 
     @Test
@@ -75,7 +75,7 @@ public final class HistogramTest
     @Test
     public void shouldNotAddObservation()
     {
-        Histogram histogram = new Histogram(new long[]{ 10, 20, 30 });
+        Histogram histogram = new Histogram(new long[]{10, 20, 30});
         assertFalse(histogram.addObservation(31));
     }
 
@@ -95,7 +95,7 @@ public final class HistogramTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenIntervalsDoNotMatch()
     {
-        Histogram histogram2 = new Histogram(new long[]{ 1L, 2L, 3L});
+        Histogram histogram2 = new Histogram(new long[]{1L, 2L, 3L});
         histogram.addObservations(histogram2);
     }
 
@@ -122,7 +122,7 @@ public final class HistogramTest
     @Test
     public void shouldGetMeanObservation()
     {
-        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
         final Histogram histogram = new Histogram(intervals);
 
         addObservations(histogram, 1L, 7L, 10L, 10L, 11L, 144L);
@@ -133,7 +133,7 @@ public final class HistogramTest
     @Test
     public void shouldCorrectMeanForSkewInTopAndBottomPopulatedIntervals()
     {
-        final long[] intervals = new long[]{ 100, 110, 120, 130, 140, 150, 1000, 10000 };
+        final long[] intervals = new long[]{100, 110, 120, 130, 140, 150, 1000, 10000};
         final Histogram histogram = new Histogram(intervals);
 
         for (long i = 100; i < 152; i++)
@@ -172,7 +172,7 @@ public final class HistogramTest
     @Test
     public void shouldGetTwoNinesUpperBound()
     {
-        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
         final Histogram histogram = new Histogram(intervals);
 
         for (long i = 1; i < 101; i++)
@@ -186,7 +186,7 @@ public final class HistogramTest
     @Test
     public void shouldGetFourNinesUpperBound()
     {
-        final long[] intervals = new long[]{ 1, 10, 100, 1000, 10000 };
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
         final Histogram histogram = new Histogram(intervals);
 
         for (long i = 1; i < 102; i++)
@@ -202,7 +202,8 @@ public final class HistogramTest
     {
         addObservations(histogram, 1L, 7L, 10L, 300L);
 
-        String expectedResults = "Histogram{min=1, max=300, mean=53.25, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
+        String expectedResults =
+            "Histogram{min=1, max=300, mean=53.25, 99%=1000, 99.99%=1000, [1=1, 10=2, 100=0, 1000=1, 9223372036854775807=0]}";
         assertThat(histogram.toString(), is(expectedResults));
     }
 

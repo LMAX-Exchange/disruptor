@@ -52,7 +52,7 @@ public final class AggregateEventHandler<T>
         {
             if (eventHandler instanceof LifecycleAware)
             {
-                ((LifecycleAware)eventHandler).onStart();
+                ((LifecycleAware) eventHandler).onStart();
             }
         }
     }
@@ -64,7 +64,7 @@ public final class AggregateEventHandler<T>
         {
             if (eventHandler instanceof LifecycleAware)
             {
-                ((LifecycleAware)eventHandler).onShutdown();
+                ((LifecycleAware) eventHandler).onShutdown();
             }
         }
     }

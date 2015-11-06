@@ -22,13 +22,14 @@ public class RingBufferWithMocksTest
     {
         sequencer = mockery.mock(Sequencer.class);
 
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                allowing(sequencer).getBufferSize();
-                will(returnValue(16));
-            }
-        });
+                {
+                    allowing(sequencer).getBufferSize();
+                    will(returnValue(16));
+                }
+            });
 
         ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, sequencer);
     }
@@ -37,17 +38,18 @@ public class RingBufferWithMocksTest
     public void shouldDelgateNextAndPublish()
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(sequencer).next();
-                inSequence(sequence);
-                will(returnValue(34L));
+                {
+                    one(sequencer).next();
+                    inSequence(sequence);
+                    will(returnValue(34L));
 
-                one(sequencer).publish(34L);
-                inSequence(sequence);
-            }
-        });
+                    one(sequencer).publish(34L);
+                    inSequence(sequence);
+                }
+            });
 
         ringBuffer.publish(ringBuffer.next());
     }
@@ -56,17 +58,18 @@ public class RingBufferWithMocksTest
     public void shouldDelgateTryNextAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(sequencer).tryNext();
-                inSequence(sequence);
-                will(returnValue(34L));
+                {
+                    one(sequencer).tryNext();
+                    inSequence(sequence);
+                    will(returnValue(34L));
 
-                one(sequencer).publish(34L);
-                inSequence(sequence);
-            }
-        });
+                    one(sequencer).publish(34L);
+                    inSequence(sequence);
+                }
+            });
 
         ringBuffer.publish(ringBuffer.tryNext());
     }
@@ -75,17 +78,18 @@ public class RingBufferWithMocksTest
     public void shouldDelgateNextNAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(sequencer).next(10);
-                inSequence(sequence);
-                will(returnValue(34L));
+                {
+                    one(sequencer).next(10);
+                    inSequence(sequence);
+                    will(returnValue(34L));
 
-                one(sequencer).publish(25L, 34L);
-                inSequence(sequence);
-            }
-        });
+                    one(sequencer).publish(25L, 34L);
+                    inSequence(sequence);
+                }
+            });
 
         long hi = ringBuffer.next(10);
         ringBuffer.publish(hi - 9, hi);
@@ -95,17 +99,18 @@ public class RingBufferWithMocksTest
     public void shouldDelgateTryNextNAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
-        mockery.checking(new Expectations()
-        {
+        mockery.checking(
+            new Expectations()
             {
-                one(sequencer).tryNext(10);
-                inSequence(sequence);
-                will(returnValue(34L));
+                {
+                    one(sequencer).tryNext(10);
+                    inSequence(sequence);
+                    will(returnValue(34L));
 
-                one(sequencer).publish(25L, 34L);
-                inSequence(sequence);
-            }
-        });
+                    one(sequencer).publish(25L, 34L);
+                    inSequence(sequence);
+                }
+            });
 
         long hi = ringBuffer.tryNext(10);
         ringBuffer.publish(hi - 9, hi);

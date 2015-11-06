@@ -22,6 +22,7 @@ import com.lmax.disruptor.util.Util;
 abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
+
     public SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
@@ -35,7 +36,9 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
         super(bufferSize, waitStrategy);
     }
 
-    /** Set to -1 as sequence starting point */
+    /**
+     * Set to -1 as sequence starting point
+     */
     protected long nextValue = Sequence.INITIAL_VALUE;
     protected long cachedValue = Sequence.INITIAL_VALUE;
 }
@@ -43,7 +46,7 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
  * Not safe for use from multiple threads as it does not implement any barriers.</p>
- *
+ * <p>
  * <p>Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
  * to {@link Sequencer#publish(long)} is made.
  */
@@ -55,7 +58,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
      *
-     * @param bufferSize the size of the buffer that this will sequence over.
+     * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
     public SingleProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)

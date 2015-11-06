@@ -62,19 +62,20 @@ public final class UtilTest
         sequences[1] = context.mock(Sequence.class, "s1");
         sequences[2] = context.mock(Sequence.class, "s2");
 
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                oneOf(sequences[0]).get();
-                will(returnValue(Long.valueOf(7L)));
+                {
+                    oneOf(sequences[0]).get();
+                    will(returnValue(Long.valueOf(7L)));
 
-                oneOf(sequences[1]).get();
-                will(returnValue(Long.valueOf(3L)));
+                    oneOf(sequences[1]).get();
+                    will(returnValue(Long.valueOf(3L)));
 
-                oneOf(sequences[2]).get();
-                will(returnValue(Long.valueOf(12L)));
-            }
-        });
+                    oneOf(sequences[2]).get();
+                    will(returnValue(Long.valueOf(12L)));
+                }
+            });
 
         Assert.assertEquals(3L, Util.getMinimumSequence(sequences));
     }

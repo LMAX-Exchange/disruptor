@@ -26,10 +26,11 @@ public final class ValueBatchPublisher implements Runnable
     private final long iterations;
     private final int batchSize;
 
-    public ValueBatchPublisher(final CyclicBarrier cyclicBarrier,
-                               final RingBuffer<ValueEvent> ringBuffer,
-                               final long iterations,
-                               final int batchSize)
+    public ValueBatchPublisher(
+        final CyclicBarrier cyclicBarrier,
+        final RingBuffer<ValueEvent> ringBuffer,
+        final long iterations,
+        final int batchSize)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.ringBuffer = ringBuffer;

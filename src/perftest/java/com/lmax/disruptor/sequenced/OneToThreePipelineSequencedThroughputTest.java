@@ -30,6 +30,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.FunctionEvent;
 import com.lmax.disruptor.support.FunctionEventHandler;
 import com.lmax.disruptor.support.FunctionStep;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -72,10 +73,11 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 100L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private static final long OPERAND_TWO_INITIAL_VALUE = 777L;
     private final long expectedResult;
+
     {
         long temp = 0L;
         long operandTwo = OPERAND_TWO_INITIAL_VALUE;
@@ -113,6 +115,7 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
         new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
+
     {
         ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());
     }

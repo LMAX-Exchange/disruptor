@@ -81,7 +81,9 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
         createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LongArrayEventHandler handler = new LongArrayEventHandler();
-    private final BatchEventProcessor<long[]> batchEventProcessor = new BatchEventProcessor<long[]>(ringBuffer, sequenceBarrier, handler);
+    private final BatchEventProcessor<long[]> batchEventProcessor =
+        new BatchEventProcessor<long[]>(ringBuffer, sequenceBarrier, handler);
+
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
     }

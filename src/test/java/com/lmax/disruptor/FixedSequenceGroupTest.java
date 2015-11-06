@@ -29,7 +29,7 @@ public class FixedSequenceGroupTest
     {
         Sequence sequence1 = new Sequence(34);
         Sequence sequnece2 = new Sequence(47);
-        Sequence group = new FixedSequenceGroup(new Sequence[] { sequence1, sequnece2 });
+        Sequence group = new FixedSequenceGroup(new Sequence[]{sequence1, sequnece2});
 
         assertThat(group.get(), is(34L));
         sequence1.set(35);

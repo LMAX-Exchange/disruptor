@@ -27,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueMutationQueueProcessor;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -76,9 +77,10 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
     private static final int NUM_EVENT_PROCESSORS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000L * 1L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long[] results = new long[NUM_EVENT_PROCESSORS];
+
     {
         for (long i = 0; i < ITERATIONS; i++)
         {
@@ -92,6 +94,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
 
     @SuppressWarnings("unchecked")
     private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
+
     {
         blockingQueues[0] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
         blockingQueues[1] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
@@ -99,6 +102,7 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];
+
     {
         queueProcessors[0] = new ValueMutationQueueProcessor(blockingQueues[0], Operation.ADDITION, ITERATIONS - 1);
         queueProcessors[1] = new ValueMutationQueueProcessor(blockingQueues[1], Operation.SUBTRACTION, ITERATIONS - 1);

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
- *
+ * <p>
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
  * Spins, then yields, then waits using the configured fallback WaitStrategy.</p>
  */
@@ -30,10 +30,11 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private final long yieldTimeoutNanos;
     private final WaitStrategy fallbackStrategy;
 
-    public PhasedBackoffWaitStrategy(long spinTimeout,
-                                     long yieldTimeout,
-                                     TimeUnit units,
-                                     WaitStrategy fallbackStrategy)
+    public PhasedBackoffWaitStrategy(
+        long spinTimeout,
+        long yieldTimeout,
+        TimeUnit units,
+        WaitStrategy fallbackStrategy)
     {
         this.spinTimeoutNanos = units.toNanos(spinTimeout);
         this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeout);
@@ -43,34 +44,40 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     /**
      * Block with wait/notifyAll semantics
      */
-    public static PhasedBackoffWaitStrategy withLock(long spinTimeout,
-                                                     long yieldTimeout,
-                                                     TimeUnit units)
+    public static PhasedBackoffWaitStrategy withLock(
+        long spinTimeout,
+        long yieldTimeout,
+        TimeUnit units)
     {
-        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new BlockingWaitStrategy());
+        return new PhasedBackoffWaitStrategy(
+            spinTimeout, yieldTimeout,
+            units, new BlockingWaitStrategy());
     }
 
     /**
      * Block with wait/notifyAll semantics
      */
-    public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout,
-                                                         long yieldTimeout,
-                                                         TimeUnit units)
+    public static PhasedBackoffWaitStrategy withLiteLock(
+        long spinTimeout,
+        long yieldTimeout,
+        TimeUnit units)
     {
-        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new LiteBlockingWaitStrategy());
+        return new PhasedBackoffWaitStrategy(
+            spinTimeout, yieldTimeout,
+            units, new LiteBlockingWaitStrategy());
     }
 
     /**
      * Block by sleeping in a loop
      */
-    public static PhasedBackoffWaitStrategy withSleep(long spinTimeout,
-                                                      long yieldTimeout,
-                                                      TimeUnit units)
+    public static PhasedBackoffWaitStrategy withSleep(
+        long spinTimeout,
+        long yieldTimeout,
+        TimeUnit units)
     {
-        return new PhasedBackoffWaitStrategy(spinTimeout, yieldTimeout,
-                                             units, new SleepingWaitStrategy(0));
+        return new PhasedBackoffWaitStrategy(
+            spinTimeout, yieldTimeout,
+            units, new SleepingWaitStrategy(0));
     }
 
     @Override

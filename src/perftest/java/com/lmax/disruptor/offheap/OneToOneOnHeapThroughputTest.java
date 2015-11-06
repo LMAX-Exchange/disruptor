@@ -25,13 +25,15 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
     private final Executor executor = Executors.newFixedThreadPool(1, DaemonThreadFactory.INSTANCE);
     private final WaitStrategy waitStrategy = new YieldingWaitStrategy();
     private final RingBuffer<ByteBuffer> buffer =
-            RingBuffer.createSingleProducer(BufferFactory.direct(BLOCK_SIZE), BUFFER_SIZE, waitStrategy);
+        RingBuffer.createSingleProducer(BufferFactory.direct(BLOCK_SIZE), BUFFER_SIZE, waitStrategy);
     private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
-            new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+        new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+
     {
         buffer.addGatingSequences(processor.getSequence());
     }
+
     private final Random r = new Random(1);
     private final byte[] data = new byte[BLOCK_SIZE];
 

@@ -31,11 +31,12 @@ public final class FunctionQueueProcessor implements Runnable
     private long sequence;
     private CountDownLatch latch;
 
-    public FunctionQueueProcessor(final FunctionStep functionStep,
-                                  final BlockingQueue<long[]> stepOneQueue,
-                                  final BlockingQueue<Long> stepTwoQueue,
-                                  final BlockingQueue<Long> stepThreeQueue,
-                                  final long count)
+    public FunctionQueueProcessor(
+        final FunctionStep functionStep,
+        final BlockingQueue<long[]> stepOneQueue,
+        final BlockingQueue<Long> stepTwoQueue,
+        final BlockingQueue<Long> stepThreeQueue,
+        final long count)
     {
         this.functionStep = functionStep;
         this.stepOneQueue = stepOneQueue;

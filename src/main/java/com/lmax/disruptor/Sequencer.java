@@ -20,7 +20,9 @@ package com.lmax.disruptor;
  */
 public interface Sequencer extends Cursored, Sequenced
 {
-    /** Set to -1 as sequence starting point */
+    /**
+     * Set to -1 as sequence starting point
+     */
     long INITIAL_CURSOR_VALUE = -1L;
 
     /**
@@ -59,9 +61,9 @@ public interface Sequencer extends Cursored, Sequenced
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer given a list of sequences to track.
      *
-     * @see SequenceBarrier
      * @param sequencesToTrack
      * @return A sequence barrier that will track the specified sequences.
+     * @see SequenceBarrier
      */
     SequenceBarrier newBarrier(Sequence... sequencesToTrack);
 
@@ -82,11 +84,11 @@ public interface Sequencer extends Cursored, Sequenced
      * <code>nextSequence - 1</code>.  To work correctly a consumer should pass a value that
      * it 1 higher than the last sequence that was successfully processed.
      *
-     * @param nextSequence The sequence to start scanning from.
+     * @param nextSequence      The sequence to start scanning from.
      * @param availableSequence The sequence to scan to.
      * @return The highest value that can be safely read, will be at least <code>nextSequence - 1</code>.
      */
     long getHighestPublishedSequence(long nextSequence, long availableSequence);
 
-    <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence...gatingSequences);
+    <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence... gatingSequences);
 }

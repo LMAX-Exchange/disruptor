@@ -58,9 +58,10 @@ public final class Util
      * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
      *
      * @param sequences to compare.
-     * @param minimum an initial default minimum.  If the array is empty this value will be
-     * returned.
-     * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
+     * @param minimum   an initial default minimum.  If the array is empty this value will be
+     *                  returned.
+     * @return the smaller of minimum sequence value found in {@code sequences} and {@code minimum};
+     * {@code minimum} if {@code sequences} is empty
      */
     public static long getMinimumSequence(final Sequence[] sequences, long minimum)
     {
@@ -91,6 +92,7 @@ public final class Util
     }
 
     private static final Unsafe THE_UNSAFE;
+
     static
     {
         try
@@ -116,6 +118,7 @@ public final class Util
     /**
      * Get a handle on the Unsafe instance, used for accessing low-level concurrency
      * and memory constructs.
+     *
      * @return The Unsafe
      */
     public static Unsafe getUnsafe()
@@ -125,6 +128,7 @@ public final class Util
 
     /**
      * Gets the address value for the memory that backs a direct byte buffer.
+     *
      * @param buffer
      * @return The system address for the buffers
      */

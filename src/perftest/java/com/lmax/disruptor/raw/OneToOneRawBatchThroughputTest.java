@@ -81,6 +81,7 @@ public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestDisrup
 
     private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
     private final MyRunnable myRunnable = new MyRunnable(sequencer);
+
     {
         sequencer.addGatingSequences(myRunnable.sequence);
     }

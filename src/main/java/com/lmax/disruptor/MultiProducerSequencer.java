@@ -25,7 +25,7 @@ import com.lmax.disruptor.util.Util;
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
  * Suitable for use for sequencing across multiple publisher threads.</p>
- *
+ * <p>
  * <p> * <p>Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
  * to {@link Sequencer#next()}, to determine the highest available sequence that can be read, then
  * {@link Sequencer#getHighestPublishedSequence(long, long)} should be used.
@@ -33,7 +33,7 @@ import com.lmax.disruptor.util.Util;
 public final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
-    private static final long BASE  = UNSAFE.arrayBaseOffset(int[].class);
+    private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
 
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -47,7 +47,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
      *
-     * @param bufferSize the size of the buffer that this will sequence over.
+     * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
     public MultiProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
@@ -233,11 +233,11 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
     /**
      * The below methods work on the availableBuffer flag.
-     *
+     * <p>
      * The prime reason is to avoid a shared sequence object between publisher threads.
      * (Keeping single pointers tracking start and end would require coordination
      * between the threads).
-     *
+     * <p>
      * --  Firstly we have the constraint that the delta between the cursor and minimum
      * gating sequence will never be larger than the buffer size (the code in
      * next/tryNext in the Sequence takes care of that).

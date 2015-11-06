@@ -27,6 +27,7 @@ import com.lmax.disruptor.WorkerPool;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.support.EventCountingAndReleasingWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class OneToThreeReleasingWorkerPoolThroughputTest
@@ -35,9 +36,10 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
     private static final int NUM_WORKERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final long ITERATIONS = 1000L * 1000 * 10L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS, DaemonThreadFactory.INSTANCE);
 
     private final PaddedLong[] counters = new PaddedLong[NUM_WORKERS];
+
     {
         for (int i = 0; i < NUM_WORKERS; i++)
         {
@@ -47,7 +49,9 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final EventCountingAndReleasingWorkHandler[] handlers = new EventCountingAndReleasingWorkHandler[NUM_WORKERS];
+    private final EventCountingAndReleasingWorkHandler[] handlers =
+        new EventCountingAndReleasingWorkHandler[NUM_WORKERS];
+
     {
         for (int i = 0; i < NUM_WORKERS; i++)
         {
@@ -56,15 +60,18 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
     }
 
     private final RingBuffer<ValueEvent> ringBuffer =
-            RingBuffer.createSingleProducer(ValueEvent.EVENT_FACTORY,
-                                            BUFFER_SIZE,
-                                            new YieldingWaitStrategy());
+        RingBuffer.createSingleProducer(
+            ValueEvent.EVENT_FACTORY,
+            BUFFER_SIZE,
+            new YieldingWaitStrategy());
 
     private final WorkerPool<ValueEvent> workerPool =
-            new WorkerPool<ValueEvent>(ringBuffer,
-                                       ringBuffer.newBarrier(),
-                                       new FatalExceptionHandler(),
-                                       handlers);
+        new WorkerPool<ValueEvent>(
+            ringBuffer,
+            ringBuffer.newBarrier(),
+            new FatalExceptionHandler(),
+            handlers);
+
     {
         ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
     }

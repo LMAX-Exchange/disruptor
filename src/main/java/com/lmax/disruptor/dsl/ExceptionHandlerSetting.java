@@ -31,8 +31,9 @@ public class ExceptionHandlerSetting<T>
     private final EventHandler<T> eventHandler;
     private final ConsumerRepository<T> consumerRepository;
 
-    ExceptionHandlerSetting(final EventHandler<T> eventHandler,
-                            final ConsumerRepository<T> consumerRepository)
+    ExceptionHandlerSetting(
+        final EventHandler<T> eventHandler,
+        final ConsumerRepository<T> consumerRepository)
     {
         this.eventHandler = eventHandler;
         this.consumerRepository = consumerRepository;
@@ -45,7 +46,8 @@ public class ExceptionHandlerSetting<T>
      */
     public void with(ExceptionHandler<? super T> exceptionHandler)
     {
-        ((BatchEventProcessor<T>) consumerRepository.getEventProcessorFor(eventHandler)).setExceptionHandler(exceptionHandler);
+        ((BatchEventProcessor<T>) consumerRepository.getEventProcessorFor(eventHandler))
+            .setExceptionHandler(exceptionHandler);
         consumerRepository.getBarrierFor(eventHandler).alert();
     }
 }

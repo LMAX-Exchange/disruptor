@@ -46,19 +46,20 @@ public final class AggregateEventHandlerTest
         final long sequence = 3L;
         final boolean endOfBatch = true;
 
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                oneOf(eh1).onEvent(event, sequence, endOfBatch);
-                inSequence(callSequence);
+                {
+                    oneOf(eh1).onEvent(event, sequence, endOfBatch);
+                    inSequence(callSequence);
 
-                oneOf(eh2).onEvent(event, sequence, endOfBatch);
-                inSequence(callSequence);
+                    oneOf(eh2).onEvent(event, sequence, endOfBatch);
+                    inSequence(callSequence);
 
-                oneOf(eh3).onEvent(event, sequence, endOfBatch);
-                inSequence(callSequence);
-            }
-        });
+                    oneOf(eh3).onEvent(event, sequence, endOfBatch);
+                    inSequence(callSequence);
+                }
+            });
 
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 
@@ -69,19 +70,20 @@ public final class AggregateEventHandlerTest
     public void shouldCallOnStartInSequence()
         throws Exception
     {
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                oneOf(eh1).onStart();
-                inSequence(callSequence);
+                {
+                    oneOf(eh1).onStart();
+                    inSequence(callSequence);
 
-                oneOf(eh2).onStart();
-                inSequence(callSequence);
+                    oneOf(eh2).onStart();
+                    inSequence(callSequence);
 
-                oneOf(eh3).onStart();
-                inSequence(callSequence);
-            }
-        });
+                    oneOf(eh3).onStart();
+                    inSequence(callSequence);
+                }
+            });
 
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 
@@ -92,19 +94,20 @@ public final class AggregateEventHandlerTest
     public void shouldCallOnShutdownInSequence()
         throws Exception
     {
-        context.checking(new Expectations()
-        {
+        context.checking(
+            new Expectations()
             {
-                oneOf(eh1).onShutdown();
-                inSequence(callSequence);
+                {
+                    oneOf(eh1).onShutdown();
+                    inSequence(callSequence);
 
-                oneOf(eh2).onShutdown();
-                inSequence(callSequence);
+                    oneOf(eh2).onShutdown();
+                    inSequence(callSequence);
 
-                oneOf(eh3).onShutdown();
-                inSequence(callSequence);
-            }
-        });
+                    oneOf(eh3).onShutdown();
+                    inSequence(callSequence);
+                }
+            });
 
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 

@@ -78,10 +78,11 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
     public OneToOneTranslatorThroughputTest()
     {
         Disruptor<ValueEvent> disruptor =
-                new Disruptor<ValueEvent>(ValueEvent.EVENT_FACTORY,
-                                          BUFFER_SIZE, executor,
-                                          ProducerType.SINGLE,
-                                          new YieldingWaitStrategy());
+            new Disruptor<ValueEvent>(
+                ValueEvent.EVENT_FACTORY,
+                BUFFER_SIZE, executor,
+                ProducerType.SINGLE,
+                new YieldingWaitStrategy());
         disruptor.handleEventsWith(handler);
         this.ringBuffer = disruptor.start();
     }

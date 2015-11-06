@@ -26,13 +26,16 @@ import java.util.*;
  */
 class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 {
-    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByEventHandler = new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
-    private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence = new IdentityHashMap<Sequence, ConsumerInfo>();
+    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByEventHandler =
+        new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
+    private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence =
+        new IdentityHashMap<Sequence, ConsumerInfo>();
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
 
-    public void add(final EventProcessor eventprocessor,
-                    final EventHandler<? super T> handler,
-                    final SequenceBarrier barrier)
+    public void add(
+        final EventProcessor eventprocessor,
+        final EventHandler<? super T> handler,
+        final SequenceBarrier barrier)
     {
         final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
         eventProcessorInfoByEventHandler.put(handler, consumerInfo);

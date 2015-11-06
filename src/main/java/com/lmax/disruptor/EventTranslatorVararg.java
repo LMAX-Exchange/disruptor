@@ -26,9 +26,9 @@ public interface EventTranslatorVararg<T>
     /**
      * Translate a data representation into fields set in given event
      *
-     * @param event into which the data should be translated.
+     * @param event    into which the data should be translated.
      * @param sequence that is assigned to event.
-     * @param args The array of user arguments.
+     * @param args     The array of user arguments.
      */
-    void translateTo(final T event, long sequence, final Object...args);
+    void translateTo(final T event, long sequence, final Object... args);
 }

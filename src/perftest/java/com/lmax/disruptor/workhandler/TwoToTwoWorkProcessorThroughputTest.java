@@ -33,6 +33,7 @@ import com.lmax.disruptor.WorkProcessor;
 import com.lmax.disruptor.support.ValueAdditionWorkHandler;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValuePublisher;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -58,7 +59,7 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     private static final int NUM_PUBLISHERS = 2;
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 1L;
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 2, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +71,7 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     private final Sequence workSequence = new Sequence(-1);
 
     private final ValueAdditionWorkHandler[] handlers = new ValueAdditionWorkHandler[2];
+
     {
         handlers[0] = new ValueAdditionWorkHandler();
         handlers[1] = new ValueAdditionWorkHandler();
@@ -77,16 +79,20 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
 
     @SuppressWarnings("unchecked")
     private final WorkProcessor<ValueEvent>[] workProcessors = new WorkProcessor[2];
+
     {
-       workProcessors[0] = new WorkProcessor<ValueEvent>(ringBuffer, sequenceBarrier,
-                                                        handlers[0], new IgnoreExceptionHandler(),
-                                                        workSequence);
-       workProcessors[1] = new WorkProcessor<ValueEvent>(ringBuffer, sequenceBarrier,
-                                                        handlers[1], new IgnoreExceptionHandler(),
-                                                        workSequence);
-    };
+        workProcessors[0] = new WorkProcessor<ValueEvent>(
+            ringBuffer, sequenceBarrier,
+            handlers[0], new IgnoreExceptionHandler(),
+            workSequence);
+        workProcessors[1] = new WorkProcessor<ValueEvent>(
+            ringBuffer, sequenceBarrier,
+            handlers[1], new IgnoreExceptionHandler(),
+            workSequence);
+    }
 
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
+
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {

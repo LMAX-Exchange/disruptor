@@ -33,9 +33,10 @@ public class SimplePerformanceTest
     private void doRun() throws InterruptedException
     {
         BatchEventProcessor<EventHolder> batchEventProcessor =
-                new BatchEventProcessor<EventHolder>(ringBuffer,
-                        ringBuffer.newBarrier(),
-                        eventHolderHandler);
+            new BatchEventProcessor<EventHolder>(
+                ringBuffer,
+                ringBuffer.newBarrier(),
+                eventHolderHandler);
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
 
         Thread t = new Thread(batchEventProcessor);
@@ -58,14 +59,14 @@ public class SimplePerformanceTest
     }
 
     private static final EventTranslatorOneArg<EventHolder, SimpleEvent> TRANSLATOR =
-            new EventTranslatorOneArg<EventHolder, SimpleEvent>()
-    {
-        @Override
-        public void translateTo(EventHolder holder, long arg1, SimpleEvent event)
+        new EventTranslatorOneArg<EventHolder, SimpleEvent>()
         {
-            holder.event = event;
-        }
-    };
+            @Override
+            public void translateTo(EventHolder holder, long arg1, SimpleEvent event)
+            {
+                holder.event = event;
+            }
+        };
 
     public static void main(String[] args)
     {

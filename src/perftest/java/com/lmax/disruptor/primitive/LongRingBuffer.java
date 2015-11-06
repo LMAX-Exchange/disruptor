@@ -55,15 +55,16 @@ public class LongRingBuffer
     public BatchEventProcessor<LongEvent> createProcessor(final LongHandler handler)
     {
         return new BatchEventProcessor<LongEvent>(
-                new LongEvent(),
-                sequencer.newBarrier(),
-                new EventHandler<LongEvent>()
+            new LongEvent(),
+            sequencer.newBarrier(),
+            new EventHandler<LongEvent>()
+            {
+                @Override
+                public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch)
+                    throws Exception
                 {
-                    @Override
-                    public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
-                    {
-                        handler.onEvent(event.get(), sequence, endOfBatch);
-                    }
-                });
+                    handler.onEvent(event.get(), sequence, endOfBatch);
+                }
+            });
     }
 }

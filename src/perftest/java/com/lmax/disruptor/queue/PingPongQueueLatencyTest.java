@@ -56,7 +56,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  * Q2 - PongQueue
  *
  * </pre>
- *
+ * <p>
  * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
 public final class PingPongQueueLatencyTest
@@ -133,7 +133,9 @@ public final class PingPongQueueLatencyTest
         private long counter;
         private final long maxEvents;
 
-        public QueuePinger(final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents, final long pauseTimeNs)
+        public QueuePinger(
+            final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents,
+            final long pauseTimeNs)
         {
             this.pingQueue = pingQueue;
             this.pongQueue = pongQueue;

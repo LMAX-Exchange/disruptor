@@ -22,15 +22,16 @@ public final class StubEvent
 {
     private int value;
     private String testString;
-    public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR = new EventTranslatorTwoArg<StubEvent, Integer, String>()
-    {
-        @Override
-        public void translateTo(StubEvent event, long sequence, Integer arg0, String arg1)
+    public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR =
+        new EventTranslatorTwoArg<StubEvent, Integer, String>()
         {
-            event.setValue(arg0);
-            event.setTestString(arg1);
-        }
-    };
+            @Override
+            public void translateTo(StubEvent event, long sequence, Integer arg0, String arg1)
+            {
+                event.setValue(arg0);
+                event.setTestString(arg1);
+            }
+        };
 
     public StubEvent(int i)
     {
@@ -82,10 +83,19 @@ public final class StubEvent
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        StubEvent other = (StubEvent)obj;
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        StubEvent other = (StubEvent) obj;
 
         return value == other.value;
     }
