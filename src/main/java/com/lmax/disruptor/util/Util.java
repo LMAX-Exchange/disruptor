@@ -156,11 +156,6 @@ public final class Util
      */
     public static int log2(int i)
     {
-        int r = 0;
-        while ((i >>= 1) != 0)
-        {
-            ++r;
-        }
-        return r;
+        return Integer.highestOneBit(i);
     }
 }
