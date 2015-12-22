@@ -34,12 +34,12 @@ public final class BlockingWaitStrategy implements WaitStrategy
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = cursorSequence.get()) < sequence)
+        if (cursorSequence.get() < sequence)
         {
             lock.lock();
             try
             {
-                while ((availableSequence = cursorSequence.get()) < sequence)
+                while (cursorSequence.get() < sequence)
                 {
                     barrier.checkAlert();
                     processorNotifyCondition.await();
