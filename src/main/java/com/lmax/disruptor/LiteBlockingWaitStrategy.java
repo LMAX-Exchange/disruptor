@@ -37,7 +37,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         throws AlertException, InterruptedException
     {
         long availableSequence;
-        if ((availableSequence = cursorSequence.get()) < sequence)
+        if (cursorSequence.get() < sequence)
         {
             lock.lock();
 
@@ -47,7 +47,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
                 {
                     signalNeeded.getAndSet(true);
 
-                    if ((availableSequence = cursorSequence.get()) >= sequence)
+                    if (cursorSequence.get() >= sequence)
                     {
                         break;
                     }
@@ -55,7 +55,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
                     barrier.checkAlert();
                     processorNotifyCondition.await();
                 }
-                while ((availableSequence = cursorSequence.get()) < sequence);
+                while (cursorSequence.get() < sequence);
             }
             finally
             {
