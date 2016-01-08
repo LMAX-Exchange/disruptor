@@ -82,6 +82,7 @@ tasks.withType(Test) {
 
 compilePerfJava {
     classpath += sourceSets.main.runtimeClasspath
+    classpath += sourceSets.test.runtimeClasspath
 }
 
 javadoc {
