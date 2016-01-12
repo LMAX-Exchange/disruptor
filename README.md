@@ -16,6 +16,7 @@ A High Performance Inter-Thread Messaging Library
 ### 3.3.4
 
 - Small build fixes and refactorings
+- Removed unused MutableLong class
 
 ### 3.3.3
 
