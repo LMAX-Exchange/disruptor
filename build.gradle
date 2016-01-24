@@ -176,6 +176,7 @@ task perfJar(type: Jar) {
     baseName = project.name + '-perf'
     from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
     from sourceSets.perf.output
+    from sourceSets.test.output
     with jar
 }
 
