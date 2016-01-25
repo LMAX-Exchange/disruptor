@@ -16,13 +16,7 @@
 package com.lmax.disruptor.queue;
 
 import java.io.PrintStream;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import org.HdrHistogram.Histogram;
 
@@ -62,7 +56,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 public final class PingPongQueueLatencyTest
 {
     private static final int BUFFER_SIZE = 1024;
-    private static final long ITERATIONS = 1000L * 1000L * 30L;
+    private static final long ITERATIONS = 100L * 1000L * 30L;
     private static final long PAUSE_NANOS = 1000L;
     private final ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 
@@ -70,8 +64,8 @@ public final class PingPongQueueLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> pingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> pongQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> pingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> pongQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
     private final QueuePinger qPinger = new QueuePinger(pingQueue, pongQueue, ITERATIONS, PAUSE_NANOS);
     private final QueuePonger qPonger = new QueuePonger(pingQueue, pongQueue);
 
@@ -152,13 +146,13 @@ public final class PingPongQueueLatencyTest
 
                 Thread.sleep(1000);
 
-                long response = -1;
+                long counter = 0;
 
-                while (response < maxEvents)
+                while (counter < maxEvents)
                 {
                     final long t0 = System.nanoTime();
-                    pingQueue.put(counter++);
-                    response = pongQueue.take();
+                    pingQueue.put(1L);
+                    counter += pongQueue.take();
                     final long t1 = System.nanoTime();
 
                     histogram.recordValueWithExpectedInterval(t1 - t0, pauseTimeNs);
