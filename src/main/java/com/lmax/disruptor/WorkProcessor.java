@@ -45,6 +45,8 @@ public final class WorkProcessor<T>
         }
     };
 
+    private final TimeoutHandler timeoutHandler;
+
     /**
      * Construct a {@link WorkProcessor}.
      *
@@ -72,6 +74,8 @@ public final class WorkProcessor<T>
         {
             ((EventReleaseAware) this.workHandler).setEventReleaser(eventReleaser);
         }
+
+        timeoutHandler = (workHandler instanceof TimeoutHandler) ? (TimeoutHandler) workHandler : null;
     }
 
     @Override
@@ -144,6 +148,10 @@ public final class WorkProcessor<T>
                     cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
                 }
             }
+            catch (final TimeoutException e)
+            {
+                notifyTimeout(sequence.get());
+            }
             catch (final AlertException ex)
             {
                 if (!running.get())
@@ -162,6 +170,21 @@ public final class WorkProcessor<T>
         notifyShutdown();
 
         running.set(false);
+    }
+
+    private void notifyTimeout(final long availableSequence)
+    {
+        try
+        {
+            if (timeoutHandler != null)
+            {
+                timeoutHandler.onTimeout(availableSequence);
+            }
+        }
+        catch (Throwable e)
+        {
+            exceptionHandler.handleEventException(e, availableSequence, null);
+        }
     }
 
     private void notifyStart()
