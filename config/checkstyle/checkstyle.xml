@@ -123,7 +123,7 @@
             <property name="legalAbstractClassNames"
                 value="AbstractBeanDefinition, AbstractAccountEvInstruction, AbstractEmsInstruction, AbstractEvInstruction, AbstractEmsAction, AbstractInstrumentAction, AbstractEntry" />
             <property name="illegalClassNames"
-                value="java.util.GregorianCalendar, java.util.Hashtable, java.util.HashSet, java.util.HashMap, java.util.ArrayList, java.util.LinkedHashSet, java.util.TreeSet, java.util.TreeMap, java.util.Vector" />
+                value="java.util.GregorianCalendar, java.util.Hashtable, java.util.Vector" />
         </module>
 
         <module name="DescendantToken">
