@@ -17,7 +17,6 @@ package com.lmax.disruptor.queue;
 
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.ValueAdditionBatchQueueProcessor;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.*;

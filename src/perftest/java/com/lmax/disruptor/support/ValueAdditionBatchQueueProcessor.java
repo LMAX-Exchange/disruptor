@@ -16,6 +16,7 @@
 package com.lmax.disruptor.support;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -27,7 +28,7 @@ public final class ValueAdditionBatchQueueProcessor implements Runnable
     private CountDownLatch latch;
 
     private final BlockingQueue<Long> blockingQueue;
-    private final ArrayList<Long> batch = new ArrayList<>(100);
+    private final List<Long> batch = new ArrayList<>(100);
     private final long count;
 
     public ValueAdditionBatchQueueProcessor(final BlockingQueue<Long> blockingQueue, final long count)
