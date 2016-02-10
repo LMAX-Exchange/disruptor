@@ -24,7 +24,7 @@ public interface WaitStrategy
     /**
      * Wait for the given sequence to be available.  It is possible for this method to return a value
      * less than the sequence number supplied depending on the implementation of the WaitStrategy.  A common
-     * use for this is to signal a timeout.  Any EventProcessor that is using a WaitStragegy to get notifications
+     * use for this is to signal a timeout.  Any EventProcessor that is using a WaitStrategy to get notifications
      * about message becoming available should remember to handle this case.  The {@link BatchEventProcessor} explicitly
      * handles this case and will signal a timeout if required.
      *

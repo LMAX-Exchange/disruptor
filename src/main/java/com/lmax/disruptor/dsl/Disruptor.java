@@ -70,7 +70,7 @@ public class Disruptor<T>
      * {@link ProducerType}.MULTI
      *
      * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors then it is unable to construct a thread to run a producer.
+     * is able to report errors when it is unable to construct a thread to run a producer.
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
@@ -86,7 +86,7 @@ public class Disruptor<T>
      * Create a new Disruptor.
      *
      * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors then it is unable to construct a thread to run a producer.
+     * is able to report errors when it is unable to construct a thread to run a producer.
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer, must be power of 2.

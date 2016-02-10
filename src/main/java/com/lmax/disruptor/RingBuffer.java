@@ -405,7 +405,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Get the current cursor value for the ring buffer.  The actual value recieved
+     * Get the current cursor value for the ring buffer.  The actual value received
      * will depend on the type of {@link Sequencer} that is being used.
      *
      * @see MultiProducerSequencer
