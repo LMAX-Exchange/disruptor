@@ -122,6 +122,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             long minSequence;
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
+                waitStrategy.signalAllWhenBlocking();
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
