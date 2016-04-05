@@ -57,8 +57,6 @@ public class MultiBufferBatchEventProcessor<T>
         }
 
         final int barrierLength = barriers.length;
-        final long[] lastConsumed = new long[barrierLength];
-        fill(lastConsumed, -1L);
 
         while (true)
         {
@@ -69,16 +67,16 @@ public class MultiBufferBatchEventProcessor<T>
                     long available = barriers[i].waitFor(-1);
                     Sequence sequence = sequences[i];
 
-                    long previous = sequence.get();
+                    long nextSequence = sequence.get() + 1;
 
-                    for (long l = previous + 1; l <= available; l++)
+                    for (long l = nextSequence; l <= available; l++)
                     {
-                        handler.onEvent(providers[i].get(l), l, previous == available);
+                        handler.onEvent(providers[i].get(l), l, nextSequence == available);
                     }
 
                     sequence.set(available);
 
-                    count += (available - previous);
+                    count += available - nextSequence + 1;
                 }
 
                 Thread.yield();
