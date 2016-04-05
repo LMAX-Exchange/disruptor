@@ -160,7 +160,7 @@ RingBuffer.getPublished for consumers.
 
 ### 2.7.1  (21-Dec-2011)
 
-- Artifacts made available via maven central repository. (groupId:com.googlecode.disruptor, artifactId:disruptor) See UsingDisruptorInYourProject for details.
+- Artefacts made available via maven central repository. (groupId:com.googlecode.disruptor, artifactId:disruptor) See UsingDisruptorInYourProject for details.
 
 ### 2.7 (12-Nov-2011)
 
