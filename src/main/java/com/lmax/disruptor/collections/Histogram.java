@@ -331,9 +331,9 @@ public final class Histogram
      */
     public long getUpperBoundForFactor(final double factor)
     {
-        if (0.0d >= factor || factor >= 1.0d)
+        if (factor < 0.0d || factor > 1.0d)
         {
-            throw new IllegalArgumentException("factor must be >= 0.0 and <= 1.0");
+            throw new IllegalArgumentException("factor must be > 0.0 and < 1.0");
         }
 
         final long totalCount = getCount();
