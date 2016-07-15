@@ -1104,4 +1104,13 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             sequencer.publish(initialSequence, finalSequence);
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "RingBuffer{" +
+            "bufferSize=" + bufferSize +
+            ", sequencer=" + sequencer +
+            "}";
+    }
 }

@@ -556,4 +556,14 @@ public class Disruptor<T>
             throw new IllegalStateException("Disruptor.start() must only be called once.");
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "Disruptor{" +
+            "ringBuffer=" + ringBuffer +
+            ", started=" + started +
+            ", executor=" + executor +
+            '}';
+    }
 }
