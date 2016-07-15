@@ -70,4 +70,11 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
         }
     }
 
+    @Override
+    public String toString()
+    {
+        return "TimeoutBlockingWaitStrategy{" +
+            "processorNotifyCondition=" + processorNotifyCondition +
+            '}';
+    }
 }

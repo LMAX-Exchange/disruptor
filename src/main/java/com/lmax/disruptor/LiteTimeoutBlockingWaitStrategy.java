@@ -80,4 +80,12 @@ public class LiteTimeoutBlockingWaitStrategy implements WaitStrategy
             }
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "LiteTimeoutBlockingWaitStrategy{" +
+            "processorNotifyCondition=" + processorNotifyCondition +
+            '}';
+    }
 }

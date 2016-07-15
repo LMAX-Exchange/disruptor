@@ -15,10 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.Util;
-import sun.misc.Unsafe;
-
-import java.lang.reflect.Field;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

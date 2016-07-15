@@ -87,4 +87,12 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
             }
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return "LiteBlockingWaitStrategy{" +
+            "processorNotifyCondition=" + processorNotifyCondition +
+            '}';
+    }
 }
