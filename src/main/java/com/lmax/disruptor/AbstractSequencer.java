@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import com.lmax.disruptor.util.Util;
@@ -121,5 +122,15 @@ public abstract class AbstractSequencer implements Sequencer
     public <T> EventPoller<T> newPoller(DataProvider<T> dataProvider, Sequence... gatingSequences)
     {
         return EventPoller.newInstance(dataProvider, this, new Sequence(), cursor, gatingSequences);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "AbstractSequencer{" +
+            "waitStrategy=" + waitStrategy +
+            ", cursor=" + cursor +
+            ", gatingSequences=" + Arrays.toString(gatingSequences) +
+            '}';
     }
 }
