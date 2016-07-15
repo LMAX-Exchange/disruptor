@@ -15,7 +15,7 @@ public class SequentialThreeConsumers
         private Object d;
     }
 
-    private static EventFactory<MyEvent> FACTORY = new EventFactory<MyEvent>()
+    private static EventFactory<MyEvent> factory = new EventFactory<MyEvent>()
     {
         @Override
         public MyEvent newInstance()
@@ -24,7 +24,7 @@ public class SequentialThreeConsumers
         }
     };
 
-    private static EventHandler<MyEvent> HANDLER_1 = new EventHandler<MyEvent>()
+    private static EventHandler<MyEvent> handler1 = new EventHandler<MyEvent>()
     {
         @Override
         public void onEvent(MyEvent event, long sequence, boolean endOfBatch) throws Exception
@@ -33,7 +33,7 @@ public class SequentialThreeConsumers
         }
     };
 
-    private static EventHandler<MyEvent> HANDLER_2 = new EventHandler<MyEvent>()
+    private static EventHandler<MyEvent> handler2 = new EventHandler<MyEvent>()
     {
         @Override
         public void onEvent(MyEvent event, long sequence, boolean endOfBatch) throws Exception
@@ -42,7 +42,7 @@ public class SequentialThreeConsumers
         }
     };
 
-    private static EventHandler<MyEvent> HANDLER_3 = new EventHandler<MyEvent>()
+    private static EventHandler<MyEvent> handler3 = new EventHandler<MyEvent>()
     {
         @Override
         public void onEvent(MyEvent event, long sequence, boolean endOfBatch) throws Exception
@@ -53,9 +53,9 @@ public class SequentialThreeConsumers
 
     public static void main(String[] args)
     {
-        Disruptor<MyEvent> disruptor = new Disruptor<MyEvent>(FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+        Disruptor<MyEvent> disruptor = new Disruptor<MyEvent>(factory, 1024, DaemonThreadFactory.INSTANCE);
 
-        disruptor.handleEventsWith(HANDLER_1).then(HANDLER_2).then(HANDLER_3);
+        disruptor.handleEventsWith(handler1).then(handler2).then(handler3);
 
         disruptor.start();
     }
