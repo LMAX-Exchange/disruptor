@@ -20,27 +20,30 @@ import org.junit.Assert;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StubExecutor implements Executor
+public final class StubThreadFactory implements ThreadFactory
 {
     private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
     private final Collection<Thread> threads = new CopyOnWriteArrayList<Thread>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
 
-    public void execute(final Runnable command)
+    @Override
+    public Thread newThread(final Runnable command)
     {
         executionCount.getAndIncrement();
-        if (!ignoreExecutions.get())
+        Runnable toExecute = command;
+        if(ignoreExecutions.get())
         {
-            Thread t = threadFactory.newThread(command);
-            t.setName(command.toString());
-            threads.add(t);
-            t.start();
+            toExecute = new NoOpRunnable();
         }
+        final Thread thread = threadFactory.newThread(toExecute);
+        thread.setName(command.toString());
+        threads.add(thread);
+        return thread;
     }
 
     public void joinAllThreads()
@@ -74,5 +77,13 @@ public class StubExecutor implements Executor
     public int getExecutionCount()
     {
         return executionCount.get();
+    }
+
+    private static final class NoOpRunnable implements Runnable
+    {
+        @Override
+        public void run()
+        {
+        }
     }
 }

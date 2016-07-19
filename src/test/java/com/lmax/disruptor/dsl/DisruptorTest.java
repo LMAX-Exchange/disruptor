@@ -26,15 +26,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.dsl.stubs.DelayedEventHandler;
-import com.lmax.disruptor.dsl.stubs.EventHandlerStub;
-import com.lmax.disruptor.dsl.stubs.EvilEqualsEventHandler;
-import com.lmax.disruptor.dsl.stubs.ExceptionThrowingEventHandler;
-import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
-import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
-import com.lmax.disruptor.dsl.stubs.StubExecutor;
-import com.lmax.disruptor.dsl.stubs.StubPublisher;
-import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
+import com.lmax.disruptor.dsl.stubs.*;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Thread.yield;
@@ -61,10 +53,11 @@ import static org.junit.Assert.assertTrue;
 public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
-    private Disruptor<TestEvent> disruptor;
-    private StubExecutor executor;
+
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<DelayedEventHandler>();
     private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<TestWorkHandler>();
+    private Disruptor<TestEvent> disruptor;
+    private StubThreadFactory executor;
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
@@ -270,7 +263,7 @@ public class DisruptorTest
         final StubPublisher stubPublisher = new StubPublisher(ringBuffer);
         try
         {
-            executor.execute(stubPublisher);
+            executor.newThread(stubPublisher).start();
 
             assertProducerReaches(stubPublisher, 4, true);
 
@@ -641,14 +634,14 @@ public class DisruptorTest
 
     private void createDisruptor()
     {
-        executor = new StubExecutor();
+        executor = new StubThreadFactory();
         createDisruptor(executor);
     }
 
-    private void createDisruptor(final Executor executor)
+    private void createDisruptor(final ThreadFactory threadFactory)
     {
         disruptor = new Disruptor<TestEvent>(
-            TestEvent.EVENT_FACTORY, 4, executor,
+            TestEvent.EVENT_FACTORY, 4, threadFactory,
             ProducerType.SINGLE, new BlockingWaitStrategy());
     }
 
