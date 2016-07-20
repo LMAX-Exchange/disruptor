@@ -79,6 +79,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
+            cursor.setVolatile(nextValue);  // StoreLoad fence
+
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             this.cachedValue = minSequence;
 
@@ -119,6 +121,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
+            cursor.setVolatile(nextValue);  // StoreLoad fence
+
             long minSequence;
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
