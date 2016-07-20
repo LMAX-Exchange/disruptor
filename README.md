@@ -13,6 +13,12 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.5
+
+- Fix NPE in TimeoutBlockingWaitStrategy when used with WorkProcessor
+- Add LiteTimeoutBlockingWaitStrategy
+- Resignal any waiting threads when trying to publish to a full ring buffer
+
 ### 3.3.4
 
 - Small build fixes and refactorings
