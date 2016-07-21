@@ -144,6 +144,10 @@ public final class MultiProducerSequencer extends AbstractSequencer
             {
                 break;
             }
+            else
+            {
+                LockSupport.parkNanos(1);
+            }
         }
         while (true);
 
