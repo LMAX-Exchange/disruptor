@@ -47,9 +47,9 @@ public class WaitForShutdown
             LongEvent.FACTORY, 16, DaemonThreadFactory.INSTANCE
         );
 
-        CountDownLatch shutdownLatch = new CountDownLatch(1);
+        CountDownLatch shutdownLatch = new CountDownLatch(2);
 
-        disruptor.handleEventsWith(new Handler(shutdownLatch));
+        disruptor.handleEventsWith(new Handler(shutdownLatch)).then(new Handler(shutdownLatch));
         disruptor.start();
 
         long next = disruptor.getRingBuffer().next();
