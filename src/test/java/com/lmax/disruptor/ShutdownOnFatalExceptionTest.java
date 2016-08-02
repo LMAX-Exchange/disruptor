@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class ShutdownOnFatalExceptionTest
     public void setUp()
     {
         disruptor = new Disruptor<byte[]>(
-            new ByteArrayFactory(256), 1024, Executors.newCachedThreadPool(), ProducerType.SINGLE,
+            new ByteArrayFactory(256), 1024, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE,
             new BlockingWaitStrategy());
         disruptor.handleEventsWith(eventHandler);
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());

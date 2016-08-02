@@ -542,18 +542,18 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub<TestEvent>(countDownLatch);
 
         disruptor.handleEventsWith(
-                                   new EventProcessorFactory<TestEvent>()
-                                   {
-                                       @Override
-                                       public EventProcessor createEventProcessor(
-                                                                                  final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
-                                       {
-                                           assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
-                                           return new BatchEventProcessor<TestEvent>(
-                                                                                     disruptor.getRingBuffer(), ringBuffer.newBarrier(
-                                                                                                                                      barrierSequences), eventHandler);
-                                       }
-                                   });
+            new EventProcessorFactory<TestEvent>()
+            {
+                @Override
+                public EventProcessor createEventProcessor(
+                    final RingBuffer<TestEvent> ringBuffer, final Sequence[] barrierSequences)
+                {
+                    assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
+                    return new BatchEventProcessor<TestEvent>(
+                        disruptor.getRingBuffer(), ringBuffer.newBarrier(
+                        barrierSequences), eventHandler);
+                }
+            });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch);
     }

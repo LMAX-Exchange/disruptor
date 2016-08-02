@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -23,14 +24,14 @@ public class DisruptorStressTest
     public void shouldHandleLotsOfThreads() throws Exception
     {
         Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-            TestEvent.FACTORY, 1 << 16, executor,
+            TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
             ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
         int threads = max(1, Runtime.getRuntime().availableProcessors() / 2);
 
-        int iterations = 20000000;
+        int iterations = 200000;
         int publisherCount = threads;
         int handlerCount = threads;
 

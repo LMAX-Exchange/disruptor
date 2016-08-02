@@ -3,6 +3,7 @@ package com.lmax.disruptor.example;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.Executors;
 
@@ -72,7 +73,7 @@ public class MultiProducerWithTranslator
     public static void main(String[] args) throws InterruptedException
     {
         Disruptor<ObjectBox> disruptor = new Disruptor<ObjectBox>(
-            ObjectBox.FACTORY, RING_SIZE, Executors.newCachedThreadPool(), ProducerType.MULTI,
+            ObjectBox.FACTORY, RING_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.MULTI,
             new BlockingWaitStrategy());
         disruptor.handleEventsWith(new Consumer()).then(new Consumer());
         final RingBuffer<ObjectBox> ringBuffer = disruptor.getRingBuffer();
