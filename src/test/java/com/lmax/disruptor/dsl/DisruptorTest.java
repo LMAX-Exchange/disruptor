@@ -331,8 +331,8 @@ public class DisruptorTest
 
         final BatchEventProcessor<TestEvent> processor =
             new BatchEventProcessor<TestEvent>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler);
-        disruptor.handleEventsWith(processor);
-        disruptor.after(processor).handleEventsWith(handlerWithBarrier);
+
+        disruptor.handleEventsWith(processor).then(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
     }
