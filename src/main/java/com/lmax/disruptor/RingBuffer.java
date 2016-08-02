@@ -64,7 +64,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {
-        return (E) entries[BUFFER_PAD + (((int) sequence) & (entries.length - ((BUFFER_PAD * 2) + 1)))];
+        return (E) entries[BUFFER_PAD + (int) (sequence & indexMask)];
     }
 }
 
