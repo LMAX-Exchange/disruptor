@@ -54,8 +54,9 @@ public class EventHandlerGroup<T>
     {
         final Sequence[] combinedSequences = new Sequence[this.sequences.length + otherHandlerGroup.sequences.length];
         System.arraycopy(this.sequences, 0, combinedSequences, 0, this.sequences.length);
-        System
-            .arraycopy(otherHandlerGroup.sequences, 0, combinedSequences, this.sequences.length, otherHandlerGroup.sequences.length);
+        System.arraycopy(
+            otherHandlerGroup.sequences, 0,
+            combinedSequences, this.sequences.length, otherHandlerGroup.sequences.length);
         return new EventHandlerGroup<T>(disruptor, consumerRepository, combinedSequences);
     }
 

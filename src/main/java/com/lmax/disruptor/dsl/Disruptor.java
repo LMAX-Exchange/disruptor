@@ -134,9 +134,9 @@ public class Disruptor<T>
             final ProducerType producerType,
             final WaitStrategy waitStrategy)
     {
-        this(RingBuffer.create(
-                               producerType, eventFactory, ringBufferSize, waitStrategy),
-                new BasicExecutor(threadFactory));
+        this(
+            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+            new BasicExecutor(threadFactory));
     }
 
     /**
@@ -204,6 +204,15 @@ public class Disruptor<T>
         {
             consumerRepository.add(processor);
         }
+
+        Sequence[] sequences = new Sequence[processors.length];
+        for (int i = 0; i < processors.length; i++)
+        {
+            sequences[i] = processors[i].getSequence();
+        }
+
+        ringBuffer.addGatingSequences(sequences);
+
         return new EventHandlerGroup<T>(this, consumerRepository, Util.getSequencesFor(processors));
     }
 
@@ -349,9 +358,6 @@ public class Disruptor<T>
      */
     public RingBuffer<T> start()
     {
-        final Sequence[] gatingSequences = consumerRepository.getLastSequenceInChain(true);
-        ringBuffer.addGatingSequences(gatingSequences);
-
         checkOnlyStartedOnce();
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
@@ -473,6 +479,17 @@ public class Disruptor<T>
     }
 
     /**
+     * Gets the sequence value for the specified event handlers.
+     *
+     * @param b1
+     * @return
+     */
+    public long getSequenceValueFor(EventHandler<T> b1)
+    {
+        return consumerRepository.getSequenceFor(b1).get();
+    }
+
+    /**
      * Confirms if all messages have been consumed by all event processors
      */
     private boolean hasBacklog()
@@ -515,6 +532,11 @@ public class Disruptor<T>
 
         if (processorSequences.length > 0)
         {
+            ringBuffer.addGatingSequences(processorSequences);
+            for (final Sequence barrierSequence : barrierSequences)
+            {
+                ringBuffer.removeGatingSequence(barrierSequence);
+            }
             consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
 
@@ -529,6 +551,7 @@ public class Disruptor<T>
         {
             eventProcessors[i] = processorFactories[i].createEventProcessor(ringBuffer, barrierSequences);
         }
+
         return handleEventsWith(eventProcessors);
     }
 

@@ -15,12 +15,6 @@
  */
 package com.lmax.disruptor.translator;
 
-import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
@@ -32,6 +26,10 @@ import com.lmax.disruptor.support.ValueAdditionEventHandler;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.MutableLong;
+
+import java.util.concurrent.CountDownLatch;
+
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 /**
  * <pre>

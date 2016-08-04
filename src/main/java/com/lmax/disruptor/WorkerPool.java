@@ -95,6 +95,7 @@ public final class WorkerPool<T>
                 workSequence);
         }
 
+        ringBuffer.addGatingSequences(workSequence);
         ringBuffer.addGatingSequences(getWorkerSequences());
     }
 
