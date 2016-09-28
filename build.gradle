@@ -24,7 +24,7 @@ apply plugin: 'idea'
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, minor: 3, revision: 5)
+version = new Version(major: 3, minor: 3, revision: 6)
 
 ext {
     fullName = 'Disruptor Framework'

@@ -13,6 +13,12 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.6
+
+- Support adding gating sequences before calling Disruptor.start()
+- Fix minor concurrency race when dynamically adding sequences
+- Fix wrapping problem when adding work handlers to the Disruptor
+
 ### 3.3.5
 
 - Fix NPE in TimeoutBlockingWaitStrategy when used with WorkProcessor
