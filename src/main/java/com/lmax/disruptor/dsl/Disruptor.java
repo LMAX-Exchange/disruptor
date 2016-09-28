@@ -560,6 +560,7 @@ public class Disruptor<T>
     {
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(barrierSequences);
         final WorkerPool<T> workerPool = new WorkerPool<T>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
+        ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
         consumerRepository.add(workerPool, sequenceBarrier);
         return new EventHandlerGroup<T>(this, consumerRepository, workerPool.getWorkerSequences());
     }

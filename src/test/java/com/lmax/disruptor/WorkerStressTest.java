@@ -16,7 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class DisruptorStressTest
+public class WorkerStressTest
 {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -24,8 +24,8 @@ public class DisruptorStressTest
     public void shouldHandleLotsOfThreads() throws Exception
     {
         Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-                TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
-                ProducerType.MULTI, new BusySpinWaitStrategy());
+            TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
+            ProducerType.MULTI, new SleepingWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
@@ -38,8 +38,10 @@ public class DisruptorStressTest
         CyclicBarrier barrier = new CyclicBarrier(publisherCount);
         CountDownLatch latch = new CountDownLatch(publisherCount);
 
-        TestEventHandler[] handlers = initialise(disruptor, new TestEventHandler[handlerCount]);
+        TestWorkHandler[] handlers = initialise(new TestWorkHandler[handlerCount]);
         Publisher[] publishers = initialise(new Publisher[publisherCount], ringBuffer, iterations, barrier, latch);
+
+        disruptor.handleEventsWithWorkerPool(handlers);
 
         disruptor.start();
 
@@ -61,10 +63,9 @@ public class DisruptorStressTest
             assertThat(publisher.failed, is(false));
         }
 
-        for (TestEventHandler handler : handlers)
+        for (TestWorkHandler handler : handlers)
         {
-            assertThat(handler.messagesSeen, is(not(0)));
-            assertThat(handler.failureCount, is(0));
+            assertThat(handler.seen, is(not(0)));
         }
     }
 
@@ -81,39 +82,25 @@ public class DisruptorStressTest
     }
 
     @SuppressWarnings("unchecked")
-    private TestEventHandler[] initialise(Disruptor<TestEvent> disruptor, TestEventHandler[] testEventHandlers)
+    private TestWorkHandler[] initialise(TestWorkHandler[] testEventHandlers)
     {
         for (int i = 0; i < testEventHandlers.length; i++)
         {
-            TestEventHandler handler = new TestEventHandler();
-            disruptor.handleEventsWith(handler);
+            TestWorkHandler handler = new TestWorkHandler();
             testEventHandlers[i] = handler;
         }
 
         return testEventHandlers;
     }
 
-    private static class TestEventHandler implements EventHandler<TestEvent>
+    private static class TestWorkHandler implements WorkHandler<TestEvent>
     {
-        public int failureCount = 0;
-        public int messagesSeen = 0;
-
-        public TestEventHandler()
-        {
-        }
+        private int seen;
 
         @Override
-        public void onEvent(TestEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(TestEvent event) throws Exception
         {
-            if (event.sequence != sequence ||
-                event.a != sequence + 13 ||
-                event.b != sequence - 7 ||
-                !("wibble-" + sequence).equals(event.s))
-            {
-                failureCount++;
-            }
-
-            messagesSeen++;
+            seen++;
         }
     }
 
@@ -155,6 +142,11 @@ public class DisruptorStressTest
                     testEvent.b = next - 7;
                     testEvent.s = "wibble-" + next;
                     ringBuffer.publish(next);
+
+                    if ((next + 1) % 1000 == 0)
+                    {
+                        System.out.printf("Published: %d%n", next + 1);
+                    }
                 }
             }
             catch (Exception e)
@@ -164,6 +156,7 @@ public class DisruptorStressTest
             finally
             {
                 shutdownLatch.countDown();
+                System.out.println("Released latch: " + shutdownLatch.getCount());
             }
         }
     }
@@ -175,12 +168,12 @@ public class DisruptorStressTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<DisruptorStressTest.TestEvent>()
+        public static final EventFactory<TestEvent> FACTORY = new EventFactory<WorkerStressTest.TestEvent>()
         {
             @Override
-            public DisruptorStressTest.TestEvent newInstance()
+            public TestEvent newInstance()
             {
-                return new DisruptorStressTest.TestEvent();
+                return new TestEvent();
             }
         };
     }
