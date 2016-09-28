@@ -142,11 +142,6 @@ public class WorkerStressTest
                     testEvent.b = next - 7;
                     testEvent.s = "wibble-" + next;
                     ringBuffer.publish(next);
-
-                    if ((next + 1) % 1000 == 0)
-                    {
-                        System.out.printf("Published: %d%n", next + 1);
-                    }
                 }
             }
             catch (Exception e)
@@ -156,7 +151,6 @@ public class WorkerStressTest
             finally
             {
                 shutdownLatch.countDown();
-                System.out.println("Released latch: " + shutdownLatch.getCount());
             }
         }
     }
