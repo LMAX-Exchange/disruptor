@@ -530,6 +530,13 @@ public class Disruptor<T>
             processorSequences[i] = batchEventProcessor.getSequence();
         }
 
+        updateGatingSequencesForNextInChain(barrierSequences, processorSequences);
+
+        return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
+    }
+
+    private void updateGatingSequencesForNextInChain(Sequence[] barrierSequences, Sequence[] processorSequences)
+    {
         if (processorSequences.length > 0)
         {
             ringBuffer.addGatingSequences(processorSequences);
@@ -539,8 +546,6 @@ public class Disruptor<T>
             }
             consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
-
-        return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
     }
 
     EventHandlerGroup<T> createEventProcessors(
@@ -560,9 +565,15 @@ public class Disruptor<T>
     {
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(barrierSequences);
         final WorkerPool<T> workerPool = new WorkerPool<T>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
-        ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
+
+
         consumerRepository.add(workerPool, sequenceBarrier);
-        return new EventHandlerGroup<T>(this, consumerRepository, workerPool.getWorkerSequences());
+
+        Sequence[] workerSequences = workerPool.getWorkerSequences();
+
+        updateGatingSequencesForNextInChain(barrierSequences, workerSequences);
+
+        return new EventHandlerGroup<T>(this, consumerRepository, workerSequences);
     }
 
     private void checkNotStarted()
