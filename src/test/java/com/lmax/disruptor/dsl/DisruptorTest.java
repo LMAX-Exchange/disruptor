@@ -538,6 +538,28 @@ public class DisruptorTest
         workHandler2.processEvent();
     }
 
+
+    @Test
+    public void shouldProvideEventsMultipleWorkHandlers() throws Exception
+    {
+        final TestWorkHandler workHandler1 = createTestWorkHandler();
+        final TestWorkHandler workHandler2 = createTestWorkHandler();
+        final TestWorkHandler workHandler3 = createTestWorkHandler();
+        final TestWorkHandler workHandler4 = createTestWorkHandler();
+        final TestWorkHandler workHandler5 = createTestWorkHandler();
+        final TestWorkHandler workHandler6 = createTestWorkHandler();
+        final TestWorkHandler workHandler7 = createTestWorkHandler();
+        final TestWorkHandler workHandler8 = createTestWorkHandler();
+
+        disruptor
+            .handleEventsWithWorkerPool(workHandler1, workHandler2)
+            .thenHandleEventsWithWorkerPool(workHandler3, workHandler4);
+        disruptor
+            .handleEventsWithWorkerPool(workHandler5, workHandler6)
+            .thenHandleEventsWithWorkerPool(workHandler7, workHandler8);
+    }
+
+
     @Test
     public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
     {
