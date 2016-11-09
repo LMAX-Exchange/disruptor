@@ -29,6 +29,12 @@ public final class HistogramTest
     public static final long[] INTERVALS = new long[]{1, 10, 100, 1000, Long.MAX_VALUE};
     private Histogram histogram = new Histogram(INTERVALS);
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionOnInvalidBounds()
+    {
+        new Histogram(new long[]{});
+    }
+
     @Test
     public void shouldSizeBasedOnBucketConfiguration()
     {
@@ -95,6 +101,16 @@ public final class HistogramTest
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenIntervalsDoNotMatch()
     {
+        long[] intervals = INTERVALS.clone();
+        intervals[0]++;
+
+        Histogram histogram2 = new Histogram(intervals);
+        histogram.addObservations(histogram2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenIntervalsLengthDoNotMatch()
+    {
         Histogram histogram2 = new Histogram(new long[]{1L, 2L, 3L});
         histogram.addObservations(histogram2);
     }
@@ -117,6 +133,15 @@ public final class HistogramTest
         addObservations(histogram, 1L, 7L, 10L, 3000L);
 
         assertThat(Long.valueOf(histogram.getCount()), is(Long.valueOf(4L)));
+    }
+
+    @Test
+    public void shouldGetMeanZeroObservation()
+    {
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
+        final Histogram histogram = new Histogram(intervals);
+
+        assertThat(histogram.getMean(), is(BigDecimal.ZERO));
     }
 
     @Test
@@ -167,6 +192,33 @@ public final class HistogramTest
 
         assertThat(Long.valueOf(histogram.getMin()), is(Long.valueOf(10L)));
         assertThat(Long.valueOf(histogram.getMax()), is(Long.valueOf(10L)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldGetExceptionUpperBoundForFactorZero()
+    {
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
+        final Histogram histogram = new Histogram(intervals);
+
+        Long.valueOf(histogram.getUpperBoundForFactor(0.0));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldGetExceptionUpperBoundForFactorOne()
+    {
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
+        final Histogram histogram = new Histogram(intervals);
+
+        Long.valueOf(histogram.getUpperBoundForFactor(1.0));
+    }
+
+    @Test
+    public void shouldGetZeroUpperBound()
+    {
+        final long[] intervals = new long[]{1, 10, 100, 1000, 10000};
+        final Histogram histogram = new Histogram(intervals);
+
+        assertThat(Long.valueOf(histogram.getUpperBoundForFactor(0.5)), is(Long.valueOf(0L)));
     }
 
     @Test
