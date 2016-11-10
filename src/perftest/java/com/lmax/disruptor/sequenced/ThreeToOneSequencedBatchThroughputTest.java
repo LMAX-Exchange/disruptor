@@ -76,9 +76,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  * EP1 - EventProcessor 1
  *
  * </pre>
- */
-
-/**
+ *
  * @author mikeb01
  */
 public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTestDisruptor

@@ -35,7 +35,7 @@ public class RingBufferWithMocksTest
     }
 
     @Test
-    public void shouldDelgateNextAndPublish()
+    public void shouldDelegateNextAndPublish()
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
         mockery.checking(
@@ -55,7 +55,7 @@ public class RingBufferWithMocksTest
     }
 
     @Test
-    public void shouldDelgateTryNextAndPublish() throws Exception
+    public void shouldDelegateTryNextAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
         mockery.checking(
@@ -75,7 +75,7 @@ public class RingBufferWithMocksTest
     }
 
     @Test
-    public void shouldDelgateNextNAndPublish() throws Exception
+    public void shouldDelegateNextNAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
         mockery.checking(
@@ -96,7 +96,7 @@ public class RingBufferWithMocksTest
     }
 
     @Test
-    public void shouldDelgateTryNextNAndPublish() throws Exception
+    public void shouldDelegateTryNextNAndPublish() throws Exception
     {
         final org.jmock.Sequence sequence = mockery.sequence("publication sequence");
         mockery.checking(

@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
  * <p>
  * <p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
  *
- * @param T the type of the configured {@link EventHandler}
+ * @param <T> the type of the configured {@link EventHandler}
  */
 class EventProcessorInfo<T> implements ConsumerInfo
 {
