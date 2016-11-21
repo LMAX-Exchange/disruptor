@@ -82,7 +82,7 @@ public interface Sequencer extends Cursored, Sequenced
      * in the Sequencer.  The scan will range from nextSequence to availableSequence.  If
      * there are no available values <code>&gt;= nextSequence</code> the return value will be
      * <code>nextSequence - 1</code>.  To work correctly a consumer should pass a value that
-     * it 1 higher than the last sequence that was successfully processed.
+     * is 1 higher than the last sequence that was successfully processed.
      *
      * @param nextSequence      The sequence to start scanning from.
      * @param availableSequence The sequence to scan to.

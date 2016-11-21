@@ -433,7 +433,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      *
      * @param requiredCapacity The capacity to check for.
      * @return <tt>true</tt> If the specified <tt>requiredCapacity</tt> is available
-     * <tt>false</tt> if now.
+     * <tt>false</tt> if not.
      */
     public boolean hasAvailableCapacity(int requiredCapacity)
     {

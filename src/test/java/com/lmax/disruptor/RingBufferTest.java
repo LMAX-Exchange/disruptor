@@ -1240,13 +1240,13 @@ public class RingBufferTest
     }
 
     @Test
-    public void shouldHandleResetToAndNotWrapUnecessarilySingleProducer() throws Exception
+    public void shouldHandleResetToAndNotWrapUnnecessarilySingleProducer() throws Exception
     {
         assertHandleResetAndNotWrap(RingBuffer.createSingleProducer(StubEvent.EVENT_FACTORY, 4));
     }
 
     @Test
-    public void shouldHandleResetToAndNotWrapUnecessarilyMultiProducer() throws Exception
+    public void shouldHandleResetToAndNotWrapUnnecessarilyMultiProducer() throws Exception
     {
         assertHandleResetAndNotWrap(RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 4));
     }
