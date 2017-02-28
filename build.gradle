@@ -51,9 +51,9 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.5',
-                'org.jmock:jmock-junit4:2.5.1',
-                'org.jmock:jmock-legacy:2.5.1'
+    testCompile 'junit:junit:4.12',
+                'org.jmock:jmock-junit4:2.8.2',
+                'org.jmock:jmock-legacy:2.8.2'
 
     perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
