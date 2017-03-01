@@ -15,15 +15,17 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.support.DummySequenceBarrier;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import com.lmax.disruptor.AlertException;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.TimeoutException;
+import com.lmax.disruptor.WaitStrategy;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WaitStrategyTestUtil
 {

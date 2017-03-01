@@ -15,20 +15,15 @@
  */
 package com.lmax.disruptor.util;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import com.lmax.disruptor.Sequence;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.lmax.disruptor.Sequence;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 public final class UtilTest
 {
