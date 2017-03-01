@@ -15,28 +15,18 @@
  */
 package com.lmax.disruptor;
 
-import org.jmock.*;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.legacy.ClassImposteriser;
+import com.lmax.disruptor.support.DummyEventHandler;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 @SuppressWarnings("unchecked")
 public final class AggregateEventHandlerTest
 {
-    private Mockery context = new Mockery()
-    {
-        {
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }
-    };
-
-    private final org.jmock.Sequence callSequence = context.sequence("callSequence");
-
-    private final LifecycleAwareEventHandler<int[]> eh1 = context.mock(LifecycleAwareEventHandler.class, "eh1");
-    private final LifecycleAwareEventHandler<int[]> eh2 = context.mock(LifecycleAwareEventHandler.class, "eh2");
-    private final LifecycleAwareEventHandler<int[]> eh3 = context.mock(LifecycleAwareEventHandler.class, "eh3");
+    private final DummyEventHandler<int[]> eh1 = new DummyEventHandler<int[]>();
+    private final DummyEventHandler<int[]> eh2 = new DummyEventHandler<int[]>();
+    private final DummyEventHandler<int[]> eh3 = new DummyEventHandler<int[]>();
 
     @Test
     public void shouldCallOnEventInSequence()
@@ -46,72 +36,32 @@ public final class AggregateEventHandlerTest
         final long sequence = 3L;
         final boolean endOfBatch = true;
 
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eh1).onEvent(event, sequence, endOfBatch);
-                    inSequence(callSequence);
-
-                    oneOf(eh2).onEvent(event, sequence, endOfBatch);
-                    inSequence(callSequence);
-
-                    oneOf(eh3).onEvent(event, sequence, endOfBatch);
-                    inSequence(callSequence);
-                }
-            });
-
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 
         aggregateEventHandler.onEvent(event, sequence, endOfBatch);
+        assertLastEvent(event, sequence, eh1, eh2, eh3);
     }
 
     @Test
     public void shouldCallOnStartInSequence()
         throws Exception
     {
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eh1).onStart();
-                    inSequence(callSequence);
-
-                    oneOf(eh2).onStart();
-                    inSequence(callSequence);
-
-                    oneOf(eh3).onStart();
-                    inSequence(callSequence);
-                }
-            });
-
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 
         aggregateEventHandler.onStart();
+
+        assertStartCalls(1, eh1, eh2, eh3);
     }
 
     @Test
     public void shouldCallOnShutdownInSequence()
         throws Exception
     {
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(eh1).onShutdown();
-                    inSequence(callSequence);
-
-                    oneOf(eh2).onShutdown();
-                    inSequence(callSequence);
-
-                    oneOf(eh3).onShutdown();
-                    inSequence(callSequence);
-                }
-            });
-
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
 
         aggregateEventHandler.onShutdown();
+
+        assertShutoownCalls(1, eh1, eh2, eh3);
     }
 
     @Test
@@ -124,22 +74,28 @@ public final class AggregateEventHandlerTest
         aggregateEventHandler.onShutdown();
     }
 
-    public static class LifecycleAwareEventHandler<T>
-        implements EventHandler<T>, LifecycleAware
+    private static void assertLastEvent(int[] event, long sequence, DummyEventHandler<int[]>... eh1)
     {
-        @Override
-        public void onEvent(final T event, final long sequence, final boolean endOfBatch) throws Exception
+        for (DummyEventHandler<int[]> eh : eh1)
         {
+            assertThat(eh.lastEvent, is(event));
+            assertThat(eh.lastSequence, is(sequence));
         }
+    }
 
-        @Override
-        public void onStart()
+    private static void assertStartCalls(int startCalls, DummyEventHandler<int[]>... handlers)
+    {
+        for (DummyEventHandler<int[]> handler : handlers)
         {
+            assertThat(handler.startCalls, is(startCalls));
         }
+    }
 
-        @Override
-        public void onShutdown()
+    private static void assertShutoownCalls(int startCalls, DummyEventHandler<int[]>... handlers)
+    {
+        for (DummyEventHandler<int[]> handler : handlers)
         {
+            assertThat(handler.shutdownCalls, is(startCalls));
         }
     }
 }
