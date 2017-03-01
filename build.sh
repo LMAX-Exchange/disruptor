@@ -66,23 +66,34 @@ function download_dependencies()
 
 function compile()
 {
-    COMPILE_FILE=${BUILD_DIR}/$2
+    COMPILE_FILE=$2
     find $1 -name '*.java' >> ${COMPILE_FILE}
     do_javac ${COMPILE_FILE} $3
 }
 
 function main_compile()
 {
-    rm -f ${BUILD_DIR}/java.main.java.txt
-    compile 'src/main/java' java.main.java.txt ${BUILD_MAIN_CLASSES}
+    local compile_file=${BUILD_DIR}/src.main.java.txt
+    rm -f ${compile_file}
+    compile 'src/main/java' ${compile_file} ${BUILD_MAIN_CLASSES}
 }
 
 function test_compile()
 {
-    rm -f ${BUILD_DIR}/java.test.java.txt
+    local compile_file=${BUILD_DIR}/src.test.java.txt
+    rm -f ${compile_file}
     JARS=$(find ${BUILD_LIB_DIR} -name "*.jar" | paste -sd ':')
-    echo "-cp ${BUILD_MAIN_CLASSES}:$JARS" >> ${BUILD_DIR}/java.test.java.txt
-    compile 'src/test/java' java.test.java.txt ${BUILD_TEST_CLASSES}
+    echo "-cp ${BUILD_MAIN_CLASSES}:$JARS" >> ${compile_file}
+    compile 'src/test/java' ${compile_file} ${BUILD_TEST_CLASSES}
+}
+
+function perf_compile()
+{
+    local compile_file=${BUILD_DIR}/src.pef.java.txt
+    rm -f ${compile_file}
+    JARS=$(find ${BUILD_LIB_DIR} -name "*.jar" | paste -sd ':')
+    echo "-cp ${BUILD_MAIN_CLASSES}:${BUILD_TEST_CLASSES}:$JARS" >> ${compile_file}
+    compile 'src/perftest/java' ${compile_file} ${BUILD_PERF_CLASSES}
 }
 
 function run_tests()
@@ -97,4 +108,5 @@ download_dependencies &&
 clean_classes &&
 main_compile &&
 test_compile &&
+perf_compile &&
 run_tests
