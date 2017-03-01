@@ -16,44 +16,18 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-@RunWith(JMock.class)
 public final class FatalExceptionHandlerTest
 {
-    private final Mockery context = new Mockery();
-
-    public FatalExceptionHandlerTest()
-    {
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-    }
-
     @Test
     public void shouldHandleFatalException()
     {
         final Exception causeException = new Exception();
         final TestEvent event = new TestEvent();
 
-        final Logger logger = context.mock(Logger.class);
-
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(logger).log(Level.SEVERE, "Exception processing: 0 " + event, causeException);
-                }
-            });
-
-        ExceptionHandler<Object> exceptionHandler = new FatalExceptionHandler(logger);
+        ExceptionHandler<Object> exceptionHandler = new FatalExceptionHandler();
 
         try
         {

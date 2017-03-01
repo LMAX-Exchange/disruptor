@@ -16,43 +16,17 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-@RunWith(JMock.class)
 public final class IgnoreExceptionHandlerTest
 {
-    private final Mockery context = new Mockery();
-
-    public IgnoreExceptionHandlerTest()
-    {
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-    }
-
     @Test
     public void shouldHandleAndIgnoreException()
     {
         final Exception ex = new Exception();
         final TestEvent event = new TestEvent();
 
-        final Logger logger = context.mock(Logger.class);
-
-        context.checking(
-            new Expectations()
-            {
-                {
-                    oneOf(logger).log(Level.INFO, "Exception processing: 0 " + event, ex);
-                }
-            });
-
-        ExceptionHandler<Object> exceptionHandler = new IgnoreExceptionHandler(logger);
+        ExceptionHandler<Object> exceptionHandler = new IgnoreExceptionHandler();
         exceptionHandler.handleEventException(ex, 0L, event);
     }
 }
