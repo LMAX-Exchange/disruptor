@@ -1,12 +1,12 @@
 package com.lmax.disruptor;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.*;
+import com.lmax.disruptor.support.DummySequenceBarrier;
+import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import com.lmax.disruptor.support.DummySequenceBarrier;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TimeoutBlockingWaitStrategyTest
 {
@@ -35,6 +35,6 @@ public class TimeoutBlockingWaitStrategyTest
 
         long timeWaiting = t1 - t0;
 
-        assertThat(timeWaiting, greaterThanOrEqualTo(theTimeout));
+        assertTrue(timeWaiting >= theTimeout);
     }
 }

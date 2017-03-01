@@ -5,8 +5,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class LiteTimeoutBlockingWaitStrategyTest
@@ -36,6 +35,6 @@ public class LiteTimeoutBlockingWaitStrategyTest
 
         long timeWaiting = t1 - t0;
 
-        assertThat(timeWaiting, greaterThanOrEqualTo(theTimeout));
+        assertTrue(timeWaiting >= theTimeout);
     }
 }
