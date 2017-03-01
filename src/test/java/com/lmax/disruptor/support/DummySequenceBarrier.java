@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.support;
 
 
-class DummySequenceBarrier implements SequenceBarrier
+import com.lmax.disruptor.AlertException;
+import com.lmax.disruptor.SequenceBarrier;
+
+public class DummySequenceBarrier implements SequenceBarrier
 {
     @Override
     public long waitFor(long sequence) throws AlertException, InterruptedException

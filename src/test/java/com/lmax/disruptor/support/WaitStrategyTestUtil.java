@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.support;
+
+import com.lmax.disruptor.*;
+import com.lmax.disruptor.support.DummySequenceBarrier;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -26,7 +29,7 @@ public class WaitStrategyTestUtil
 {
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    static void assertWaitForWithDelayOf(long sleepTimeMillis, WaitStrategy waitStrategy)
+    public static void assertWaitForWithDelayOf(long sleepTimeMillis, WaitStrategy waitStrategy)
         throws InterruptedException, BrokenBarrierException, AlertException, TimeoutException
     {
         SequenceUpdater sequenceUpdater = new SequenceUpdater(sleepTimeMillis, waitStrategy);

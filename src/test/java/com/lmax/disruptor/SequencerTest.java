@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.lmax.disruptor.support.DummyWaitStrategy;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -27,7 +28,6 @@ public class SequencerTest
 
     private final Sequencer sequencer;
     private final Sequence gatingSequence = new Sequence();
-    private final Mockery mockery = new Mockery();
     private final ProducerType producerType;
 
     public SequencerTest(ProducerType producerType, WaitStrategy waitStrategy)
@@ -169,40 +169,24 @@ public class SequencerTest
     @Test
     public void shouldNotifyWaitStrategyOnPublish() throws Exception
     {
-        final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
+        final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
         final Sequenced sequencer = newProducer(producerType, BUFFER_SIZE, waitStrategy);
-
-        mockery.checking(
-            new Expectations()
-            {
-                {
-                    one(waitStrategy).signalAllWhenBlocking();
-                }
-            });
 
         sequencer.publish(sequencer.next());
 
-        mockery.assertIsSatisfied();
+        assertThat(waitStrategy.signalAllWhenBlockingCalls, is(1));
     }
 
     @Test
     public void shouldNotifyWaitStrategyOnPublishBatch() throws Exception
     {
-        final WaitStrategy waitStrategy = mockery.mock(WaitStrategy.class);
+        final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
         final Sequenced sequencer = newProducer(producerType, BUFFER_SIZE, waitStrategy);
-
-        mockery.checking(
-            new Expectations()
-            {
-                {
-                    one(waitStrategy).signalAllWhenBlocking();
-                }
-            });
 
         long next = sequencer.next(4);
         sequencer.publish(next - (4 - 1), next);
 
-        mockery.assertIsSatisfied();
+        assertThat(waitStrategy.signalAllWhenBlockingCalls, is(1));
     }
 
     @Test
