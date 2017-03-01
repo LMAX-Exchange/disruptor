@@ -100,7 +100,7 @@ function run_tests()
 {
     JARS=$(find ${BUILD_LIB_DIR} -name "*.jar" | paste -sd ':')
     TESTS=$(for i in $(find build_tmp/test/classes -name '*Test.class') ; do l=${i#build_tmp/test/classes/} ; j=${l%.class} ; echo ${j////.} ; done | paste -sd ' ')
-    $JAVA_HOME/bin/java -cp ${JARS}:${BUILD_MAIN_CLASSES}:${BUILD_TEST_CLASSES} org.junit.runner.JUnitCore $TESTS
+    $JAVA_HOME/bin/java -cp ${JARS}:${BUILD_MAIN_CLASSES}:${BUILD_TEST_CLASSES} org.junit.runner.JUnitCore $TESTS 2> /dev/null
 }
 
 create_build &&
