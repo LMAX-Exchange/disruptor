@@ -15,10 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import sun.misc.Unsafe;
-
-import com.lmax.disruptor.util.Util;
-
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 
 class LhsPadding
 {
@@ -45,21 +43,20 @@ class RhsPadding extends Value
  */
 public class Sequence extends RhsPadding
 {
+    private static final VarHandle VALUE_FIELD;
     static final long INITIAL_VALUE = -1L;
-    private static final Unsafe UNSAFE;
-    private static final long VALUE_OFFSET;
 
     static
     {
-        UNSAFE = Util.getUnsafe();
         try
         {
-            VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
+            VALUE_FIELD = MethodHandles.lookup().in(Sequence.class).findVarHandle(Sequence.class, "value", long.class);
         }
         catch (final Exception e)
         {
             throw new RuntimeException(e);
         }
+
     }
 
     /**
@@ -77,7 +74,7 @@ public class Sequence extends RhsPadding
      */
     public Sequence(final long initialValue)
     {
-        UNSAFE.putOrderedLong(this, VALUE_OFFSET, initialValue);
+        VALUE_FIELD.setRelease(this, initialValue);
     }
 
     /**
@@ -87,7 +84,7 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        return value;
+        return (long) (Long) VALUE_FIELD.getAcquire(this);
     }
 
     /**
@@ -99,7 +96,7 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        UNSAFE.putOrderedLong(this, VALUE_OFFSET, value);
+        VALUE_FIELD.setRelease(this, value);
     }
 
     /**
@@ -112,7 +109,7 @@ public class Sequence extends RhsPadding
      */
     public void setVolatile(final long value)
     {
-        UNSAFE.putLongVolatile(this, VALUE_OFFSET, value);
+        VALUE_FIELD.setVolatile(this, value);
     }
 
     /**
@@ -124,7 +121,7 @@ public class Sequence extends RhsPadding
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return UNSAFE.compareAndSwapLong(this, VALUE_OFFSET, expectedValue, newValue);
+        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
     }
 
     /**
@@ -145,17 +142,8 @@ public class Sequence extends RhsPadding
      */
     public long addAndGet(final long increment)
     {
-        long currentValue;
-        long newValue;
-
-        do
-        {
-            currentValue = get();
-            newValue = currentValue + increment;
-        }
-        while (!compareAndSet(currentValue, newValue));
-
-        return newValue;
+        final long oldValue = (Long) VALUE_FIELD.getAndAdd(this, increment);
+        return oldValue + increment;
     }
 
     @Override

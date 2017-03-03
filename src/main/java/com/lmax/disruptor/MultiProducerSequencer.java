@@ -15,11 +15,11 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.locks.LockSupport;
-
-import sun.misc.Unsafe;
-
 import com.lmax.disruptor.util.Util;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -32,9 +32,19 @@ import com.lmax.disruptor.util.Util;
  */
 public final class MultiProducerSequencer extends AbstractSequencer
 {
-    private static final Unsafe UNSAFE = Util.getUnsafe();
-    private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
-    private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
+    private static final VarHandle INT_ARRAY_HANDLE;
+
+    static
+    {
+        try
+        {
+            INT_ARRAY_HANDLE = MethodHandles.arrayElementVarHandle(int[].class);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
@@ -258,8 +268,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
     private void setAvailableBufferValue(int index, int flag)
     {
-        long bufferAddress = (index * SCALE) + BASE;
-        UNSAFE.putOrderedInt(availableBuffer, bufferAddress, flag);
+        INT_ARRAY_HANDLE.setRelease(availableBuffer, index, flag);
     }
 
     /**
@@ -270,8 +279,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
-        long bufferAddress = (index * SCALE) + BASE;
-        return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
+        return (int) (Integer) INT_ARRAY_HANDLE.getAcquire(availableBuffer, index) == flag;
     }
 
     @Override

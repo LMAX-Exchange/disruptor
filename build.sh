@@ -15,6 +15,14 @@ else
     JC=${JAVA_HOME}/bin/javac
 fi
 
+if [ $# -eq 0 ]
+then
+  COMMAND="help"
+else
+  COMMAND=$1
+fi
+
+
 function create_dir()
 {
     if [ ! -d $1 ]; then
@@ -103,10 +111,22 @@ function run_tests()
     $JAVA_HOME/bin/java -cp ${JARS}:${BUILD_MAIN_CLASSES}:${BUILD_TEST_CLASSES} org.junit.runner.JUnitCore $TESTS 2> /dev/null
 }
 
-create_build &&
-download_dependencies &&
-clean_classes &&
-main_compile &&
-test_compile &&
-perf_compile &&
-run_tests
+function do_build()
+{
+    create_build &&
+    download_dependencies &&
+    clean_classes &&
+    main_compile &&
+    test_compile &&
+    perf_compile &&
+    run_tests
+}
+
+case $COMMAND in
+    build)
+        do_build
+    ;;
+    help)
+        echo "help"
+    ;;
+esac
