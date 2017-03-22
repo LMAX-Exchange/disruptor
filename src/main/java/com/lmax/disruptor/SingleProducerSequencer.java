@@ -72,6 +72,11 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
+        return hasAvailableCapacity(requiredCapacity, false);
+    }
+
+    private boolean hasAvailableCapacity(int requiredCapacity, boolean doStore)
+    {
         long nextValue = this.nextValue;
 
         long wrapPoint = (nextValue + requiredCapacity) - bufferSize;
@@ -79,7 +84,10 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
-            cursor.setVolatile(nextValue);  // StoreLoad fence
+            if (doStore)
+            {
+                cursor.setVolatile(nextValue);  // StoreLoad fence
+            }
 
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             this.cachedValue = minSequence;
@@ -158,7 +166,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        if (!hasAvailableCapacity(n))
+        if (!hasAvailableCapacity(n, true))
         {
             throw InsufficientCapacityException.INSTANCE;
         }
