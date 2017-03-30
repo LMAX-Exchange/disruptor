@@ -96,7 +96,7 @@ public class DisruptorTest
     @Test
     public void shouldProcessMessagesPublishedBeforeStartIsCalled() throws Exception
     {
-        final CountDownLatch eventCounter = new CountDownLatch(0);
+        final CountDownLatch eventCounter = new CountDownLatch(2);
         disruptor.handleEventsWith(new EventHandler<TestEvent>()
         {
             @Override
