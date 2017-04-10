@@ -37,6 +37,7 @@ public final class BatchEventProcessor<T>
     private final EventHandler<? super T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
+    private final BatchStartAware batchStartAware;
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -60,7 +61,10 @@ public final class BatchEventProcessor<T>
             ((SequenceReportingEventHandler<?>) eventHandler).setSequenceCallback(sequence);
         }
 
-        timeoutHandler = (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
+        batchStartAware =
+                (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
+        timeoutHandler =
+                (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
     }
 
     @Override
@@ -122,6 +126,10 @@ public final class BatchEventProcessor<T>
                 try
                 {
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                    if (batchStartAware != null)
+                    {
+                        batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                    }
 
                     while (nextSequence <= availableSequence)
                     {
