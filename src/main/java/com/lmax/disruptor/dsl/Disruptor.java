@@ -207,7 +207,7 @@ public class Disruptor<T>
             consumerRepository.add(processor);
         }
 
-        Sequence[] sequences = new Sequence[processors.length];
+        final Sequence[] sequences = new Sequence[processors.length];
         for (int i = 0; i < processors.length; i++)
         {
             sequences[i] = processors[i].getSequence();
@@ -511,7 +511,7 @@ public class Disruptor<T>
      * @param b1
      * @return
      */
-    public long getSequenceValueFor(EventHandler<T> b1)
+    public long getSequenceValueFor(final EventHandler<T> b1)
     {
         return consumerRepository.getSequenceFor(b1).get();
     }
@@ -562,7 +562,7 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
     }
 
-    private void updateGatingSequencesForNextInChain(Sequence[] barrierSequences, Sequence[] processorSequences)
+    private void updateGatingSequencesForNextInChain(final Sequence[] barrierSequences, final Sequence[] processorSequences)
     {
         if (processorSequences.length > 0)
         {
@@ -596,7 +596,7 @@ public class Disruptor<T>
 
         consumerRepository.add(workerPool, sequenceBarrier);
 
-        Sequence[] workerSequences = workerPool.getWorkerSequences();
+        final Sequence[] workerSequences = workerPool.getWorkerSequences();
 
         updateGatingSequencesForNextInChain(barrierSequences, workerSequences);
 
