@@ -21,6 +21,8 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.EventTranslatorThreeArg;
+import com.lmax.disruptor.EventTranslatorTwoArg;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
@@ -344,6 +346,31 @@ public class Disruptor<T>
     public <A> void publishEvents(final EventTranslatorOneArg<T, A> eventTranslator, final A[] arg)
     {
         ringBuffer.publishEvents(eventTranslator, arg);
+    }
+
+    /**
+     * Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg0            The first argument to load into the event
+     * @param arg1            The second argument to load into the event
+     */
+    public <A, B> void publishEvent(final EventTranslatorTwoArg<T, A, B> eventTranslator, final A arg0, final B arg1)
+    {
+        ringBuffer.publishEvent(eventTranslator, arg0, arg1);
+    }
+
+    /**
+     * Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg0            The first argument to load into the event
+     * @param arg1            The second argument to load into the event
+     * @param arg2            The third argument to load into the event
+     */
+    public <A, B, C> void publishEvent(final EventTranslatorThreeArg<T, A, B, C> eventTranslator, final A arg0, final B arg1, final C arg2)
+    {
+        ringBuffer.publishEvent(eventTranslator, arg0, arg1, arg2);
     }
 
     /**
