@@ -6,6 +6,8 @@ A High Performance Inter-Thread Messaging Library
 
 [Michael Barker](https://github.com/mikeb01)
 
+[![Build Status](https://semaphoreci.com/api/v1/mikeb01/disruptor/branches/master/badge.svg)](https://semaphoreci.com/mikeb01/disruptor)
+
 ## Documentation
 
 * [Introduction](https://github.com/LMAX-Exchange/disruptor/wiki/Introduction)
