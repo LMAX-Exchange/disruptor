@@ -18,10 +18,14 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public final class BatchEventProcessorTest
@@ -137,4 +141,50 @@ public final class BatchEventProcessorTest
         }
     }
 
+    @Test
+    public void reportAccurateBatchSizesAtBatchStartTime()
+        throws Exception
+    {
+        final List<Long> batchSizes = new ArrayList<Long>();
+        final CountDownLatch eventLatch = new CountDownLatch(6);
+
+        final class LoopbackEventHandler
+            implements EventHandler<StubEvent>, BatchStartAware
+        {
+
+            @Override
+            public void onBatchStart(long batchSize)
+            {
+                batchSizes.add(batchSize);
+            }
+
+            @Override
+            public void onEvent(StubEvent event, long sequence, boolean endOfBatch)
+                throws Exception
+            {
+                if (!endOfBatch)
+                {
+                    ringBuffer.publish(ringBuffer.next());
+                }
+                eventLatch.countDown();
+            }
+        }
+
+        final BatchEventProcessor<StubEvent> batchEventProcessor =
+            new BatchEventProcessor<StubEvent>(
+                ringBuffer, sequenceBarrier, new LoopbackEventHandler());
+
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+
+        Thread thread = new Thread(batchEventProcessor);
+        thread.start();
+        eventLatch.await();
+
+        batchEventProcessor.halt();
+        thread.join();
+
+        assertEquals(Arrays.asList(3L, 2L, 1L), batchSizes);
+    }
 }

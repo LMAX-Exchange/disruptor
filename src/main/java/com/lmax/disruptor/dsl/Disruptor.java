@@ -21,6 +21,8 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.EventTranslatorThreeArg;
+import com.lmax.disruptor.EventTranslatorTwoArg;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
@@ -205,7 +207,7 @@ public class Disruptor<T>
             consumerRepository.add(processor);
         }
 
-        Sequence[] sequences = new Sequence[processors.length];
+        final Sequence[] sequences = new Sequence[processors.length];
         for (int i = 0; i < processors.length; i++)
         {
             sequences[i] = processors[i].getSequence();
@@ -347,6 +349,31 @@ public class Disruptor<T>
     }
 
     /**
+     * Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg0            The first argument to load into the event
+     * @param arg1            The second argument to load into the event
+     */
+    public <A, B> void publishEvent(final EventTranslatorTwoArg<T, A, B> eventTranslator, final A arg0, final B arg1)
+    {
+        ringBuffer.publishEvent(eventTranslator, arg0, arg1);
+    }
+
+    /**
+     * Publish an event to the ring buffer.
+     *
+     * @param eventTranslator the translator that will load data into the event.
+     * @param arg0            The first argument to load into the event
+     * @param arg1            The second argument to load into the event
+     * @param arg2            The third argument to load into the event
+     */
+    public <A, B, C> void publishEvent(final EventTranslatorThreeArg<T, A, B, C> eventTranslator, final A arg0, final B arg1, final C arg2)
+    {
+        ringBuffer.publishEvent(eventTranslator, arg0, arg1, arg2);
+    }
+
+    /**
      * <p>Starts the event processors and returns the fully configured ring buffer.</p>
      * <p>
      * <p>The ring buffer is set up to prevent overwriting any entry that is yet to
@@ -484,7 +511,7 @@ public class Disruptor<T>
      * @param b1
      * @return
      */
-    public long getSequenceValueFor(EventHandler<T> b1)
+    public long getSequenceValueFor(final EventHandler<T> b1)
     {
         return consumerRepository.getSequenceFor(b1).get();
     }
@@ -535,7 +562,7 @@ public class Disruptor<T>
         return new EventHandlerGroup<T>(this, consumerRepository, processorSequences);
     }
 
-    private void updateGatingSequencesForNextInChain(Sequence[] barrierSequences, Sequence[] processorSequences)
+    private void updateGatingSequencesForNextInChain(final Sequence[] barrierSequences, final Sequence[] processorSequences)
     {
         if (processorSequences.length > 0)
         {
@@ -569,7 +596,7 @@ public class Disruptor<T>
 
         consumerRepository.add(workerPool, sequenceBarrier);
 
-        Sequence[] workerSequences = workerPool.getWorkerSequences();
+        final Sequence[] workerSequences = workerPool.getWorkerSequences();
 
         updateGatingSequencesForNextInChain(barrierSequences, workerSequences);
 
