@@ -56,7 +56,7 @@ public interface Sequenced
      * available.
      *
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException
+     * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
     long tryNext() throws InsufficientCapacityException;
 
@@ -68,14 +68,14 @@ public interface Sequenced
      *
      * @param n the number of sequences to claim
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException
+     * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
     long tryNext(int n) throws InsufficientCapacityException;
 
     /**
      * Publishes a sequence. Call when the event has been filled.
      *
-     * @param sequence
+     * @param sequence the sequence to be published.
      */
     void publish(long sequence);
 

@@ -46,9 +46,9 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 /**
  * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
  * Not safe for use from multiple threads as it does not implement any barriers.</p>
- * <p>
- * <p>Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
- * to {@link Sequencer#publish(long)} is made.
+ *
+ * <p>* Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
+ * to {@link Sequencer#publish(long)} is made.</p>
  */
 
 public final class SingleProducerSequencer extends SingleProducerSequencerFields

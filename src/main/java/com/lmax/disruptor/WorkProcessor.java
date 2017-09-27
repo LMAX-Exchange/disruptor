@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * <p>A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
  * and ensuring appropriate barriers.</p>
- * <p>
+ *
  * <p>Generally, this will be used as part of a {@link WorkerPool}.</p>
  *
  * @param <T> event implementation storing the details for the work to processed.

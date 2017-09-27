@@ -61,7 +61,7 @@ public interface Sequencer extends Cursored, Sequenced
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer given a list of sequences to track.
      *
-     * @param sequencesToTrack
+     * @param sequencesToTrack All of the sequences that the newly constructed barrier will wait on.
      * @return A sequence barrier that will track the specified sequences.
      * @see SequenceBarrier
      */

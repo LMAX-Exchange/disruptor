@@ -22,7 +22,7 @@ public interface ExceptionHandler<T>
 {
     /**
      * <p>Strategy for handling uncaught exceptions when processing an event.</p>
-     * <p>
+     *
      * <p>If the strategy wishes to terminate further processing by the {@link BatchEventProcessor}
      * then it should throw a {@link RuntimeException}.</p>
      *

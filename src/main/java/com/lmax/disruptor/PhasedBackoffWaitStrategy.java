@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
- * <p>
+ *
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
  * Spins, then yields, then waits using the configured fallback WaitStrategy.</p>
  */
@@ -42,7 +42,12 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     /**
-     * Block with wait/notifyAll semantics
+     * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link BlockingWaitStrategy}
+     *
+     * @param spinTimeout The maximum time in to busy spin for.
+     * @param yieldTimeout The maximum time in to yield for.
+     * @param units Time units used for the timeout values.
+     * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLock(
         long spinTimeout,
@@ -55,7 +60,12 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     /**
-     * Block with wait/notifyAll semantics
+     * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link LiteBlockingWaitStrategy}
+     *
+     * @param spinTimeout The maximum time in to busy spin for.
+     * @param yieldTimeout The maximum time in to yield for.
+     * @param units Time units used for the timeout values.
+     * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLiteLock(
         long spinTimeout,
@@ -68,7 +78,12 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     /**
-     * Block by sleeping in a loop
+     * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link SleepingWaitStrategy}
+     *
+     * @param spinTimeout The maximum time in to busy spin for.
+     * @param yieldTimeout The maximum time in to yield for.
+     * @param units Time units used for the timeout values.
+     * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withSleep(
         long spinTimeout,
