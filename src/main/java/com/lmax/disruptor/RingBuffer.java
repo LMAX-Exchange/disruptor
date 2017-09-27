@@ -336,11 +336,16 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Determines if a particular entry has been published.
+     * Determines if a particular entry is available.  Note that using this when not within a context that is
+     * maintaining a sequence barrier, it is likely that using this to determine if you can read a value is likely
+     * to result in a race condition and broken code.
      *
      * @param sequence The sequence to identify the entry.
-     * @return If the value has been published or not.
+     * @return If the value can be read or not.
+     * @deprecated Please don't use this method.  It probably won't
+     * do what you think that it does.
      */
+    @Deprecated
     public boolean isPublished(long sequence)
     {
         return sequencer.isAvailable(sequence);
