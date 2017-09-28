@@ -152,7 +152,7 @@ public final class PingPongSequencedLatencyTest
         private Histogram histogram;
         private long t0;
 
-        public Pinger(final RingBuffer<ValueEvent> buffer, final long maxEvents, final long pauseTimeNs)
+        Pinger(final RingBuffer<ValueEvent> buffer, final long maxEvents, final long pauseTimeNs)
         {
             this.buffer = buffer;
             this.maxEvents = maxEvents;
@@ -228,7 +228,7 @@ public final class PingPongSequencedLatencyTest
 
         private CyclicBarrier barrier;
 
-        public Ponger(final RingBuffer<ValueEvent> buffer)
+        Ponger(final RingBuffer<ValueEvent> buffer)
         {
             this.buffer = buffer;
         }

@@ -18,7 +18,7 @@ public class WaitForShutdown
     {
         private final CountDownLatch latch;
 
-        public Handler(CountDownLatch latch)
+        Handler(CountDownLatch latch)
         {
             this.latch = latch;
         }

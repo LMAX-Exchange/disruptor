@@ -96,7 +96,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         private CountDownLatch latch;
         private long count;
 
-        public PollRunnable(EventPoller<ValueEvent> poller)
+        PollRunnable(EventPoller<ValueEvent> poller)
         {
             this.poller = poller;
         }

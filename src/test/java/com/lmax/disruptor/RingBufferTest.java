@@ -1307,7 +1307,7 @@ public class RingBufferTest
         private final AtomicBoolean running = new AtomicBoolean();
 
 
-        public TestEventProcessor(final SequenceBarrier sequenceBarrier)
+        TestEventProcessor(final SequenceBarrier sequenceBarrier)
         {
             this.sequenceBarrier = sequenceBarrier;
         }
@@ -1354,7 +1354,7 @@ public class RingBufferTest
     {
         private final int size;
 
-        public ArrayFactory(int size)
+        ArrayFactory(int size)
         {
             this.size = size;
         }

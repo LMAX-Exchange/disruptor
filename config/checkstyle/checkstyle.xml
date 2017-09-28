@@ -117,8 +117,6 @@
 
         <module name="UpperEll" />
 
-        <module name="JUnitTestCase" />
-
         <module name="IllegalType">
             <property name="legalAbstractClassNames"
                 value="AbstractBeanDefinition, AbstractAccountEvInstruction, AbstractEmsInstruction, AbstractEvInstruction, AbstractEmsAction, AbstractInstrumentAction, AbstractEntry" />

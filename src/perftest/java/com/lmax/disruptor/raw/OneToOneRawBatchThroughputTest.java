@@ -135,7 +135,7 @@ public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestDisrup
         Sequence sequence = new Sequence(-1);
         private final SequenceBarrier barrier;
 
-        public MyRunnable(Sequencer sequencer)
+        MyRunnable(Sequencer sequencer)
         {
             this.barrier = sequencer.newBarrier();
         }

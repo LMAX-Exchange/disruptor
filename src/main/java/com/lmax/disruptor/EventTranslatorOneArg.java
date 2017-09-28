@@ -30,5 +30,5 @@ public interface EventTranslatorOneArg<T, A>
      * @param sequence that is assigned to event.
      * @param arg0     The first user specified argument to the translator
      */
-    void translateTo(final T event, long sequence, final A arg0);
+    void translateTo(T event, long sequence, A arg0);
 }

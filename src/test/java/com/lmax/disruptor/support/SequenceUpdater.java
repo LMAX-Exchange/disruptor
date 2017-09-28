@@ -28,7 +28,7 @@ class SequenceUpdater implements Runnable
     private final long sleepTime;
     private WaitStrategy waitStrategy;
 
-    public SequenceUpdater(long sleepTime, WaitStrategy waitStrategy)
+    SequenceUpdater(long sleepTime, WaitStrategy waitStrategy)
     {
         this.sleepTime = sleepTime;
         this.waitStrategy = waitStrategy;

@@ -32,5 +32,5 @@ public interface EventTranslatorThreeArg<T, A, B, C>
      * @param arg1     The second user specified argument to the translator
      * @param arg2     The third user specified argument to the translator
      */
-    void translateTo(final T event, long sequence, final A arg0, final B arg1, final C arg2);
+    void translateTo(T event, long sequence, A arg0, B arg1, C arg2);
 }

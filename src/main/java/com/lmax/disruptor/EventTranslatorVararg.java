@@ -30,5 +30,5 @@ public interface EventTranslatorVararg<T>
      * @param sequence that is assigned to event.
      * @param args     The array of user arguments.
      */
-    void translateTo(final T event, long sequence, final Object... args);
+    void translateTo(T event, long sequence, Object... args);
 }

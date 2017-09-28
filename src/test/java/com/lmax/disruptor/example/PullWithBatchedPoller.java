@@ -34,7 +34,7 @@ class BatchedPoller<T>
     private final int maxBatchSize;
     private final BatchedData<T> polledData;
 
-    public BatchedPoller(RingBuffer<BatchedPoller.DataEvent<T>> ringBuffer, int batchSize)
+    BatchedPoller(RingBuffer<BatchedPoller.DataEvent<T>> ringBuffer, int batchSize)
     {
         this.poller = ringBuffer.newPoller();
         ringBuffer.addGatingSequences(poller.getSequence());

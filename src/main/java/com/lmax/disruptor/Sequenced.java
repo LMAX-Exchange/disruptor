@@ -16,7 +16,7 @@ public interface Sequenced
      * @param requiredCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
-    boolean hasAvailableCapacity(final int requiredCapacity);
+    boolean hasAvailableCapacity(int requiredCapacity);
 
     /**
      * Get the remaining capacity for this sequencer.

@@ -113,7 +113,7 @@ public class WorkerStressTest
 
         public boolean failed = false;
 
-        public Publisher(
+        Publisher(
             RingBuffer<TestEvent> ringBuffer,
             int iterations,
             CyclicBarrier barrier,

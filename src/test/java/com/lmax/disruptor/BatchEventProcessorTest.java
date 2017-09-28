@@ -92,7 +92,7 @@ public final class BatchEventProcessorTest
     {
         private final CountDownLatch latch;
 
-        public LatchEventHandler(CountDownLatch latch)
+        LatchEventHandler(CountDownLatch latch)
         {
             this.latch = latch;
         }
@@ -108,7 +108,7 @@ public final class BatchEventProcessorTest
     {
         private final CountDownLatch latch;
 
-        public LatchExceptionHandler(CountDownLatch latch)
+        LatchExceptionHandler(CountDownLatch latch)
         {
             this.latch = latch;
         }

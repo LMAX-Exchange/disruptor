@@ -44,5 +44,5 @@ public enum Operation
             }
         };
 
-    public abstract long op(final long lhs, final long rhs);
+    public abstract long op(long lhs, long rhs);
 }

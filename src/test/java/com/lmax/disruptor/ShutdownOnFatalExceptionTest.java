@@ -54,7 +54,7 @@ public class ShutdownOnFatalExceptionTest
 
         private final byte[] bytes;
 
-        public ByteArrayTranslator(byte[] bytes)
+        ByteArrayTranslator(byte[] bytes)
         {
             this.bytes = bytes;
         }

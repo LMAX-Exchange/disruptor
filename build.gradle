@@ -51,12 +51,13 @@ repositories {
 }
 
 dependencies {
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.2'
     testCompile 'junit:junit:4.12'
     perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
 }
 
 idea.module {
-    testSourceDirs += sourceSets.perf.allSource.getSrcDirs()
+    testSourceDirs += sourceSets.perf.allSource.srcDirs
     scopes.TEST.plus += [ configurations.perfCompile ]
 }
 
@@ -165,10 +166,6 @@ uploadArchives {
 
 build.dependsOn perfClasses
 
-task listJars << {
-    configurations.perfCompile.each { file -> println file.name }
-}
-
 task perfJar(type: Jar) {
     baseName = project.name + '-perf'
     from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -178,7 +175,7 @@ task perfJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '4.2'
 }
 
 class Version {

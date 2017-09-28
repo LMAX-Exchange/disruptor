@@ -44,7 +44,7 @@ public class BatchingTest
         private long tempValue;
         private volatile long processed;
 
-        public ParallelEventHandler(long mask, long ordinal)
+        ParallelEventHandler(long mask, long ordinal)
         {
             this.mask = mask;
             this.ordinal = ordinal;

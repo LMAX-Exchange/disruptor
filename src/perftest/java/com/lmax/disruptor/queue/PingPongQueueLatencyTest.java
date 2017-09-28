@@ -127,7 +127,7 @@ public final class PingPongQueueLatencyTest
         private long counter;
         private final long maxEvents;
 
-        public QueuePinger(
+        QueuePinger(
             final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents,
             final long pauseTimeNs)
         {
@@ -188,7 +188,7 @@ public final class PingPongQueueLatencyTest
         private final BlockingQueue<Long> pongQueue;
         private CyclicBarrier barrier;
 
-        public QueuePonger(final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue)
+        QueuePonger(final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue)
         {
             this.pingQueue = pingQueue;
             this.pongQueue = pongQueue;

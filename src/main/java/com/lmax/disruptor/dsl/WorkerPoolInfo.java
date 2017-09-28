@@ -10,7 +10,7 @@ class WorkerPoolInfo<T> implements ConsumerInfo
     private final SequenceBarrier sequenceBarrier;
     private boolean endOfChain = true;
 
-    public WorkerPoolInfo(final WorkerPool<T> workerPool, final SequenceBarrier sequenceBarrier)
+    WorkerPoolInfo(final WorkerPool<T> workerPool, final SequenceBarrier sequenceBarrier)
     {
         this.workerPool = workerPool;
         this.sequenceBarrier = sequenceBarrier;
@@ -35,7 +35,7 @@ class WorkerPoolInfo<T> implements ConsumerInfo
     }
 
     @Override
-    public void start(final Executor executor)
+    public void start(Executor executor)
     {
         workerPool.start(executor);
     }

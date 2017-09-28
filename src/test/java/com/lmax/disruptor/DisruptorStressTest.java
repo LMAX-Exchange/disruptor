@@ -98,7 +98,7 @@ public class DisruptorStressTest
         public int failureCount = 0;
         public int messagesSeen = 0;
 
-        public TestEventHandler()
+        TestEventHandler()
         {
         }
 
@@ -126,7 +126,7 @@ public class DisruptorStressTest
 
         public boolean failed = false;
 
-        public Publisher(
+        Publisher(
             RingBuffer<TestEvent> ringBuffer,
             int iterations,
             CyclicBarrier barrier,

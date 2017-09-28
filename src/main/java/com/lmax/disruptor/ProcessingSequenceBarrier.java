@@ -28,7 +28,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final Sequence cursorSequence;
     private final Sequencer sequencer;
 
-    public ProcessingSequenceBarrier(
+    ProcessingSequenceBarrier(
         final Sequencer sequencer,
         final WaitStrategy waitStrategy,
         final Sequence cursorSequence,

@@ -33,5 +33,5 @@ public interface SequenceReportingEventHandler<T>
      *
      * @param sequenceCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
      */
-    void setSequenceCallback(final Sequence sequenceCallback);
+    void setSequenceCallback(Sequence sequenceCallback);
 }

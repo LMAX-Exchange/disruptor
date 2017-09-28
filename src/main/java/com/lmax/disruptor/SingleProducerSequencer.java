@@ -23,7 +23,7 @@ abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
 
-    public SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
+    SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
     }
@@ -31,7 +31,7 @@ abstract class SingleProducerSequencerPad extends AbstractSequencer
 
 abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 {
-    public SingleProducerSequencerFields(int bufferSize, WaitStrategy waitStrategy)
+    SingleProducerSequencerFields(int bufferSize, WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
     }
@@ -39,8 +39,8 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     /**
      * Set to -1 as sequence starting point
      */
-    protected long nextValue = Sequence.INITIAL_VALUE;
-    protected long cachedValue = Sequence.INITIAL_VALUE;
+    long nextValue = Sequence.INITIAL_VALUE;
+    long cachedValue = Sequence.INITIAL_VALUE;
 }
 
 /**
@@ -61,7 +61,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
-    public SingleProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
+    public SingleProducerSequencer(int bufferSize, WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
     }
@@ -70,7 +70,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
      * @see Sequencer#hasAvailableCapacity(int)
      */
     @Override
-    public boolean hasAvailableCapacity(final int requiredCapacity)
+    public boolean hasAvailableCapacity(int requiredCapacity)
     {
         return hasAvailableCapacity(requiredCapacity, false);
     }

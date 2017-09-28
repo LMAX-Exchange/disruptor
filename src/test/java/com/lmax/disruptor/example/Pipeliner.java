@@ -41,7 +41,7 @@ public class Pipeliner
         private final int ordinal;
         private final int totalHandlers;
 
-        public ParallelHandler(int ordinal, int totalHandlers)
+        ParallelHandler(int ordinal, int totalHandlers)
         {
             this.ordinal = ordinal;
             this.totalHandlers = totalHandlers;

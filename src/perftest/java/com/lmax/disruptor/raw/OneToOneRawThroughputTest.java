@@ -133,7 +133,7 @@ public final class OneToOneRawThroughputTest extends AbstractPerfTestDisruptor
         Sequence sequence = new Sequence(-1);
         private final SequenceBarrier barrier;
 
-        public MyRunnable(Sequencer sequencer)
+        MyRunnable(Sequencer sequencer)
         {
             this.barrier = sequencer.newBarrier();
         }
