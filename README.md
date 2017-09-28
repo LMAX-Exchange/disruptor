@@ -15,6 +15,13 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.7
+
+- Add batch size to `BatchStartAware.onBatchStart()`
+- Upgrade to newer versions of gradle, checkstyle and JUnit
+- Deprecate classes & methods for later release
+- Remove JMock and rewrite tests accordingly
+
 ### 3.3.6
 
 - Support adding gating sequences before calling Disruptor.start()
