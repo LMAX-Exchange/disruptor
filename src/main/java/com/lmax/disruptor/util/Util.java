@@ -132,6 +132,7 @@ public final class Util
      * @param buffer a direct buffer to get the address from.
      * @return The system address for the buffers
      */
+    @Deprecated
     public static long getAddressFromDirectByteBuffer(ByteBuffer buffer)
     {
         try

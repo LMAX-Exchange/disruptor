@@ -30,6 +30,7 @@ import java.util.Arrays;
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
  * second bar, and so on.</p>
  */
+@Deprecated
 public final class Histogram
 {
     // tracks the upper intervals of each of the buckets/bars
