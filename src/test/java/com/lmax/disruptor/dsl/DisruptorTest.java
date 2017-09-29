@@ -20,6 +20,7 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
@@ -127,6 +128,40 @@ public class DisruptorTest
                  lastPublishedEvent = event;
              }
          });
+
+        if (!eventCounter.await(5, TimeUnit.SECONDS))
+        {
+            fail("Did not process event published before start was called. Missed events: " + eventCounter.getCount());
+        }
+    }
+
+
+    @Test
+    public void shouldBatchOfEvents() throws Exception
+    {
+        final CountDownLatch eventCounter = new CountDownLatch(2);
+        disruptor.handleEventsWith(new EventHandler<TestEvent>()
+        {
+            @Override
+            public void onEvent(final TestEvent event, final long sequence, final boolean endOfBatch) throws Exception
+            {
+                eventCounter.countDown();
+            }
+        });
+
+        disruptor.start();
+
+        disruptor.publishEvents(
+            new EventTranslatorOneArg<TestEvent, Object>()
+            {
+                @Override
+                public void translateTo(final TestEvent event, final long sequence, Object arg)
+                {
+                    lastPublishedEvent = event;
+                }
+            },
+            new Object[] { "a", "b" }
+        );
 
         if (!eventCounter.await(5, TimeUnit.SECONDS))
         {

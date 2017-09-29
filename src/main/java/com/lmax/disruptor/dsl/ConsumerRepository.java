@@ -27,17 +27,17 @@ import java.util.*;
 class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 {
     private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByEventHandler =
-        new IdentityHashMap<EventHandler<?>, EventProcessorInfo<T>>();
+        new IdentityHashMap<>();
     private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence =
-        new IdentityHashMap<Sequence, ConsumerInfo>();
-    private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
+        new IdentityHashMap<>();
+    private final Collection<ConsumerInfo> consumerInfos = new ArrayList<>();
 
     public void add(
         final EventProcessor eventprocessor,
         final EventHandler<? super T> handler,
         final SequenceBarrier barrier)
     {
-        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(eventprocessor, handler, barrier);
+        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<>(eventprocessor, handler, barrier);
         eventProcessorInfoByEventHandler.put(handler, consumerInfo);
         eventProcessorInfoBySequence.put(eventprocessor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
@@ -45,14 +45,14 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public void add(final EventProcessor processor)
     {
-        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(processor, null, null);
+        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<>(processor, null, null);
         eventProcessorInfoBySequence.put(processor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
     }
 
     public void add(final WorkerPool<T> workerPool, final SequenceBarrier sequenceBarrier)
     {
-        final WorkerPoolInfo<T> workerPoolInfo = new WorkerPoolInfo<T>(workerPool, sequenceBarrier);
+        final WorkerPoolInfo<T> workerPoolInfo = new WorkerPoolInfo<>(workerPool, sequenceBarrier);
         consumerInfos.add(workerPoolInfo);
         for (Sequence sequence : workerPool.getWorkerSequences())
         {
@@ -62,7 +62,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public Sequence[] getLastSequenceInChain(boolean includeStopped)
     {
-        List<Sequence> lastSequence = new ArrayList<Sequence>();
+        List<Sequence> lastSequence = new ArrayList<>();
         for (ConsumerInfo consumerInfo : consumerInfos)
         {
             if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())

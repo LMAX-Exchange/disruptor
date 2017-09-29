@@ -17,6 +17,7 @@ package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.ExceptionHandler;
 
 /**
@@ -44,10 +45,20 @@ public class ExceptionHandlerSetting<T>
      *
      * @param exceptionHandler the exception handler to use.
      */
+    @SuppressWarnings("unchecked")
     public void with(ExceptionHandler<? super T> exceptionHandler)
     {
-        ((BatchEventProcessor<T>) consumerRepository.getEventProcessorFor(eventHandler))
-            .setExceptionHandler(exceptionHandler);
-        consumerRepository.getBarrierFor(eventHandler).alert();
+        final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(eventHandler);
+        if (eventProcessor instanceof BatchEventProcessor)
+        {
+            ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
+            consumerRepository.getBarrierFor(eventHandler).alert();
+        }
+        else
+        {
+            throw new RuntimeException(
+                "EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " +
+                "and does not support exception handlers");
+        }
     }
 }

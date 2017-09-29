@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadFactory;
 public class BasicExecutor implements Executor
 {
     private final ThreadFactory factory;
-    private final Queue<Thread> threads = new ConcurrentLinkedQueue<Thread>();
+    private final Queue<Thread> threads = new ConcurrentLinkedQueue<>();
 
     public BasicExecutor(ThreadFactory factory)
     {

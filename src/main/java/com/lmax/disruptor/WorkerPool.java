@@ -45,6 +45,7 @@ public final class WorkerPool<T>
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers     to distribute the work load across.
      */
+    @SafeVarargs
     public WorkerPool(
         final RingBuffer<T> ringBuffer,
         final SequenceBarrier sequenceBarrier,
@@ -57,7 +58,7 @@ public final class WorkerPool<T>
 
         for (int i = 0; i < numWorkers; i++)
         {
-            workProcessors[i] = new WorkProcessor<T>(
+            workProcessors[i] = new WorkProcessor<>(
                 ringBuffer,
                 sequenceBarrier,
                 workHandlers[i],
@@ -75,6 +76,7 @@ public final class WorkerPool<T>
      * @param exceptionHandler to callback when an error occurs which is not handled by the {@link WorkHandler}s.
      * @param workHandlers     to distribute the work load across.
      */
+    @SafeVarargs
     public WorkerPool(
         final EventFactory<T> eventFactory,
         final ExceptionHandler<? super T> exceptionHandler,
@@ -87,7 +89,7 @@ public final class WorkerPool<T>
 
         for (int i = 0; i < numWorkers; i++)
         {
-            workProcessors[i] = new WorkProcessor<T>(
+            workProcessors[i] = new WorkProcessor<>(
                 ringBuffer,
                 barrier,
                 workHandlers[i],

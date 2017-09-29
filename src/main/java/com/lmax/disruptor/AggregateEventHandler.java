@@ -30,6 +30,7 @@ public final class AggregateEventHandler<T>
      *
      * @param eventHandlers to be called in sequence.
      */
+    @SafeVarargs
     public AggregateEventHandler(final EventHandler<T>... eventHandlers)
     {
         this.eventHandlers = eventHandlers;

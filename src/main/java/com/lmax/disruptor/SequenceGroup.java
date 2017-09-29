@@ -60,9 +60,9 @@ public final class SequenceGroup extends Sequence
     public void set(final long value)
     {
         final Sequence[] sequences = this.sequences;
-        for (int i = 0, size = sequences.length; i < size; i++)
+        for (Sequence sequence : sequences)
         {
-            sequences[i].set(value);
+            sequence.set(value);
         }
     }
 
