@@ -20,6 +20,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.lmax.disruptor.util.ThreadHints;
+
 /**
  * Variation of the {@link BlockingWaitStrategy} that attempts to elide conditional wake-ups when
  * the lock is uncontended.  Shows performance improvements on microbenchmarks.  However this
@@ -66,6 +68,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
+            ThreadHints.onSpinWait();
         }
 
         return availableSequence;
