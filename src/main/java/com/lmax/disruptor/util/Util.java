@@ -16,15 +16,14 @@
 package com.lmax.disruptor.util;
 
 import java.lang.reflect.Field;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
-import sun.misc.Unsafe;
-
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
+
+
+import sun.misc.Unsafe;
 
 /**
  * Set of common functions used by the Disruptor
@@ -125,28 +124,6 @@ public final class Util
     {
         return THE_UNSAFE;
     }
-
-    /**
-     * Gets the address value for the memory that backs a direct byte buffer.
-     *
-     * @param buffer a direct buffer to get the address from.
-     * @return The system address for the buffers
-     */
-    @Deprecated
-    public static long getAddressFromDirectByteBuffer(ByteBuffer buffer)
-    {
-        try
-        {
-            Field addressField = Buffer.class.getDeclaredField("address");
-            addressField.setAccessible(true);
-            return addressField.getLong(buffer);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Unable to address field from ByteBuffer", e);
-        }
-    }
-
 
     /**
      * Calculate the log base 2 of the supplied integer, essentially reports the location

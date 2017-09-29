@@ -16,14 +16,9 @@
 package com.lmax.disruptor.util;
 
 import com.lmax.disruptor.Sequence;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.nio.ByteBuffer;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
 
 public final class UtilTest
 {
@@ -56,12 +51,5 @@ public final class UtilTest
         final Sequence[] sequences = new Sequence[0];
 
         Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
-    }
-
-    @Test
-    public void shouldGetByteBufferAddress() throws Exception
-    {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(16);
-        assertThat(Util.getAddressFromDirectByteBuffer(buffer), is(not(0L)));
     }
 }
