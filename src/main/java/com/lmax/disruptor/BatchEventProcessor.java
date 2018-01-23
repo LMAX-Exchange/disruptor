@@ -118,6 +118,7 @@ public final class BatchEventProcessor<T>
         notifyStart();
 
         T event = null;
+        //获取下一个序号
         long nextSequence = sequence.get() + 1L;
         try
         {
@@ -133,8 +134,11 @@ public final class BatchEventProcessor<T>
 
                     while (nextSequence <= availableSequence)
                     {
+                        //从存储数据的队列中取出event数据，这个dataProvider是用来存放序列的，可以是ringbuffer
                         event = dataProvider.get(nextSequence);
+                        //执行even方法
                         eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                        //当前这个线程处理的序列号++
                         nextSequence++;
                     }
 
@@ -142,6 +146,7 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final TimeoutException e)
                 {
+                    //标识超时设置
                     notifyTimeout(sequence.get());
                 }
                 catch (final AlertException ex)
@@ -153,6 +158,7 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final Throwable ex)
                 {
+                    //处理出错，设置异常
                     exceptionHandler.handleEventException(ex, nextSequence, event);
                     sequence.set(nextSequence);
                     nextSequence++;
@@ -161,6 +167,7 @@ public final class BatchEventProcessor<T>
         }
         finally
         {
+            //最后关闭线程
             notifyShutdown();
             running.set(false);
         }

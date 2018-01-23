@@ -32,6 +32,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         new IdentityHashMap<Sequence, ConsumerInfo>();
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<ConsumerInfo>();
 
+    //添加handler对象进入map，并组装handler进入consumerInfos队列
     public void add(
         final EventProcessor eventprocessor,
         final EventHandler<? super T> handler,

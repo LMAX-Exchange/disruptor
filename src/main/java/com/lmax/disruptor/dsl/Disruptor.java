@@ -212,7 +212,7 @@ public class Disruptor<T>
         {
             sequences[i] = processors[i].getSequence();
         }
-
+        //ringbuffer中存放，序列号，对应仓库中event的个数
         ringBuffer.addGatingSequences(sequences);
 
         return new EventHandlerGroup<T>(this, consumerRepository, Util.getSequencesFor(processors));
