@@ -45,6 +45,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public void add(final EventProcessor processor)
     {
+        //根据加入的事件，创建对应的时间处理对象
         final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<T>(processor, null, null);
         eventProcessorInfoBySequence.put(processor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);

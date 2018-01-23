@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadFactory;
 public class BasicExecutor implements Executor
 {
     private final ThreadFactory factory;
+    //这是一个同步线程组
     private final Queue<Thread> threads = new ConcurrentLinkedQueue<Thread>();
 
     public BasicExecutor(ThreadFactory factory)
@@ -21,14 +22,15 @@ public class BasicExecutor implements Executor
     @Override
     public void execute(Runnable command)
     {
+        //执行的时候，先创建线程
         final Thread thread = factory.newThread(command);
         if (null == thread)
         {
             throw new RuntimeException("Failed to create thread to run: " + command);
         }
-
+        //启动线程
         thread.start();
-
+        //加入线程组
         threads.add(thread);
     }
 

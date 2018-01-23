@@ -162,6 +162,7 @@ public class Disruptor<T>
     @SuppressWarnings("varargs")
     public EventHandlerGroup<T> handleEventsWith(final EventHandler<? super T>... handlers)
     {
+        //根据传递进去的even创建对应的进程对象
         return createEventProcessors(new Sequence[0], handlers);
     }
 
@@ -200,6 +201,7 @@ public class Disruptor<T>
      */
     public EventHandlerGroup<T> handleEventsWith(final EventProcessor... processors)
     {
+        //在添加事件的时候，吧所有事件对象添加到consumerRepository中
         for (final EventProcessor processor : processors)
         {
             consumerRepository.add(processor);
@@ -392,6 +394,8 @@ public class Disruptor<T>
     {
         //检查启动一次，并修改变量为true
         checkOnlyStartedOnce();
+        //遍历消费信息，并启动全部
+        //这里的consumerinfo是 EventProcessor 也就是添加进去的event
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
             consumerInfo.start(executor);
@@ -539,12 +543,14 @@ public class Disruptor<T>
         return false;
     }
 
+    //创建消费线程
     EventHandlerGroup<T> createEventProcessors(
         final Sequence[] barrierSequences,
         final EventHandler<? super T>[] eventHandlers)
     {
         checkNotStarted();
 
+        //初始化序列号
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
@@ -552,6 +558,7 @@ public class Disruptor<T>
         {
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
+            //这一步就是把当前的event数组，全部转换为线程对象
             final BatchEventProcessor<T> batchEventProcessor =
                 new BatchEventProcessor<T>(ringBuffer, barrier, eventHandler);
 
@@ -560,6 +567,7 @@ public class Disruptor<T>
                 batchEventProcessor.setExceptionHandler(exceptionHandler);
             }
 
+            //添加到消费仓库中
             consumerRepository.add(batchEventProcessor, eventHandler, barrier);
             processorSequences[i] = batchEventProcessor.getSequence();
         }

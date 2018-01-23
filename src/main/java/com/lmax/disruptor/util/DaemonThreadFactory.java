@@ -28,6 +28,7 @@ public enum DaemonThreadFactory implements ThreadFactory
     public Thread newThread(final Runnable r)
     {
         Thread t = new Thread(r);
+        //将该线程标记为守护线程或用户线程。
         t.setDaemon(true);
         return t;
     }

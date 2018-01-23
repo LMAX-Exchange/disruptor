@@ -75,6 +75,7 @@ class EventProcessorInfo<T> implements ConsumerInfo
     @Override
     public void start(final Executor executor)
     {
+        //执行runable线程对象
         executor.execute(eventprocessor);
     }
 

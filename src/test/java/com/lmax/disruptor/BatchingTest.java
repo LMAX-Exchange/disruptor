@@ -91,7 +91,7 @@ public class BatchingTest
     @Test
     public void shouldBatch() throws Exception
     {
-        //初始化对象，参数实例，ringBufferSize个数，参数实例，生产者类型(SINGLE or MULTI)，等待函数
+        //初始化对象，参数实例，ringBufferSize个数，线程工厂，生产者类型(SINGLE or MULTI)，等待函数
         //这一步主要是为了创建：ringBuffer，那么ringBuffer是什么呢？
         Disruptor<LongEvent> d = new Disruptor<LongEvent>(
             LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
@@ -104,7 +104,7 @@ public class BatchingTest
         //添加所有的事件handler
         d.handleEventsWith(handler1, handler2);
 
-        //启动
+        //启动,实际上是启动了消费仓库中的所有进程，就是eventprocess
         RingBuffer<LongEvent> buffer = d.start();
 
         EventTranslator<LongEvent> translator = new EventTranslator<LongEvent>()
