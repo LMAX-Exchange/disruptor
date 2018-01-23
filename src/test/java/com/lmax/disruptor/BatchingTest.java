@@ -15,6 +15,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.LockSupport;
 
+/**
+ * 这个是参数化测试的方式
+ * @RunWith(Parameterized.class)
+ */
 @RunWith(Parameterized.class)
 public class BatchingTest
 {
@@ -25,6 +29,16 @@ public class BatchingTest
         this.producerType = producerType;
     }
 
+    /** 
+     * 准备数据。数据的准备需要在一个方法中进行，该方法需要满足一定的要求： 
+     *
+     *    1）该方法必须由Parameters注解修饰 
+     *    2）该方法必须为public static的 
+     *    3）该方法必须返回Collection类型 
+     *    4）该方法的名字不做要求 
+     *    5）该方法没有参数 
+     *    @return 
+     */  
     @Parameters
     public static Collection<Object[]> generateData()
     {
@@ -77,17 +91,20 @@ public class BatchingTest
     @Test
     public void shouldBatch() throws Exception
     {
-        //初始化对象，参数实例，ringBufferSize个数，参数实例，生产者类型，等待函数
+        //初始化对象，参数实例，ringBufferSize个数，参数实例，生产者类型(SINGLE or MULTI)，等待函数
         //这一步主要是为了创建：ringBuffer，那么ringBuffer是什么呢？
         Disruptor<LongEvent> d = new Disruptor<LongEvent>(
             LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
             producerType, new SleepingWaitStrategy());
 
+        //创建handler
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
         ParallelEventHandler handler2 = new ParallelEventHandler(1, 1);
 
+        //添加所有的事件handler
         d.handleEventsWith(handler1, handler2);
 
+        //启动
         RingBuffer<LongEvent> buffer = d.start();
 
         EventTranslator<LongEvent> translator = new EventTranslator<LongEvent>()

@@ -133,6 +133,7 @@ public class Disruptor<T>
             final ProducerType producerType,
             final WaitStrategy waitStrategy)
     {
+        //构造方法的主要目的就是创建ringBuffer
         this(
             RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
             new BasicExecutor(threadFactory));
@@ -389,6 +390,7 @@ public class Disruptor<T>
      */
     public RingBuffer<T> start()
     {
+        //检查启动一次，并修改变量为true
         checkOnlyStartedOnce();
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
@@ -618,6 +620,9 @@ public class Disruptor<T>
 
     private void checkOnlyStartedOnce()
     {
+        // 如果当前值 == 预期值，则以原子方式将该值设置为给定的更新值。
+        //参数1位预期值，参数二新值
+        //返回 False 指示实际值与预期值不相等
         if (!started.compareAndSet(false, true))
         {
             throw new IllegalStateException("Disruptor.start() must only be called once.");

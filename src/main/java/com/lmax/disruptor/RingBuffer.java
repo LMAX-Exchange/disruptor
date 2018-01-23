@@ -73,9 +73,11 @@ abstract class RingBufferFields<E> extends RingBufferPad
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
-
+        //创建一个数组对象，长度是bufferSize+2*BUFFER_PAD的大小
         this.indexMask = bufferSize - 1;
+        //每个数组都是存放一个实例的工厂对象
         this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
+        //填充对象
         fill(eventFactory);
     }
 
@@ -135,6 +137,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         int bufferSize,
         WaitStrategy waitStrategy)
     {
+        //bufferSize必须是2的n次幂
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
 
         return new RingBuffer<E>(factory, sequencer);
@@ -171,6 +174,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         int bufferSize,
         WaitStrategy waitStrategy)
     {
+        //新建一个单向序列
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
 
         return new RingBuffer<E>(factory, sequencer);
