@@ -552,6 +552,7 @@ public class Disruptor<T>
 
         //初始化序列号
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
+        //创建标识需要等待的地方
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)

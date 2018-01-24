@@ -75,6 +75,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
         else if (counter > 0)
         {
             --counter;
+            //暂停当前正在执行的线程对象，并执行其他线程
             Thread.yield();
         }
         else

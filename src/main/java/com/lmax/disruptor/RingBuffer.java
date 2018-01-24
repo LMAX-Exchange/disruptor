@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-
+//这个是java提供的可以访问系统底层的类
 import sun.misc.Unsafe;
 
 import com.lmax.disruptor.dsl.ProducerType;
@@ -137,7 +137,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         int bufferSize,
         WaitStrategy waitStrategy)
     {
-        //bufferSize必须是2的n次幂
+        //bufferSize必须是2的n次幂，创建多线程生产序列
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
 
         return new RingBuffer<E>(factory, sequencer);
@@ -216,7 +216,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         {
             case SINGLE:
                 return createSingleProducer(factory, bufferSize, waitStrategy);
-            case MULTI:
+            case MULTI: //创建并行生产者，第一个事件工厂类，第二个大小，第三个等待类
                 return createMultiProducer(factory, bufferSize, waitStrategy);
             default:
                 throw new IllegalStateException(producerType.toString());

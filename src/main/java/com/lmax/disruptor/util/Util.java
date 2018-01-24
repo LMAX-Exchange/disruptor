@@ -101,6 +101,8 @@ public final class Util
                 public Unsafe run() throws Exception
                 {
                     Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+                    // 将此对象的 accessible 标志设置为指示的布尔值
+                    //accessible 标志允许具有足够特权的复杂应用程序
                     theUnsafe.setAccessible(true);
                     return (Unsafe) theUnsafe.get(null);
                 }
