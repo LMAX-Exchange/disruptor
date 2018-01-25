@@ -550,13 +550,14 @@ public class Disruptor<T>
     {
         checkNotStarted();
 
-        //初始化序列号
+        //根据参数的个数，创建index序号
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
         //创建标识需要等待的地方
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
+            //取出需要进行添加的对象
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
             //这一步就是把当前的event数组，全部转换为线程对象

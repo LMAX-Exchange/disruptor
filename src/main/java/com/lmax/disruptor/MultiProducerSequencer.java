@@ -33,7 +33,10 @@ import com.lmax.disruptor.util.Util;
 public final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final Unsafe UNSAFE = Util.getUnsafe();
+    //arrayBaseOffset方法是一个本地方法，可以获取数组第一个元素的偏移地址
     private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
+    //arrayIndexScale方法也是一个本地方法，可以获取数组的转换因子，也就是数组中元素的增量地址
+    //将arrayBaseOffset与arrayIndexScale配合使用，可以定位数组中每个元素在内存中的位置
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
 
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -55,6 +58,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
+        //统计buffersize是2的几次幂
         indexShift = Util.log2(bufferSize);
         initialiseAvailableBuffer();
     }
@@ -203,6 +207,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         for (int i = availableBuffer.length - 1; i != 0; i--)
         {
+            //设置初值，循环整个buffersize
             setAvailableBufferValue(i, -1);
         }
 
@@ -253,12 +258,23 @@ public final class MultiProducerSequencer extends AbstractSequencer
      */
     private void setAvailable(final long sequence)
     {
+        //根据sequence推动ringbuffer
         setAvailableBufferValue(calculateIndex(sequence), calculateAvailabilityFlag(sequence));
     }
 
     private void setAvailableBufferValue(int index, int flag)
     {
+        //SCALE int的arrayIndexScale，int的arrayBaseOffset
+        //SCALE增量，base基础地址，bufferAddress就是对应的位置
         long bufferAddress = (index * SCALE) + BASE;
+        /*
+         *    设置obj对象中offset偏移地址对应的整型field的值为指定值。这是一个有序或者
+         * 有延迟的<code>putIntVolatile</cdoe>方法 ，并且不保证值的改变被其他线程立
+         * 即看到。只有在field被<code>volatile</code>修饰并且期望被意外修改的时候
+         * 使用才有用。
+
+         * 修改availableBuffer对象，bufferAddress偏移量，设置成新值flag，flag后面用来判断是否可用
+         */
         UNSAFE.putOrderedInt(availableBuffer, bufferAddress, flag);
     }
 
@@ -271,6 +287,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
         long bufferAddress = (index * SCALE) + BASE;
+        //判断这个地址的flag是否可行
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
 
@@ -295,6 +312,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
     private int calculateIndex(final long sequence)
     {
+        //用&操作，限制范围，比如1024&1023转为0，相当于取余-1
         return ((int) sequence) & indexMask;
     }
 }

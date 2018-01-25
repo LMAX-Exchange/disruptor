@@ -29,6 +29,7 @@ import com.lmax.disruptor.util.ThreadHints;
 public final class BlockingWaitStrategy implements WaitStrategy
 {
     private final Lock lock = new ReentrantLock();
+    //返回绑定到此 Lock 实例的新 Condition 实例。 
     private final Condition processorNotifyCondition = lock.newCondition();
 
     @Override
@@ -38,12 +39,14 @@ public final class BlockingWaitStrategy implements WaitStrategy
         long availableSequence;
         if (cursorSequence.get() < sequence)
         {
+            //对当前线程上锁
             lock.lock();
             try
             {
                 while (cursorSequence.get() < sequence)
                 {
                     barrier.checkAlert();
+                    //线程等待，
                     processorNotifyCondition.await();
                 }
             }

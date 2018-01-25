@@ -76,8 +76,9 @@ abstract class RingBufferFields<E> extends RingBufferPad
         //创建一个数组对象，长度是bufferSize+2*BUFFER_PAD的大小
         this.indexMask = bufferSize - 1;
         //每个数组都是存放一个实例的工厂对象
+        // 2 * BUFFER_PAD 这里作为一个预留空间，是128/scale
         this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
-        //填充对象
+        //填充对象event
         fill(eventFactory);
     }
 
@@ -92,6 +93,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {
+        //标准的java Serializable速度很慢，它还限制类必须有public无参构造函数。
         return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
     }
 }

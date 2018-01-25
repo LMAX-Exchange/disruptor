@@ -118,7 +118,7 @@ public final class BatchEventProcessor<T>
         notifyStart();
 
         T event = null;
-        //获取下一个序号
+        //获取sequence的value，然后+1
         long nextSequence = sequence.get() + 1L;
         try
         {

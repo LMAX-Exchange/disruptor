@@ -103,6 +103,7 @@ public final class Util
                     Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
                     // 将此对象的 accessible 标志设置为指示的布尔值
                     //accessible 标志允许具有足够特权的复杂应用程序
+                    //启用特权，执行指定的 PrivilegedAction。该操作在调用者保护域所拥有的全部 权限下执行。 
                     theUnsafe.setAccessible(true);
                     return (Unsafe) theUnsafe.get(null);
                 }
