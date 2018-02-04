@@ -15,6 +15,10 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.8
+
+- Revert belt and braces WaitStategy signalling.
+
 ### 3.3.7
 
 - Add batch size to `BatchStartAware.onBatchStart()`
