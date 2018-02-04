@@ -16,7 +16,7 @@ public class ShutdownOnError
     {
         public long value;
 
-        public static EventFactory<Event> FACTORY = new EventFactory<Event>()
+        public static final EventFactory<Event> FACTORY = new EventFactory<Event>()
         {
             @Override
             public Event newInstance()
@@ -44,11 +44,11 @@ public class ShutdownOnError
         }
     }
 
-    private static class ErrorHandler implements ExceptionHandler<Event>
+    private static final class ErrorHandler implements ExceptionHandler<Event>
     {
         private final AtomicBoolean running;
 
-        public ErrorHandler(AtomicBoolean running)
+        private ErrorHandler(AtomicBoolean running)
         {
             this.running = running;
         }
