@@ -187,7 +187,7 @@ task perfJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2'
+    gradleVersion = '4.3'
 }
 
 class Version {
