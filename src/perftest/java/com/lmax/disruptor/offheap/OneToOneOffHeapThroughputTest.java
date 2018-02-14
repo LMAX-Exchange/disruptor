@@ -1,23 +1,15 @@
 package com.lmax.disruptor.offheap;
 
+import com.lmax.disruptor.*;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
-
-import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.DataProvider;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.Sequencer;
-import com.lmax.disruptor.SingleProducerSequencer;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
 {
@@ -99,9 +91,10 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         @Override
         public void onEvent(ByteBuffer event, long sequence, boolean endOfBatch) throws Exception
         {
-            for (int i = 0; i < BLOCK_SIZE; i += 8)
+            final int start = event.position();
+            for (int i = start, size = start + BLOCK_SIZE; i < size; i += 8)
             {
-                total += event.getLong();
+                total += event.getLong(i);
             }
 
             if (--expectedCount == 0)
@@ -134,7 +127,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             @Override
             protected ByteBuffer initialValue()
             {
-                return buffer.duplicate();
+                return buffer.duplicate().order(ByteOrder.nativeOrder());
             }
         };
 
@@ -143,7 +136,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             this.sequencer = sequencer;
             this.entrySize = entrySize;
             this.mask = sequencer.getBufferSize() - 1;
-            buffer = ByteBuffer.allocateDirect(sequencer.getBufferSize() * entrySize);
+            buffer = ByteBuffer.allocateDirect(sequencer.getBufferSize() * entrySize).order(ByteOrder.nativeOrder());
         }
 
         public void addGatingSequences(Sequence sequence)

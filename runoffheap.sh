@@ -14,4 +14,8 @@ echo "Done"
 echo "Running OnHeap..."
 $BIN $ARGS $GCARGS -Xloggc:custom-gc.log $CPATH com.lmax.disruptor.offheap.OneToOneOnHeapThroughputTest
 echo "Done"
+
+echo "Running Sliced OnHeap..."
+$BIN $ARGS $GCARGS -Xloggc:custom-gc.log $CPATH -Dsliced=true com.lmax.disruptor.offheap.OneToOneOnHeapThroughputTest
+echo "Done"
      
