@@ -358,6 +358,7 @@ public class DisruptorTest
         disruptor.after(handler2);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void shouldSupportSpecifyingAExceptionHandlerForEventProcessors()
         throws Exception
@@ -376,6 +377,7 @@ public class DisruptorTest
         assertSame(testException, actualException);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void shouldOnlyApplyExceptionsHandlersSpecifiedViaHandleExceptionsWithOnNewEventProcessors()
         throws Exception
