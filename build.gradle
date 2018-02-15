@@ -42,7 +42,6 @@ ext {
 
 sourceSets {
     perf.java.srcDir file('src/perftest/java')
-    java9.java.srcDir file('src/main/java9')
 }
 
 eclipse.classpath.plusConfigurations += [ sourceSets.perf.compileClasspath ]
@@ -62,6 +61,10 @@ idea.module {
     scopes.TEST.plus += [ configurations.perfCompile ]
 }
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+
 compileJava {
     // Suppress warnings about using Unsafe and sun.misc
     options.compilerArgs << '-XDignore.symbol.file'
@@ -69,13 +72,6 @@ compileJava {
     options.debug = true
     options.forkOptions.executable = javaCompilerExecutable
     options.warnings = false
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
-}
-
-compileJava9Java {
-    sourceCompatibility = 1.9
-    targetCompatibility = 1.9
 }
 
 tasks.withType(Test) {
@@ -99,19 +95,11 @@ javadoc {
 }
 
 jar {
-    manifest.attributes(
-            'Built-By': System.properties['user.name'],
-            'Bundle-Name': fullName,
-            'Bundle-Vendor': teamName,
-            'Bundle-Description': fullDescription,
-            'Bundle-DocURL': siteUrl,
-            'Multi-Release': true
-    )
-
-    metaInf.into("versions/9", {
-        from(compileJava9Java.destinationDir)
-        include('**/*.class')
-    })
+    manifest.attributes('Built-By': System.properties['user.name'],
+                        'Bundle-Name': fullName,
+                        'Bundle-Vendor': teamName,
+                        'Bundle-Description': fullDescription,
+                        'Bundle-DocURL': siteUrl)
 }
 
 task sourcesJar(type: Jar) {
