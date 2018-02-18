@@ -15,6 +15,11 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.4.0
+
+ - Drop support for JDK6, support JDK7 and above only.
+ - Add `ThreadHints.onSpinWait` to all busy spins within Disruptor.
+
 ### 3.3.8
 
 - Revert belt and braces WaitStategy signalling.
