@@ -29,23 +29,31 @@ import java.util.concurrent.locks.LockSupport;
 public final class SleepingWaitStrategy implements WaitStrategy
 {
     private static final int DEFAULT_RETRIES = 200;
+    private static final long DEFAULT_SLEEP = 100;
 
     private final int retries;
+    private final long sleepTimeNs;
 
     public SleepingWaitStrategy()
     {
-        this(DEFAULT_RETRIES);
+        this(DEFAULT_RETRIES, DEFAULT_SLEEP);
     }
 
     public SleepingWaitStrategy(int retries)
     {
+        this(retries, DEFAULT_SLEEP);
+    }
+
+    public SleepingWaitStrategy(int retries, long sleepTimeNs)
+    {
         this.retries = retries;
+        this.sleepTimeNs = sleepTimeNs;
     }
 
     @Override
     public long waitFor(
         final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+        throws AlertException
     {
         long availableSequence;
         int counter = retries;
@@ -83,54 +91,5 @@ public final class SleepingWaitStrategy implements WaitStrategy
         }
 
         return counter;
-    }
-
-    public static void main(String[] args) throws AlertException
-    {
-        final SequenceBarrier sequenceBarrier = new SequenceBarrier()
-        {
-
-            @Override
-            public long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException
-            {
-                return 0;
-            }
-
-            @Override
-            public long getCursor()
-            {
-                return 0;
-            }
-
-            @Override
-            public boolean isAlerted()
-            {
-                return false;
-            }
-
-            @Override
-            public void alert()
-            {
-
-            }
-
-            @Override
-            public void clearAlert()
-            {
-
-            }
-
-            @Override
-            public void checkAlert() throws AlertException
-            {
-
-            }
-        };
-
-        final SleepingWaitStrategy sleepingWaitStrategy = new SleepingWaitStrategy();
-        for (;;)
-        {
-            sleepingWaitStrategy.applyWaitMethod(sequenceBarrier, 0);
-        }
     }
 }
