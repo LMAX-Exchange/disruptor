@@ -87,7 +87,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
         }
         else
         {
-            LockSupport.parkNanos(100L);
+            LockSupport.parkNanos(sleepTimeNs);
         }
 
         return counter;
