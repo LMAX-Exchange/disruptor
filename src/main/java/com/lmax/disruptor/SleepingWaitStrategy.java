@@ -79,9 +79,58 @@ public final class SleepingWaitStrategy implements WaitStrategy
         }
         else
         {
-            LockSupport.parkNanos(1L);
+            LockSupport.parkNanos(100L);
         }
 
         return counter;
+    }
+
+    public static void main(String[] args) throws AlertException
+    {
+        final SequenceBarrier sequenceBarrier = new SequenceBarrier()
+        {
+
+            @Override
+            public long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException
+            {
+                return 0;
+            }
+
+            @Override
+            public long getCursor()
+            {
+                return 0;
+            }
+
+            @Override
+            public boolean isAlerted()
+            {
+                return false;
+            }
+
+            @Override
+            public void alert()
+            {
+
+            }
+
+            @Override
+            public void clearAlert()
+            {
+
+            }
+
+            @Override
+            public void checkAlert() throws AlertException
+            {
+
+            }
+        };
+
+        final SleepingWaitStrategy sleepingWaitStrategy = new SleepingWaitStrategy();
+        for (;;)
+        {
+            sleepingWaitStrategy.applyWaitMethod(sequenceBarrier, 0);
+        }
     }
 }
