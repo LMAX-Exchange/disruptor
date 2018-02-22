@@ -15,6 +15,10 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.9
+
+- Changle SleepingWaitStrategy to use a parkNanos(100).
+
 ### 3.3.8
 
 - Revert belt and braces WaitStategy signalling.
