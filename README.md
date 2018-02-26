@@ -19,10 +19,11 @@ A High Performance Inter-Thread Messaging Library
 
  - Drop support for JDK6, support JDK7 and above only.
  - Add `ThreadHints.onSpinWait` to all busy spins within Disruptor.
+ - Increase default sleep time for LockSupport.parkNanos to prevent busy spinning.
 
 ### 3.3.8
 
-- Revert belt and braces WaitStategy signalling.
+- Revert belt and braces WaitStrategy signalling.
 
 ### 3.3.7
 
