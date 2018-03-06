@@ -205,7 +205,7 @@ public final class BatchEventProcessorTest
         };
 
         final LatchLifeCycleHandler h1 = new LatchLifeCycleHandler();
-        final BatchEventProcessor p1 = new BatchEventProcessor<>(dp, barrier, h1);
+        final BatchEventProcessor p1 = new BatchEventProcessor<Object>(dp, barrier, h1);
 
         Thread t1 = new Thread(p1);
         p1.halt();
@@ -217,7 +217,7 @@ public final class BatchEventProcessorTest
         for (int i = 0; i < 1000; i++)
         {
             final LatchLifeCycleHandler h2 = new LatchLifeCycleHandler();
-            final BatchEventProcessor p2 = new BatchEventProcessor<>(dp, barrier, h2);
+            final BatchEventProcessor p2 = new BatchEventProcessor<Object>(dp, barrier, h2);
             Thread t2 = new Thread(p2);
             t2.start();
             p2.halt();
@@ -229,7 +229,7 @@ public final class BatchEventProcessorTest
         for (int i = 0; i < 1000; i++)
         {
             final LatchLifeCycleHandler h2 = new LatchLifeCycleHandler();
-            final BatchEventProcessor p2 = new BatchEventProcessor<>(dp, barrier, h2);
+            final BatchEventProcessor p2 = new BatchEventProcessor<Object>(dp, barrier, h2);
             Thread t2 = new Thread(p2);
             t2.start();
             Thread.yield();

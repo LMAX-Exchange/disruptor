@@ -15,9 +15,13 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.3.10
+
+- Fix race condition in BatchEventProcessor between run() and halt().
+
 ### 3.3.9
 
-- Changle SleepingWaitStrategy to use a parkNanos(100).
+- Change SleepingWaitStrategy to use a parkNanos(100).
 
 ### 3.3.8
 
