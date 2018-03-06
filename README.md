@@ -15,6 +15,10 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.4.1
+
+ - Fix race between run() and halt() on BatchEventProcessor.
+
 ### 3.4.0
 
  - Drop support for JDK6, support JDK7 and above only.
