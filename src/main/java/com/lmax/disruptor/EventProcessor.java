@@ -16,7 +16,10 @@
 package com.lmax.disruptor;
 
 /**
- * EventProcessors waitFor events to become available for consumption from the {@link RingBuffer}
+ * An EventProcessor needs to be an implementation of a runnable that will poll for events from the {@link RingBuffer}
+ * using the appropriate wait strategy.  It is unlikely that you will need to implement this interface yourself.
+ * Look at using the {@link EventHandler} interface along with the pre-supplied BatchEventProcessor in the first
+ * instance.
  * <p>
  * An EventProcessor will generally be associated with a Thread for execution.
  */

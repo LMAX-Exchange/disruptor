@@ -155,6 +155,8 @@ public class Disruptor<T>
      * process events before handler <code>B</code>:</p>
      * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
+     * <p>This call is additive, but generally should only be called once when setting up the Disruptor instance</p>
+     *
      * @param handlers the event handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
      */
@@ -177,6 +179,8 @@ public class Disruptor<T>
      * array, so the factory isn't necessary in this case. This method is provided for consistency with
      * {@link EventHandlerGroup#handleEventsWith(EventProcessorFactory...)} and {@link EventHandlerGroup#then(EventProcessorFactory...)}
      * which do have barrier sequences to provide.</p>
+     *
+     * <p>This call is additive, but generally should only be called once when setting up the Disruptor instance</p>
      *
      * @param eventProcessorFactories the event processor factories to use to create the event processors that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
