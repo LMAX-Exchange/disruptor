@@ -129,7 +129,6 @@ public final class BatchEventProcessor<T>
         {
             if (running.get() == HALTED)
             {
-                running.set(IDLE);
                 return;
             }
 
