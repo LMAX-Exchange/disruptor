@@ -120,7 +120,6 @@ public final class BatchEventProcessor<T>
                 throw new IllegalStateException("Thread is already running");
             }
         }
-        // halt();
         sequenceBarrier.clearAlert();
 
         notifyStart();
