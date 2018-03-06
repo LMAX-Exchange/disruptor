@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -30,7 +30,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class BatchEventProcessor<T>
     implements EventProcessor
 {
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    private static final int IDLE = 0;
+    private static final int HALTED = IDLE + 1;
+    private static final int RUNNING = HALTED + 1;
+
+    private final AtomicInteger running = new AtomicInteger(IDLE);
     private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
@@ -76,14 +80,14 @@ public final class BatchEventProcessor<T>
     @Override
     public void halt()
     {
-        running.set(false);
+        running.set(HALTED);
         sequenceBarrier.alert();
     }
 
     @Override
     public boolean isRunning()
     {
-        return running.get();
+        return running.get() != IDLE;
     }
 
     /**
@@ -109,18 +113,29 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
-        if (!running.compareAndSet(false, true))
+        if (!running.compareAndSet(IDLE, RUNNING))
         {
-            throw new IllegalStateException("Thread is already running");
+            if (running.get() == RUNNING)
+            {
+                throw new IllegalStateException("Thread is already running");
+            }
         }
+        // halt();
         sequenceBarrier.clearAlert();
 
         notifyStart();
 
-        T event = null;
-        long nextSequence = sequence.get() + 1L;
         try
         {
+            if (running.get() == HALTED)
+            {
+                running.set(IDLE);
+                return;
+            }
+
+            T event = null;
+            long nextSequence = sequence.get() + 1L;
+
             while (true)
             {
                 try
@@ -146,7 +161,7 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final AlertException ex)
                 {
-                    if (!running.get())
+                    if (running.get() != RUNNING)
                     {
                         break;
                     }
@@ -162,7 +177,7 @@ public final class BatchEventProcessor<T>
         finally
         {
             notifyShutdown();
-            running.set(false);
+            running.set(IDLE);
         }
     }
 
