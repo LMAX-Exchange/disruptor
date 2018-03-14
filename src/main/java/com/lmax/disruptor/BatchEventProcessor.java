@@ -66,9 +66,9 @@ public final class BatchEventProcessor<T>
         }
 
         batchStartAware =
-                (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
+            (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
         timeoutHandler =
-                (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
+            (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
     }
 
     @Override
@@ -113,69 +113,93 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
-        if (!running.compareAndSet(IDLE, RUNNING))
+        if (running.compareAndSet(IDLE, RUNNING))
         {
+            sequenceBarrier.clearAlert();
+
+            notifyStart();
+            try
+            {
+                if (running.get() == RUNNING)
+                {
+                    processEvents();
+                }
+            }
+            finally
+            {
+                notifyShutdown();
+                running.set(IDLE);
+            }
+        }
+        else
+        {
+            // This is a little bit of guess work.  The running state could of changed to HALTED by
+            // this point.  However, Java does not have compareAndExchange which is the only way
+            // to get it exactly correct.
             if (running.get() == RUNNING)
             {
                 throw new IllegalStateException("Thread is already running");
             }
-        }
-        sequenceBarrier.clearAlert();
-
-        notifyStart();
-
-        try
-        {
-            if (running.get() == HALTED)
+            else
             {
-                return;
+                earlyExit();
             }
+        }
+    }
 
-            T event = null;
-            long nextSequence = sequence.get() + 1L;
+    private void processEvents()
+    {
+        T event = null;
+        long nextSequence = sequence.get() + 1L;
 
-            while (true)
+        while (true)
+        {
+            try
             {
-                try
+                final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                if (batchStartAware != null)
                 {
-                    final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                    if (batchStartAware != null)
-                    {
-                        batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
-                    }
+                    batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                }
 
-                    while (nextSequence <= availableSequence)
-                    {
-                        event = dataProvider.get(nextSequence);
-                        eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
-                        nextSequence++;
-                    }
-
-                    sequence.set(availableSequence);
-                }
-                catch (final TimeoutException e)
+                while (nextSequence <= availableSequence)
                 {
-                    notifyTimeout(sequence.get());
-                }
-                catch (final AlertException ex)
-                {
-                    if (running.get() != RUNNING)
-                    {
-                        break;
-                    }
-                }
-                catch (final Throwable ex)
-                {
-                    exceptionHandler.handleEventException(ex, nextSequence, event);
-                    sequence.set(nextSequence);
+                    event = dataProvider.get(nextSequence);
+                    eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     nextSequence++;
                 }
+
+                sequence.set(availableSequence);
             }
+            catch (final TimeoutException e)
+            {
+                notifyTimeout(sequence.get());
+            }
+            catch (final AlertException ex)
+            {
+                if (running.get() != RUNNING)
+                {
+                    break;
+                }
+            }
+            catch (final Throwable ex)
+            {
+                exceptionHandler.handleEventException(ex, nextSequence, event);
+                sequence.set(nextSequence);
+                nextSequence++;
+            }
+        }
+    }
+
+    private void earlyExit()
+    {
+        try
+        {
+            notifyStart();
         }
         finally
         {
             notifyShutdown();
-            running.set(IDLE);
         }
     }
 
