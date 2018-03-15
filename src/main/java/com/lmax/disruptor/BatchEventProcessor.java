@@ -120,6 +120,7 @@ public final class BatchEventProcessor<T>
             notifyStart();
             try
             {
+
                 if (running.get() == RUNNING)
                 {
                     processEvents();
@@ -193,14 +194,8 @@ public final class BatchEventProcessor<T>
 
     private void earlyExit()
     {
-        try
-        {
-            notifyStart();
-        }
-        finally
-        {
-            notifyShutdown();
-        }
+        notifyStart();
+        notifyShutdown();
     }
 
     private void notifyTimeout(final long availableSequence)
