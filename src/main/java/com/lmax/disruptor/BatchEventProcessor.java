@@ -120,7 +120,6 @@ public final class BatchEventProcessor<T>
             notifyStart();
             try
             {
-
                 if (running.get() == RUNNING)
                 {
                     processEvents();
