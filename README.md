@@ -15,6 +15,10 @@ A High Performance Inter-Thread Messaging Library
 
 ## Changelog
 
+### 3.4.2
+
+- Fix race condition in BatchEventProcessor with 3 or more starting/halting concurrently.
+
 ### 3.4.1
 
  - Fix race between run() and halt() on BatchEventProcessor.
