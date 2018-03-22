@@ -2,3 +2,5 @@
 .gradle
 build
 bin
+out
+.idea
