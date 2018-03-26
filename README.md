@@ -8,6 +8,10 @@ A High Performance Inter-Thread Messaging Library
 
 [![Build Status](https://semaphoreci.com/api/v1/mikeb01/disruptor/branches/master/badge.svg)](https://semaphoreci.com/mikeb01/disruptor)
 
+## Support
+
+[Google Group](https://groups.google.com/group/lmax-disruptor)
+
 ## Documentation
 
 * [Introduction](https://github.com/LMAX-Exchange/disruptor/wiki/Introduction)
