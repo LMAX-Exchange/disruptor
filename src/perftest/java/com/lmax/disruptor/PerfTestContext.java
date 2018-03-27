@@ -21,6 +21,7 @@ public class PerfTestContext {
     }
 
     public double getBatchPercent() {
+        if (batchesProcessedCount == 0) return 0;
         return 1 - (double)batchesProcessedCount / iterations;
     }
 
