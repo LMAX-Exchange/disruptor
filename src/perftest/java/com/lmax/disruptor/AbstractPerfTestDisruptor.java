@@ -16,8 +16,6 @@
 package com.lmax.disruptor;
 
 
-import sun.misc.Perf;
-
 public abstract class AbstractPerfTestDisruptor
 {
     public static final int RUNS = 7;
@@ -25,7 +23,8 @@ public abstract class AbstractPerfTestDisruptor
     protected void testImplementations()
         throws Exception {
         final int availableProcessors = Runtime.getRuntime().availableProcessors();
-        if (getRequiredProcessorCount() > availableProcessors) {
+        if (getRequiredProcessorCount() > availableProcessors)
+        {
             System.out.print("*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
             System.out.println("Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
         }
@@ -33,7 +32,8 @@ public abstract class AbstractPerfTestDisruptor
         PerfTestContext[] contexts = new PerfTestContext[RUNS];
 
         System.out.println("Starting Disruptor tests");
-        for (int i = 0; i < RUNS; i++) {
+        for (int i = 0; i < RUNS; i++)
+        {
             System.gc();
             PerfTestContext context = runDisruptorPass();
             contexts[i] = context;
@@ -48,7 +48,8 @@ public abstract class AbstractPerfTestDisruptor
         {
             PerfTestContext context = contexts[i];
             System.out.format("%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec BatchPercent=%,d AverageBatchSize=%,d\n",
-                              className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(context.getDisruptorOps()), Double.valueOf(context.getBatchPercent()), Double.valueOf(context.getAverageBatchSize()));
+                              className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(context.getDisruptorOps()),
+                              Double.valueOf(context.getBatchPercent()), Double.valueOf(context.getAverageBatchSize()));
         }
     }
 
