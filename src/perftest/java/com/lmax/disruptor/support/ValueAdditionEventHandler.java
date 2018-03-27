@@ -23,6 +23,7 @@ import com.lmax.disruptor.util.PaddedLong;
 public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
 {
     private final PaddedLong value = new PaddedLong();
+    private final PaddedLong batchesProcessed = new PaddedLong();
     private long count;
     private CountDownLatch latch;
 
@@ -30,18 +31,25 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
     {
         return value.get();
     }
+    public long getBatchesProcessed() { return batchesProcessed.get(); }
 
     public void reset(final CountDownLatch latch, final long expectedCount)
     {
         value.set(0L);
         this.latch = latch;
         count = expectedCount;
+        batchesProcessed.set(0);
     }
 
     @Override
     public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch) throws Exception
     {
         value.set(value.get() + event.getValue());
+
+        if (endOfBatch)
+        {
+            batchesProcessed.increment();
+        }
 
         if (count == sequence)
         {

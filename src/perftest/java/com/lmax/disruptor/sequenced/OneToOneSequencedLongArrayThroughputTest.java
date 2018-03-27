@@ -21,12 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.LongArrayEventHandler;
 import com.lmax.disruptor.support.PerfTestUtil;
 import com.lmax.disruptor.util.DaemonThreadFactory;
@@ -97,8 +92,9 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
     }
 
     @Override
-    protected long runDisruptorPass() throws InterruptedException
+    protected PerfTestContext runDisruptorPass() throws InterruptedException
     {
+        PerfTestContext perfTestContext = new PerfTestContext();
         final CountDownLatch latch = new CountDownLatch(1);
         long expectedCount = batchEventProcessor.getSequence().get() + ITERATIONS;
         handler.reset(latch, ITERATIONS);
@@ -119,13 +115,14 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
         }
 
         latch.await();
-        long opsPerSecond = (ITERATIONS * ARRAY_SIZE * 1000L) / (System.currentTimeMillis() - start);
+        perfTestContext.setDisruptorOps((ITERATIONS * ARRAY_SIZE * 1000L) / (System.currentTimeMillis() - start));
+        perfTestContext.setBatchData(handler.getBatchesProcessed(), ITERATIONS);
         waitForEventProcessorSequence(expectedCount);
         batchEventProcessor.halt();
 
         PerfTestUtil.failIf(0, handler.getValue());
 
-        return opsPerSecond;
+        return perfTestContext;
     }
 
     private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException

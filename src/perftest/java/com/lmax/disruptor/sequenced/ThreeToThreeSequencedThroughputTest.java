@@ -21,11 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.LongArrayEventHandler;
 import com.lmax.disruptor.support.LongArrayPublisher;
 import com.lmax.disruptor.support.MultiBufferBatchEventProcessor;
@@ -121,8 +117,9 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     }
 
     @Override
-    protected long runDisruptorPass() throws Exception
+    protected PerfTestContext runDisruptorPass() throws Exception
     {
+        PerfTestContext perfTestContext = new PerfTestContext();
         final CountDownLatch latch = new CountDownLatch(1);
         handler.reset(latch, ITERATIONS);
 
@@ -143,10 +140,11 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
 
         latch.await();
 
-        long opsPerSecond = (ITERATIONS * 1000L * ARRAY_SIZE) / (System.currentTimeMillis() - start);
+        perfTestContext.setDisruptorOps((ITERATIONS * 1000L * ARRAY_SIZE) / (System.currentTimeMillis() - start));
+        perfTestContext.setBatchData(handler.getBatchesProcessed(), ITERATIONS * ARRAY_SIZE);
         batchEventProcessor.halt();
 
-        return opsPerSecond;
+        return perfTestContext;
     }
 
     public static void main(String[] args) throws Exception
