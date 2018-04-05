@@ -15,12 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
+import com.lmax.disruptor.BatchStartAware;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 import java.util.concurrent.CountDownLatch;
 
-public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
+public final class ValueMutationEventHandler implements EventHandler<ValueEvent>, BatchStartAware
 {
     private final Operation operation;
     private final PaddedLong value = new PaddedLong();
@@ -52,14 +53,15 @@ public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
     {
         value.set(operation.op(value.get(), event.getValue()));
 
-        if (endOfBatch)
-        {
-            batchesProcessed.increment();
-        }
-
         if (count == sequence)
         {
             latch.countDown();
         }
+    }
+
+    @Override
+    public void onBatchStart(long batchSize)
+    {
+        batchesProcessed.increment();
     }
 }

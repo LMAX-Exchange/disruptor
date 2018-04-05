@@ -85,7 +85,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         return 2;
     }
 
-    private static class PollRunnable implements Runnable, EventPoller.Handler<ValueEvent>
+    private static class PollRunnable implements Runnable, EventPoller.Handler<ValueEvent>, BatchStartAware
     {
         private final EventPoller<ValueEvent> poller;
         private volatile boolean running = true;
@@ -123,11 +123,6 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         {
             value.set(value.get() + event.getValue());
 
-            if (endOfBatch)
-            {
-                batchesProcessed.increment();
-            }
-
             if (count == sequence)
             {
                 latch.countDown();
@@ -155,6 +150,12 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
             return value.get();
         }
         public long getBatchesProcessed() { return batchesProcessed.get(); }
+
+        @Override
+        public void onBatchStart(long batchSize)
+        {
+            batchesProcessed.increment();
+        }
     }
 
     @Override

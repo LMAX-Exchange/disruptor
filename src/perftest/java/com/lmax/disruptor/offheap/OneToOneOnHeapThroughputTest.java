@@ -93,7 +93,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         new OneToOneOnHeapThroughputTest().testImplementations();
     }
 
-    public static class ByteBufferHandler implements EventHandler<ByteBuffer>
+    public static class ByteBufferHandler implements EventHandler<ByteBuffer>, BatchStartAware
     {
         private final PaddedLong total = new PaddedLong();
         private final PaddedLong batchesProcessed = new PaddedLong();
@@ -106,11 +106,6 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             for (int i = 0; i < BLOCK_SIZE; i += 8)
             {
                 total.set(total.get() + event.getLong(i));
-            }
-
-            if (endOfBatch)
-            {
-                batchesProcessed.increment();
             }
 
             if (--expectedCount == 0)
@@ -131,6 +126,12 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             this.expectedCount = expectedCount;
             this.total.set(0);
             this.batchesProcessed.set(0);
+        }
+
+        @Override
+        public void onBatchStart(long batchSize)
+        {
+            batchesProcessed.increment();
         }
     }
 
