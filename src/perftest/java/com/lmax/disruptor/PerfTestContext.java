@@ -1,6 +1,7 @@
 package com.lmax.disruptor;
 
-public class PerfTestContext {
+public class PerfTestContext
+{
     private long disruptorOps;
     private long batchesProcessedCount;
     private long iterations;
@@ -9,15 +10,18 @@ public class PerfTestContext {
     {
     }
 
-    public long getDisruptorOps() {
+    public long getDisruptorOps()
+    {
         return disruptorOps;
     }
 
-    public void setDisruptorOps(long disruptorOps) {
+    public void setDisruptorOps(long disruptorOps)
+    {
         this.disruptorOps = disruptorOps;
     }
 
-    public long getBatchesProcessedCount() {
+    public long getBatchesProcessedCount()
+    {
         return batchesProcessedCount;
     }
 

@@ -38,7 +38,11 @@ public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
     {
         return value.get();
     }
-    public long getBatchesProcessed() { return batchesProcessed.get(); }
+
+    public long getBatchesProcessed()
+    {
+        return batchesProcessed.get();
+    }
 
     public void reset(final CountDownLatch latch, final long expectedCount)
     {

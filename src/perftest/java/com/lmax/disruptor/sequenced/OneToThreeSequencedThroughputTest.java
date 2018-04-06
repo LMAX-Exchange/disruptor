@@ -154,9 +154,11 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
         return perfTestContext;
     }
 
-    private long sumBatches(ValueMutationEventHandler[] handlers) {
+    private long sumBatches(ValueMutationEventHandler[] handlers)
+    {
         long sum = 0;
-        for (ValueMutationEventHandler handler : handlers) {
+        for (ValueMutationEventHandler handler : handlers)
+        {
             sum += handler.getBatchesProcessed();
         }
         return sum;

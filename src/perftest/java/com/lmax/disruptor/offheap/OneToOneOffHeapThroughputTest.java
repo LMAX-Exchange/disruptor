@@ -111,7 +111,11 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         {
             return total.get();
         }
-        public long getBatchesProcessed() { return batchesProcessed.get(); }
+
+        public long getBatchesProcessed()
+        {
+            return batchesProcessed.get();
+        }
 
         public void reset(CountDownLatch latch, long expectedCount)
         {

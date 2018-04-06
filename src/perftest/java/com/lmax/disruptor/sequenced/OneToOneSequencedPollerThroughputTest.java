@@ -149,7 +149,11 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         {
             return value.get();
         }
-        public long getBatchesProcessed() { return batchesProcessed.get(); }
+
+        public long getBatchesProcessed()
+        {
+            return batchesProcessed.get();
+        }
 
         @Override
         public void onBatchStart(long batchSize)

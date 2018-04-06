@@ -21,7 +21,8 @@ public abstract class AbstractPerfTestDisruptor
     public static final int RUNS = 7;
 
     protected void testImplementations()
-        throws Exception {
+        throws Exception
+    {
         final int availableProcessors = Runtime.getRuntime().availableProcessors();
         if (getRequiredProcessorCount() > availableProcessors)
         {
