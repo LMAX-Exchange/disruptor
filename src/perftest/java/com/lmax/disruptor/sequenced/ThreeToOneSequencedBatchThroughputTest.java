@@ -23,11 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BusySpinWaitStrategy;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.ValueAdditionEventHandler;
 import com.lmax.disruptor.support.ValueBatchPublisher;
 import com.lmax.disruptor.support.ValueEvent;
@@ -116,11 +112,11 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
     }
 
     @Override
-    protected long runDisruptorPass() throws Exception
+    protected PerfTestContext runDisruptorPass() throws Exception
     {
+        PerfTestContext perfTestContext = new PerfTestContext();
         final CountDownLatch latch = new CountDownLatch(1);
-        handler
-            .reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
+        handler.reset(latch, batchEventProcessor.getSequence().get() + ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS));
 
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
         for (int i = 0; i < NUM_PUBLISHERS; i++)
@@ -139,10 +135,11 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
 
         latch.await();
 
-        long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
+        perfTestContext.setDisruptorOps((ITERATIONS * 1000L) / (System.currentTimeMillis() - start));
+        perfTestContext.setBatchData(handler.getBatchesProcessed(), ITERATIONS);
         batchEventProcessor.halt();
 
-        return opsPerSecond;
+        return perfTestContext;
     }
 
     public static void main(String[] args) throws Exception

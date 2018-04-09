@@ -17,12 +17,14 @@ package com.lmax.disruptor.support;
 
 import java.util.concurrent.CountDownLatch;
 
+import com.lmax.disruptor.BatchStartAware;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
-public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
+public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>, BatchStartAware
 {
     private final PaddedLong value = new PaddedLong();
+    private final PaddedLong batchesProcessed = new PaddedLong();
     private long count;
     private CountDownLatch latch;
 
@@ -31,11 +33,17 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
         return value.get();
     }
 
+    public long getBatchesProcessed()
+    {
+        return batchesProcessed.get();
+    }
+
     public void reset(final CountDownLatch latch, final long expectedCount)
     {
         value.set(0L);
         this.latch = latch;
         count = expectedCount;
+        batchesProcessed.set(0);
     }
 
     @Override
@@ -47,5 +55,11 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
         {
             latch.countDown();
         }
+    }
+
+    @Override
+    public void onBatchStart(long batchSize)
+    {
+        batchesProcessed.increment();
     }
 }
