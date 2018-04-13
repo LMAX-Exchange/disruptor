@@ -111,7 +111,7 @@ public final class OneToOneSequencedBatchThroughputTest extends AbstractPerfTest
 
         latch.await();
         perfTestContext.setDisruptorOps((BATCH_SIZE * ITERATIONS * 1000L) / (System.currentTimeMillis() - start));
-        perfTestContext.setBatchData(handler.getBatchesProcessed(), ITERATIONS);
+        perfTestContext.setBatchData(handler.getBatchesProcessed(), ITERATIONS * BATCH_SIZE);
         waitForEventProcessorSequence(expectedCount);
         batchEventProcessor.halt();
 
