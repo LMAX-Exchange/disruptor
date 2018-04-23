@@ -1,14 +1,12 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
+import static com.lmax.disruptor.util.Util.awaitNanos;
 
 public class TimeoutBlockingWaitStrategy implements WaitStrategy
 {
-    private final Lock lock = new ReentrantLock();
-    private final Condition processorNotifyCondition = lock.newCondition();
+    private final Object mutex = new Object();
     private final long timeoutInNanos;
 
     public TimeoutBlockingWaitStrategy(final long timeout, final TimeUnit units)
@@ -24,27 +22,22 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
         final SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException
     {
-        long nanos = timeoutInNanos;
+        long timeoutNanos = timeoutInNanos;
 
         long availableSequence;
         if (cursorSequence.get() < sequence)
         {
-            lock.lock();
-            try
+            synchronized (mutex)
             {
                 while (cursorSequence.get() < sequence)
                 {
                     barrier.checkAlert();
-                    nanos = processorNotifyCondition.awaitNanos(nanos);
-                    if (nanos <= 0)
+                    timeoutNanos = awaitNanos(mutex, timeoutNanos);
+                    if (timeoutNanos <= 0)
                     {
                         throw TimeoutException.INSTANCE;
                     }
                 }
-            }
-            finally
-            {
-                lock.unlock();
             }
         }
 
@@ -59,14 +52,9 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
-        lock.lock();
-        try
+        synchronized (mutex)
         {
-            processorNotifyCondition.signalAll();
-        }
-        finally
-        {
-            lock.unlock();
+            mutex.notifyAll();
         }
     }
 
@@ -74,7 +62,8 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
     public String toString()
     {
         return "TimeoutBlockingWaitStrategy{" +
-            "processorNotifyCondition=" + processorNotifyCondition +
+            "mutex=" + mutex +
+            ", timeoutInNanos=" + timeoutInNanos +
             '}';
     }
 }

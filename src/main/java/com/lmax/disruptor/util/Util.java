@@ -15,15 +15,13 @@
  */
 package com.lmax.disruptor.util;
 
+import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.Sequence;
+import sun.misc.Unsafe;
+
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-
-
-import sun.misc.Unsafe;
 
 /**
  * Set of common functions used by the Disruptor
@@ -140,5 +138,17 @@ public final class Util
             ++r;
         }
         return r;
+    }
+
+    public static long awaitNanos(Object mutex, long timeoutNanos) throws InterruptedException
+    {
+        long millis = timeoutNanos / 1_000_000;
+        long nanos = timeoutNanos % 1_000_000;
+
+        long t0 = System.nanoTime();
+        mutex.wait(millis, (int) nanos);
+        long t1 = System.nanoTime();
+
+        return timeoutNanos - (t1 - t0);
     }
 }
