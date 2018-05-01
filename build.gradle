@@ -24,7 +24,7 @@ apply plugin: 'idea'
 defaultTasks 'build'
 
 group = 'com.lmax'
-version = new Version(major: 3, minor: 4, revision: 2)
+version = new Version(major: 3, minor: 4, revision: 3)
 
 ext {
     fullName = 'Disruptor Framework'
@@ -175,7 +175,7 @@ task perfJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.3'
+    gradleVersion = '4.7'
 }
 
 class Version {
