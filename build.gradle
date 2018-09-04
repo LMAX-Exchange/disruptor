@@ -51,9 +51,9 @@ repositories {
 }
 
 dependencies {
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.2'
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
-    perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
+    perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
 }
 
 idea.module {
