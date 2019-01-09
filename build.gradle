@@ -41,6 +41,7 @@ ext {
     if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
 
+
 sourceSets {
     perf.java.srcDir file('src/perftest/java')
     java9.java.srcDir file('src/main/java9')
@@ -56,6 +57,7 @@ dependencies {
 //    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
+    java9Compile sourceSets.main.output
 }
 
 idea.module {
@@ -77,6 +79,18 @@ compileJava {
 compileJava9Java {
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
+//    options.compilerArgs.addAll(['--release', '9'])
+}
+
+task testJava9(type: Test) {
+    dependsOn jar
+    def jdkHome = System.getenv("JAVA_9")
+    classpath = files(jar.archivePath, classpath) - sourceSets.main.output
+    executable = file("$jdkHome/bin/java")
+    doFirst {
+        println classpath.asPath
+        println "$name runs test using JDK 9"
+    }
 }
 
 tasks.withType(Test) {
@@ -110,10 +124,9 @@ jar {
             'Automatic-Module-Name': moduleName
     )
 
-    metaInf.into("versions/9", {
-        from(compileJava9Java.destinationDir)
-        include('**/*.class')
-    })
+    into('META-INF/versions/9') {
+        from sourceSets.java9.output
+    }
 }
 
 task sourcesJar(type: Jar) {
