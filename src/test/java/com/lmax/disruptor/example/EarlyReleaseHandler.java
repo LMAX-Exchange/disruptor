@@ -20,11 +20,13 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
     {
         processEvent(event);
 
-        if (isLogicalChunkOfWorkComplete())
+        boolean logicalChunkOfWorkComplete = isLogicalChunkOfWorkComplete();
+        if (logicalChunkOfWorkComplete)
         {
             sequenceCallback.set(sequence);
-            batchRemaining = 20;
         }
+
+        batchRemaining = logicalChunkOfWorkComplete || endOfBatch ? 20 : batchRemaining;
     }
 
     private boolean isLogicalChunkOfWorkComplete()
