@@ -53,7 +53,7 @@ public interface Sequencer extends Cursored, Sequenced
      * Remove the specified sequence from this sequencer.
      *
      * @param sequence to be removed.
-     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     * @return <code>true</code> if this sequence was found, <code>false</code> otherwise.
      */
     boolean removeGatingSequence(Sequence sequence);
 

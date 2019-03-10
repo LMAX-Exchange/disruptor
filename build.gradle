@@ -18,7 +18,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-apply plugin: 'checkstyle'
+//apply plugin: 'checkstyle'
 apply plugin: 'idea'
 
 defaultTasks 'build'
@@ -51,9 +51,9 @@ repositories {
 }
 
 dependencies {
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.2'
+//    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
-    perfCompile 'org.hdrhistogram:HdrHistogram:1.2.1'
+    perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
 }
 
 idea.module {
@@ -174,8 +174,8 @@ task perfJar(type: Jar) {
     with jar
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+wrapper {
+    gradleVersion = '5.1'
 }
 
 class Version {

@@ -50,7 +50,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         }
         BUFFER_PAD = 128 / scale;
         // Including the buffer pad in the array base offset
-        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + (BUFFER_PAD << REF_ELEMENT_SHIFT);
+        REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + 128;
     }
 
     private final long indexMask;
@@ -147,7 +147,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param factory    used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
      * @return a constructed ring buffer.
-     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 or not a power of 2
+     * @throws IllegalArgumentException if <code>bufferSize</code> is less than 1 or not a power of 2
      * @see MultiProducerSequencer
      */
     public static <E> RingBuffer<E> createMultiProducer(EventFactory<E> factory, int bufferSize)
@@ -183,7 +183,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param factory    used to create the events within the ring buffer.
      * @param bufferSize number of elements to create within the ring buffer.
      * @return a constructed ring buffer.
-     * @throws IllegalArgumentException if <tt>bufferSize</tt> is less than 1 or not a power of 2
+     * @throws IllegalArgumentException if <code>bufferSize</code> is less than 1 or not a power of 2
      * @see MultiProducerSequencer
      */
     public static <E> RingBuffer<E> createSingleProducer(EventFactory<E> factory, int bufferSize)
@@ -388,7 +388,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * Remove the specified sequence from this ringBuffer.
      *
      * @param sequence to be removed.
-     * @return <tt>true</tt> if this sequence was found, <tt>false</tt> otherwise.
+     * @return <code>true</code> if this sequence was found, <code>false</code> otherwise.
      */
     public boolean removeGatingSequence(Sequence sequence)
     {
@@ -441,14 +441,14 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Given specified <tt>requiredCapacity</tt> determines if that amount of space
-     * is available.  Note, you can not assume that if this method returns <tt>true</tt>
+     * Given specified <code>requiredCapacity</code> determines if that amount of space
+     * is available.  Note, you can not assume that if this method returns <code>true</code>
      * that a call to {@link RingBuffer#next()} will not block.  Especially true if this
      * ring buffer is set up to handle multiple producers.
      *
      * @param requiredCapacity The capacity to check for.
-     * @return <tt>true</tt> If the specified <tt>requiredCapacity</tt> is available
-     * <tt>false</tt> if not.
+     * @return <code>true</code> If the specified <code>requiredCapacity</code> is available
+     * <code>false</code> if not.
      */
     public boolean hasAvailableCapacity(int requiredCapacity)
     {
