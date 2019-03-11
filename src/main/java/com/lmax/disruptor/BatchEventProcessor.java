@@ -157,7 +157,7 @@ public final class BatchEventProcessor<T>
             try
             {
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                if (batchStartAware != null)
+                if (batchStartAware != null && availableSequence >= nextSequence)
                 {
                     batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
                 }
