@@ -17,6 +17,10 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +29,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.*;
 
 public final class BatchEventProcessorTest
 {
@@ -274,4 +279,59 @@ public final class BatchEventProcessorTest
             return stopLatch.await(time, unit);
         }
     }
+
+    @Test
+    public void shouldNotPassZeroSizeToBatchStartAware() throws Exception
+    {
+        final CountDownLatch latch = new CountDownLatch(3);
+
+        final BatchAwareEventHandler eventHandlerSpy = Mockito.spy(new BatchAwareEventHandler(latch));
+
+        final SequenceBarrier sequenceBarrierSpy = Mockito.spy(this.sequenceBarrier);
+        Mockito.doAnswer( // first respond with sequence-1 (meaning no progress made)
+                new Answer<Object>()
+                {
+                    @Override
+                    public Object answer(InvocationOnMock invocation)
+                    {
+                        return (long) invocation.getArgument(0) - 1;
+                    }
+                })
+                .doCallRealMethod() // then always respond with actual sequence position
+                .when(sequenceBarrierSpy).waitFor(Mockito.anyLong());
+
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                ringBuffer, sequenceBarrierSpy, eventHandlerSpy);
+
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
+
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+
+        Thread thread = new Thread(batchEventProcessor);
+        thread.start();
+
+        latch.await(2, TimeUnit.SECONDS);
+
+        batchEventProcessor.halt();
+        thread.join();
+
+        // verify that onBatchStart() was called at least once, but never with batchSize=0
+        final ArgumentCaptor<Long> onBatchStartArgCaptor = ArgumentCaptor.forClass(Long.class);
+        Mockito.verify(eventHandlerSpy, Mockito.atLeastOnce()).onBatchStart(onBatchStartArgCaptor.capture());
+        assertThat(onBatchStartArgCaptor.getAllValues(), not(hasItem(0L)));
+    }
+
+    private static class BatchAwareEventHandler extends LatchEventHandler implements BatchStartAware
+    {
+        BatchAwareEventHandler(CountDownLatch latch)
+        {
+            super(latch);
+        }
+
+        @Override
+        public void onBatchStart(long batchSize) { }
+    }
+
 }
