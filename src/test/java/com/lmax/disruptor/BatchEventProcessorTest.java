@@ -18,15 +18,13 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 public final class BatchEventProcessorTest
 {
@@ -274,4 +272,99 @@ public final class BatchEventProcessorTest
             return stopLatch.await(time, unit);
         }
     }
+
+    @Test
+    public void shouldNotPassZeroSizeToBatchStartAware() throws Exception
+    {
+        final CountDownLatch latch = new CountDownLatch(3);
+
+        BatchAwareEventHandler eventHandler = new BatchAwareEventHandler(latch);
+
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                ringBuffer, new DelegatingSequenceBarrier(this.sequenceBarrier), eventHandler);
+
+        ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
+
+        Thread thread = new Thread(batchEventProcessor);
+        thread.start();
+        latch.await(2, TimeUnit.SECONDS);
+
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+        ringBuffer.publish(ringBuffer.next());
+
+        batchEventProcessor.halt();
+        thread.join();
+
+        assertThat(eventHandler.batchSizeToCountMap.size(), not(0));
+        assertThat(eventHandler.batchSizeToCountMap.get(0L), nullValue());
+    }
+
+    private static class DelegatingSequenceBarrier implements SequenceBarrier
+    {
+        private SequenceBarrier delegate;
+        private boolean suppress = true;
+
+        public DelegatingSequenceBarrier(SequenceBarrier delegate)
+        {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException
+        {
+            long result = suppress ? sequence - 1 : delegate.waitFor(sequence);
+            suppress = !suppress;
+            return result;
+        }
+
+        @Override
+        public long getCursor()
+        {
+            return delegate.getCursor();
+        }
+
+        @Override
+        public boolean isAlerted()
+        {
+            return delegate.isAlerted();
+        }
+
+        @Override
+        public void alert()
+        {
+            delegate.alert();
+        }
+
+        @Override
+        public void clearAlert()
+        {
+            delegate.clearAlert();
+        }
+
+        @Override
+        public void checkAlert() throws AlertException
+        {
+            delegate.checkAlert();
+        }
+    }
+
+    private static class BatchAwareEventHandler extends LatchEventHandler implements BatchStartAware
+    {
+        final Map<Long, Integer> batchSizeToCountMap = new HashMap<>();
+
+        BatchAwareEventHandler(CountDownLatch latch)
+        {
+            super(latch);
+        }
+
+        @Override
+        public void onBatchStart(long batchSize)
+        {
+            final Integer currentCount = batchSizeToCountMap.get(batchSize);
+            final int nextCount = null == currentCount ? 1 : currentCount + 1;
+            batchSizeToCountMap.put(batchSize, nextCount);
+        }
+    }
+
 }
