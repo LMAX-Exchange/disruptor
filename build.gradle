@@ -53,7 +53,6 @@ repositories {
 dependencies {
 //    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-inline:2.25.1'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
 }
 
