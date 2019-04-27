@@ -313,11 +313,6 @@ public class Disruptor<T>
      */
     public EventHandlerGroup<T> after(final EventProcessor... processors)
     {
-        for (final EventProcessor processor : processors)
-        {
-            consumerRepository.add(processor);
-        }
-
         return new EventHandlerGroup<>(this, consumerRepository, Util.getSequencesFor(processors));
     }
 

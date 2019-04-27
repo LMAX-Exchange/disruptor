@@ -254,7 +254,7 @@ public class DisruptorTest
         disruptor.start();
 
         assertNotNull(eventHandlerGroup);
-        assertThat(Integer.valueOf(executor.getExecutionCount()), equalTo(Integer.valueOf(2)));
+        assertThat(executor.getExecutionCount(), equalTo(2));
     }
 
     @Test
@@ -283,7 +283,7 @@ public class DisruptorTest
     }
 
     @Test
-    public void should()
+    public void shouldSupportAddingCustomEventProcessorWithFactory()
         throws Exception
     {
         RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
@@ -303,6 +303,8 @@ public class DisruptorTest
         disruptor.handleEventsWith(b1).then(b2);
 
         disruptor.start();
+
+        assertThat(executor.getExecutionCount(), equalTo(2));
     }
 
     @Test
@@ -319,6 +321,8 @@ public class DisruptorTest
         disruptor.after(handler1, handler2).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
+
+        assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
     @Test
@@ -336,6 +340,8 @@ public class DisruptorTest
         disruptor.after(handler1).and(handler2Group).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, handler1, handler2);
+
+        assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -518,6 +524,8 @@ public class DisruptorTest
         disruptor.handleEventsWith(processor).then(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
+
+        assertThat(executor.getExecutionCount(), equalTo(2));
     }
 
     @Test
@@ -538,6 +546,8 @@ public class DisruptorTest
         disruptor.handleEventsWith(processor);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
+
+        assertThat(executor.getExecutionCount(), equalTo(2));
     }
 
     @Test
@@ -559,6 +569,30 @@ public class DisruptorTest
         disruptor.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler1, delayedEventHandler2);
+
+        assertThat(executor.getExecutionCount(), equalTo(3));
+    }
+
+    @Test
+    public void shouldSupportMultipleCustomProcessorsAsDependencies() throws Exception
+    {
+        final RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
+        final EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub<>(countDownLatch);
+
+        final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
+        final BatchEventProcessor<TestEvent> processor1 =
+                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler1);
+
+        final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
+        final BatchEventProcessor<TestEvent> processor2 =
+                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler2);
+
+        disruptor.handleEventsWith(processor1, processor2);
+        disruptor.after(processor1, processor2).handleEventsWith(handlerWithBarrier);
+
+        ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler1, delayedEventHandler2);
+        assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
     @Test
