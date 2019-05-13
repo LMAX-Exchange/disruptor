@@ -15,18 +15,12 @@
  */
 package com.lmax.disruptor.queue;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.lmax.disruptor.AbstractPerfTestQueue;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
+import com.lmax.disruptor.support.ValueAdditionQueueBatchProcessor;
 import com.lmax.disruptor.support.ValueQueuePublisher;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -69,7 +63,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
  *
  * </pre>
  */
-public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
+public final class ThreeToOneQueueBatchThroughputTest extends AbstractPerfTestQueue
 {
     private static final int NUM_PUBLISHERS = 3;
     private static final int BUFFER_SIZE = 1024 * 64;
@@ -79,9 +73,9 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
-    private final ValueAdditionQueueProcessor queueProcessor =
-        new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final ValueAdditionQueueBatchProcessor queueProcessor =
+        new ValueAdditionQueueBatchProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
 
     {
@@ -132,6 +126,6 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
 
     public static void main(String[] args) throws Exception
     {
-        new ThreeToOneQueueThroughputTest().testImplementations();
+        new ThreeToOneQueueBatchThroughputTest().testImplementations();
     }
 }
