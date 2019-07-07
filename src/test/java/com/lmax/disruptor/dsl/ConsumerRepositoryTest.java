@@ -22,6 +22,7 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;
 import com.lmax.disruptor.support.TestEvent;
+import com.lmax.disruptor.util.LinkedArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,9 +79,9 @@ public class ConsumerRepositoryTest
         consumerRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2.getSequence());
 
 
-        final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain(true);
-        assertThat(lastEventProcessorsInChain.length, equalTo(1));
-        assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1.getSequence()));
+        final LinkedArrayList<Sequence> lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain(true);
+        assertThat(lastEventProcessorsInChain.size(), equalTo(1));
+        assertThat(lastEventProcessorsInChain.get(0), sameInstance(eventProcessor1.getSequence()));
     }
 
     @Test

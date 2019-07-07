@@ -16,6 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.*;
+import com.lmax.disruptor.util.LinkedArrayList;
 
 import java.util.*;
 
@@ -60,19 +61,19 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
-    public Sequence[] getLastSequenceInChain(boolean includeStopped)
+    public LinkedArrayList<Sequence> getLastSequenceInChain(boolean includeStopped)
     {
-        List<Sequence> lastSequence = new ArrayList<>();
+        LinkedArrayList<Sequence> lastSequence = new LinkedArrayList<>();
         for (ConsumerInfo consumerInfo : consumerInfos)
         {
             if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
             {
                 final Sequence[] sequences = consumerInfo.getSequences();
-                Collections.addAll(lastSequence, sequences);
+                lastSequence.addArray(sequences);
             }
         }
 
-        return lastSequence.toArray(new Sequence[lastSequence.size()]);
+        return lastSequence;
     }
 
     public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
