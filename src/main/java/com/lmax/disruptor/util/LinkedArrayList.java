@@ -2,7 +2,6 @@ package com.lmax.disruptor.util;
 
 import java.util.*;
 
-
 public class LinkedArrayList<T> implements List<T>
 {
   LinkedArrayList<T> prev = null;
@@ -25,7 +24,7 @@ public class LinkedArrayList<T> implements List<T>
   @Override
   public int size()
   {
-    int size = myArray.length;
+    int size = myArray == null ? 0 : myArray.length;
     if (next != null ) size += next.size();
     return size;
   }
@@ -33,7 +32,7 @@ public class LinkedArrayList<T> implements List<T>
   @Override
   public boolean isEmpty()
   {
-    return myArray.length == 0 && (next == null || next.isEmpty());
+    return (myArray != null && myArray.length == 0) && (next == null || next.isEmpty());
   }
 
   @Override
@@ -48,14 +47,13 @@ public class LinkedArrayList<T> implements List<T>
     final LinkedArrayList localThis = this;
     return new Iterator() {
 
-
       LinkedArrayList current = localThis;
       int currentIdx = 0;
 
       @Override
       public boolean hasNext()
       {
-        return current.myArray.length > currentIdx || ! next.isEmpty();
+        return (current.myArray != null && current.myArray.length > currentIdx) || ! next.isEmpty();
       }
 
       @Override
@@ -163,7 +161,7 @@ public class LinkedArrayList<T> implements List<T>
 
   private T internalGet(int originalIndex, int subIndex)
   {
-    if (myArray.length > subIndex)
+    if (myArray != null && myArray.length > subIndex)
     {
       return myArray[subIndex];
     }
@@ -190,7 +188,7 @@ public class LinkedArrayList<T> implements List<T>
 
   private T internalSet(T o, int originalIndex, int subIndex)
   {
-    if (myArray.length > subIndex)
+    if (myArray != null && myArray.length > subIndex)
     {
       // TODO should fix this at some point
       //noinspection unchecked
@@ -218,7 +216,7 @@ public class LinkedArrayList<T> implements List<T>
   }
 
   @Override
-  public void add(int index, Object element)
+  public void add(int index, T element)
   {
     throw new RuntimeException("Seriously? Why on earth would you do this to a perfectly innocent computer?");
   }
@@ -271,11 +269,14 @@ public class LinkedArrayList<T> implements List<T>
       }
     }
 
-    for (int i = myArray.length; i > 0; i--)
+    if (myArray != null)
     {
-      if (myArray[i - 1] == o)
+      for (int i = myArray.length; i > 0; i--)
       {
-        return i;
+        if (myArray[i - 1] == o)
+        {
+          return i;
+        }
       }
     }
 
@@ -292,8 +293,6 @@ public class LinkedArrayList<T> implements List<T>
   public ListIterator listIterator(int index)
   {
     final LinkedArrayList localThis = this;
-
-
     return new ListIterator() {
 
       LinkedArrayList current = localThis;
@@ -361,7 +360,6 @@ public class LinkedArrayList<T> implements List<T>
       public void remove()
       {
         throw new UnsupportedOperationException("Not implemented");
-
       }
 
       @Override
