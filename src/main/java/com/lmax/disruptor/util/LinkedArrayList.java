@@ -45,10 +45,11 @@ public class LinkedArrayList<T> implements List<T>
   @Override
   public Iterator iterator()
   {
-    LinkedArrayList linkedArrayList = this;
+    final LinkedArrayList localThis = this;
     return new Iterator() {
 
-      LinkedArrayList current = linkedArrayList;
+
+      LinkedArrayList current = localThis;
       int currentIdx = 0;
 
       @Override
@@ -290,10 +291,12 @@ public class LinkedArrayList<T> implements List<T>
   @Override
   public ListIterator listIterator(int index)
   {
-    LinkedArrayList linkedArrayList = this;
+    final LinkedArrayList localThis = this;
+
+
     return new ListIterator() {
 
-      LinkedArrayList current = linkedArrayList;
+      LinkedArrayList current = localThis;
       int currentIdx = 0;
 
       @Override
