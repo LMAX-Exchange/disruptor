@@ -42,28 +42,28 @@ public class LinkedArrayList<T> implements List<T>
   }
 
   @Override
-  public Iterator iterator()
+  public Iterator<T> iterator()
   {
-    final LinkedArrayList localThis = this;
-    return new Iterator() {
+    final LinkedArrayList<T> localThis = this;
+    return new Iterator<T>() {
 
-      LinkedArrayList current = localThis;
+      LinkedArrayList<T> current = localThis;
       int currentIdx = 0;
 
       @Override
       public boolean hasNext()
       {
-        return (current.myArray != null && current.myArray.length > currentIdx) || ! next.isEmpty();
+        return (current.myArray != null && current.myArray.length > currentIdx) || ! current.next.isEmpty();
       }
 
       @Override
-      public Object next()
+      public T next()
       {
         while (true)
         {
           if (current.myArray != null && current.myArray.length > currentIdx)
           {
-            Object retVal = current.myArray[currentIdx++];
+            T retVal = current.myArray[currentIdx++];
 
             if (currentIdx > current.myArray.length)
             {
@@ -168,7 +168,7 @@ public class LinkedArrayList<T> implements List<T>
 
     if (next != null)
     {
-      return next.internalGet(originalIndex, subIndex - myArray.length);
+      return next.internalGet(originalIndex, subIndex - (myArray == null ? 0 : myArray.length));
     }
 
     throw new IndexOutOfBoundsException
@@ -190,14 +190,12 @@ public class LinkedArrayList<T> implements List<T>
   {
     if (myArray != null && myArray.length > subIndex)
     {
-      // TODO should fix this at some point
-      //noinspection unchecked
-      myArray[subIndex] = (T) o;
+      myArray[subIndex] = o;
     }
 
     if (next != null)
     {
-      return next.internalSet(o, originalIndex, subIndex - myArray.length);
+      return next.internalSet(o, originalIndex, subIndex - (myArray == null ? 0 :myArray.length));
     }
 
     throw new IndexOutOfBoundsException
@@ -284,18 +282,18 @@ public class LinkedArrayList<T> implements List<T>
   }
 
   @Override
-  public ListIterator listIterator()
+  public ListIterator<T> listIterator()
   {
     return listIterator(0);
   }
 
   @Override
-  public ListIterator listIterator(int index)
+  public ListIterator<T> listIterator(int index)
   {
-    final LinkedArrayList localThis = this;
-    return new ListIterator() {
+    final LinkedArrayList<T> localThis = this;
+    return new ListIterator<T>() {
 
-      LinkedArrayList current = localThis;
+      LinkedArrayList<T> current = localThis;
       int currentIdx = 0;
 
       @Override
@@ -305,13 +303,13 @@ public class LinkedArrayList<T> implements List<T>
       }
 
       @Override
-      public Object next()
+      public T next()
       {
         while (true)
         {
           if (current.myArray != null && current.myArray.length > currentIdx)
           {
-            Object retVal = current.myArray[currentIdx++];
+            T retVal = current.myArray[currentIdx++];
 
             if (currentIdx > current.myArray.length)
             {
@@ -339,7 +337,7 @@ public class LinkedArrayList<T> implements List<T>
       }
 
       @Override
-      public Object previous()
+      public T previous()
       {
         throw new UnsupportedOperationException("Not implemented");
       }
@@ -377,7 +375,7 @@ public class LinkedArrayList<T> implements List<T>
   }
 
   @Override
-  public List subList(int fromIndex, int toIndex)
+  public List<T> subList(int fromIndex, int toIndex)
   {
     throw new UnsupportedOperationException("Not implemented");
   }
