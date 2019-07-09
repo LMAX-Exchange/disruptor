@@ -53,7 +53,16 @@ public class LinkedArrayList<T> implements List<T>
       @Override
       public boolean hasNext()
       {
-        return (current.myArray != null && current.myArray.length > currentIdx) || ! current.next.isEmpty();
+        return
+        (
+          current.myArray != null && current.myArray.length > currentIdx
+        )
+        ||
+        (
+          current.next != null
+          &&
+          ! current.next.isEmpty()
+        );
       }
 
       @Override
@@ -108,8 +117,6 @@ public class LinkedArrayList<T> implements List<T>
   {
     if (next == null)
     {
-      // TODO this would be god to fix at some point
-      //noinspection unchecked
       next = new LinkedArrayList<>((T[]) arr);
       return true;
     }
@@ -299,7 +306,16 @@ public class LinkedArrayList<T> implements List<T>
       @Override
       public boolean hasNext()
       {
-        return (current.myArray != null && current.myArray.length > currentIdx) || ! current.next.isEmpty();
+        return
+        (
+          current.myArray != null && current.myArray.length > currentIdx
+        )
+        ||
+        (
+          current.next != null
+          &&
+          !current.next.isEmpty()
+        );
       }
 
       @Override
