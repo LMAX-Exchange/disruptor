@@ -302,7 +302,7 @@ public class LinkedArrayList<T> implements List<T>
       @Override
       public boolean hasNext()
       {
-        return current.myArray.length > currentIdx || ! next.isEmpty();
+        return (current.myArray != null && current.myArray.length > currentIdx) || ! current.next.isEmpty();
       }
 
       @Override
