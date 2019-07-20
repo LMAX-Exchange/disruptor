@@ -32,7 +32,7 @@ public class LinkedArrayList<T> implements List<T>
   @Override
   public boolean isEmpty()
   {
-    return (myArray != null && myArray.length == 0) && (next == null || next.isEmpty());
+    return (myArray == null || myArray.length == 0) && (next == null || next.isEmpty());
   }
 
   @Override
@@ -61,7 +61,7 @@ public class LinkedArrayList<T> implements List<T>
         (
           current.next != null
           &&
-          ! current.next.isEmpty()
+          !current.next.isEmpty()
         );
       }
 
@@ -72,22 +72,19 @@ public class LinkedArrayList<T> implements List<T>
         {
           if (current.myArray != null && current.myArray.length > currentIdx)
           {
-            T retVal = current.myArray[currentIdx++];
-
-            if (currentIdx > current.myArray.length)
-            {
-              currentIdx -= current.myArray.length;
-              current = current.next;
-            }
-
-            return retVal;
+            return current.myArray[currentIdx++];
           }
           else if (current.next == null)
           {
+            if (hasNext())
+            {
+              throw new NoSuchElementException("I guess we lied to someone, sorry about that");
+            }
             throw new NoSuchElementException();
           }
           else
           {
+            currentIdx -= current.myArray == null ? 0 : current.myArray.length;
             current = current.next;
           }
         }
@@ -115,14 +112,18 @@ public class LinkedArrayList<T> implements List<T>
 
   public boolean addArray(Object[] arr)
   {
-    if (next == null)
+    LinkedArrayList iter = this;
+    while (true)
     {
-      next = new LinkedArrayList<>((T[]) arr);
-      return true;
-    }
-    else
-    {
-      return next.addArray(arr);
+      if (iter.next == null)
+      {
+        iter.next = new LinkedArrayList<>((T[]) arr);
+        return true;
+      }
+      else
+      {
+        iter = iter.next;
+      }
     }
   }
 
@@ -155,7 +156,7 @@ public class LinkedArrayList<T> implements List<T>
   {
     throw new RuntimeException
     (
-    "Implementing this method would be an insult to you and me both, why do you want me to insult you?"
+      "Implementing this method would be an insult to you and me both, why do you want me to insult you?"
     );
   }
 
@@ -180,10 +181,10 @@ public class LinkedArrayList<T> implements List<T>
 
     throw new IndexOutOfBoundsException
     (
-    "You're just too big for me, originalIndex: "
-    + originalIndex
-    + ", subIndex: "
-    + subIndex
+      "You're just too big for me, originalIndex: "
+      + originalIndex
+      + ", subIndex: "
+      + subIndex
     );
   }
 
@@ -207,10 +208,10 @@ public class LinkedArrayList<T> implements List<T>
 
     throw new IndexOutOfBoundsException
     (
-    "You're just too big for me, originalIndex: "
-    + originalIndex
-    + ", subIndex: "
-    + subIndex
+      "You're just too big for me, originalIndex: "
+      + originalIndex
+      + ", subIndex: "
+      + subIndex
     );
   }
 
@@ -325,15 +326,7 @@ public class LinkedArrayList<T> implements List<T>
         {
           if (current.myArray != null && current.myArray.length > currentIdx)
           {
-            T retVal = current.myArray[currentIdx++];
-
-            if (currentIdx > current.myArray.length)
-            {
-              currentIdx -= current.myArray.length;
-              current = current.next;
-            }
-
-            return retVal;
+            return current.myArray[currentIdx++];
           }
           else if (current.next == null)
           {
@@ -341,6 +334,7 @@ public class LinkedArrayList<T> implements List<T>
           }
           else
           {
+            currentIdx -= current.myArray == null ? 0 : current.myArray.length;
             current = current.next;
           }
         }
