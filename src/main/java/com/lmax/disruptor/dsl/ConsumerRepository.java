@@ -60,6 +60,30 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
+    public boolean hasBacklog(long cursor, boolean includeStopped)
+    {
+        for (ConsumerInfo consumerInfo : consumerInfos)
+        {
+            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
+            {
+                final Sequence[] sequences = consumerInfo.getSequences();
+                for (Sequence sequence : sequences)
+                {
+                    if (cursor > sequence.get())
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @deprecated this function should no longer be used to determine the existence
+     * of a backlog, instead use hasBacklog
+     */
     public Sequence[] getLastSequenceInChain(boolean includeStopped)
     {
         List<Sequence> lastSequence = new ArrayList<>();
