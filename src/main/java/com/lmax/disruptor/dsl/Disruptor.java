@@ -530,14 +530,8 @@ public class Disruptor<T>
     private boolean hasBacklog()
     {
         final long cursor = ringBuffer.getCursor();
-        for (final Sequence consumer : consumerRepository.getLastSequenceInChain(false))
-        {
-            if (cursor > consumer.get())
-            {
-                return true;
-            }
-        }
-        return false;
+
+        return consumerRepository.hasBacklog(cursor, false);
     }
 
     EventHandlerGroup<T> createEventProcessors(
