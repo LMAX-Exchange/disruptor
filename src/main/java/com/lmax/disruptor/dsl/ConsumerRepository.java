@@ -84,6 +84,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
      * @deprecated this function should no longer be used to determine the existence
      * of a backlog, instead use hasBacklog
      */
+    @Deprecated
     public Sequence[] getLastSequenceInChain(boolean includeStopped)
     {
         List<Sequence> lastSequence = new ArrayList<>();
