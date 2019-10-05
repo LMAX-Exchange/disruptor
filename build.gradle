@@ -32,6 +32,7 @@ ext {
     teamName = 'LMAX Disruptor Development Team'
     siteUrl = 'http://lmax-exchange.github.com/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
+    moduleName = 'com.lmax.disruptor'
 
     javaCompilerExecutable = System.env['JAVA_HOME'] ? System.env['JAVA_HOME'] + '/bin/javac' : 'javac'
 
@@ -99,7 +100,8 @@ jar {
                         'Bundle-Name': fullName,
                         'Bundle-Vendor': teamName,
                         'Bundle-Description': fullDescription,
-                        'Bundle-DocURL': siteUrl)
+                        'Bundle-DocURL': siteUrl,
+                        'Automatic-Module-Name': moduleName)
 }
 
 task sourcesJar(type: Jar) {
