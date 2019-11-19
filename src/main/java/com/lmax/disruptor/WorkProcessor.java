@@ -88,7 +88,6 @@ public final class WorkProcessor<T>
     public void halt()
     {
         running.set(false);
-        sequenceBarrier.alert();
     }
 
     @Override
@@ -126,6 +125,7 @@ public final class WorkProcessor<T>
                 // typically, this will be true
                 // this prevents the sequence getting too far forward if an exception
                 // is thrown from the WorkHandler
+                sequenceBarrier.clearAlert();
                 if (processedSequence)
                 {
                     processedSequence = false;
@@ -142,6 +142,9 @@ public final class WorkProcessor<T>
                     event = ringBuffer.get(nextSequence);
                     workHandler.onEvent(event);
                     processedSequence = true;
+                    if (!running.get()){
+                        sequenceBarrier.alert();
+                    }
                 }
                 else
                 {
