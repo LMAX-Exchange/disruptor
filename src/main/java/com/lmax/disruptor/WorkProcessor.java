@@ -88,6 +88,15 @@ public final class WorkProcessor<T>
     public void halt()
     {
         running.set(false);
+        sequenceBarrier.alert();
+    }
+
+    /**
+     * remove workProcessor dynamic without message lost
+     */
+    public void haltLater()
+    {
+        running.set(false);
     }
 
     @Override
