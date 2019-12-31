@@ -12,30 +12,32 @@ import java.util.concurrent.Executors;
 /**
  * @Author : Rookiex
  * @Date : Created in 2019/12/31 13:05
- * @Describe :
- * @version:
+ * @Describe : Dynamic WorkHandler
  */
 public class DynamicAddWorkHandler {
 
 
     private static class MessageProduce implements Runnable {
         Disruptor<StubEvent> disruptor;
-
-        MessageProduce(Disruptor<StubEvent> disruptor) {
+        int start;
+        int over;
+        MessageProduce(Disruptor<StubEvent> disruptor,int start,int over) {
             this.disruptor = disruptor;
+            this.start = start;
+            this.over = over;
         }
-
 
         @Override
         public void run() {
-            int msgCount = 10;
-            for (int i = 0; i < msgCount; i++) {
-                StubEvent stubEvent = StubEvent.EVENT_FACTORY.newInstance();
-                stubEvent.setTestString("msg => " + i);
-                final int finalI = i;
-                disruptor.getRingBuffer().publishEvent((a, b, c) -> {
-                    a.setTestString("msg => " + finalI);
-                });
+            for (int i = start; i < over + start; i++) {
+                RingBuffer<StubEvent> ringBuffer = disruptor.getRingBuffer();
+                long sequence = ringBuffer.next();
+                try {
+                    StubEvent event = ringBuffer.get(sequence);
+                    event.setTestString("msg => " + i);
+                } finally{
+                    ringBuffer.publish(sequence);
+                }
             }
         }
     }
@@ -54,13 +56,13 @@ public class DynamicAddWorkHandler {
             shutdownLatch.countDown();
         }
 
-        public void awaitShutdown() throws InterruptedException {
+        void awaitShutdown() throws InterruptedException {
             shutdownLatch.await();
         }
 
         @Override
         public void onEvent(StubEvent event) throws Exception {
-            System.out.println(event.getTestString() + " ==> " +  Thread.currentThread().getId());
+            System.out.println(event.getTestString() + " ,thread ==> " +  Thread.currentThread().getId());
         }
     }
 
@@ -69,7 +71,7 @@ public class DynamicAddWorkHandler {
         ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 
         // Build a disruptor and start it.
-        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(
+        Disruptor<StubEvent> disruptor = new Disruptor<>(
                 StubEvent.EVENT_FACTORY, 1024, DaemonThreadFactory.INSTANCE);
         RingBuffer<StubEvent> ringBuffer = disruptor.start();
 
@@ -90,7 +92,7 @@ public class DynamicAddWorkHandler {
         ringBuffer.addGatingSequences(processor2.getSequence());
         executor.execute(processor2);
 
-        Thread thread1 = new Thread(new MessageProduce(disruptor));
+        Thread thread1 = new Thread(new MessageProduce(disruptor,0,100));
         thread1.start();
 
         Thread.sleep(2000);
@@ -99,7 +101,7 @@ public class DynamicAddWorkHandler {
         // Stop the processor , processor2.haltLater() will wait for all processor2 message processing to complete
         processor2.haltLater();
 
-        Thread thread2 = new Thread(new MessageProduce(disruptor));
+        Thread thread2 = new Thread(new MessageProduce(disruptor,100,200));
         thread2.start();
 
         // Wait for shutdown the complete
