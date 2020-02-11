@@ -135,7 +135,7 @@ public class RemoveWorkHandlerTest
 
         ringBuffer.removeGatingSequence(processor1.getSequence());
 
-        //waiting handler consume event(Because there is a event lost, it will be blocked here)
+        //waiting handler consume event
         Assert.assertTrue(countDownLatch.await(3, TimeUnit.SECONDS));
     }
 
