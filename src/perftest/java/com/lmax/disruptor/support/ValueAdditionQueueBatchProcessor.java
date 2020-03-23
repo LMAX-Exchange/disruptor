@@ -62,19 +62,24 @@ public final class ValueAdditionQueueBatchProcessor implements Runnable
             try
             {
                 blockingQueue.drainTo(buffer);
-                if (buffer.isEmpty()) {
+                if (buffer.isEmpty())
+                {
                     long value = blockingQueue.take().longValue();
                     this.value += value;
                     ++sequence;
-                } else {
-                    for (Long v : buffer) {
+                }
+                else
+                {
+                    for (Long v : buffer)
+                    {
                         this.value += v;
                     }
                     sequence += buffer.size();
                     buffer.clear();
                 }
 
-                if (sequence >= count) {
+                if (sequence >= count)
+                {
                     latch.countDown();
                 }
             }

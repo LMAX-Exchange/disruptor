@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 LMAX Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.lmax.disruptor.example;
 
 import com.lmax.disruptor.*;
@@ -9,21 +24,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * @Author : Rookiex
- * @Date : Created in 2019/12/31 13:05
- * @Describe : Dynamic WorkHandler
- */
 public class DynamicAddWorkHandler
 {
-
-
     private static class MessageProduce implements Runnable
     {
         Disruptor<StubEvent> disruptor;
         int start;
         int over;
-        MessageProduce(Disruptor<StubEvent> disruptor,int start,int over)
+        MessageProduce(Disruptor<StubEvent> disruptor, int start, int over)
         {
             this.disruptor = disruptor;
             this.start = start;
@@ -108,7 +116,7 @@ public class DynamicAddWorkHandler
         ringBuffer.addGatingSequences(processor2.getSequence());
         executor.execute(processor2);
 
-        Thread thread1 = new Thread(new MessageProduce(disruptor,0,100));
+        Thread thread1 = new Thread(new MessageProduce(disruptor, 0, 100));
         thread1.start();
 
         Thread.sleep(1000);
@@ -117,7 +125,7 @@ public class DynamicAddWorkHandler
         // Stop the processor , processor2.haltLater() will wait for processor2 message processing to complete
         processor2.haltLater();
 
-        Thread thread2 = new Thread(new MessageProduce(disruptor,100,200));
+        Thread thread2 = new Thread(new MessageProduce(disruptor, 100, 200));
         thread2.start();
 
         // Wait for shutdown the complete

@@ -137,7 +137,8 @@ public final class WorkProcessor<T>
 
                 if (processedSequence)
                 {
-                    if (!running.get()){
+                    if (!running.get())
+                    {
                         sequenceBarrier.alert();
                         sequenceBarrier.checkAlert();
                     }
