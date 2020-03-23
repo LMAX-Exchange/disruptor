@@ -18,7 +18,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-//apply plugin: 'checkstyle'
+apply plugin: 'checkstyle'
 apply plugin: 'idea'
 
 defaultTasks 'build'
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-//    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
 }

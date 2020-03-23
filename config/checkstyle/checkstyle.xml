@@ -11,7 +11,7 @@
     </module>
     
     <module name="SuppressionFilter">
-        <property name="file" value="config/checkstyle/suppress.xml" />
+        <property name="file" value="${config_loc}/suppress.xml" />
     </module>
 
     <module name="TreeWalker">
