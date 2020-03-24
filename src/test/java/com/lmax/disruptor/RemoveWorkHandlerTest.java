@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveWorkHandlerTest
 {
-
     @Test
     public void removeWorkHandlerLostEventExample() throws InterruptedException
     {
@@ -255,9 +254,6 @@ class DynamicHandler implements WorkHandler<StubEvent>, LifecycleAware
     {
         countdownlatch.countDown();
         completeCount.incrementAndGet();
-        System.out.println(
-                "thread id == " + Thread.currentThread().getId() + " ,event ==> " + event.getValue()
-        );
         Thread.yield();
     }
 }
