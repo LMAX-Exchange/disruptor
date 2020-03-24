@@ -91,6 +91,14 @@ public final class WorkProcessor<T>
         sequenceBarrier.alert();
     }
 
+    /**
+     * remove workProcessor dynamic without message lost
+     */
+    public void haltLater()
+    {
+        running.set(false);
+    }
+
     @Override
     public boolean isRunning()
     {
@@ -126,8 +134,14 @@ public final class WorkProcessor<T>
                 // typically, this will be true
                 // this prevents the sequence getting too far forward if an exception
                 // is thrown from the WorkHandler
+
                 if (processedSequence)
                 {
+                    if (!running.get())
+                    {
+                        sequenceBarrier.alert();
+                        sequenceBarrier.checkAlert();
+                    }
                     processedSequence = false;
                     do
                     {

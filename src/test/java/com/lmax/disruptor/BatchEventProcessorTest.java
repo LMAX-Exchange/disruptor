@@ -23,7 +23,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 
 public final class BatchEventProcessorTest
@@ -305,7 +306,7 @@ public final class BatchEventProcessorTest
         private SequenceBarrier delegate;
         private boolean suppress = true;
 
-        public DelegatingSequenceBarrier(SequenceBarrier delegate)
+        DelegatingSequenceBarrier(SequenceBarrier delegate)
         {
             this.delegate = delegate;
         }
