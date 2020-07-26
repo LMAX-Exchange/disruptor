@@ -22,10 +22,15 @@ import org.junit.Test;
 
 public final class UtilTest
 {
+    private static final long HIGHER_VALUE = 12L;
+    private static final long MIDDLE_VALUE = 7L;
+    private static final long LOWER_VALUE = 3L;
+    private static final int VALUE_GRATER_THAN_512_AND_LESS_THAN_1023 = 1000;
+
     @Test
     public void shouldReturnNextPowerOfTwo()
     {
-        int powerOfTwo = Util.ceilingNextPowerOfTwo(1000);
+        int powerOfTwo = Util.ceilingNextPowerOfTwo(VALUE_GRATER_THAN_512_AND_LESS_THAN_1023);
 
         Assert.assertEquals(1024, powerOfTwo);
     }
@@ -41,8 +46,8 @@ public final class UtilTest
     @Test
     public void shouldReturnMinimumSequence()
     {
-        final Sequence[] sequences = {new Sequence(7L), new Sequence(3L), new Sequence(12L)};
-        Assert.assertEquals(3L, Util.getMinimumSequence(sequences));
+        final Sequence[] sequences = {new Sequence(MIDDLE_VALUE), new Sequence(LOWER_VALUE), new Sequence(HIGHER_VALUE)};
+        Assert.assertEquals(LOWER_VALUE, Util.getMinimumSequence(sequences));
     }
 
     @Test

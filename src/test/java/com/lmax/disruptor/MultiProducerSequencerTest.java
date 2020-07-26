@@ -22,20 +22,28 @@ import org.junit.Test;
 
 public class MultiProducerSequencerTest
 {
-    private final Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+    
+
+    
+    /* CONSTANTS*/
+    private static final int BUFFER_SIZE = 1024;
+    private static final int AVAILABLE_SEQUENCE_3 = 3;
+    private static final int AVAILABLE_SEQUENCE_5 = 5;
+
+    private final Sequencer publisher = new MultiProducerSequencer(BUFFER_SIZE, new BlockingWaitStrategy());
 
     @Test
     public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished() throws Exception
     {
-        publisher.publish(3);
-        publisher.publish(5);
+        publisher.publish(AVAILABLE_SEQUENCE_3);
+        publisher.publish(AVAILABLE_SEQUENCE_5);
 
         assertThat(publisher.isAvailable(0), is(false));
         assertThat(publisher.isAvailable(1), is(false));
         assertThat(publisher.isAvailable(2), is(false));
-        assertThat(publisher.isAvailable(3), is(true));
+        assertThat(publisher.isAvailable(AVAILABLE_SEQUENCE_3), is(true));
         assertThat(publisher.isAvailable(4), is(false));
-        assertThat(publisher.isAvailable(5), is(true));
+        assertThat(publisher.isAvailable(AVAILABLE_SEQUENCE_5), is(true));
         assertThat(publisher.isAvailable(6), is(false));
     }
 }

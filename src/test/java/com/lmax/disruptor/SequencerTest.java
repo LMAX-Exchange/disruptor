@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class SequencerTest
 {
+    private static final int INITIAL_SEQUENCER_VALUE = 0;
     private static final int BUFFER_SIZE = 16;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
 
@@ -47,7 +48,7 @@ public class SequencerTest
     @Test
     public void shouldStartWithInitialValue()
     {
-        assertEquals(0, sequencer.next());
+        assertEquals(INITIAL_SEQUENCER_VALUE, sequencer.next());
     }
 
     @Test

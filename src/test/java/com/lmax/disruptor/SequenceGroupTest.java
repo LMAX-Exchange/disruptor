@@ -18,12 +18,27 @@ package com.lmax.disruptor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.lmax.disruptor.support.TestEvent;
 
 public final class SequenceGroupTest
 {
+
+    private static final int BUFFER_SIZE = 32;
+    private static final long HIGHER_VALUE = 7L;    
+    private static final long LOWER_VALUE = 3L;
+
+    private Sequence lowerSequece;
+    private Sequence higherSequence;
+
+    @Before
+    public void setUp() {
+        lowerSequece = new Sequence(LOWER_VALUE);
+        higherSequence = new Sequence(HIGHER_VALUE);
+    }
+    
     @Test
     public void shouldReturnMaxSequenceWhenEmptyGroup()
     {
@@ -36,7 +51,6 @@ public final class SequenceGroupTest
     {
         final Sequence sequence = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
-
         sequenceGroup.add(sequence);
 
         assertEquals(sequence.get(), sequenceGroup.get());
@@ -54,94 +68,86 @@ public final class SequenceGroupTest
     @Test
     public void shouldReportTheMinimumSequenceForGroupOfTwo()
     {
-        final Sequence sequenceThree = new Sequence(3L);
-        final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
+        sequenceGroup.add(higherSequence);
+        sequenceGroup.add(lowerSequece);
 
-        sequenceGroup.add(sequenceSeven);
-        sequenceGroup.add(sequenceThree);
-
-        assertEquals(sequenceThree.get(), sequenceGroup.get());
+        assertEquals(lowerSequece.get(), sequenceGroup.get());
     }
 
     @Test
     public void shouldReportSizeOfGroup()
     {
-        final SequenceGroup sequenceGroup = new SequenceGroup();
+        final SequenceGroup sequenceGroup = new SequenceGroup();        
         sequenceGroup.add(new Sequence());
         sequenceGroup.add(new Sequence());
         sequenceGroup.add(new Sequence());
+        final int sequenceGroupSize = 3;
 
-        assertEquals(3, sequenceGroup.size());
+        assertEquals(sequenceGroupSize, sequenceGroup.size());
     }
 
     @Test
     public void shouldRemoveSequenceFromGroup()
     {
-        final Sequence sequenceThree = new Sequence(3L);
-        final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
+        final int sequenceGroupSizeAfterRemove = 1;
 
-        sequenceGroup.add(sequenceSeven);
-        sequenceGroup.add(sequenceThree);
+        sequenceGroup.add(higherSequence);
+        sequenceGroup.add(lowerSequece);
 
-        assertEquals(sequenceThree.get(), sequenceGroup.get());
+        assertEquals(lowerSequece.get(), sequenceGroup.get());
 
-        assertTrue(sequenceGroup.remove(sequenceThree));
-        assertEquals(sequenceSeven.get(), sequenceGroup.get());
-        assertEquals(1, sequenceGroup.size());
+        assertTrue(sequenceGroup.remove(lowerSequece));
+        assertEquals(higherSequence.get(), sequenceGroup.get());
+        assertEquals(sequenceGroupSizeAfterRemove, sequenceGroup.size());
     }
 
     @Test
     public void shouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
     {
-        final Sequence sequenceThree = new Sequence(3L);
-        final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
+        final int sequenceGroupSizeAfterRemove = 1;
 
-        sequenceGroup.add(sequenceThree);
-        sequenceGroup.add(sequenceSeven);
-        sequenceGroup.add(sequenceThree);
+        sequenceGroup.add(lowerSequece);
+        sequenceGroup.add(higherSequence);
+        sequenceGroup.add(lowerSequece);
 
-        assertEquals(sequenceThree.get(), sequenceGroup.get());
+        assertEquals(lowerSequece.get(), sequenceGroup.get());
 
-        assertTrue(sequenceGroup.remove(sequenceThree));
-        assertEquals(sequenceSeven.get(), sequenceGroup.get());
-        assertEquals(1, sequenceGroup.size());
+        assertTrue(sequenceGroup.remove(lowerSequece));
+        assertEquals(higherSequence.get(), sequenceGroup.get());
+        assertEquals(sequenceGroupSizeAfterRemove, sequenceGroup.size());
     }
 
     @Test
     public void shouldSetGroupSequenceToSameValue()
     {
-        final Sequence sequenceThree = new Sequence(3L);
-        final Sequence sequenceSeven = new Sequence(7L);
         final SequenceGroup sequenceGroup = new SequenceGroup();
 
-        sequenceGroup.add(sequenceSeven);
-        sequenceGroup.add(sequenceThree);
+        sequenceGroup.add(higherSequence);
+        sequenceGroup.add(lowerSequece);
 
         final long expectedSequence = 11L;
         sequenceGroup.set(expectedSequence);
 
-        assertEquals(expectedSequence, sequenceThree.get());
-        assertEquals(expectedSequence, sequenceSeven.get());
+        assertEquals(expectedSequence, lowerSequece.get());
+        assertEquals(expectedSequence, higherSequence.get());
     }
 
     @Test
     public void shouldAddWhileRunning() throws Exception
     {
-        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, 32);
-        final Sequence sequenceThree = new Sequence(3L);
-        final Sequence sequenceSeven = new Sequence(7L);
+        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, BUFFER_SIZE);
         final SequenceGroup sequenceGroup = new SequenceGroup();
-        sequenceGroup.add(sequenceSeven);
+        sequenceGroup.add(higherSequence);
 
         for (int i = 0; i < 11; i++)
         {
             ringBuffer.publish(ringBuffer.next());
         }
 
-        sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
-        assertThat(sequenceThree.get(), is(10L));
+        sequenceGroup.addWhileRunning(ringBuffer, lowerSequece);
+        assertThat(lowerSequece.get(), is(10L));
     }
 }
