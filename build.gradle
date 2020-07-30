@@ -76,7 +76,7 @@ compileJava {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2
+    maxParallelForks = Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
 }
 
 compilePerfJava {
