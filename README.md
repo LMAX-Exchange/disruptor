@@ -4,7 +4,7 @@ A High Performance Inter-Thread Messaging Library
 
 ## Maintainer
 
-TBD
+LMAX Development Team
 
 [![Build Status](https://semaphoreci.com/api/v1/mikeb01/disruptor/branches/master/badge.svg)](https://semaphoreci.com/mikeb01/disruptor)
 
