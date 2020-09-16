@@ -59,9 +59,9 @@ function do_javac()
 
 function download_dependencies()
 {
-    download 'junit-4.12.jar' 'http://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar'
-    download 'hamcrest-core-1.3.jar' 'http://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar'
-    download 'HdrHistogram-2.1.8.jar' 'http://repo1.maven.org/maven2/org/hdrhistogram/HdrHistogram/2.1.8/HdrHistogram-2.1.8.jar'
+    download 'junit-4.12.jar' 'https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar'
+    download 'hamcrest-core-1.3.jar' 'https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar'
+    download 'HdrHistogram-2.1.8.jar' 'https://repo1.maven.org/maven2/org/hdrhistogram/HdrHistogram/2.1.8/HdrHistogram-2.1.8.jar'
 }
 
 function compile()
