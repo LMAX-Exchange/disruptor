@@ -6,7 +6,7 @@ A High Performance Inter-Thread Messaging Library
 
 LMAX Development Team
 
-[![Build Status](https://semaphoreci.com/api/v1/mikeb01/disruptor/branches/master/badge.svg)](https://semaphoreci.com/mikeb01/disruptor)
+![Java CI with Gradle](https://github.com/LMAX-Exchange/disruptor/workflows/Java%20CI%20with%20Gradle/badge.svg)
 
 ## Support
 
