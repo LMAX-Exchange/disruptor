@@ -93,6 +93,8 @@ javadoc {
     options.use = true
     options.version = true
     options.showFromPublic()
+
+    destinationDir = file("${projectDir}/docs/javadoc/")
 }
 
 jar {
