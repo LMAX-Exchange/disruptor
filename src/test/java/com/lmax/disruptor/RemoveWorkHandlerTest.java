@@ -18,12 +18,13 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RemoveWorkHandlerTest
 {
@@ -84,11 +85,11 @@ public class RemoveWorkHandlerTest
         //waiting handler consume event(Because there is a event lost, it will be blocked here)
         boolean await = countDownLatch.await(3, TimeUnit.SECONDS);
 
-        Assert.assertFalse(await);
+        assertFalse(await);
         long lastCount = countDownLatch.getCount();
         int countValue = count.get();
-        Assert.assertEquals(lastCount + countValue, eventSize * 2);
-        Assert.assertTrue(lastCount > 0);
+        assertEquals(lastCount + countValue, eventSize * 2);
+        assertTrue(lastCount > 0);
     }
 
     @Test
@@ -144,7 +145,7 @@ public class RemoveWorkHandlerTest
         ringBuffer.removeGatingSequence(processor1.getSequence());
 
         //waiting handler consume event
-        Assert.assertTrue(countDownLatch.await(3, TimeUnit.SECONDS));
+        assertTrue(countDownLatch.await(3, TimeUnit.SECONDS));
     }
 
     private Set<Integer> initData(int start, int size)
@@ -160,9 +161,9 @@ public class RemoveWorkHandlerTest
 
 class MessageProducer implements Runnable
 {
-    private Disruptor<StubEvent> disruptor;
-    private Set<Integer> dataSet;
-    private CountDownLatch startLatch = new CountDownLatch(1);
+    private final Disruptor<StubEvent> disruptor;
+    private final Set<Integer> dataSet;
+    private final CountDownLatch startLatch = new CountDownLatch(1);
 
     MessageProducer(Disruptor<StubEvent> disruptor, Set<Integer> dataSet)
     {
@@ -217,9 +218,9 @@ class DynamicHandler implements WorkHandler<StubEvent>, LifecycleAware
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
     private final CountDownLatch startLatch = new CountDownLatch(1);
 
-    private AtomicInteger completeCount;
+    private final AtomicInteger completeCount;
 
-    private CountDownLatch countdownlatch;
+    private final CountDownLatch countdownlatch;
 
     DynamicHandler(AtomicInteger completeCount, CountDownLatch countdownlatch)
     {

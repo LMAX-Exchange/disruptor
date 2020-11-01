@@ -22,11 +22,11 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;
 import com.lmax.disruptor.support.TestEvent;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class ConsumerRepositoryTest
 {
@@ -38,10 +38,9 @@ public class ConsumerRepositoryTest
     private SequenceBarrier barrier1;
     private SequenceBarrier barrier2;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        consumerRepository = new ConsumerRepository<TestEvent>();
+    @BeforeEach
+    public void setUp() {
+        consumerRepository = new ConsumerRepository<>();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
         eventProcessor2 = new DummyEventProcessor(new Sequence());
 
@@ -56,22 +55,19 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldGetBarrierByHandler() throws Exception
-    {
+    public void shouldGetBarrierByHandler() {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
 
-        assertThat(consumerRepository.getBarrierFor(handler1), sameInstance(barrier1));
+        assertSame(consumerRepository.getBarrierFor(handler1), barrier1);
     }
 
     @Test
-    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() throws Exception
-    {
-        assertThat(consumerRepository.getBarrierFor(handler1), is(nullValue()));
+    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() {
+        assertNull(consumerRepository.getBarrierFor(handler1));
     }
 
     @Test
-    public void shouldGetLastEventProcessorsInChain() throws Exception
-    {
+    public void shouldGetLastEventProcessorsInChain() {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
 
@@ -79,8 +75,8 @@ public class ConsumerRepositoryTest
 
 
         final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain(true);
-        assertThat(lastEventProcessorsInChain.length, equalTo(1));
-        assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1.getSequence()));
+        assertEquals(lastEventProcessorsInChain.length, 1);
+        assertSame(lastEventProcessorsInChain[0], eventProcessor1.getSequence());
     }
 
     @Test
@@ -88,18 +84,18 @@ public class ConsumerRepositoryTest
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
 
-        assertThat(consumerRepository.getEventProcessorFor(handler1), sameInstance(eventProcessor1));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenHandlerIsNotRegistered() throws Exception
-    {
-        consumerRepository.getEventProcessorFor(new SleepingEventHandler());
+        assertSame(consumerRepository.getEventProcessorFor(handler1), eventProcessor1);
     }
 
     @Test
-    public void shouldIterateAllEventProcessors() throws Exception
+    public void shouldThrowExceptionWhenHandlerIsNotRegistered() throws Exception
     {
+        assertThrows(IllegalArgumentException.class,
+                () -> consumerRepository.getEventProcessorFor(new SleepingEventHandler()));
+    }
+
+    @Test
+    public void shouldIterateAllEventProcessors() {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
 
@@ -124,7 +120,7 @@ public class ConsumerRepositoryTest
             }
         }
 
-        assertTrue("Included eventProcessor 1", seen1);
-        assertTrue("Included eventProcessor 2", seen2);
+        assertTrue(seen1, "Did not include eventProcessor 1");
+        assertTrue(seen2, "Did not include eventProcessor 2");
     }
 }

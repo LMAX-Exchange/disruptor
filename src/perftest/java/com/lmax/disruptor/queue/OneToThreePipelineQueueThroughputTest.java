@@ -88,9 +88,9 @@ public final class OneToThreePipelineQueueThroughputTest extends AbstractPerfTes
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<long[]> stepOneQueue = new LinkedBlockingQueue<long[]>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepTwoQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> stepThreeQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<long[]> stepOneQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepTwoQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Long> stepThreeQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
 
     private final FunctionQueueProcessor stepOneQueueProcessor =
         new FunctionQueueProcessor(FunctionStep.ONE, stepOneQueue, stepTwoQueue, stepThreeQueue, ITERATIONS - 1);

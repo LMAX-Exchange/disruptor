@@ -13,7 +13,7 @@ public class CustomPerformanceTest
     public CustomPerformanceTest()
     {
         ringBuffer =
-            new CustomRingBuffer<SimpleEvent>(new SingleProducerSequencer(Constants.SIZE, new YieldingWaitStrategy()));
+                new CustomRingBuffer<>(new SingleProducerSequencer(Constants.SIZE, new YieldingWaitStrategy()));
     }
 
     public void run()

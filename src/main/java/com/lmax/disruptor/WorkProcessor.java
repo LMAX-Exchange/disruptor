@@ -36,14 +36,7 @@ public final class WorkProcessor<T>
     private final ExceptionHandler<? super T> exceptionHandler;
     private final Sequence workSequence;
 
-    private final EventReleaser eventReleaser = new EventReleaser()
-    {
-        @Override
-        public void release()
-        {
-            sequence.set(Long.MAX_VALUE);
-        }
-    };
+    private final EventReleaser eventReleaser = () -> sequence.set(Long.MAX_VALUE);
 
     private final TimeoutHandler timeoutHandler;
 

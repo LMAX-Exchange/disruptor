@@ -3,11 +3,14 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public class ShutdownOnFatalExceptionTest
 {
@@ -19,31 +22,33 @@ public class ShutdownOnFatalExceptionTest
     private Disruptor<byte[]> disruptor;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setUp()
     {
-        disruptor = new Disruptor<byte[]>(
-            new ByteArrayFactory(256), 1024, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE,
-            new BlockingWaitStrategy());
+        disruptor = new Disruptor<>(
+                new ByteArrayFactory(256), 1024, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE,
+                new BlockingWaitStrategy());
         disruptor.handleEventsWith(eventHandler);
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
     }
 
-    @Test(timeout = 1000)
+    @Test
     public void shouldShutdownGracefulEvenWithFatalExceptionHandler()
     {
-        disruptor.start();
+        assertTimeout(Duration.ofMillis(1000), () -> {
+            disruptor.start();
 
-        byte[] bytes;
-        for (int i = 1; i < 10; i++)
-        {
-            bytes = new byte[32];
-            random.nextBytes(bytes);
-            disruptor.publishEvent(new ByteArrayTranslator(bytes));
-        }
+            byte[] bytes;
+            for (int i = 1; i < 10; i++)
+            {
+                bytes = new byte[32];
+                random.nextBytes(bytes);
+                disruptor.publishEvent(new ByteArrayTranslator(bytes));
+            }
+        });
     }
 
-    @After
+    @AfterEach
     public void tearDown()
     {
         disruptor.shutdown();
@@ -84,7 +89,7 @@ public class ShutdownOnFatalExceptionTest
 
     private static class ByteArrayFactory implements EventFactory<byte[]>
     {
-        private int eventSize;
+        private final int eventSize;
 
         ByteArrayFactory(int eventSize)
         {

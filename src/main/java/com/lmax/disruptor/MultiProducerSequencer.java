@@ -78,10 +78,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
             long minSequence = Util.getMinimumSequence(gatingSequences, cursorValue);
             gatingSequenceCache.set(minSequence);
 
-            if (wrapPoint > minSequence)
-            {
-                return false;
-            }
+            return wrapPoint <= minSequence;
         }
 
         return true;

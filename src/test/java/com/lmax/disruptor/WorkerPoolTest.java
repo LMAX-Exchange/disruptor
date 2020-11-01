@@ -1,15 +1,13 @@
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
-
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class WorkerPoolTest
@@ -19,9 +17,9 @@ public class WorkerPoolTest
     public void shouldProcessEachMessageByOnlyOneWorker() throws Exception
     {
         Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
-        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
-            new AtomicLongEventFactory(), new FatalExceptionHandler(),
-            new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
+        WorkerPool<AtomicLong> pool = new WorkerPool<>(
+                new AtomicLongEventFactory(), new FatalExceptionHandler(),
+                new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
         RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
 
@@ -32,8 +30,8 @@ public class WorkerPoolTest
 
         Thread.sleep(500);
 
-        assertThat(ringBuffer.get(0).get(), is(1L));
-        assertThat(ringBuffer.get(1).get(), is(1L));
+        assertEquals(1L, ringBuffer.get(0).get());
+        assertEquals(1L, ringBuffer.get(1).get());
     }
 
     @SuppressWarnings("unchecked")
@@ -41,9 +39,9 @@ public class WorkerPoolTest
     public void shouldProcessOnlyOnceItHasBeenPublished() throws Exception
     {
         Executor executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
-        WorkerPool<AtomicLong> pool = new WorkerPool<AtomicLong>(
-            new AtomicLongEventFactory(), new FatalExceptionHandler(),
-            new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
+        WorkerPool<AtomicLong> pool = new WorkerPool<>(
+                new AtomicLongEventFactory(), new FatalExceptionHandler(),
+                new AtomicLongWorkHandler(), new AtomicLongWorkHandler());
 
         RingBuffer<AtomicLong> ringBuffer = pool.start(executor);
 
@@ -52,8 +50,8 @@ public class WorkerPoolTest
 
         Thread.sleep(1000);
 
-        assertThat(ringBuffer.get(0).get(), is(0L));
-        assertThat(ringBuffer.get(1).get(), is(0L));
+        assertEquals(0L, ringBuffer.get(0).get());
+        assertEquals(0L, ringBuffer.get(1).get());
     }
 
     private static class AtomicLongWorkHandler implements WorkHandler<AtomicLong>

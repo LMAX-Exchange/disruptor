@@ -91,7 +91,7 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor =
-        new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];
 
     {

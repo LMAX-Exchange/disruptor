@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 apply plugin: 'java'
-apply plugin: 'osgi'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
@@ -53,7 +52,8 @@ repositories {
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
-    testCompile 'junit:junit:4.12'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
 }
 
@@ -62,8 +62,8 @@ idea.module {
     scopes.TEST.plus += [ configurations.perfCompile ]
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 
 compileJava {
@@ -177,7 +177,7 @@ task perfJar(type: Jar) {
 }
 
 wrapper {
-    gradleVersion = '5.1'
+    gradleVersion = '6.0'
 }
 
 class Version {

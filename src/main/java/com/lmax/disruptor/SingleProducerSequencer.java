@@ -92,10 +92,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             this.cachedValue = minSequence;
 
-            if (wrapPoint > minSequence)
-            {
-                return false;
-            }
+            return wrapPoint <= minSequence;
         }
 
         return true;

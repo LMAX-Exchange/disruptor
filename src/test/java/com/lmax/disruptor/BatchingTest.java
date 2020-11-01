@@ -4,34 +4,18 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.locks.LockSupport;
+import java.util.stream.Stream;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 public class BatchingTest
 {
-    private final ProducerType producerType;
-
-    public BatchingTest(ProducerType producerType)
-    {
-        this.producerType = producerType;
-    }
-
-    @Parameters
-    public static Collection<Object[]> generateData()
-    {
-        Object[][] producerTypes = {{ProducerType.MULTI}, {ProducerType.SINGLE}};
-        return Arrays.asList(producerTypes);
-    }
-
     private static class ParallelEventHandler implements EventHandler<LongEvent>
     {
         private final long mask;
@@ -73,13 +57,19 @@ public class BatchingTest
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBatch() throws Exception
+    private static Stream<Arguments> generateData()
     {
-        Disruptor<LongEvent> d = new Disruptor<LongEvent>(
-            LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
-            producerType, new SleepingWaitStrategy());
+        return Stream.of(arguments(ProducerType.MULTI), arguments(ProducerType.SINGLE));
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("generateData")
+    public void shouldBatch(ProducerType producerType) throws Exception
+    {
+        Disruptor<LongEvent> d = new Disruptor<>(
+                LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
+                producerType, new SleepingWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
         ParallelEventHandler handler2 = new ParallelEventHandler(1, 1);
@@ -88,14 +78,7 @@ public class BatchingTest
 
         RingBuffer<LongEvent> buffer = d.start();
 
-        EventTranslator<LongEvent> translator = new EventTranslator<LongEvent>()
-        {
-            @Override
-            public void translateTo(LongEvent event, long sequence)
-            {
-                event.set(sequence);
-            }
-        };
+        EventTranslator<LongEvent> translator = LongEvent::set;
 
         int eventCount = 10000;
         for (int i = 0; i < eventCount; i++)
@@ -109,9 +92,9 @@ public class BatchingTest
             Thread.sleep(1);
         }
 
-        Assert.assertThat(handler1.publishedValue, CoreMatchers.is((long) eventCount - 2));
-        Assert.assertThat(handler1.eventCount, CoreMatchers.is((long) eventCount / 2));
-        Assert.assertThat(handler2.publishedValue, CoreMatchers.is((long) eventCount - 1));
-        Assert.assertThat(handler2.eventCount, CoreMatchers.is((long) eventCount / 2));
+        assertEquals( eventCount - 2, handler1.publishedValue);
+        assertEquals( eventCount / 2, handler1.eventCount);
+        assertEquals( eventCount - 1, handler2.publishedValue);
+        assertEquals( eventCount / 2, handler2.eventCount);
     }
 }

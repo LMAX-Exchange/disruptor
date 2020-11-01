@@ -15,7 +15,7 @@ public class PullWithBatchedPoller
         int batchSize = 40;
         RingBuffer<BatchedPoller.DataEvent<Object>> ringBuffer = RingBuffer.createMultiProducer(BatchedPoller.DataEvent.factory(), 1024);
 
-        BatchedPoller<Object> poller = new BatchedPoller<Object>(ringBuffer, batchSize);
+        BatchedPoller<Object> poller = new BatchedPoller<>(ringBuffer, batchSize);
 
         Object value = poller.poll();
 
@@ -44,7 +44,7 @@ class BatchedPoller<T>
             batchSize = 20;
         }
         this.maxBatchSize = batchSize;
-        this.polledData = new BatchedData<T>(this.maxBatchSize);
+        this.polledData = new BatchedData<>(this.maxBatchSize);
     }
 
     public T poll() throws Exception
@@ -61,14 +61,9 @@ class BatchedPoller<T>
     private EventPoller.PollState loadNextValues(EventPoller<BatchedPoller.DataEvent<T>> poller, final BatchedData<T> batch)
             throws Exception
     {
-        return poller.poll(new EventPoller.Handler<BatchedPoller.DataEvent<T>>()
-        {
-            @Override
-            public boolean onEvent(BatchedPoller.DataEvent<T> event, long sequence, boolean endOfBatch) throws Exception
-            {
-                T item = event.copyOfData();
-                return item != null ? batch.addDataItem(item) : false;
-            }
+        return poller.poll((event, sequence, endOfBatch) -> {
+            T item = event.copyOfData();
+            return item != null && batch.addDataItem(item);
         });
     }
 
@@ -79,15 +74,7 @@ class BatchedPoller<T>
 
         public static <T> EventFactory<BatchedPoller.DataEvent<T>> factory()
         {
-            return new EventFactory<BatchedPoller.DataEvent<T>>()
-            {
-
-                @Override
-                public BatchedPoller.DataEvent<T> newInstance()
-                {
-                    return new BatchedPoller.DataEvent<T>();
-                }
-            };
+            return () -> new DataEvent<>();
         }
 
         public T copyOfData()

@@ -29,26 +29,21 @@ public class HandleExceptionOnTranslate
 
     public static void main(String[] args) throws InterruptedException
     {
-        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         disruptor.handleEventsWith(new MyHandler());
 
         disruptor.start();
 
-        EventTranslator<LongEvent> t = new EventTranslator<LongEvent>()
-        {
-            @Override
-            public void translateTo(LongEvent event, long sequence)
+        EventTranslator<LongEvent> t = (event, sequence) -> {
+            event.set(NO_VALUE_SPECIFIED);
+
+            if (sequence % 3 == 0)
             {
-                event.set(NO_VALUE_SPECIFIED);
-
-                if (sequence % 3 == 0)
-                {
-                    throw new RuntimeException("Skipping");
-                }
-
-                event.set(sequence);
+                throw new RuntimeException("Skipping");
             }
+
+            event.set(sequence);
         };
 
         for (int i = 0; i < 10; i++)

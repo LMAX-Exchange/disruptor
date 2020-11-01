@@ -43,8 +43,8 @@ public class WaitForShutdown
 
     public static void main(String[] args) throws TimeoutException, InterruptedException
     {
-        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
-            LongEvent.FACTORY, 16, DaemonThreadFactory.INSTANCE
+        Disruptor<LongEvent> disruptor = new Disruptor<>(
+                LongEvent.FACTORY, 16, DaemonThreadFactory.INSTANCE
         );
 
         CountDownLatch shutdownLatch = new CountDownLatch(2);

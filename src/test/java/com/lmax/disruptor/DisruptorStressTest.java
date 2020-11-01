@@ -3,7 +3,7 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -12,9 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.Math.max;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DisruptorStressTest
 {
@@ -23,7 +21,7 @@ public class DisruptorStressTest
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
-        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
+        Disruptor<TestEvent> disruptor = new Disruptor<>(
                 TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
                 ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
@@ -58,13 +56,13 @@ public class DisruptorStressTest
 
         for (Publisher publisher : publishers)
         {
-            assertThat(publisher.failed, is(false));
+            assertFalse(publisher.failed);
         }
 
         for (TestEventHandler handler : handlers)
         {
-            assertThat(handler.messagesSeen, is(not(0)));
-            assertThat(handler.failureCount, is(0));
+            assertNotEquals(handler.messagesSeen, 0);
+            assertEquals(handler.failureCount, 0);
         }
     }
 
@@ -175,13 +173,6 @@ public class DisruptorStressTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<DisruptorStressTest.TestEvent>()
-        {
-            @Override
-            public DisruptorStressTest.TestEvent newInstance()
-            {
-                return new DisruptorStressTest.TestEvent();
-            }
-        };
+        public static final EventFactory<TestEvent> FACTORY = () -> new TestEvent();
     }
 }

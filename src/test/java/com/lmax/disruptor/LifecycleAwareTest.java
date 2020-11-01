@@ -16,13 +16,12 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class LifecycleAwareTest
 {
@@ -34,7 +33,7 @@ public final class LifecycleAwareTest
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LifecycleAwareEventHandler handler = new LifecycleAwareEventHandler();
     private final BatchEventProcessor<StubEvent> batchEventProcessor =
-        new BatchEventProcessor<StubEvent>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
 
     @Test
     public void shouldNotifyOfBatchProcessorLifecycle() throws Exception
@@ -46,8 +45,8 @@ public final class LifecycleAwareTest
 
         shutdownLatch.await();
 
-        assertThat(Integer.valueOf(handler.startCounter), is(Integer.valueOf(1)));
-        assertThat(Integer.valueOf(handler.shutdownCounter), is(Integer.valueOf(1)));
+        assertEquals(Integer.valueOf(1), Integer.valueOf(handler.startCounter));
+        assertEquals(Integer.valueOf(1), Integer.valueOf(handler.shutdownCounter));
     }
 
     private final class LifecycleAwareEventHandler implements EventHandler<StubEvent>, LifecycleAware

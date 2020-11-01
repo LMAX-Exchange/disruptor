@@ -62,14 +62,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
     private static final int ARRAY_SIZE = 2 * 1024;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
 
-    private static final EventFactory<long[]> FACTORY = new EventFactory<long[]>()
-    {
-        @Override
-        public long[] newInstance()
-        {
-            return new long[ARRAY_SIZE];
-        }
-    };
+    private static final EventFactory<long[]> FACTORY = () -> new long[ARRAY_SIZE];
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<long[]> ringBuffer =
@@ -77,7 +70,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LongArrayEventHandler handler = new LongArrayEventHandler();
     private final BatchEventProcessor<long[]> batchEventProcessor =
-        new BatchEventProcessor<long[]>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
 
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());

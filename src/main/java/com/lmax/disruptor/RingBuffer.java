@@ -137,7 +137,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
 
-        return new RingBuffer<E>(factory, sequencer);
+        return new RingBuffer<>(factory, sequencer);
     }
 
     /**
@@ -173,7 +173,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
 
-        return new RingBuffer<E>(factory, sequencer);
+        return new RingBuffer<>(factory, sequencer);
     }
 
     /**

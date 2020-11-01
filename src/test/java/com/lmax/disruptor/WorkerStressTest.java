@@ -3,7 +3,7 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -12,9 +12,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.Math.max;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class WorkerStressTest
 {
@@ -23,9 +22,9 @@ public class WorkerStressTest
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
-        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-            TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
-            ProducerType.MULTI, new SleepingWaitStrategy());
+        Disruptor<TestEvent> disruptor = new Disruptor<>(
+                TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
+                ProducerType.MULTI, new SleepingWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
@@ -60,12 +59,12 @@ public class WorkerStressTest
 
         for (Publisher publisher : publishers)
         {
-            assertThat(publisher.failed, is(false));
+            assertFalse(publisher.failed);
         }
 
         for (TestWorkHandler handler : handlers)
         {
-            assertThat(handler.seen, is(not(0)));
+            assertNotEquals(0, handler.seen);
         }
     }
 
@@ -162,13 +161,6 @@ public class WorkerStressTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<WorkerStressTest.TestEvent>()
-        {
-            @Override
-            public TestEvent newInstance()
-            {
-                return new TestEvent();
-            }
-        };
+        public static final EventFactory<TestEvent> FACTORY = () -> new TestEvent();
     }
 }

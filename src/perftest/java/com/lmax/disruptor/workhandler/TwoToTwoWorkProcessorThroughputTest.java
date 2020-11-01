@@ -75,14 +75,14 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     private final WorkProcessor<ValueEvent>[] workProcessors = new WorkProcessor[2];
 
     {
-        workProcessors[0] = new WorkProcessor<ValueEvent>(
-            ringBuffer, sequenceBarrier,
-            handlers[0], new IgnoreExceptionHandler(),
-            workSequence);
-        workProcessors[1] = new WorkProcessor<ValueEvent>(
-            ringBuffer, sequenceBarrier,
-            handlers[1], new IgnoreExceptionHandler(),
-            workSequence);
+        workProcessors[0] = new WorkProcessor<>(
+                ringBuffer, sequenceBarrier,
+                handlers[0], new IgnoreExceptionHandler(),
+                workSequence);
+        workProcessors[1] = new WorkProcessor<>(
+                ringBuffer, sequenceBarrier,
+                handlers[1], new IgnoreExceptionHandler(),
+                workSequence);
     }
 
     private final ValuePublisher[] valuePublishers = new ValuePublisher[NUM_PUBLISHERS];

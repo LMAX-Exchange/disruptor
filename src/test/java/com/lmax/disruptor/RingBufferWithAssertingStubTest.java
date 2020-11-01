@@ -1,25 +1,22 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferWithAssertingStubTest
 {
     private RingBuffer<StubEvent> ringBuffer;
-    private Sequencer sequencer;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
-        sequencer = new AssertingSequencer(16);
-
-        ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, sequencer);
+        Sequencer sequencer = new AssertingSequencer(16);
+        ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, sequencer);
     }
 
     @Test
@@ -35,8 +32,7 @@ public class RingBufferWithAssertingStubTest
     }
 
     @Test
-    public void shouldDelegateNextNAndPublish() throws Exception
-    {
+    public void shouldDelegateNextNAndPublish() {
         long hi = ringBuffer.next(10);
         ringBuffer.publish(hi - 9, hi);
     }
@@ -108,15 +104,15 @@ public class RingBufferWithAssertingStubTest
         @Override
         public void publish(long sequence)
         {
-            assertThat(sequence, is(lastValue));
-            assertThat(lastBatchSize, is(1L));
+            assertEquals(sequence, lastValue);
+            assertEquals(1L, lastBatchSize);
         }
 
         @Override
         public void publish(long lo, long hi)
         {
-            assertThat(hi, is(lastValue));
-            assertThat((hi - lo) + 1, is(lastBatchSize));
+            assertEquals(hi, lastValue);
+            assertEquals((hi - lo) + 1, lastBatchSize);
         }
 
         @Override

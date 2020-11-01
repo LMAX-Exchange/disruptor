@@ -62,22 +62,10 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public boolean hasBacklog(long cursor, boolean includeStopped)
     {
-        for (ConsumerInfo consumerInfo : consumerInfos)
-        {
-            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
-            {
-                final Sequence[] sequences = consumerInfo.getSequences();
-                for (Sequence sequence : sequences)
-                {
-                    if (cursor > sequence.get())
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return consumerInfos.stream()
+                .filter(consumerInfo -> (includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
+                .flatMap(consumerInfo -> Arrays.stream(consumerInfo.getSequences()))
+                .anyMatch(sequence -> cursor > sequence.get());
     }
 
     /**
@@ -102,13 +90,13 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
     {
-        final EventProcessorInfo<T> eventprocessorInfo = getEventProcessorInfo(handler);
-        if (eventprocessorInfo == null)
+        final EventProcessorInfo<T> eventProcessorInfo = getEventProcessorInfo(handler);
+        if (eventProcessorInfo == null)
         {
             throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
         }
 
-        return eventprocessorInfo.getEventProcessor();
+        return eventProcessorInfo.getEventProcessor();
     }
 
     public Sequence getSequenceFor(final EventHandler<T> handler)

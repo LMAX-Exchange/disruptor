@@ -15,18 +15,16 @@
  */
 package com.lmax.disruptor;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
 import com.lmax.disruptor.support.LongEvent;
+import org.junit.jupiter.api.Test;
+
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EventPublisherTest implements EventTranslator<LongEvent>
 {
     private static final int BUFFER_SIZE = 32;
-    private RingBuffer<LongEvent> ringBuffer = createMultiProducer(LongEvent.FACTORY, BUFFER_SIZE);
+    private final RingBuffer<LongEvent> ringBuffer = createMultiProducer(LongEvent.FACTORY, BUFFER_SIZE);
 
     @Test
     public void shouldPublishEvent()
@@ -36,8 +34,8 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
         ringBuffer.publishEvent(this);
         ringBuffer.publishEvent(this);
 
-        assertThat(Long.valueOf(ringBuffer.get(0).get()), is(Long.valueOf(0 + 29L)));
-        assertThat(Long.valueOf(ringBuffer.get(1).get()), is(Long.valueOf(1 + 29L)));
+        assertEquals(Long.valueOf(ringBuffer.get(0).get()), Long.valueOf(0 + 29L));
+        assertEquals(Long.valueOf(ringBuffer.get(1).get()), Long.valueOf(1 + 29L));
     }
 
     @Test
@@ -47,15 +45,15 @@ public class EventPublisherTest implements EventTranslator<LongEvent>
 
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            assertThat(ringBuffer.tryPublishEvent(this), is(true));
+            assertTrue(ringBuffer.tryPublishEvent(this));
         }
 
         for (int i = 0; i < BUFFER_SIZE; i++)
         {
-            assertThat(Long.valueOf(ringBuffer.get(i).get()), is(Long.valueOf(i + 29L)));
+            assertEquals(Long.valueOf(ringBuffer.get(i).get()), Long.valueOf(i + 29L));
         }
 
-        assertThat(ringBuffer.tryPublishEvent(this), is(false));
+        assertFalse(ringBuffer.tryPublishEvent(this));
     }
 
     @Override

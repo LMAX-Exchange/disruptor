@@ -104,9 +104,9 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
     private final BatchEventProcessor<?>[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
 
     {
-        batchEventProcessors[0] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[0]);
-        batchEventProcessors[1] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[1]);
-        batchEventProcessors[2] = new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handlers[2]);
+        batchEventProcessors[0] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[2]);
 
         ringBuffer.addGatingSequences(
             batchEventProcessors[0].getSequence(),

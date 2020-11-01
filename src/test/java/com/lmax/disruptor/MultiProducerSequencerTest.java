@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultiProducerSequencerTest
 {
@@ -30,12 +30,12 @@ public class MultiProducerSequencerTest
         publisher.publish(3);
         publisher.publish(5);
 
-        assertThat(publisher.isAvailable(0), is(false));
-        assertThat(publisher.isAvailable(1), is(false));
-        assertThat(publisher.isAvailable(2), is(false));
-        assertThat(publisher.isAvailable(3), is(true));
-        assertThat(publisher.isAvailable(4), is(false));
-        assertThat(publisher.isAvailable(5), is(true));
-        assertThat(publisher.isAvailable(6), is(false));
+        assertFalse(publisher.isAvailable(0));
+        assertFalse(publisher.isAvailable(1));
+        assertFalse(publisher.isAvailable(2));
+        assertTrue(publisher.isAvailable(3));
+        assertFalse(publisher.isAvailable(4));
+        assertTrue(publisher.isAvailable(5));
+        assertFalse(publisher.isAvailable(6));
     }
 }

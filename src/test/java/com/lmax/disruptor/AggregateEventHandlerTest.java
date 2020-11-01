@@ -16,17 +16,16 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.DummyEventHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("unchecked")
 public final class AggregateEventHandlerTest
 {
-    private final DummyEventHandler<int[]> eh1 = new DummyEventHandler<int[]>();
-    private final DummyEventHandler<int[]> eh2 = new DummyEventHandler<int[]>();
-    private final DummyEventHandler<int[]> eh3 = new DummyEventHandler<int[]>();
+    private final DummyEventHandler<int[]> eh1 = new DummyEventHandler<>();
+    private final DummyEventHandler<int[]> eh2 = new DummyEventHandler<>();
+    private final DummyEventHandler<int[]> eh3 = new DummyEventHandler<>();
 
     @Test
     public void shouldCallOnEventInSequence()
@@ -36,7 +35,7 @@ public final class AggregateEventHandlerTest
         final long sequence = 3L;
         final boolean endOfBatch = true;
 
-        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
+        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>(eh1, eh2, eh3);
 
         aggregateEventHandler.onEvent(event, sequence, endOfBatch);
         assertLastEvent(event, sequence, eh1, eh2, eh3);
@@ -46,7 +45,7 @@ public final class AggregateEventHandlerTest
     public void shouldCallOnStartInSequence()
         throws Exception
     {
-        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
+        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>(eh1, eh2, eh3);
 
         aggregateEventHandler.onStart();
 
@@ -57,7 +56,7 @@ public final class AggregateEventHandlerTest
     public void shouldCallOnShutdownInSequence()
         throws Exception
     {
-        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(eh1, eh2, eh3);
+        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>(eh1, eh2, eh3);
 
         aggregateEventHandler.onShutdown();
 
@@ -67,7 +66,7 @@ public final class AggregateEventHandlerTest
     @Test
     public void shouldHandleEmptyListOfEventHandlers() throws Exception
     {
-        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>();
+        final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>();
 
         aggregateEventHandler.onEvent(new int[]{7}, 0L, true);
         aggregateEventHandler.onStart();
@@ -78,8 +77,8 @@ public final class AggregateEventHandlerTest
     {
         for (DummyEventHandler<int[]> eh : eh1)
         {
-            assertThat(eh.lastEvent, is(event));
-            assertThat(eh.lastSequence, is(sequence));
+            assertEquals(event, eh.lastEvent);
+            assertEquals(sequence, eh.lastSequence);
         }
     }
 
@@ -87,7 +86,7 @@ public final class AggregateEventHandlerTest
     {
         for (DummyEventHandler<int[]> handler : handlers)
         {
-            assertThat(handler.startCalls, is(startCalls));
+            assertEquals(startCalls, handler.startCalls);
         }
     }
 
@@ -95,7 +94,7 @@ public final class AggregateEventHandlerTest
     {
         for (DummyEventHandler<int[]> handler : handlers)
         {
-            assertThat(handler.shutdownCalls, is(startCalls));
+            assertEquals(startCalls, handler.shutdownCalls);
         }
     }
 }

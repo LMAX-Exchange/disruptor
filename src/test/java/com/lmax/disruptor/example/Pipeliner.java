@@ -10,8 +10,8 @@ public class Pipeliner
 {
     public static void main(String[] args)
     {
-        Disruptor<PipelinerEvent> disruptor = new Disruptor<PipelinerEvent>(
-            PipelinerEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+        Disruptor<PipelinerEvent> disruptor = new Disruptor<>(
+                PipelinerEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         disruptor.handleEventsWith(
             new ParallelHandler(0, 3),
@@ -79,14 +79,7 @@ public class Pipeliner
         long input;
         Object result;
 
-        private static final EventFactory<PipelinerEvent> FACTORY = new EventFactory<PipelinerEvent>()
-        {
-            @Override
-            public PipelinerEvent newInstance()
-            {
-                return new PipelinerEvent();
-            }
-        };
+        private static final EventFactory<PipelinerEvent> FACTORY = () -> new PipelinerEvent();
 
         @Override
         public String toString()

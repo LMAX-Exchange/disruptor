@@ -15,12 +15,11 @@
  */
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.lmax.disruptor.support.TestEvent;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class SequenceGroupTest
 {
@@ -142,6 +141,6 @@ public final class SequenceGroupTest
         }
 
         sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
-        assertThat(sequenceThree.get(), is(10L));
+        assertEquals(10L, sequenceThree.get());
     }
 }

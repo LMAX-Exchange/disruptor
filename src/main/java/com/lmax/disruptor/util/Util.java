@@ -94,14 +94,10 @@ public final class Util
     {
         try
         {
-            final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>()
-            {
-                public Unsafe run() throws Exception
-                {
-                    Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-                    theUnsafe.setAccessible(true);
-                    return (Unsafe) theUnsafe.get(null);
-                }
+            final PrivilegedExceptionAction<Unsafe> action = () -> {
+                Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+                theUnsafe.setAccessible(true);
+                return (Unsafe) theUnsafe.get(null);
             };
 
             THE_UNSAFE = AccessController.doPrivileged(action);

@@ -16,9 +16,9 @@
 package com.lmax.disruptor.util;
 
 import com.lmax.disruptor.Sequence;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class UtilTest
 {
@@ -27,7 +27,7 @@ public final class UtilTest
     {
         int powerOfTwo = Util.ceilingNextPowerOfTwo(1000);
 
-        Assert.assertEquals(1024, powerOfTwo);
+        assertEquals(1024, powerOfTwo);
     }
 
     @Test
@@ -35,14 +35,14 @@ public final class UtilTest
     {
         int powerOfTwo = Util.ceilingNextPowerOfTwo(1024);
 
-        Assert.assertEquals(1024, powerOfTwo);
+        assertEquals(1024, powerOfTwo);
     }
 
     @Test
     public void shouldReturnMinimumSequence()
     {
         final Sequence[] sequences = {new Sequence(7L), new Sequence(3L), new Sequence(12L)};
-        Assert.assertEquals(3L, Util.getMinimumSequence(sequences));
+        assertEquals(3L, Util.getMinimumSequence(sequences));
     }
 
     @Test
@@ -50,6 +50,6 @@ public final class UtilTest
     {
         final Sequence[] sequences = new Sequence[0];
 
-        Assert.assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
+        assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
     }
 }

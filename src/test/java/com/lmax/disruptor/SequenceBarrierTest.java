@@ -18,14 +18,14 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.Util;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public final class SequenceBarrierTest
@@ -69,9 +69,7 @@ public final class SequenceBarrierTest
 
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(workers));
 
-        Runnable runnable = new Runnable()
-        {
-            public void run()
+        Runnable runnable = () -> {
             {
                 long sequence = ringBuffer.next();
                 StubEvent event = ringBuffer.get(sequence);
@@ -107,23 +105,19 @@ public final class SequenceBarrierTest
             ringBuffer.newBarrier(sequence1, sequence2, sequence3);
 
         final boolean[] alerted = {false};
-        Thread t = new Thread(
-            new Runnable()
+        Thread t = new Thread(() ->
             {
-                public void run()
+                try
                 {
-                    try
-                    {
-                        sequenceBarrier.waitFor(expectedNumberMessages - 1);
-                    }
-                    catch (AlertException e)
-                    {
-                        alerted[0] = true;
-                    }
-                    catch (Exception e)
-                    {
-                        // don't care
-                    }
+                    sequenceBarrier.waitFor(expectedNumberMessages - 1);
+                }
+                catch (AlertException e)
+                {
+                    alerted[0] = true;
+                }
+                catch (Exception e)
+                {
+                    // don't care
                 }
             });
 
@@ -132,7 +126,7 @@ public final class SequenceBarrierTest
         sequenceBarrier.alert();
         t.join();
 
-        assertTrue("Thread was not interrupted", alerted[0]);
+        assertTrue(alerted[0], "Thread was not interrupted");
     }
 
     @Test
@@ -150,14 +144,11 @@ public final class SequenceBarrierTest
 
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(eventProcessors));
 
-        Runnable runnable = new Runnable()
+        Runnable runnable = () ->
         {
-            public void run()
+            for (DummyEventProcessor stubWorker : eventProcessors)
             {
-                for (DummyEventProcessor stubWorker : eventProcessors)
-                {
-                    stubWorker.setSequence(stubWorker.getSequence().get() + 1L);
-                }
+                stubWorker.setSequence(stubWorker.getSequence().get() + 1L);
             }
         };
 

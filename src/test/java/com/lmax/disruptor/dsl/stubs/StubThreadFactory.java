@@ -16,7 +16,6 @@
 package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.Assert;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,10 +23,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 public final class StubThreadFactory implements ThreadFactory
 {
     private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
-    private final Collection<Thread> threads = new CopyOnWriteArrayList<Thread>();
+    private final Collection<Thread> threads = new CopyOnWriteArrayList<>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
 
@@ -38,7 +39,7 @@ public final class StubThreadFactory implements ThreadFactory
         Runnable toExecute = command;
         if(ignoreExecutions.get())
         {
-            toExecute = new NoOpRunnable();
+            toExecute = () -> {};
         }
         final Thread thread = threadFactory.newThread(toExecute);
         thread.setName(command.toString());
@@ -63,7 +64,7 @@ public final class StubThreadFactory implements ThreadFactory
                 }
             }
 
-            Assert.assertFalse("Failed to stop thread: " + thread, thread.isAlive());
+            assertFalse(thread.isAlive(), "Failed to stop thread: " + thread);
         }
 
         threads.clear();
@@ -77,13 +78,5 @@ public final class StubThreadFactory implements ThreadFactory
     public int getExecutionCount()
     {
         return executionCount.get();
-    }
-
-    private static final class NoOpRunnable implements Runnable
-    {
-        @Override
-        public void run()
-        {
-        }
     }
 }

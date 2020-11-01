@@ -26,7 +26,7 @@ class SequenceUpdater implements Runnable
     public final Sequence sequence = new Sequence();
     private final CyclicBarrier barrier = new CyclicBarrier(2);
     private final long sleepTime;
-    private WaitStrategy waitStrategy;
+    private final WaitStrategy waitStrategy;
 
     SequenceUpdater(long sleepTime, WaitStrategy waitStrategy)
     {

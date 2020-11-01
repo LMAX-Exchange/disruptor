@@ -27,7 +27,7 @@ public final class ValueAdditionBatchQueueProcessor implements Runnable
     private CountDownLatch latch;
 
     private final BlockingQueue<Long> blockingQueue;
-    private final ArrayList<Long> batch = new ArrayList<Long>(100);
+    private final ArrayList<Long> batch = new ArrayList<>(100);
     private final long count;
 
     public ValueAdditionBatchQueueProcessor(final BlockingQueue<Long> blockingQueue, final long count)

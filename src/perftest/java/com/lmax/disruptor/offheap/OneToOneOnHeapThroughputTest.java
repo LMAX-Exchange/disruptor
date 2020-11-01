@@ -27,7 +27,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             BUFFER_SIZE, waitStrategy);
         private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
-        new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+            new BatchEventProcessor<>(buffer, buffer.newBarrier(), handler);
 
     {
         buffer.addGatingSequences(processor.getSequence());

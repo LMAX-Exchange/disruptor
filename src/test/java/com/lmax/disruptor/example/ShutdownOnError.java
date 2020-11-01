@@ -16,14 +16,7 @@ public class ShutdownOnError
     {
         public long value;
 
-        public static final EventFactory<Event> FACTORY = new EventFactory<Event>()
-        {
-            @Override
-            public Event newInstance()
-            {
-                return new Event();
-            }
-        };
+        public static final EventFactory<Event> FACTORY = () -> new Event();
     }
 
     private static class DefaultThreadFactory implements ThreadFactory
@@ -100,14 +93,7 @@ public class ShutdownOnError
     {
         while (running.get())
         {
-            disruptor.publishEvent(new EventTranslator<Event>()
-            {
-                @Override
-                public void translateTo(Event event, long sequence)
-                {
-                    event.value = sequence;
-                }
-            });
+            disruptor.publishEvent((event, sequence) -> event.value = sequence);
         }
     }
 
@@ -118,14 +104,7 @@ public class ShutdownOnError
         boolean publishOk;
         do
         {
-            publishOk = ringBuffer.tryPublishEvent(new EventTranslator<Event>()
-            {
-                @Override
-                public void translateTo(Event event, long sequence)
-                {
-                    event.value = sequence;
-                }
-            });
+            publishOk = ringBuffer.tryPublishEvent((event, sequence) -> event.value = sequence);
         }
         while (publishOk && running.get());
     }

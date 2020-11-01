@@ -82,12 +82,12 @@ public final class PingPongSequencedLatencyTest
     private final SequenceBarrier pongBarrier = pongBuffer.newBarrier();
     private final Pinger pinger = new Pinger(pingBuffer, ITERATIONS, PAUSE_NANOS);
     private final BatchEventProcessor<ValueEvent> pingProcessor =
-        new BatchEventProcessor<ValueEvent>(pongBuffer, pongBarrier, pinger);
+            new BatchEventProcessor<>(pongBuffer, pongBarrier, pinger);
 
     private final SequenceBarrier pingBarrier = pingBuffer.newBarrier();
     private final Ponger ponger = new Ponger(pongBuffer);
     private final BatchEventProcessor<ValueEvent> pongProcessor =
-        new BatchEventProcessor<ValueEvent>(pingBuffer, pingBarrier, ponger);
+            new BatchEventProcessor<>(pingBuffer, pingBarrier, ponger);
 
     {
         pingBuffer.addGatingSequences(pongProcessor.getSequence());
