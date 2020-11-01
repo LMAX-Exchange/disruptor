@@ -15,12 +15,12 @@
  */
 package com.lmax.disruptor.raw;
 
+import com.lmax.disruptor.*;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>
@@ -158,8 +158,7 @@ public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestDisrup
 
                 latch.countDown();
                 sequence.set(processed);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }

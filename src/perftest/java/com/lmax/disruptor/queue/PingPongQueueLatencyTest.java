@@ -15,12 +15,11 @@
  */
 package com.lmax.disruptor.queue;
 
-import java.io.PrintStream;
-import java.util.concurrent.*;
-
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.HdrHistogram.Histogram;
 
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import java.io.PrintStream;
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -128,8 +127,8 @@ public final class PingPongQueueLatencyTest
         private final long maxEvents;
 
         QueuePinger(
-            final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents,
-            final long pauseTimeNs)
+                final BlockingQueue<Long> pingQueue, final BlockingQueue<Long> pongQueue, final long maxEvents,
+                final long pauseTimeNs)
         {
             this.pingQueue = pingQueue;
             this.pongQueue = pongQueue;
@@ -164,8 +163,7 @@ public final class PingPongQueueLatencyTest
                 }
 
                 latch.countDown();
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 e.printStackTrace();
                 return;
@@ -207,12 +205,10 @@ public final class PingPongQueueLatencyTest
                     final Long value = pingQueue.take();
                     pongQueue.put(value);
                 }
-            }
-            catch (final InterruptedException e)
+            } catch (final InterruptedException e)
             {
                 // do-nothing.
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 e.printStackTrace();
             }

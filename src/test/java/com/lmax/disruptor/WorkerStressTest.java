@@ -69,8 +69,8 @@ public class WorkerStressTest
     }
 
     private Publisher[] initialise(
-        Publisher[] publishers, RingBuffer<TestEvent> buffer,
-        int messageCount, CyclicBarrier barrier, CountDownLatch latch)
+            Publisher[] publishers, RingBuffer<TestEvent> buffer,
+            int messageCount, CyclicBarrier barrier, CountDownLatch latch)
     {
         for (int i = 0; i < publishers.length; i++)
         {
@@ -113,10 +113,10 @@ public class WorkerStressTest
         public boolean failed = false;
 
         Publisher(
-            RingBuffer<TestEvent> ringBuffer,
-            int iterations,
-            CyclicBarrier barrier,
-            CountDownLatch shutdownLatch)
+                RingBuffer<TestEvent> ringBuffer,
+                int iterations,
+                CyclicBarrier barrier,
+                CountDownLatch shutdownLatch)
         {
             this.ringBuffer = ringBuffer;
             this.barrier = barrier;
@@ -142,12 +142,10 @@ public class WorkerStressTest
                     testEvent.s = "wibble-" + next;
                     ringBuffer.publish(next);
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 failed = true;
-            }
-            finally
+            } finally
             {
                 shutdownLatch.countDown();
             }

@@ -15,19 +15,14 @@
  */
 package com.lmax.disruptor.queue;
 
-import static com.lmax.disruptor.support.PerfTestUtil.failIf;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.FizzBuzzQueueProcessor;
 import com.lmax.disruptor.support.FizzBuzzStep;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import java.util.concurrent.*;
+
+import static com.lmax.disruptor.support.PerfTestUtil.failIf;
 
 /**
  * <pre>
@@ -130,13 +125,13 @@ public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTest
     private final BlockingQueue<Boolean> buzzOutputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
 
     private final FizzBuzzQueueProcessor fizzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+            new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     private final FizzBuzzQueueProcessor buzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+            new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     private final FizzBuzzQueueProcessor fizzBuzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+            new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -29,7 +29,7 @@ public final class AggregateEventHandlerTest
 
     @Test
     public void shouldCallOnEventInSequence()
-        throws Exception
+            throws Exception
     {
         final int[] event = {7};
         final long sequence = 3L;
@@ -43,7 +43,7 @@ public final class AggregateEventHandlerTest
 
     @Test
     public void shouldCallOnStartInSequence()
-        throws Exception
+            throws Exception
     {
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>(eh1, eh2, eh3);
 
@@ -54,7 +54,7 @@ public final class AggregateEventHandlerTest
 
     @Test
     public void shouldCallOnShutdownInSequence()
-        throws Exception
+            throws Exception
     {
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<>(eh1, eh2, eh3);
 

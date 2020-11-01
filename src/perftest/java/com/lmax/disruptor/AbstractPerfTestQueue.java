@@ -21,15 +21,15 @@ public abstract class AbstractPerfTestQueue
     public static final int RUNS = 7;
 
     protected void testImplementations()
-        throws Exception
+            throws Exception
     {
         final int availableProcessors = Runtime.getRuntime().availableProcessors();
         if (getRequiredProcessorCount() > availableProcessors)
         {
             System.out.print(
-                "*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
+                    "*** Warning ***: your system has insufficient processors to execute the test efficiently. ");
             System.out.println(
-                "Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
+                    "Processors required = " + getRequiredProcessorCount() + " available = " + availableProcessors);
         }
 
         long[] queueOps = new long[RUNS];
@@ -48,8 +48,8 @@ public abstract class AbstractPerfTestQueue
         for (int i = 0; i < RUNS; i++)
         {
             System.out.format(
-                "%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec\n",
-                className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
+                    "%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec\n",
+                    className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(disruptorOps[i]));
         }
     }
 

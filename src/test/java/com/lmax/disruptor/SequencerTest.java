@@ -51,7 +51,7 @@ public class SequencerTest
         assertEquals(0, sequencer.next());
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldBatchClaim(Sequencer sequencer)
@@ -59,7 +59,7 @@ public class SequencerTest
         assertEquals(3, sequencer.next(4));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldIndicateHasAvailableCapacity(Sequencer sequencer)
@@ -76,7 +76,7 @@ public class SequencerTest
         assertFalse(sequencer.hasAvailableCapacity(BUFFER_SIZE));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldIndicateNoAvailableCapacity(Sequencer sequencer)
@@ -88,11 +88,11 @@ public class SequencerTest
         assertFalse(sequencer.hasAvailableCapacity(1));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldHoldUpPublisherWhenBufferIsFull(Sequencer sequencer)
-        throws InterruptedException
+            throws InterruptedException
     {
         sequencer.addGatingSequences(gatingSequence);
         long sequence = sequencer.next(BUFFER_SIZE);
@@ -123,10 +123,11 @@ public class SequencerTest
         assertEquals(expectedFullSequence + 1L, sequencer.getCursor());
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull(Sequencer sequencer) {
+    public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull(Sequencer sequencer)
+    {
         assertThrows(InsufficientCapacityException.class, () -> {
             sequencer.addGatingSequences(gatingSequence);
             for (int i = 0; i < BUFFER_SIZE; i++)
@@ -137,10 +138,11 @@ public class SequencerTest
         });
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldCalculateRemainingCapacity(Sequencer sequencer) {
+    public void shouldCalculateRemainingCapacity(Sequencer sequencer)
+    {
         sequencer.addGatingSequences(gatingSequence);
 
         assertEquals(BUFFER_SIZE, sequencer.remainingCapacity());
@@ -151,10 +153,11 @@ public class SequencerTest
         }
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldNotBeAvailableUntilPublished(Sequencer sequencer) {
+    public void shouldNotBeAvailableUntilPublished(Sequencer sequencer)
+    {
         long next = sequencer.next(6);
 
         for (int i = 0; i <= 5; i++)
@@ -173,13 +176,15 @@ public class SequencerTest
     }
 
 
-    private static Stream<Arguments> producerTypeGenerator() {
+    private static Stream<Arguments> producerTypeGenerator()
+    {
         return Stream.of(arguments(ProducerType.SINGLE), arguments(ProducerType.MULTI));
     }
 
     @ParameterizedTest
     @MethodSource("producerTypeGenerator")
-    public void shouldNotifyWaitStrategyOnPublish(ProducerType producerType) {
+    public void shouldNotifyWaitStrategyOnPublish(ProducerType producerType)
+    {
         final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
         final Sequenced sequencer = newProducer(producerType, waitStrategy);
 
@@ -188,10 +193,11 @@ public class SequencerTest
         assertEquals(1, waitStrategy.signalAllWhenBlockingCalls);
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("producerTypeGenerator")
-    public void shouldNotifyWaitStrategyOnPublishBatch(ProducerType producerType) {
+    public void shouldNotifyWaitStrategyOnPublishBatch(ProducerType producerType)
+    {
         final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
         final Sequenced sequencer = newProducer(producerType, waitStrategy);
 
@@ -201,7 +207,7 @@ public class SequencerTest
         assertEquals(1, waitStrategy.signalAllWhenBlockingCalls);
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldWaitOnPublication(Sequencer sequencer) throws Exception
@@ -227,7 +233,7 @@ public class SequencerTest
         assertEquals(next, barrier.waitFor(-1));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
     public void shouldTryNext(Sequencer sequencer) throws Exception
@@ -243,17 +249,17 @@ public class SequencerTest
         {
             sequencer.tryNext();
             fail("Should of thrown: " + InsufficientCapacityException.class.getSimpleName());
-        }
-        catch (InsufficientCapacityException e)
+        } catch (InsufficientCapacityException e)
         {
             // No-op
         }
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldClaimSpecificSequence(Sequencer sequencer) {
+    public void shouldClaimSpecificSequence(Sequencer sequencer)
+    {
         long sequence = 14L;
 
         sequencer.claim(sequence);
@@ -261,31 +267,35 @@ public class SequencerTest
         assertEquals(sequence + 1, sequencer.next());
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldNotAllowBulkNextLessThanZero(Sequencer sequencer) {
+    public void shouldNotAllowBulkNextLessThanZero(Sequencer sequencer)
+    {
         assertThrows(IllegalArgumentException.class, () -> sequencer.next(-1));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldNotAllowBulkNextOfZero(Sequencer sequencer) {
+    public void shouldNotAllowBulkNextOfZero(Sequencer sequencer)
+    {
         assertThrows(IllegalArgumentException.class, () -> sequencer.next(0));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldNotAllowBulkTryNextLessThanZero(Sequencer sequencer) {
+    public void shouldNotAllowBulkTryNextLessThanZero(Sequencer sequencer)
+    {
         assertThrows(IllegalArgumentException.class, () -> sequencer.tryNext(-1));
     }
 
-    
+
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldNotAllowBulkTryNextOfZero(Sequencer sequencer) {
+    public void shouldNotAllowBulkTryNextOfZero(Sequencer sequencer)
+    {
         assertThrows(IllegalArgumentException.class, () -> sequencer.tryNext(0));
     }
 }

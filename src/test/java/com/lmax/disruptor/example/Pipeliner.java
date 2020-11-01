@@ -14,9 +14,9 @@ public class Pipeliner
                 PipelinerEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         disruptor.handleEventsWith(
-            new ParallelHandler(0, 3),
-            new ParallelHandler(1, 3),
-            new ParallelHandler(2, 3)
+                new ParallelHandler(0, 3),
+                new ParallelHandler(1, 3),
+                new ParallelHandler(2, 3)
         ).then(new JoiningHandler());
 
         RingBuffer<PipelinerEvent> ringBuffer = disruptor.start();
@@ -28,8 +28,7 @@ public class Pipeliner
             {
                 PipelinerEvent pipelinerEvent = ringBuffer.get(next);
                 pipelinerEvent.input = i;
-            }
-            finally
+            } finally
             {
                 ringBuffer.publish(next);
             }
@@ -85,9 +84,9 @@ public class Pipeliner
         public String toString()
         {
             return "PipelinerEvent{" +
-                "input=" + input +
-                ", result=" + result +
-                '}';
+                    "input=" + input +
+                    ", result=" + result +
+                    '}';
         }
     }
 }

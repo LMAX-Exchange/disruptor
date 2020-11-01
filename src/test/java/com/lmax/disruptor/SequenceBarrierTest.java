@@ -102,24 +102,22 @@ public final class SequenceBarrierTest
         final Sequence sequence3 = new CountDownLatchSequence(8L, latch);
 
         final SequenceBarrier sequenceBarrier =
-            ringBuffer.newBarrier(sequence1, sequence2, sequence3);
+                ringBuffer.newBarrier(sequence1, sequence2, sequence3);
 
         final boolean[] alerted = {false};
         Thread t = new Thread(() ->
+        {
+            try
             {
-                try
-                {
-                    sequenceBarrier.waitFor(expectedNumberMessages - 1);
-                }
-                catch (AlertException e)
-                {
-                    alerted[0] = true;
-                }
-                catch (Exception e)
-                {
-                    // don't care
-                }
-            });
+                sequenceBarrier.waitFor(expectedNumberMessages - 1);
+            } catch (AlertException e)
+            {
+                alerted[0] = true;
+            } catch (Exception e)
+            {
+                // don't care
+            }
+        });
 
         t.start();
         latch.await(3, TimeUnit.SECONDS);

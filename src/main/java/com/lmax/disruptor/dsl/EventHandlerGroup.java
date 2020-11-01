@@ -15,11 +15,7 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.WorkHandler;
+import com.lmax.disruptor.*;
 
 import java.util.Arrays;
 
@@ -35,9 +31,9 @@ public class EventHandlerGroup<T>
     private final Sequence[] sequences;
 
     EventHandlerGroup(
-        final Disruptor<T> disruptor,
-        final ConsumerRepository<T> consumerRepository,
-        final Sequence[] sequences)
+            final Disruptor<T> disruptor,
+            final ConsumerRepository<T> consumerRepository,
+            final Sequence[] sequences)
     {
         this.disruptor = disruptor;
         this.consumerRepository = consumerRepository;
@@ -55,8 +51,8 @@ public class EventHandlerGroup<T>
         final Sequence[] combinedSequences = new Sequence[this.sequences.length + otherHandlerGroup.sequences.length];
         System.arraycopy(this.sequences, 0, combinedSequences, 0, this.sequences.length);
         System.arraycopy(
-            otherHandlerGroup.sequences, 0,
-            combinedSequences, this.sequences.length, otherHandlerGroup.sequences.length);
+                otherHandlerGroup.sequences, 0,
+                combinedSequences, this.sequences.length, otherHandlerGroup.sequences.length);
         return new EventHandlerGroup<>(disruptor, consumerRepository, combinedSequences);
     }
 

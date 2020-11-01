@@ -1,6 +1,8 @@
 package com.lmax.disruptor.example;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
@@ -19,7 +21,7 @@ public class WaitForProcessing
     public static void main(String[] args) throws InterruptedException
     {
         final Disruptor<LongEvent> disruptor = new Disruptor<>(
-            LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+                LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         Consumer firstConsumer = new Consumer();
         Consumer lastConsumer = new Consumer();
@@ -44,9 +46,9 @@ public class WaitForProcessing
     }
 
     private static void waitForSpecificConsumer(
-        Disruptor<LongEvent> disruptor,
-        Consumer lastConsumer,
-        RingBuffer<LongEvent> ringBuffer)
+            Disruptor<LongEvent> disruptor,
+            Consumer lastConsumer,
+            RingBuffer<LongEvent> ringBuffer)
     {
         long lastPublishedValue;
         long sequenceValueFor;

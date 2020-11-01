@@ -29,8 +29,8 @@ public final class YieldingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(
-        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+            final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+            throws AlertException, InterruptedException
     {
         long availableSequence;
         int counter = SPIN_TRIES;
@@ -49,15 +49,14 @@ public final class YieldingWaitStrategy implements WaitStrategy
     }
 
     private int applyWaitMethod(final SequenceBarrier barrier, int counter)
-        throws AlertException
+            throws AlertException
     {
         barrier.checkAlert();
 
         if (0 == counter)
         {
             Thread.yield();
-        }
-        else
+        } else
         {
             --counter;
         }

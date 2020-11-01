@@ -67,8 +67,7 @@ public final class ValueAdditionQueueBatchProcessor implements Runnable
                     long value = blockingQueue.take().longValue();
                     this.value += value;
                     ++sequence;
-                }
-                else
+                } else
                 {
                     for (Long v : buffer)
                     {
@@ -82,8 +81,7 @@ public final class ValueAdditionQueueBatchProcessor implements Runnable
                 {
                     latch.countDown();
                 }
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 if (!running)
                 {

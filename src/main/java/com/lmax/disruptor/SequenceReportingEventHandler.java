@@ -26,7 +26,7 @@ package com.lmax.disruptor;
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public interface SequenceReportingEventHandler<T>
-    extends EventHandler<T>
+        extends EventHandler<T>
 {
     /**
      * Call by the {@link BatchEventProcessor} to setup the callback.

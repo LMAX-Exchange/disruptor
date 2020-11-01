@@ -31,6 +31,7 @@ public class DynamicAddWorkHandler
         Disruptor<StubEvent> disruptor;
         int start;
         int over;
+
         MessageProduce(Disruptor<StubEvent> disruptor, int start, int over)
         {
             this.disruptor = disruptor;
@@ -49,8 +50,7 @@ public class DynamicAddWorkHandler
                 {
                     StubEvent event = ringBuffer.get(sequence);
                     event.setTestString("msg => " + i);
-                }
-                finally
+                } finally
                 {
                     ringBuffer.publish(sequence);
                 }
@@ -83,7 +83,7 @@ public class DynamicAddWorkHandler
         @Override
         public void onEvent(StubEvent event) throws Exception
         {
-            System.out.println(event.getTestString() + " ,thread ==> " +  Thread.currentThread().getId());
+            System.out.println(event.getTestString() + " ,thread ==> " + Thread.currentThread().getId());
         }
     }
 

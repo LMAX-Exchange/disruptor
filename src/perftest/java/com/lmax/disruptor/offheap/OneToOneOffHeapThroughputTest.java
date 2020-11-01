@@ -21,7 +21,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
     private final Executor executor = Executors.newFixedThreadPool(1, DaemonThreadFactory.INSTANCE);
     private final WaitStrategy waitStrategy = new YieldingWaitStrategy();
     private final OffHeapRingBuffer buffer =
-        new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
+            new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
     private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
             new BatchEventProcessor<>(buffer, buffer.newBarrier(), handler);
@@ -139,9 +139,11 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         private final ByteBuffer buffer;
         private final int mask;
 
-        private final ThreadLocal<ByteBuffer> perThreadBuffer = new ThreadLocal<>() {
+        private final ThreadLocal<ByteBuffer> perThreadBuffer = new ThreadLocal<>()
+        {
             @Override
-            protected ByteBuffer initialValue() {
+            protected ByteBuffer initialValue()
+            {
                 return buffer.duplicate().order(ByteOrder.nativeOrder());
             }
         };
@@ -183,8 +185,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             try
             {
                 get(next).put(data);
-            }
-            finally
+            } finally
             {
                 sequencer.publish(next);
             }

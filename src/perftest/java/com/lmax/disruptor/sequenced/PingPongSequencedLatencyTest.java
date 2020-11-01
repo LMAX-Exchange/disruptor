@@ -15,20 +15,15 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
-
-import java.io.PrintStream;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.lmax.disruptor.*;
-import org.HdrHistogram.Histogram;
-
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.HdrHistogram.Histogram;
+
+import java.io.PrintStream;
+import java.util.concurrent.*;
+
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 /**
  * <pre>
@@ -75,9 +70,9 @@ public final class PingPongSequencedLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> pingBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
+            createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
     private final RingBuffer<ValueEvent> pongBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
+            createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
 
     private final SequenceBarrier pongBarrier = pongBuffer.newBarrier();
     private final Pinger pinger = new Pinger(pingBuffer, ITERATIONS, PAUSE_NANOS);
@@ -174,8 +169,7 @@ public final class PingPongSequencedLatencyTest
                 }
 
                 send();
-            }
-            else
+            } else
             {
                 latch.countDown();
             }
@@ -200,8 +194,7 @@ public final class PingPongSequencedLatencyTest
 
                 Thread.sleep(1000);
                 send();
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 throw new RuntimeException(e);
             }
@@ -247,8 +240,7 @@ public final class PingPongSequencedLatencyTest
             try
             {
                 barrier.await();
-            }
-            catch (final Exception e)
+            } catch (final Exception e)
             {
                 throw new RuntimeException(e);
             }

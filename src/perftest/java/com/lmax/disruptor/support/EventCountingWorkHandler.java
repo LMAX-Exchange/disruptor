@@ -19,7 +19,7 @@ import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class EventCountingWorkHandler
-    implements WorkHandler<ValueEvent>
+        implements WorkHandler<ValueEvent>
 {
     private final PaddedLong[] counters;
     private final int index;

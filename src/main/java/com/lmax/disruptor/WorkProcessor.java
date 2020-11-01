@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> event implementation storing the details for the work to processed.
  */
 public final class WorkProcessor<T>
-    implements EventProcessor
+        implements EventProcessor
 {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -51,11 +51,11 @@ public final class WorkProcessor<T>
      *                         as {@link Sequencer#INITIAL_CURSOR_VALUE}
      */
     public WorkProcessor(
-        final RingBuffer<T> ringBuffer,
-        final SequenceBarrier sequenceBarrier,
-        final WorkHandler<? super T> workHandler,
-        final ExceptionHandler<? super T> exceptionHandler,
-        final Sequence workSequence)
+            final RingBuffer<T> ringBuffer,
+            final SequenceBarrier sequenceBarrier,
+            final WorkHandler<? super T> workHandler,
+            final ExceptionHandler<? super T> exceptionHandler,
+            final Sequence workSequence)
     {
         this.ringBuffer = ringBuffer;
         this.sequenceBarrier = sequenceBarrier;
@@ -149,24 +149,20 @@ public final class WorkProcessor<T>
                     event = ringBuffer.get(nextSequence);
                     workHandler.onEvent(event);
                     processedSequence = true;
-                }
-                else
+                } else
                 {
                     cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
                 }
-            }
-            catch (final TimeoutException e)
+            } catch (final TimeoutException e)
             {
                 notifyTimeout(sequence.get());
-            }
-            catch (final AlertException ex)
+            } catch (final AlertException ex)
             {
                 if (!running.get())
                 {
                     break;
                 }
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 // handle, mark as processed, unless the exception handler threw an exception
                 exceptionHandler.handleEventException(ex, nextSequence, event);
@@ -187,8 +183,7 @@ public final class WorkProcessor<T>
             {
                 timeoutHandler.onTimeout(availableSequence);
             }
-        }
-        catch (Throwable e)
+        } catch (Throwable e)
         {
             exceptionHandler.handleEventException(e, availableSequence, null);
         }
@@ -201,8 +196,7 @@ public final class WorkProcessor<T>
             try
             {
                 ((LifecycleAware) workHandler).onStart();
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 exceptionHandler.handleOnStartException(ex);
             }
@@ -216,8 +210,7 @@ public final class WorkProcessor<T>
             try
             {
                 ((LifecycleAware) workHandler).onShutdown();
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 exceptionHandler.handleOnShutdownException(ex);
             }

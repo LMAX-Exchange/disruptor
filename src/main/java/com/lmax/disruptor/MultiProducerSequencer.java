@@ -15,11 +15,10 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.locks.LockSupport;
-
+import com.lmax.disruptor.util.Util;
 import sun.misc.Unsafe;
 
-import com.lmax.disruptor.util.Util;
+import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -135,8 +134,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
                 }
 
                 gatingSequenceCache.set(gatingSequence);
-            }
-            else if (cursor.compareAndSet(current, next))
+            } else if (cursor.compareAndSet(current, next))
             {
                 break;
             }

@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import static java.util.Arrays.copyOf;
-
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+import static java.util.Arrays.copyOf;
 
 /**
  * Provides static methods for managing a {@link SequenceGroup} object.
@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 class SequenceGroups
 {
     static <T> void addSequences(
-        final T holder,
-        final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-        final Cursored cursor,
-        final Sequence... sequencesToAdd)
+            final T holder,
+            final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
+            final Cursored cursor,
+            final Sequence... sequencesToAdd)
     {
         long cursorSequence;
         Sequence[] updatedSequences;
@@ -57,9 +57,9 @@ class SequenceGroups
     }
 
     static <T> boolean removeSequence(
-        final T holder,
-        final AtomicReferenceFieldUpdater<T, Sequence[]> sequenceUpdater,
-        final Sequence sequence)
+            final T holder,
+            final AtomicReferenceFieldUpdater<T, Sequence[]> sequenceUpdater,
+            final Sequence sequence)
     {
         int numToRemove;
         Sequence[] oldSequences;

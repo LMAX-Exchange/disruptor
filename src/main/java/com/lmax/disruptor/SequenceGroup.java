@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
 import com.lmax.disruptor.util.Util;
+
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * A {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
@@ -29,7 +29,7 @@ import com.lmax.disruptor.util.Util;
 public final class SequenceGroup extends Sequence
 {
     private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER =
-        AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
+            AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
     private volatile Sequence[] sequences = new Sequence[0];
 
     /**

@@ -28,7 +28,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+            throws AlertException, InterruptedException
     {
         long availableSequence;
         if (cursorSequence.get() < sequence)
@@ -65,7 +65,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     public String toString()
     {
         return "BlockingWaitStrategy{" +
-            "mutex=" + mutex +
-            '}';
+                "mutex=" + mutex +
+                '}';
     }
 }

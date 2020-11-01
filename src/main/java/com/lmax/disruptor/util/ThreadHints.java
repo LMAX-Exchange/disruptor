@@ -18,7 +18,6 @@ package com.lmax.disruptor.util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 
-
 import static java.lang.invoke.MethodType.methodType;
 
 /**
@@ -40,8 +39,7 @@ public final class ThreadHints
         try
         {
             methodHandle = lookup.findStatic(Thread.class, "onSpinWait", methodType(void.class));
-        }
-        catch (final Exception ignore)
+        } catch (final Exception ignore)
         {
         }
 
@@ -68,8 +66,7 @@ public final class ThreadHints
             try
             {
                 ON_SPIN_WAIT_METHOD_HANDLE.invokeExact();
-            }
-            catch (final Throwable ignore)
+            } catch (final Throwable ignore)
             {
             }
         }

@@ -1,11 +1,11 @@
 package com.lmax.disruptor.immutable;
 
-import java.util.concurrent.locks.LockSupport;
-
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
+
+import java.util.concurrent.locks.LockSupport;
 
 public class SimplePerformanceTest
 {
@@ -23,8 +23,7 @@ public class SimplePerformanceTest
         try
         {
             doRun();
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             e.printStackTrace();
         }

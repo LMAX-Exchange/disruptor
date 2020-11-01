@@ -33,8 +33,8 @@ public class ExceptionHandlerSetting<T>
     private final ConsumerRepository<T> consumerRepository;
 
     ExceptionHandlerSetting(
-        final EventHandler<T> eventHandler,
-        final ConsumerRepository<T> consumerRepository)
+            final EventHandler<T> eventHandler,
+            final ConsumerRepository<T> consumerRepository)
     {
         this.eventHandler = eventHandler;
         this.consumerRepository = consumerRepository;
@@ -53,12 +53,11 @@ public class ExceptionHandlerSetting<T>
         {
             ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
             consumerRepository.getBarrierFor(eventHandler).alert();
-        }
-        else
+        } else
         {
             throw new RuntimeException(
-                "EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " +
-                "and does not support exception handlers");
+                    "EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " +
+                            "and does not support exception handlers");
         }
     }
 }

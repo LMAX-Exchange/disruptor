@@ -101,8 +101,7 @@ public final class Util
             };
 
             THE_UNSAFE = AccessController.doPrivileged(action);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             throw new RuntimeException("Unable to load unsafe", e);
         }

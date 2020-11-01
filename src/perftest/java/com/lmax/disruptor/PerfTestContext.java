@@ -28,13 +28,13 @@ public class PerfTestContext
     public double getBatchPercent()
     {
         if (batchesProcessedCount == 0) return 0;
-        return 1 - (double)batchesProcessedCount / iterations;
+        return 1 - (double) batchesProcessedCount / iterations;
     }
 
     public double getAverageBatchSize()
     {
         if (batchesProcessedCount == 0) return -1;
-        return (double)iterations / batchesProcessedCount;
+        return (double) iterations / batchesProcessedCount;
     }
 
     public void setBatchData(long batchesProcessedCount, long iterations)

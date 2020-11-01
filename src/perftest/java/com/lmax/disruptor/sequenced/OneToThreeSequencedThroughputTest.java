@@ -15,18 +15,18 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
-import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.Operation;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.support.ValueMutationEventHandler;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 /**
  * <pre>
@@ -89,7 +89,7 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+            createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
@@ -109,9 +109,9 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
         batchEventProcessors[2] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[2]);
 
         ringBuffer.addGatingSequences(
-            batchEventProcessors[0].getSequence(),
-            batchEventProcessors[1].getSequence(),
-            batchEventProcessors[2].getSequence());
+                batchEventProcessors[0].getSequence(),
+                batchEventProcessors[1].getSequence(),
+                batchEventProcessors[2].getSequence());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import java.util.concurrent.CyclicBarrier;
-
 import com.lmax.disruptor.RingBuffer;
+
+import java.util.concurrent.CyclicBarrier;
 
 public final class LongArrayPublisher implements Runnable
 {
@@ -27,10 +27,10 @@ public final class LongArrayPublisher implements Runnable
     private final long arraySize;
 
     public LongArrayPublisher(
-        final CyclicBarrier cyclicBarrier,
-        final RingBuffer<long[]> ringBuffer,
-        final long iterations,
-        final long arraySize)
+            final CyclicBarrier cyclicBarrier,
+            final RingBuffer<long[]> ringBuffer,
+            final long iterations,
+            final long arraySize)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.ringBuffer = ringBuffer;
@@ -55,8 +55,7 @@ public final class LongArrayPublisher implements Runnable
                 }
                 ringBuffer.publish(sequence);
             }
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             throw new RuntimeException(ex);
         }

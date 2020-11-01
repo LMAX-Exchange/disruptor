@@ -27,7 +27,7 @@ public final class EventCountingQueueProcessor implements Runnable
     private final int index;
 
     public EventCountingQueueProcessor(
-        final BlockingQueue<Long> blockingQueue, final PaddedLong[] counters, final int index)
+            final BlockingQueue<Long> blockingQueue, final PaddedLong[] counters, final int index)
     {
         this.blockingQueue = blockingQueue;
         this.counters = counters;
@@ -49,8 +49,7 @@ public final class EventCountingQueueProcessor implements Runnable
             {
                 blockingQueue.take();
                 counters[index].set(counters[index].get() + 1L);
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 break;
             }

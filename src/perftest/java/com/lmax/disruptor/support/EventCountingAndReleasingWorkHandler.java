@@ -21,7 +21,7 @@ import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 public final class EventCountingAndReleasingWorkHandler
-    implements WorkHandler<ValueEvent>, EventReleaseAware
+        implements WorkHandler<ValueEvent>, EventReleaseAware
 {
     private final PaddedLong[] counters;
     private final int index;

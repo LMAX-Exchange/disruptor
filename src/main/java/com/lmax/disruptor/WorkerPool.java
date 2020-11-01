@@ -47,10 +47,10 @@ public final class WorkerPool<T>
      */
     @SafeVarargs
     public WorkerPool(
-        final RingBuffer<T> ringBuffer,
-        final SequenceBarrier sequenceBarrier,
-        final ExceptionHandler<? super T> exceptionHandler,
-        final WorkHandler<? super T>... workHandlers)
+            final RingBuffer<T> ringBuffer,
+            final SequenceBarrier sequenceBarrier,
+            final ExceptionHandler<? super T> exceptionHandler,
+            final WorkHandler<? super T>... workHandlers)
     {
         this.ringBuffer = ringBuffer;
         final int numWorkers = workHandlers.length;
@@ -59,11 +59,11 @@ public final class WorkerPool<T>
         for (int i = 0; i < numWorkers; i++)
         {
             workProcessors[i] = new WorkProcessor<>(
-                ringBuffer,
-                sequenceBarrier,
-                workHandlers[i],
-                exceptionHandler,
-                workSequence);
+                    ringBuffer,
+                    sequenceBarrier,
+                    workHandlers[i],
+                    exceptionHandler,
+                    workSequence);
         }
     }
 
@@ -78,9 +78,9 @@ public final class WorkerPool<T>
      */
     @SafeVarargs
     public WorkerPool(
-        final EventFactory<T> eventFactory,
-        final ExceptionHandler<? super T> exceptionHandler,
-        final WorkHandler<? super T>... workHandlers)
+            final EventFactory<T> eventFactory,
+            final ExceptionHandler<? super T> exceptionHandler,
+            final WorkHandler<? super T>... workHandlers)
     {
         ringBuffer = RingBuffer.createMultiProducer(eventFactory, 1024, new BlockingWaitStrategy());
         final SequenceBarrier barrier = ringBuffer.newBarrier();
@@ -90,11 +90,11 @@ public final class WorkerPool<T>
         for (int i = 0; i < numWorkers; i++)
         {
             workProcessors[i] = new WorkProcessor<>(
-                ringBuffer,
-                barrier,
-                workHandlers[i],
-                exceptionHandler,
-                workSequence);
+                    ringBuffer,
+                    barrier,
+                    workHandlers[i],
+                    exceptionHandler,
+                    workSequence);
         }
 
         ringBuffer.addGatingSequences(getWorkerSequences());

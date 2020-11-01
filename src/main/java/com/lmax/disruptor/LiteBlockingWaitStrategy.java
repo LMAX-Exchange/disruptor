@@ -32,7 +32,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
-        throws AlertException, InterruptedException
+            throws AlertException, InterruptedException
     {
         long availableSequence;
         if (cursorSequence.get() < sequence)
@@ -80,8 +80,8 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
     public String toString()
     {
         return "LiteBlockingWaitStrategy{" +
-            "mutex=" + mutex +
-            ", signalNeeded=" + signalNeeded +
-            '}';
+                "mutex=" + mutex +
+                ", signalNeeded=" + signalNeeded +
+                '}';
     }
 }

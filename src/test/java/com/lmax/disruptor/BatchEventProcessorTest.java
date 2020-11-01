@@ -40,7 +40,7 @@ public final class BatchEventProcessorTest
 
     @Test
     public void shouldCallMethodsInLifecycleOrderForBatch()
-        throws Exception
+            throws Exception
     {
         CountDownLatch eventLatch = new CountDownLatch(3);
         LatchEventHandler eventHandler = new LatchEventHandler(eventLatch);
@@ -64,7 +64,7 @@ public final class BatchEventProcessorTest
 
     @Test
     public void shouldCallExceptionHandlerOnUncaughtException()
-        throws Exception
+            throws Exception
     {
         CountDownLatch exceptionLatch = new CountDownLatch(1);
         LatchExceptionHandler latchExceptionHandler = new LatchExceptionHandler(exceptionLatch);
@@ -140,13 +140,13 @@ public final class BatchEventProcessorTest
 
     @Test
     public void reportAccurateBatchSizesAtBatchStartTime()
-        throws Exception
+            throws Exception
     {
         final List<Long> batchSizes = new ArrayList<>();
         final CountDownLatch eventLatch = new CountDownLatch(6);
 
         final class LoopbackEventHandler
-            implements EventHandler<StubEvent>, BatchStartAware
+                implements EventHandler<StubEvent>, BatchStartAware
         {
 
             @Override
@@ -157,7 +157,7 @@ public final class BatchEventProcessorTest
 
             @Override
             public void onEvent(StubEvent event, long sequence, boolean endOfBatch)
-                throws Exception
+                    throws Exception
             {
                 if (!endOfBatch)
                 {
@@ -191,7 +191,7 @@ public final class BatchEventProcessorTest
         WaitStrategy waitStrategy = new BusySpinWaitStrategy();
         final SingleProducerSequencer sequencer = new SingleProducerSequencer(8, waitStrategy);
         final ProcessingSequenceBarrier barrier = new ProcessingSequenceBarrier(
-            sequencer, waitStrategy, new Sequence(-1), new Sequence[0]);
+                sequencer, waitStrategy, new Sequence(-1), new Sequence[0]);
         DataProvider<Object> dp = sequence -> null;
 
         final LatchLifeCycleHandler h1 = new LatchLifeCycleHandler();

@@ -37,7 +37,7 @@ public final class EventTranslatorTest
     }
 
     public static final class ExampleEventTranslator
-        implements EventTranslator<StubEvent>
+            implements EventTranslator<StubEvent>
     {
         private final String testValue;
 

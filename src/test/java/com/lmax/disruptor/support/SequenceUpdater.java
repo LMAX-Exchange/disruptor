@@ -46,8 +46,7 @@ class SequenceUpdater implements Runnable
             }
             sequence.incrementAndGet();
             waitStrategy.signalAllWhenBlocking();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

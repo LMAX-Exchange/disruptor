@@ -15,7 +15,11 @@
  */
 package com.lmax.disruptor.workhandler;
 
-import static com.lmax.disruptor.RingBuffer.createMultiProducer;
+import com.lmax.disruptor.*;
+import com.lmax.disruptor.support.ValueAdditionWorkHandler;
+import com.lmax.disruptor.support.ValueEvent;
+import com.lmax.disruptor.support.ValuePublisher;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -23,11 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.LockSupport;
 
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.support.ValueAdditionWorkHandler;
-import com.lmax.disruptor.support.ValueEvent;
-import com.lmax.disruptor.support.ValuePublisher;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 
 /**
  * <pre>
@@ -59,7 +59,7 @@ public final class TwoToTwoWorkProcessorThroughputTest extends AbstractPerfTestD
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
+            createMultiProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BusySpinWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final Sequence workSequence = new Sequence(-1);

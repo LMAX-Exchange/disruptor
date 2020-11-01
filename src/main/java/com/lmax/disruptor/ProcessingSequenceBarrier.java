@@ -29,10 +29,10 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final Sequencer sequencer;
 
     ProcessingSequenceBarrier(
-        final Sequencer sequencer,
-        final WaitStrategy waitStrategy,
-        final Sequence cursorSequence,
-        final Sequence[] dependentSequences)
+            final Sequencer sequencer,
+            final WaitStrategy waitStrategy,
+            final Sequence cursorSequence,
+            final Sequence[] dependentSequences)
     {
         this.sequencer = sequencer;
         this.waitStrategy = waitStrategy;
@@ -40,8 +40,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
         if (0 == dependentSequences.length)
         {
             dependentSequence = cursorSequence;
-        }
-        else
+        } else
         {
             dependentSequence = new FixedSequenceGroup(dependentSequences);
         }
@@ -49,7 +48,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
 
     @Override
     public long waitFor(final long sequence)
-        throws AlertException, InterruptedException, TimeoutException
+            throws AlertException, InterruptedException, TimeoutException
     {
         checkAlert();
 

@@ -25,7 +25,7 @@ public final class ValueQueuePublisher implements Runnable
     private final long iterations;
 
     public ValueQueuePublisher(
-        final CyclicBarrier cyclicBarrier, final BlockingQueue<Long> blockingQueue, final long iterations)
+            final CyclicBarrier cyclicBarrier, final BlockingQueue<Long> blockingQueue, final long iterations)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.blockingQueue = blockingQueue;
@@ -42,8 +42,7 @@ public final class ValueQueuePublisher implements Runnable
             {
                 blockingQueue.put(Long.valueOf(i));
             }
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             throw new RuntimeException(ex);
         }

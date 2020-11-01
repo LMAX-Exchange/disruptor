@@ -15,13 +15,6 @@
  */
 package com.lmax.disruptor.workhandler;
 
-import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.EventCountingQueueProcessor;
 import com.lmax.disruptor.support.EventCountingWorkHandler;
@@ -29,8 +22,15 @@ import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.PaddedLong;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
+
 public final class OneToThreeWorkerPoolThroughputTest
-    extends AbstractPerfTestDisruptor
+        extends AbstractPerfTestDisruptor
 {
     private static final int NUM_WORKERS = 3;
     private static final int BUFFER_SIZE = 1024 * 8;
@@ -70,10 +70,10 @@ public final class OneToThreeWorkerPoolThroughputTest
     }
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        RingBuffer.createSingleProducer(
-            ValueEvent.EVENT_FACTORY,
-            BUFFER_SIZE,
-            new YieldingWaitStrategy());
+            RingBuffer.createSingleProducer(
+                    ValueEvent.EVENT_FACTORY,
+                    BUFFER_SIZE,
+                    new YieldingWaitStrategy());
 
     private final WorkerPool<ValueEvent> workerPool =
             new WorkerPool<>(

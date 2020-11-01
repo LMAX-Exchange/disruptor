@@ -47,8 +47,7 @@ public class BatchingTest
             {
                 publishedValue = tempValue;
                 batchCount = 0;
-            }
-            else
+            } else
             {
                 LockSupport.parkNanos(1);
             }
@@ -87,14 +86,14 @@ public class BatchingTest
         }
 
         while (handler1.processed != eventCount - 1 ||
-            handler2.processed != eventCount - 1)
+                handler2.processed != eventCount - 1)
         {
             Thread.sleep(1);
         }
 
-        assertEquals( eventCount - 2, handler1.publishedValue);
-        assertEquals( eventCount / 2, handler1.eventCount);
-        assertEquals( eventCount - 1, handler2.publishedValue);
-        assertEquals( eventCount / 2, handler2.eventCount);
+        assertEquals(eventCount - 2, handler1.publishedValue);
+        assertEquals(eventCount / 2, handler1.eventCount);
+        assertEquals(eventCount - 1, handler2.publishedValue);
+        assertEquals(eventCount / 2, handler2.eventCount);
     }
 }

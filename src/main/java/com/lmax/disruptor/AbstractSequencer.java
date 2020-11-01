@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.util.Util;
+
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
-import com.lmax.disruptor.util.Util;
 
 /**
  * Base class for the various sequencer types (single/multi).  Provides
@@ -28,7 +28,7 @@ import com.lmax.disruptor.util.Util;
 public abstract class AbstractSequencer implements Sequencer
 {
     private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
-        AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
+            AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
 
     protected final int bufferSize;
     protected final WaitStrategy waitStrategy;
@@ -128,9 +128,9 @@ public abstract class AbstractSequencer implements Sequencer
     public String toString()
     {
         return "AbstractSequencer{" +
-            "waitStrategy=" + waitStrategy +
-            ", cursor=" + cursor +
-            ", gatingSequences=" + Arrays.toString(gatingSequences) +
-            '}';
+                "waitStrategy=" + waitStrategy +
+                ", cursor=" + cursor +
+                ", gatingSequences=" + Arrays.toString(gatingSequences) +
+                '}';
     }
 }

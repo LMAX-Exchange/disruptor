@@ -22,11 +22,11 @@ public class LiteTimeoutBlockingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(
-        final long sequence,
-        final Sequence cursorSequence,
-        final Sequence dependentSequence,
-        final SequenceBarrier barrier)
-        throws AlertException, InterruptedException, TimeoutException
+            final long sequence,
+            final Sequence cursorSequence,
+            final Sequence dependentSequence,
+            final SequenceBarrier barrier)
+            throws AlertException, InterruptedException, TimeoutException
     {
         long nanos = timeoutInNanos;
 
@@ -73,9 +73,9 @@ public class LiteTimeoutBlockingWaitStrategy implements WaitStrategy
     public String toString()
     {
         return "LiteTimeoutBlockingWaitStrategy{" +
-            "mutex=" + mutex +
-            ", signalNeeded=" + signalNeeded +
-            ", timeoutInNanos=" + timeoutInNanos +
-            '}';
+                "mutex=" + mutex +
+                ", signalNeeded=" + signalNeeded +
+                ", timeoutInNanos=" + timeoutInNanos +
+                '}';
     }
 }

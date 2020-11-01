@@ -54,8 +54,8 @@ public final class SleepingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(
-        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
-        throws AlertException
+            final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+            throws AlertException
     {
         long availableSequence;
         int counter = retries;
@@ -74,20 +74,18 @@ public final class SleepingWaitStrategy implements WaitStrategy
     }
 
     private int applyWaitMethod(final SequenceBarrier barrier, int counter)
-        throws AlertException
+            throws AlertException
     {
         barrier.checkAlert();
 
         if (counter > 100)
         {
             --counter;
-        }
-        else if (counter > 0)
+        } else if (counter > 0)
         {
             --counter;
             Thread.yield();
-        }
-        else
+        } else
         {
             LockSupport.parkNanos(sleepTimeNs);
         }

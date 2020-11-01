@@ -15,9 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import sun.misc.Unsafe;
-
 import com.lmax.disruptor.util.Util;
+import sun.misc.Unsafe;
 
 
 class LhsPadding
@@ -55,8 +54,7 @@ public class Sequence extends RhsPadding
         try
         {
             VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
-        }
-        catch (final Exception e)
+        } catch (final Exception e)
         {
             throw new RuntimeException(e);
         }
@@ -119,7 +117,7 @@ public class Sequence extends RhsPadding
      * Perform a compare and set operation on the sequence.
      *
      * @param expectedValue The expected current value.
-     * @param newValue The value to update to.
+     * @param newValue      The value to update to.
      * @return true if the operation succeeds, false otherwise.
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)

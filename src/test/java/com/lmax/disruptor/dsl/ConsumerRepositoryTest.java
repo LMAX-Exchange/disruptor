@@ -39,7 +39,8 @@ public class ConsumerRepositoryTest
     private SequenceBarrier barrier2;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp()
+    {
         consumerRepository = new ConsumerRepository<>();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
         eventProcessor2 = new DummyEventProcessor(new Sequence());
@@ -55,19 +56,22 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldGetBarrierByHandler() {
+    public void shouldGetBarrierByHandler()
+    {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
 
         assertSame(consumerRepository.getBarrierFor(handler1), barrier1);
     }
 
     @Test
-    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() {
+    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered()
+    {
         assertNull(consumerRepository.getBarrierFor(handler1));
     }
 
     @Test
-    public void shouldGetLastEventProcessorsInChain() {
+    public void shouldGetLastEventProcessorsInChain()
+    {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
 
@@ -95,7 +99,8 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldIterateAllEventProcessors() {
+    public void shouldIterateAllEventProcessors()
+    {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
 
@@ -105,16 +110,14 @@ public class ConsumerRepositoryTest
         {
             final EventProcessorInfo<?> eventProcessorInfo = (EventProcessorInfo<?>) testEntryEventProcessorInfo;
             if (!seen1 && eventProcessorInfo.getEventProcessor() == eventProcessor1 &&
-                eventProcessorInfo.getHandler() == handler1)
+                    eventProcessorInfo.getHandler() == handler1)
             {
                 seen1 = true;
-            }
-            else if (!seen2 && eventProcessorInfo.getEventProcessor() == eventProcessor2 &&
-                eventProcessorInfo.getHandler() == handler2)
+            } else if (!seen2 && eventProcessorInfo.getEventProcessor() == eventProcessor2 &&
+                    eventProcessorInfo.getHandler() == handler2)
             {
                 seen2 = true;
-            }
-            else
+            } else
             {
                 fail("Unexpected eventProcessor info: " + testEntryEventProcessorInfo);
             }

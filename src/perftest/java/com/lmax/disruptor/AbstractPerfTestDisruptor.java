@@ -21,7 +21,7 @@ public abstract class AbstractPerfTestDisruptor
     public static final int RUNS = 7;
 
     protected void testImplementations()
-        throws Exception
+            throws Exception
     {
         final int availableProcessors = Runtime.getRuntime().availableProcessors();
         if (getRequiredProcessorCount() > availableProcessors)
@@ -39,7 +39,7 @@ public abstract class AbstractPerfTestDisruptor
             PerfTestContext context = runDisruptorPass();
             contexts[i] = context;
             System.out.format("Run %d, Disruptor=%,d ops/sec BatchPercent=%.2f%% AverageBatchSize=%,d\n",
-                    i, context.getDisruptorOps(), context.getBatchPercent() * 100, (long)context.getAverageBatchSize());
+                    i, context.getDisruptorOps(), context.getBatchPercent() * 100, (long) context.getAverageBatchSize());
         }
     }
 
@@ -49,8 +49,8 @@ public abstract class AbstractPerfTestDisruptor
         {
             PerfTestContext context = contexts[i];
             System.out.format("%s run %d: BlockingQueue=%,d Disruptor=%,d ops/sec BatchPercent=%,d AverageBatchSize=%,d\n",
-                              className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(context.getDisruptorOps()),
-                              Double.valueOf(context.getBatchPercent()), Double.valueOf(context.getAverageBatchSize()));
+                    className, Integer.valueOf(i), Long.valueOf(queueOps[i]), Long.valueOf(context.getDisruptorOps()),
+                    Double.valueOf(context.getBatchPercent()), Double.valueOf(context.getAverageBatchSize()));
         }
     }
 

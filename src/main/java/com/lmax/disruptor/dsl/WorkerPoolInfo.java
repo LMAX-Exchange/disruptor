@@ -1,6 +1,8 @@
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.WorkerPool;
 
 import java.util.concurrent.Executor;
 

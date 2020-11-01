@@ -66,8 +66,7 @@ public final class ValueAdditionQueueProcessor implements Runnable
                 {
                     latch.countDown();
                 }
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 if (!running)
                 {

@@ -15,18 +15,12 @@
  */
 package com.lmax.disruptor.queue;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
 import com.lmax.disruptor.support.ValueQueuePublisher;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -81,14 +75,14 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
 
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
     private final ValueAdditionQueueProcessor queueProcessor =
-        new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
+            new ValueAdditionQueueProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
 
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
             valueQueuePublishers[i] =
-                new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
+                    new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
         }
     }
 

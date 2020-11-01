@@ -30,7 +30,7 @@ public final class ValueMutationQueueProcessor implements Runnable
     private final long count;
 
     public ValueMutationQueueProcessor(
-        final BlockingQueue<Long> blockingQueue, final Operation operation, final long count)
+            final BlockingQueue<Long> blockingQueue, final Operation operation, final long count)
     {
         this.blockingQueue = blockingQueue;
         this.operation = operation;
@@ -69,8 +69,7 @@ public final class ValueMutationQueueProcessor implements Runnable
                 {
                     latch.countDown();
                 }
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 if (!running)
                 {

@@ -33,11 +33,11 @@ public final class FizzBuzzQueueProcessor implements Runnable
     private CountDownLatch latch = null;
 
     public FizzBuzzQueueProcessor(
-        final FizzBuzzStep fizzBuzzStep,
-        final BlockingQueue<Long> fizzInputQueue,
-        final BlockingQueue<Long> buzzInputQueue,
-        final BlockingQueue<Boolean> fizzOutputQueue,
-        final BlockingQueue<Boolean> buzzOutputQueue, final long count)
+            final FizzBuzzStep fizzBuzzStep,
+            final BlockingQueue<Long> fizzInputQueue,
+            final BlockingQueue<Long> buzzInputQueue,
+            final BlockingQueue<Boolean> fizzOutputQueue,
+            final BlockingQueue<Boolean> buzzOutputQueue, final long count)
     {
         this.fizzBuzzStep = fizzBuzzStep;
 
@@ -105,8 +105,7 @@ public final class FizzBuzzQueueProcessor implements Runnable
                 {
                     latch.countDown();
                 }
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 if (!running)
                 {

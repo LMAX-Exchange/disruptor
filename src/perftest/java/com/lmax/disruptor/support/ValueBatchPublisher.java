@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import java.util.concurrent.CyclicBarrier;
-
 import com.lmax.disruptor.RingBuffer;
+
+import java.util.concurrent.CyclicBarrier;
 
 public final class ValueBatchPublisher implements Runnable
 {
@@ -27,10 +27,10 @@ public final class ValueBatchPublisher implements Runnable
     private final int batchSize;
 
     public ValueBatchPublisher(
-        final CyclicBarrier cyclicBarrier,
-        final RingBuffer<ValueEvent> ringBuffer,
-        final long iterations,
-        final int batchSize)
+            final CyclicBarrier cyclicBarrier,
+            final RingBuffer<ValueEvent> ringBuffer,
+            final long iterations,
+            final int batchSize)
     {
         this.cyclicBarrier = cyclicBarrier;
         this.ringBuffer = ringBuffer;
@@ -56,8 +56,7 @@ public final class ValueBatchPublisher implements Runnable
                 }
                 ringBuffer.publish(lo, hi);
             }
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             throw new RuntimeException(ex);
         }

@@ -5,7 +5,7 @@ import com.lmax.disruptor.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiBufferBatchEventProcessor<T>
-    implements EventProcessor
+        implements EventProcessor
 {
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final DataProvider<T>[] providers;
@@ -15,9 +15,9 @@ public class MultiBufferBatchEventProcessor<T>
     private long count;
 
     public MultiBufferBatchEventProcessor(
-        DataProvider<T>[] providers,
-        SequenceBarrier[] barriers,
-        EventHandler<T> handler)
+            DataProvider<T>[] providers,
+            SequenceBarrier[] barriers,
+            EventHandler<T> handler)
     {
         if (providers.length != barriers.length)
         {
@@ -72,23 +72,19 @@ public class MultiBufferBatchEventProcessor<T>
                 }
 
                 Thread.yield();
-            }
-            catch (AlertException e)
+            } catch (AlertException e)
             {
                 if (!isRunning())
                 {
                     break;
                 }
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 e.printStackTrace();
-            }
-            catch (TimeoutException e)
+            } catch (TimeoutException e)
             {
                 e.printStackTrace();
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
                 break;

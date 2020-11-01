@@ -83,8 +83,7 @@ public final class ValueAdditionBatchQueueProcessor implements Runnable
                 {
                     latch.countDown();
                 }
-            }
-            catch (InterruptedException ex)
+            } catch (InterruptedException ex)
             {
                 if (!running)
                 {
@@ -98,9 +97,9 @@ public final class ValueAdditionBatchQueueProcessor implements Runnable
     public String toString()
     {
         return "ValueAdditionBatchQueueProcessor{" +
-            "value=" + value +
-            ", sequence=" + sequence +
-            ", count=" + count +
-            '}';
+                "value=" + value +
+                ", sequence=" + sequence +
+                ", count=" + count +
+                '}';
     }
 }

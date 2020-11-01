@@ -31,10 +31,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private final WaitStrategy fallbackStrategy;
 
     public PhasedBackoffWaitStrategy(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units,
-        WaitStrategy fallbackStrategy)
+            long spinTimeout,
+            long yieldTimeout,
+            TimeUnit units,
+            WaitStrategy fallbackStrategy)
     {
         this.spinTimeoutNanos = units.toNanos(spinTimeout);
         this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeout);
@@ -44,60 +44,60 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     /**
      * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link BlockingWaitStrategy}
      *
-     * @param spinTimeout The maximum time in to busy spin for.
+     * @param spinTimeout  The maximum time in to busy spin for.
      * @param yieldTimeout The maximum time in to yield for.
-     * @param units Time units used for the timeout values.
+     * @param units        Time units used for the timeout values.
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLock(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+            long spinTimeout,
+            long yieldTimeout,
+            TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
-            spinTimeout, yieldTimeout,
-            units, new BlockingWaitStrategy());
+                spinTimeout, yieldTimeout,
+                units, new BlockingWaitStrategy());
     }
 
     /**
      * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link LiteBlockingWaitStrategy}
      *
-     * @param spinTimeout The maximum time in to busy spin for.
+     * @param spinTimeout  The maximum time in to busy spin for.
      * @param yieldTimeout The maximum time in to yield for.
-     * @param units Time units used for the timeout values.
+     * @param units        Time units used for the timeout values.
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLiteLock(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+            long spinTimeout,
+            long yieldTimeout,
+            TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
-            spinTimeout, yieldTimeout,
-            units, new LiteBlockingWaitStrategy());
+                spinTimeout, yieldTimeout,
+                units, new LiteBlockingWaitStrategy());
     }
 
     /**
      * Construct {@link PhasedBackoffWaitStrategy} with fallback to {@link SleepingWaitStrategy}
      *
-     * @param spinTimeout The maximum time in to busy spin for.
+     * @param spinTimeout  The maximum time in to busy spin for.
      * @param yieldTimeout The maximum time in to yield for.
-     * @param units Time units used for the timeout values.
+     * @param units        Time units used for the timeout values.
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withSleep(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+            long spinTimeout,
+            long yieldTimeout,
+            TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
-            spinTimeout, yieldTimeout,
-            units, new SleepingWaitStrategy(0));
+                spinTimeout, yieldTimeout,
+                units, new SleepingWaitStrategy(0));
     }
 
     @Override
     public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
-        throws AlertException, InterruptedException, TimeoutException
+            throws AlertException, InterruptedException, TimeoutException
     {
         long availableSequence;
         long startTime = 0;
@@ -115,15 +115,13 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 if (0 == startTime)
                 {
                     startTime = System.nanoTime();
-                }
-                else
+                } else
                 {
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
                         return fallbackStrategy.waitFor(sequence, cursor, dependentSequence, barrier);
-                    }
-                    else if (timeDelta > spinTimeoutNanos)
+                    } else if (timeDelta > spinTimeoutNanos)
                     {
                         Thread.yield();
                     }

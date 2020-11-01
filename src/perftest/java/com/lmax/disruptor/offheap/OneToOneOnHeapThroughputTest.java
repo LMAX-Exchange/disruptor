@@ -22,10 +22,10 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
     private final Executor executor = Executors.newFixedThreadPool(1, DaemonThreadFactory.INSTANCE);
     private final WaitStrategy waitStrategy = new YieldingWaitStrategy();
     private final RingBuffer<ByteBuffer> buffer =
-        RingBuffer.createSingleProducer(
-            SLICED_BUFFER ? SlicedBufferFactory.direct(BLOCK_SIZE, BUFFER_SIZE) : BufferFactory.direct(BLOCK_SIZE),
-            BUFFER_SIZE, waitStrategy);
-        private final ByteBufferHandler handler = new ByteBufferHandler();
+            RingBuffer.createSingleProducer(
+                    SLICED_BUFFER ? SlicedBufferFactory.direct(BLOCK_SIZE, BUFFER_SIZE) : BufferFactory.direct(BLOCK_SIZE),
+                    BUFFER_SIZE, waitStrategy);
+    private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
             new BatchEventProcessor<>(buffer, buffer.newBarrier(), handler);
 
@@ -156,8 +156,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             if (isDirect)
             {
                 return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
-            }
-            else
+            } else
             {
                 return ByteBuffer.allocate(size).order(ByteOrder.nativeOrder());
             }
@@ -188,8 +187,8 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             this.size = size;
             this.total = total;
             this.buffer =
-                (isDirect ? ByteBuffer.allocateDirect(size * total) : ByteBuffer.allocate(size * total))
-                    .order(ByteOrder.nativeOrder());
+                    (isDirect ? ByteBuffer.allocateDirect(size * total) : ByteBuffer.allocate(size * total))
+                            .order(ByteOrder.nativeOrder());
             this.buffer.limit(0);
         }
 
@@ -199,8 +198,8 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             if (this.buffer.limit() == this.buffer.capacity())
             {
                 this.buffer =
-                    (isDirect ? ByteBuffer.allocateDirect(size * total) : ByteBuffer.allocate(size * total))
-                        .order(ByteOrder.nativeOrder());
+                        (isDirect ? ByteBuffer.allocateDirect(size * total) : ByteBuffer.allocate(size * total))
+                                .order(ByteOrder.nativeOrder());
                 this.buffer.limit(0);
             }
             final int limit = this.buffer.limit();

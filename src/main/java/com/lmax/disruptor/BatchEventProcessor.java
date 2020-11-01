@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class BatchEventProcessor<T>
-    implements EventProcessor
+        implements EventProcessor
 {
     private static final int IDLE = 0;
     private static final int HALTED = IDLE + 1;
@@ -52,9 +52,9 @@ public final class BatchEventProcessor<T>
      * @param eventHandler    is the delegate to which events are dispatched.
      */
     public BatchEventProcessor(
-        final DataProvider<T> dataProvider,
-        final SequenceBarrier sequenceBarrier,
-        final EventHandler<? super T> eventHandler)
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final EventHandler<? super T> eventHandler)
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
@@ -66,9 +66,9 @@ public final class BatchEventProcessor<T>
         }
 
         batchStartAware =
-            (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
+                (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
         timeoutHandler =
-            (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
+                (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
     }
 
     @Override
@@ -124,14 +124,12 @@ public final class BatchEventProcessor<T>
                 {
                     processEvents();
                 }
-            }
-            finally
+            } finally
             {
                 notifyShutdown();
                 running.set(IDLE);
             }
-        }
-        else
+        } else
         {
             // This is a little bit of guess work.  The running state could of changed to HALTED by
             // this point.  However, Java does not have compareAndExchange which is the only way
@@ -139,8 +137,7 @@ public final class BatchEventProcessor<T>
             if (running.get() == RUNNING)
             {
                 throw new IllegalStateException("Thread is already running");
-            }
-            else
+            } else
             {
                 earlyExit();
             }
@@ -170,19 +167,16 @@ public final class BatchEventProcessor<T>
                 }
 
                 sequence.set(availableSequence);
-            }
-            catch (final TimeoutException e)
+            } catch (final TimeoutException e)
             {
                 notifyTimeout(sequence.get());
-            }
-            catch (final AlertException ex)
+            } catch (final AlertException ex)
             {
                 if (running.get() != RUNNING)
                 {
                     break;
                 }
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
@@ -205,8 +199,7 @@ public final class BatchEventProcessor<T>
             {
                 timeoutHandler.onTimeout(availableSequence);
             }
-        }
-        catch (Throwable e)
+        } catch (Throwable e)
         {
             exceptionHandler.handleEventException(e, availableSequence, null);
         }
@@ -222,8 +215,7 @@ public final class BatchEventProcessor<T>
             try
             {
                 ((LifecycleAware) eventHandler).onStart();
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 exceptionHandler.handleOnStartException(ex);
             }
@@ -240,8 +232,7 @@ public final class BatchEventProcessor<T>
             try
             {
                 ((LifecycleAware) eventHandler).onShutdown();
-            }
-            catch (final Throwable ex)
+            } catch (final Throwable ex)
             {
                 exceptionHandler.handleOnShutdownException(ex);
             }

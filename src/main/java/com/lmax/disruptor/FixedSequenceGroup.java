@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import java.util.Arrays;
-
 import com.lmax.disruptor.util.Util;
+
+import java.util.Arrays;
 
 /**
  * Hides a group of Sequences behind a single Sequence

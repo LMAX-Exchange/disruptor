@@ -21,10 +21,10 @@ public class EventPoller<T>
     }
 
     public EventPoller(
-        final DataProvider<T> dataProvider,
-        final Sequencer sequencer,
-        final Sequence sequence,
-        final Sequence gatingSequence)
+            final DataProvider<T> dataProvider,
+            final Sequencer sequencer,
+            final Sequence sequence,
+            final Sequence gatingSequence)
     {
         this.dataProvider = dataProvider;
         this.sequencer = sequencer;
@@ -54,41 +54,36 @@ public class EventPoller<T>
 
                 }
                 while (nextSequence <= availableSequence & processNextEvent);
-            }
-            finally
+            } finally
             {
                 sequence.set(processedSequence);
             }
 
             return PollState.PROCESSING;
-        }
-        else if (sequencer.getCursor() >= nextSequence)
+        } else if (sequencer.getCursor() >= nextSequence)
         {
             return PollState.GATING;
-        }
-        else
+        } else
         {
             return PollState.IDLE;
         }
     }
 
     public static <T> EventPoller<T> newInstance(
-        final DataProvider<T> dataProvider,
-        final Sequencer sequencer,
-        final Sequence sequence,
-        final Sequence cursorSequence,
-        final Sequence... gatingSequences)
+            final DataProvider<T> dataProvider,
+            final Sequencer sequencer,
+            final Sequence sequence,
+            final Sequence cursorSequence,
+            final Sequence... gatingSequences)
     {
         Sequence gatingSequence;
         if (gatingSequences.length == 0)
         {
             gatingSequence = cursorSequence;
-        }
-        else if (gatingSequences.length == 1)
+        } else if (gatingSequences.length == 1)
         {
             gatingSequence = gatingSequences[0];
-        }
-        else
+        } else
         {
             gatingSequence = new FixedSequenceGroup(gatingSequences);
         }

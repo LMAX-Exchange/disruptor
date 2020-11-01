@@ -37,9 +37,10 @@ public final class StubThreadFactory implements ThreadFactory
     {
         executionCount.getAndIncrement();
         Runnable toExecute = command;
-        if(ignoreExecutions.get())
+        if (ignoreExecutions.get())
         {
-            toExecute = () -> {};
+            toExecute = () -> {
+            };
         }
         final Thread thread = threadFactory.newThread(toExecute);
         thread.setName(command.toString());
@@ -57,8 +58,7 @@ public final class StubThreadFactory implements ThreadFactory
                 {
                     thread.interrupt();
                     thread.join(5000);
-                }
-                catch (InterruptedException e)
+                } catch (InterruptedException e)
                 {
                     e.printStackTrace();
                 }

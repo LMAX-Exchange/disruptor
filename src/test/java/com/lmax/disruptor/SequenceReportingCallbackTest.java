@@ -30,7 +30,7 @@ public class SequenceReportingCallbackTest
 
     @Test
     public void shouldReportProgressByUpdatingSequenceViaCallback()
-        throws Exception
+            throws Exception
     {
         final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();

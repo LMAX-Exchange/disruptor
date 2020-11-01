@@ -15,16 +15,16 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import static com.lmax.disruptor.RingBuffer.createSingleProducer;
+import com.lmax.disruptor.*;
+import com.lmax.disruptor.support.LongArrayEventHandler;
+import com.lmax.disruptor.support.PerfTestUtil;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.lmax.disruptor.*;
-import com.lmax.disruptor.support.LongArrayEventHandler;
-import com.lmax.disruptor.support.PerfTestUtil;
-import com.lmax.disruptor.util.DaemonThreadFactory;
+import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 
 /**
  * <pre>
@@ -66,7 +66,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<long[]> ringBuffer =
-        createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+            createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LongArrayEventHandler handler = new LongArrayEventHandler();
     private final BatchEventProcessor<long[]> batchEventProcessor =

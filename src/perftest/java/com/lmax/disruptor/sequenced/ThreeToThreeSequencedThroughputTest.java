@@ -15,17 +15,13 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.support.LongArrayEventHandler;
 import com.lmax.disruptor.support.LongArrayPublisher;
 import com.lmax.disruptor.support.MultiBufferBatchEventProcessor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+
+import java.util.concurrent.*;
 
 /**
  * <pre>
@@ -66,7 +62,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     private static final int BUFFER_SIZE = 1024 * 64;
     private static final long ITERATIONS = 1000L * 1000L * 180L;
     private final ExecutorService executor =
-        Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
+            Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,10 +83,10 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
             buffers[i] = RingBuffer.createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
             barriers[i] = buffers[i].newBarrier();
             valuePublishers[i] = new LongArrayPublisher(
-                cyclicBarrier,
-                buffers[i],
-                ITERATIONS / NUM_PUBLISHERS,
-                ARRAY_SIZE);
+                    cyclicBarrier,
+                    buffers[i],
+                    ITERATIONS / NUM_PUBLISHERS,
+                    ARRAY_SIZE);
         }
 
         batchEventProcessor = new MultiBufferBatchEventProcessor<>(buffers, barriers, handler);

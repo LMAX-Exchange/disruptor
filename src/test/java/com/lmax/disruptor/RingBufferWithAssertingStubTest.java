@@ -32,7 +32,8 @@ public class RingBufferWithAssertingStubTest
     }
 
     @Test
-    public void shouldDelegateNextNAndPublish() {
+    public void shouldDelegateNextNAndPublish()
+    {
         long hi = ringBuffer.next(10);
         ringBuffer.publish(hi - 9, hi);
     }
