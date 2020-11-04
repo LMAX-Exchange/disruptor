@@ -19,7 +19,8 @@ public class HandleExceptionOnTranslate
             if (event.get() == NO_VALUE_SPECIFIED)
             {
                 System.out.printf("Discarded%n");
-            } else
+            }
+            else
             {
                 System.out.printf("Processed: %s%n", event.get() == sequence);
             }
@@ -34,7 +35,8 @@ public class HandleExceptionOnTranslate
 
         disruptor.start();
 
-        EventTranslator<LongEvent> t = (event, sequence) -> {
+        EventTranslator<LongEvent> t = (event, sequence) ->
+        {
             event.set(NO_VALUE_SPECIFIED);
 
             if (sequence % 3 == 0)
@@ -50,7 +52,8 @@ public class HandleExceptionOnTranslate
             try
             {
                 disruptor.publishEvent(t);
-            } catch (RuntimeException e)
+            }
+            catch (RuntimeException e)
             {
                 // Skipping
             }

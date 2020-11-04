@@ -394,7 +394,8 @@ public class DisruptorTest
             delayedEventHandler.processEvent();
 
             assertProducerReaches(stubPublisher, 5, false);
-        } finally
+        }
+        finally
         {
             stubPublisher.halt();
         }
@@ -642,7 +643,8 @@ public class DisruptorTest
     @Test
     public void shouldThrowTimeoutExceptionIfShutdownDoesNotCompleteNormally() throws Exception
     {
-        assertThrows(TimeoutException.class, () -> {
+        assertThrows(TimeoutException.class, () ->
+        {
             //Given
             final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
             disruptor.handleEventsWith(delayedEventHandler);
@@ -704,7 +706,8 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub<>(countDownLatch);
 
         disruptor.handleEventsWith(
-                (ringBuffer, barrierSequences) -> {
+                (ringBuffer, barrierSequences) ->
+                {
                     assertEquals(0, barrierSequences.length, "Should not have had any barrier sequences");
                     return new BatchEventProcessor<>(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
@@ -722,7 +725,8 @@ public class DisruptorTest
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
 
         disruptor.handleEventsWith(delayedEventHandler).then(
-                (ringBuffer, barrierSequences) -> {
+                (ringBuffer, barrierSequences) ->
+                {
                     assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
                     return new BatchEventProcessor<>(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
@@ -772,7 +776,8 @@ public class DisruptorTest
         if (strict)
         {
             assertEquals(stubPublisher.getPublicationCount(), expectedPublicationCount);
-        } else
+        }
+        else
         {
             final int actualPublicationCount = stubPublisher.getPublicationCount();
             assertTrue(actualPublicationCount >= expectedPublicationCount,

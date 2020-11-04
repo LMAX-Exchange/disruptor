@@ -181,7 +181,8 @@ class MessageProducer implements Runnable
             {
                 StubEvent event = ringBuffer.get(sequence);
                 event.setValue(i);
-            } finally
+            }
+            finally
             {
                 ringBuffer.publish(sequence);
             }

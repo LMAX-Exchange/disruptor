@@ -23,7 +23,8 @@ public final class StubEvent
     private int value;
     private String testString;
     public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR =
-            (event, sequence, arg0, arg1) -> {
+            (event, sequence, arg0, arg1) ->
+            {
                 event.setValue(arg0);
                 event.setTestString(arg1);
             };

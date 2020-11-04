@@ -154,10 +154,12 @@ public class DisruptorStressTest
                     testEvent.s = "wibble-" + next;
                     ringBuffer.publish(next);
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 failed = true;
-            } finally
+            }
+            finally
             {
                 shutdownLatch.countDown();
             }

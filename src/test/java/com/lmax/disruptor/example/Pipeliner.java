@@ -28,7 +28,8 @@ public class Pipeliner
             {
                 PipelinerEvent pipelinerEvent = ringBuffer.get(next);
                 pipelinerEvent.input = i;
-            } finally
+            }
+            finally
             {
                 ringBuffer.publish(next);
             }

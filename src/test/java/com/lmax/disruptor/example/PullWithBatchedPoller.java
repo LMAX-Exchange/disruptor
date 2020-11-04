@@ -61,7 +61,8 @@ class BatchedPoller<T>
     private EventPoller.PollState loadNextValues(EventPoller<BatchedPoller.DataEvent<T>> poller, final BatchedData<T> batch)
             throws Exception
     {
-        return poller.poll((event, sequence, endOfBatch) -> {
+        return poller.poll((event, sequence, endOfBatch) ->
+        {
             T item = event.copyOfData();
             return item != null && batch.addDataItem(item);
         });

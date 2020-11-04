@@ -56,7 +56,8 @@ public final class YieldingWaitStrategy implements WaitStrategy
         if (0 == counter)
         {
             Thread.yield();
-        } else
+        }
+        else
         {
             --counter;
         }

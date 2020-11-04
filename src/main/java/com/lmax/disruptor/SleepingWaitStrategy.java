@@ -81,11 +81,13 @@ public final class SleepingWaitStrategy implements WaitStrategy
         if (counter > 100)
         {
             --counter;
-        } else if (counter > 0)
+        }
+        else if (counter > 0)
         {
             --counter;
             Thread.yield();
-        } else
+        }
+        else
         {
             LockSupport.parkNanos(sleepTimeNs);
         }

@@ -69,7 +69,8 @@ public final class SequenceBarrierTest
 
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(workers));
 
-        Runnable runnable = () -> {
+        Runnable runnable = () ->
+        {
             {
                 long sequence = ringBuffer.next();
                 StubEvent event = ringBuffer.get(sequence);
@@ -110,10 +111,12 @@ public final class SequenceBarrierTest
             try
             {
                 sequenceBarrier.waitFor(expectedNumberMessages - 1);
-            } catch (AlertException e)
+            }
+            catch (AlertException e)
             {
                 alerted[0] = true;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // don't care
             }

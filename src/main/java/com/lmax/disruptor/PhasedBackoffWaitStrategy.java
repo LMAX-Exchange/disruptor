@@ -115,13 +115,15 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
                 if (0 == startTime)
                 {
                     startTime = System.nanoTime();
-                } else
+                }
+                else
                 {
                     long timeDelta = System.nanoTime() - startTime;
                     if (timeDelta > yieldTimeoutNanos)
                     {
                         return fallbackStrategy.waitFor(sequence, cursor, dependentSequence, barrier);
-                    } else if (timeDelta > spinTimeoutNanos)
+                    }
+                    else if (timeDelta > spinTimeoutNanos)
                     {
                         Thread.yield();
                     }

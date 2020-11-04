@@ -113,11 +113,13 @@ public class ConsumerRepositoryTest
                     eventProcessorInfo.getHandler() == handler1)
             {
                 seen1 = true;
-            } else if (!seen2 && eventProcessorInfo.getEventProcessor() == eventProcessor2 &&
+            }
+            else if (!seen2 && eventProcessorInfo.getEventProcessor() == eventProcessor2 &&
                     eventProcessorInfo.getHandler() == handler2)
             {
                 seen2 = true;
-            } else
+            }
+            else
             {
                 fail("Unexpected eventProcessor info: " + testEntryEventProcessorInfo);
             }

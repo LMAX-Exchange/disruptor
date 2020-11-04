@@ -124,12 +124,14 @@ public final class BatchEventProcessor<T>
                 {
                     processEvents();
                 }
-            } finally
+            }
+            finally
             {
                 notifyShutdown();
                 running.set(IDLE);
             }
-        } else
+        }
+        else
         {
             // This is a little bit of guess work.  The running state could of changed to HALTED by
             // this point.  However, Java does not have compareAndExchange which is the only way
@@ -137,7 +139,8 @@ public final class BatchEventProcessor<T>
             if (running.get() == RUNNING)
             {
                 throw new IllegalStateException("Thread is already running");
-            } else
+            }
+            else
             {
                 earlyExit();
             }
@@ -167,16 +170,19 @@ public final class BatchEventProcessor<T>
                 }
 
                 sequence.set(availableSequence);
-            } catch (final TimeoutException e)
+            }
+            catch (final TimeoutException e)
             {
                 notifyTimeout(sequence.get());
-            } catch (final AlertException ex)
+            }
+            catch (final AlertException ex)
             {
                 if (running.get() != RUNNING)
                 {
                     break;
                 }
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 exceptionHandler.handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
@@ -199,7 +205,8 @@ public final class BatchEventProcessor<T>
             {
                 timeoutHandler.onTimeout(availableSequence);
             }
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
             exceptionHandler.handleEventException(e, availableSequence, null);
         }
@@ -215,7 +222,8 @@ public final class BatchEventProcessor<T>
             try
             {
                 ((LifecycleAware) eventHandler).onStart();
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 exceptionHandler.handleOnStartException(ex);
             }
@@ -232,7 +240,8 @@ public final class BatchEventProcessor<T>
             try
             {
                 ((LifecycleAware) eventHandler).onShutdown();
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 exceptionHandler.handleOnShutdownException(ex);
             }

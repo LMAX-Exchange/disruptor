@@ -94,14 +94,16 @@ public final class Util
     {
         try
         {
-            final PrivilegedExceptionAction<Unsafe> action = () -> {
+            final PrivilegedExceptionAction<Unsafe> action = () ->
+            {
                 Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
                 theUnsafe.setAccessible(true);
                 return (Unsafe) theUnsafe.get(null);
             };
 
             THE_UNSAFE = AccessController.doPrivileged(action);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             throw new RuntimeException("Unable to load unsafe", e);
         }

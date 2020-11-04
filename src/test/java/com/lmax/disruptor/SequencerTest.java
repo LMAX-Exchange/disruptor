@@ -105,7 +105,8 @@ public class SequencerTest
         assertEquals(expectedFullSequence, sequencer.getCursor());
 
         executor.submit(
-                () -> {
+                () ->
+                {
                     waitingLatch.countDown();
 
                     long next = sequencer.next();
@@ -128,7 +129,8 @@ public class SequencerTest
     @MethodSource("generateData")
     public void shouldThrowInsufficientCapacityExceptionWhenSequencerIsFull(Sequencer sequencer)
     {
-        assertThrows(InsufficientCapacityException.class, () -> {
+        assertThrows(InsufficientCapacityException.class, () ->
+        {
             sequencer.addGatingSequences(gatingSequence);
             for (int i = 0; i < BUFFER_SIZE; i++)
             {
@@ -249,7 +251,8 @@ public class SequencerTest
         {
             sequencer.tryNext();
             fail("Should of thrown: " + InsufficientCapacityException.class.getSimpleName());
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             // No-op
         }

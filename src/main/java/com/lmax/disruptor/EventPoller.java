@@ -54,16 +54,19 @@ public class EventPoller<T>
 
                 }
                 while (nextSequence <= availableSequence & processNextEvent);
-            } finally
+            }
+            finally
             {
                 sequence.set(processedSequence);
             }
 
             return PollState.PROCESSING;
-        } else if (sequencer.getCursor() >= nextSequence)
+        }
+        else if (sequencer.getCursor() >= nextSequence)
         {
             return PollState.GATING;
-        } else
+        }
+        else
         {
             return PollState.IDLE;
         }
@@ -80,10 +83,12 @@ public class EventPoller<T>
         if (gatingSequences.length == 0)
         {
             gatingSequence = cursorSequence;
-        } else if (gatingSequences.length == 1)
+        }
+        else if (gatingSequences.length == 1)
         {
             gatingSequence = gatingSequences[0];
-        } else
+        }
+        else
         {
             gatingSequence = new FixedSequenceGroup(gatingSequences);
         }

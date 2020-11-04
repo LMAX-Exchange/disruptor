@@ -47,7 +47,8 @@ public class PullWithPoller
         final Object[] out = new Object[1];
 
         poller.poll(
-                (event, sequence, endOfBatch) -> {
+                (event, sequence, endOfBatch) ->
+                {
                     out[0] = event.copyOfData();
 
                     // Return false so that only one event is processed at a time.

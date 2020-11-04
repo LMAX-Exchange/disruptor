@@ -134,7 +134,8 @@ public final class MultiProducerSequencer extends AbstractSequencer
                 }
 
                 gatingSequenceCache.set(gatingSequence);
-            } else if (cursor.compareAndSet(current, next))
+            }
+            else if (cursor.compareAndSet(current, next))
             {
                 break;
             }

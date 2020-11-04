@@ -35,7 +35,8 @@ public class ShutdownOnFatalExceptionTest
     @Test
     public void shouldShutdownGracefulEvenWithFatalExceptionHandler()
     {
-        assertTimeout(Duration.ofMillis(1000), () -> {
+        assertTimeout(Duration.ofMillis(1000), () ->
+        {
             disruptor.start();
 
             byte[] bytes;

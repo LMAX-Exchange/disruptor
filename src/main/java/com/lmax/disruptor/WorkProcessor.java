@@ -149,20 +149,24 @@ public final class WorkProcessor<T>
                     event = ringBuffer.get(nextSequence);
                     workHandler.onEvent(event);
                     processedSequence = true;
-                } else
+                }
+                else
                 {
                     cachedAvailableSequence = sequenceBarrier.waitFor(nextSequence);
                 }
-            } catch (final TimeoutException e)
+            }
+            catch (final TimeoutException e)
             {
                 notifyTimeout(sequence.get());
-            } catch (final AlertException ex)
+            }
+            catch (final AlertException ex)
             {
                 if (!running.get())
                 {
                     break;
                 }
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 // handle, mark as processed, unless the exception handler threw an exception
                 exceptionHandler.handleEventException(ex, nextSequence, event);
@@ -183,7 +187,8 @@ public final class WorkProcessor<T>
             {
                 timeoutHandler.onTimeout(availableSequence);
             }
-        } catch (Throwable e)
+        }
+        catch (Throwable e)
         {
             exceptionHandler.handleEventException(e, availableSequence, null);
         }
@@ -196,7 +201,8 @@ public final class WorkProcessor<T>
             try
             {
                 ((LifecycleAware) workHandler).onStart();
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 exceptionHandler.handleOnStartException(ex);
             }
@@ -210,7 +216,8 @@ public final class WorkProcessor<T>
             try
             {
                 ((LifecycleAware) workHandler).onShutdown();
-            } catch (final Throwable ex)
+            }
+            catch (final Throwable ex)
             {
                 exceptionHandler.handleOnShutdownException(ex);
             }

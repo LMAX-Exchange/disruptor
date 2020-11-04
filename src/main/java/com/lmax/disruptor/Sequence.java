@@ -54,7 +54,8 @@ public class Sequence extends RhsPadding
         try
         {
             VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
-        } catch (final Exception e)
+        }
+        catch (final Exception e)
         {
             throw new RuntimeException(e);
         }

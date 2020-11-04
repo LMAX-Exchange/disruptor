@@ -40,7 +40,8 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
         if (0 == dependentSequences.length)
         {
             dependentSequence = cursorSequence;
-        } else
+        }
+        else
         {
             dependentSequence = new FixedSequenceGroup(dependentSequences);
         }

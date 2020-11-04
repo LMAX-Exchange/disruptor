@@ -50,7 +50,8 @@ public class DynamicAddWorkHandler
                 {
                     StubEvent event = ringBuffer.get(sequence);
                     event.setTestString("msg => " + i);
-                } finally
+                }
+                finally
                 {
                     ringBuffer.publish(sequence);
                 }

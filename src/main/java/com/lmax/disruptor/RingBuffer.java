@@ -38,10 +38,12 @@ abstract class RingBufferFields<E> extends RingBufferPad
         if (4 == scale)
         {
             REF_ELEMENT_SHIFT = 2;
-        } else if (8 == scale)
+        }
+        else if (8 == scale)
         {
             REF_ELEMENT_SHIFT = 3;
-        } else
+        }
+        else
         {
             throw new IllegalStateException("Unknown pointer size");
         }
@@ -474,7 +476,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -503,7 +506,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -532,7 +536,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -561,7 +566,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, arg0, arg1, arg2);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -588,7 +594,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long sequence = sequencer.tryNext();
             translateAndPublish(translator, sequence, args);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -636,7 +643,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -688,7 +696,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -741,7 +750,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -795,7 +805,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, arg0, arg1, arg2, batchStartsAt, batchSize, finalSequence);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -843,7 +854,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             final long finalSequence = sequencer.tryNext(batchSize);
             translateAndPublishBatch(translator, batchStartsAt, batchSize, finalSequence, args);
             return true;
-        } catch (InsufficientCapacityException e)
+        }
+        catch (InsufficientCapacityException e)
         {
             return false;
         }
@@ -896,7 +908,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         if (batchStartsAt < 0 || batchSize < 0)
         {
             throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and batchSize " + batchSize);
-        } else if (batchSize > bufferSize)
+        }
+        else if (batchSize > bufferSize)
         {
             throw new IllegalArgumentException("The ring buffer cannot accommodate " + batchSize + " it only has space for " + bufferSize + " entities.");
         }
@@ -946,7 +959,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         try
         {
             translator.translateTo(get(sequence), sequence);
-        } finally
+        }
+        finally
         {
             sequencer.publish(sequence);
         }
@@ -957,7 +971,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         try
         {
             translator.translateTo(get(sequence), sequence, arg0);
-        } finally
+        }
+        finally
         {
             sequencer.publish(sequence);
         }
@@ -968,7 +983,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         try
         {
             translator.translateTo(get(sequence), sequence, arg0, arg1);
-        } finally
+        }
+        finally
         {
             sequencer.publish(sequence);
         }
@@ -981,7 +997,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         try
         {
             translator.translateTo(get(sequence), sequence, arg0, arg1, arg2);
-        } finally
+        }
+        finally
         {
             sequencer.publish(sequence);
         }
@@ -992,7 +1009,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         try
         {
             translator.translateTo(get(sequence), sequence, args);
-        } finally
+        }
+        finally
         {
             sequencer.publish(sequence);
         }
@@ -1012,7 +1030,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
                 final EventTranslator<E> translator = translators[i];
                 translator.translateTo(get(sequence), sequence++);
             }
-        } finally
+        }
+        finally
         {
             sequencer.publish(initialSequence, finalSequence);
         }
@@ -1031,7 +1050,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             {
                 translator.translateTo(get(sequence), sequence++, arg0[i]);
             }
-        } finally
+        }
+        finally
         {
             sequencer.publish(initialSequence, finalSequence);
         }
@@ -1051,7 +1071,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             {
                 translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i]);
             }
-        } finally
+        }
+        finally
         {
             sequencer.publish(initialSequence, finalSequence);
         }
@@ -1071,7 +1092,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             {
                 translator.translateTo(get(sequence), sequence++, arg0[i], arg1[i], arg2[i]);
             }
-        } finally
+        }
+        finally
         {
             sequencer.publish(initialSequence, finalSequence);
         }
@@ -1090,7 +1112,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
             {
                 translator.translateTo(get(sequence), sequence++, args[i]);
             }
-        } finally
+        }
+        finally
         {
             sequencer.publish(initialSequence, finalSequence);
         }

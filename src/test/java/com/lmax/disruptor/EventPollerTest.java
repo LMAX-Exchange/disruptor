@@ -40,7 +40,8 @@ public class EventPollerTest
     {
         final ArrayList<byte[]> events = new ArrayList<>();
 
-        final EventPoller.Handler<byte[]> handler = (event, sequence, endOfBatch) -> {
+        final EventPoller.Handler<byte[]> handler = (event, sequence, endOfBatch) ->
+        {
             events.add(event);
             return !endOfBatch;
         };

@@ -408,7 +408,8 @@ public class Disruptor<T>
         try
         {
             shutdown(-1, TimeUnit.MILLISECONDS);
-        } catch (final TimeoutException e)
+        }
+        catch (final TimeoutException e)
         {
             exceptionHandler.handleOnShutdownException(e);
         }

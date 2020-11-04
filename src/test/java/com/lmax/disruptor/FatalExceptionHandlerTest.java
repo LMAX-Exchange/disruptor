@@ -33,7 +33,8 @@ public final class FatalExceptionHandlerTest
         try
         {
             exceptionHandler.handleEventException(causeException, 0L, event);
-        } catch (RuntimeException ex)
+        }
+        catch (RuntimeException ex)
         {
             assertEquals(causeException, ex.getCause());
         }

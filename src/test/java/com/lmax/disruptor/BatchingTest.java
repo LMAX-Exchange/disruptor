@@ -47,7 +47,8 @@ public class BatchingTest
             {
                 publishedValue = tempValue;
                 batchCount = 0;
-            } else
+            }
+            else
             {
                 LockSupport.parkNanos(1);
             }

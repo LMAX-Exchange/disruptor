@@ -53,7 +53,8 @@ public class ExceptionHandlerSetting<T>
         {
             ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
             consumerRepository.getBarrierFor(eventHandler).alert();
-        } else
+        }
+        else
         {
             throw new RuntimeException(
                     "EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " +
