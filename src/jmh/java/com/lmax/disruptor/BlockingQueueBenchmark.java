@@ -1,11 +1,8 @@
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.Constants;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.SimpleEvent;
-import com.lmax.disruptor.util.SimpleEventHandler;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -22,47 +19,65 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
 @Fork(1)
-public class SimpleBenchmark
+public class BlockingQueueBenchmark
 {
-    private RingBuffer<SimpleEvent> ringBuffer;
-    private Disruptor<SimpleEvent> disruptor;
     private AtomicLong eventsHandled;
+    private BlockingQueue<SimpleEvent> arrayBlockingQueue;
+    private volatile boolean consumerRunning;
+    private SimpleEvent[] preMadeEvents;
 
     @Setup
     public void setup(final Blackhole bh)
     {
         eventsHandled = new AtomicLong();
 
-        disruptor = new Disruptor<>(SimpleEvent::new,
-                Constants.RINGBUFFER_SIZE,
-                DaemonThreadFactory.INSTANCE,
-                ProducerType.SINGLE,
-                new BusySpinWaitStrategy());
+        arrayBlockingQueue = new ArrayBlockingQueue<>(Constants.RINGBUFFER_SIZE);
+        Thread eventHandler = DaemonThreadFactory.INSTANCE.newThread(() ->
+        {
+            while (consumerRunning)
+            {
+                SimpleEvent event = arrayBlockingQueue.poll();
+                if (event != null)
+                {
+                    eventsHandled.incrementAndGet();
+                    bh.consume(event);
+                }
+            }
+        });
+        consumerRunning = true;
+        eventHandler.start();
 
-        disruptor.handleEventsWith(new SimpleEventHandler(bh, eventsHandled));
-
-        ringBuffer = disruptor.start();
+        preMadeEvents = IntStream.range(0, Constants.ITERATIONS)
+                .mapToObj(i ->
+                {
+                    SimpleEvent simpleEvent = new SimpleEvent();
+                    simpleEvent.setValue(i);
+                    return simpleEvent;
+                }).toArray(SimpleEvent[]::new);
     }
 
     @Benchmark
     @OperationsPerInvocation(Constants.ITERATIONS)
-    public void publishSimpleEvents()
+    public void publishSimpleEvents() throws InterruptedException
     {
         eventsHandled.set(0);
 
         for (int i = 0; i < Constants.ITERATIONS; i++)
         {
-            long sequence = ringBuffer.next();
-            SimpleEvent simpleEvent = ringBuffer.get(sequence);
-            simpleEvent.setValue(i);
-            ringBuffer.publish(sequence);
+            if (!arrayBlockingQueue.offer(preMadeEvents[i], 1, TimeUnit.NANOSECONDS))
+            {
+                throw new IllegalStateException("Queue full, benchmark should not experience backpressure");
+            }
         }
 
         while (eventsHandled.get() != Constants.ITERATIONS)
@@ -74,13 +89,13 @@ public class SimpleBenchmark
     @TearDown
     public void tearDown()
     {
-        disruptor.shutdown();
+        consumerRunning = false;
     }
 
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
-                .include(SimpleBenchmark.class.getSimpleName())
+                .include(BlockingQueueBenchmark.class.getSimpleName())
                 .forks(1)
                 .build();
         new Runner(opt).run();
