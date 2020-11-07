@@ -43,6 +43,7 @@ ext {
 
 sourceSets {
     perf.java.srcDir file('src/perftest/java')
+    jmh
 }
 
 eclipse.classpath.plusConfigurations += [ sourceSets.perf.compileClasspath ]
@@ -55,6 +56,9 @@ dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
     testCompile 'junit:junit:4.12'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
+    jmhCompile project
+    jmhCompile 'org.openjdk.jmh:jmh-core:1.26'
+    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
 }
 
 idea.module {
@@ -176,6 +180,32 @@ task perfJar(type: Jar) {
     from sourceSets.perf.output
     from sourceSets.test.output
     with jar
+}
+
+task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
+    classpath = sourceSets.jmh.runtimeClasspath
+    main = 'org.openjdk.jmh.Main'
+
+    def profilers = ['pauses']
+    def format = 'json'
+    def resultFile = file("build/reports/jmh/result.${format}")
+    resultFile.parentFile.mkdirs()
+
+    args '-rf', format
+    args '-rff', resultFile
+    args '-foe', 'true' //fail-on-error
+    args '-v', 'NORMAL' //verbosity [SILENT, NORMAL, EXTRA]
+    profilers.each {
+        args '-prof', it
+    }
+    args '-jvmArgsPrepend', '-Xmx256m'
+    args '-jvmArgsPrepend', '-Xms256m'
+}
+
+task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'performance') {
+    classpath = sourceSets.jmh.runtimeClasspath
+    main = 'org.openjdk.jmh.Main'
+    args '-lprof'
 }
 
 wrapper {
