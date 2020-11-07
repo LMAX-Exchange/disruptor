@@ -8,7 +8,8 @@ public class SimpleEventHandler implements EventHandler<SimpleEvent>
 {
     private final AtomicLong eventsHandled;
 
-    public SimpleEventHandler(final AtomicLong eventsHandled) {
+    public SimpleEventHandler(final AtomicLong eventsHandled)
+    {
         this.eventsHandled = eventsHandled;
     }
 
