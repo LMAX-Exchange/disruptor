@@ -76,7 +76,6 @@ public class SimpleBenchmark
     {
         Options opt = new OptionsBuilder()
                 .include(SimpleBenchmark.class.getSimpleName())
-                .threads(4)
                 .forks(1)
                 .build();
         new Runner(opt).run();
