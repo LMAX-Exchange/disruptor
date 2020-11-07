@@ -22,6 +22,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -30,20 +31,21 @@ import java.util.concurrent.TimeUnit;
 public class SimpleBenchmark
 {
     private RingBuffer<SimpleEvent> ringBuffer;
-    private SimpleEventHandler eventHandler;
     private Disruptor<SimpleEvent> disruptor;
+    private AtomicLong eventsHandled;
 
     @Setup
     public void setup()
     {
+        eventsHandled = new AtomicLong();
+
         disruptor = new Disruptor<>(SimpleEvent::new,
                 Constants.RINGBUFFER_SIZE,
                 DaemonThreadFactory.INSTANCE,
                 ProducerType.SINGLE,
                 new BusySpinWaitStrategy());
 
-        eventHandler = new SimpleEventHandler();
-        disruptor.handleEventsWith(eventHandler);
+        disruptor.handleEventsWith(new SimpleEventHandler(eventsHandled));
 
         ringBuffer = disruptor.start();
     }
@@ -52,6 +54,8 @@ public class SimpleBenchmark
     @OperationsPerInvocation(Constants.ITERATIONS)
     public void publishSimpleEvents()
     {
+        eventsHandled.set(0);
+
         for (int i = 0; i < Constants.ITERATIONS; i++)
         {
             long sequence = ringBuffer.next();
@@ -60,7 +64,7 @@ public class SimpleBenchmark
             ringBuffer.publish(sequence);
         }
 
-        while (eventHandler.lastSeenSequence % Constants.ITERATIONS != Constants.ITERATIONS - 1)
+        while (eventsHandled.get() != Constants.ITERATIONS)
         {
             Thread.yield();
         }
