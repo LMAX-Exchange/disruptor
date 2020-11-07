@@ -34,9 +34,9 @@ public class SimpleBenchmark
     private Disruptor<SimpleEvent> disruptor;
 
     @Setup
-    public void setup() {
-        disruptor = new Disruptor<>(
-                SimpleEvent::new,
+    public void setup()
+    {
+        disruptor = new Disruptor<>(SimpleEvent::new,
                 Constants.RINGBUFFER_SIZE,
                 DaemonThreadFactory.INSTANCE,
                 ProducerType.SINGLE,
@@ -50,8 +50,10 @@ public class SimpleBenchmark
 
     @Benchmark
     @OperationsPerInvocation(Constants.ITERATIONS)
-    public void publishSimpleEvents() {
-        for (int i = 0; i < Constants.ITERATIONS; i++) {
+    public void publishSimpleEvents()
+    {
+        for (int i = 0; i < Constants.ITERATIONS; i++)
+        {
             long sequence = ringBuffer.next();
             SimpleEvent simpleEvent = ringBuffer.get(sequence);
             simpleEvent.setValue(i);
@@ -65,11 +67,13 @@ public class SimpleBenchmark
     }
 
     @TearDown
-    public void tearDown() {
+    public void tearDown()
+    {
         disruptor.shutdown();
     }
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) throws RunnerException
+    {
         Options opt = new OptionsBuilder()
                 .include(SimpleBenchmark.class.getSimpleName())
                 .threads(4)

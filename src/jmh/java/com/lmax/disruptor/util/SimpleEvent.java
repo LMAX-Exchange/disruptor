@@ -9,12 +9,14 @@ public class SimpleEvent
         return value;
     }
 
-    public void setValue(final long value) {
+    public void setValue(final long value)
+    {
         this.value = value;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "SimpleEvent{" +
                 "value=" + value +
                 '}';
