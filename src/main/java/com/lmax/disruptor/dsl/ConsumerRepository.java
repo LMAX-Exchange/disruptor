@@ -62,10 +62,22 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public boolean hasBacklog(long cursor, boolean includeStopped)
     {
-        return consumerInfos.stream()
-                .filter(consumerInfo -> (includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
-                .flatMap(consumerInfo -> Arrays.stream(consumerInfo.getSequences()))
-                .anyMatch(sequence -> cursor > sequence.get());
+        for (ConsumerInfo consumerInfo : consumerInfos)
+        {
+            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
+            {
+                final Sequence[] sequences = consumerInfo.getSequences();
+                for (Sequence sequence : sequences)
+                {
+                    if (cursor > sequence.get())
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
