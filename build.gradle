@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'java'
-apply plugin: 'osgi'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-apply plugin: 'checkstyle'
-apply plugin: 'idea'
+plugins {
+    id 'java'
+    id 'osgi'
+    id 'maven'
+    id 'signing'
+    id 'eclipse' // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
+    id 'checkstyle'
+    id 'idea'
+
+    id 'org.asciidoctor.jvm.convert' version '3.1.0'
+}
+
+asciidoctor {
+    languages 'en'
+    resources {
+        from('src/docs/resources')
+        into './resources'
+    }
+}
 
 defaultTasks 'build'
 
