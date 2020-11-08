@@ -43,18 +43,18 @@ public class DynamiclyAddHandler
         ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 
         // Build a disruptor and start it.
-        Disruptor<StubEvent> disruptor = new Disruptor<StubEvent>(
-            StubEvent.EVENT_FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+        Disruptor<StubEvent> disruptor = new Disruptor<>(
+                StubEvent.EVENT_FACTORY, 1024, DaemonThreadFactory.INSTANCE);
         RingBuffer<StubEvent> ringBuffer = disruptor.start();
 
         // Construct 2 batch event processors.
         DynamicHandler handler1 = new DynamicHandler();
         BatchEventProcessor<StubEvent> processor1 =
-            new BatchEventProcessor<StubEvent>(ringBuffer, ringBuffer.newBarrier(), handler1);
+                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), handler1);
 
         DynamicHandler handler2 = new DynamicHandler();
         BatchEventProcessor<StubEvent> processor2 =
-            new BatchEventProcessor<StubEvent>(ringBuffer, ringBuffer.newBarrier(processor1.getSequence()), handler2);
+                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(processor1.getSequence()), handler2);
 
         // Dynamically add both sequences to the ring buffer
         ringBuffer.addGatingSequences(processor1.getSequence(), processor2.getSequence());

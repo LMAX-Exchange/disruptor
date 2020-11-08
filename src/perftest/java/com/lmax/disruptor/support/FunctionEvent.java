@@ -64,11 +64,5 @@ public final class FunctionEvent
         this.stepTwoResult = stepTwoResult;
     }
 
-    public static final EventFactory<FunctionEvent> EVENT_FACTORY = new EventFactory<FunctionEvent>()
-    {
-        public FunctionEvent newInstance()
-        {
-            return new FunctionEvent();
-        }
-    };
+    public static final EventFactory<FunctionEvent> EVENT_FACTORY = () -> new FunctionEvent();
 }

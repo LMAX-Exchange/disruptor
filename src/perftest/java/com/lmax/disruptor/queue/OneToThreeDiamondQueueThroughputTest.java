@@ -124,10 +124,10 @@ public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> fizzInputQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> buzzInputQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Boolean> fizzOutputQueue = new LinkedBlockingQueue<Boolean>(BUFFER_SIZE);
-    private final BlockingQueue<Boolean> buzzOutputQueue = new LinkedBlockingQueue<Boolean>(BUFFER_SIZE);
+    private final BlockingQueue<Long> fizzInputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Long> buzzInputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> fizzOutputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Boolean> buzzOutputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
 
     private final FizzBuzzQueueProcessor fizzQueueProcessor =
         new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);

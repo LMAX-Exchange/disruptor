@@ -51,7 +51,7 @@ public final class TestWaiter implements Callable<List<StubEvent>>
         cyclicBarrier.await();
         sequenceBarrier.waitFor(toWaitForSequence);
 
-        final List<StubEvent> messages = new ArrayList<StubEvent>();
+        final List<StubEvent> messages = new ArrayList<>();
         for (long l = initialSequence; l <= toWaitForSequence; l++)
         {
             messages.add(ringBuffer.get(l));

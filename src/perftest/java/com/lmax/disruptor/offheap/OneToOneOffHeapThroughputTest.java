@@ -24,7 +24,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
     private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
-        new BatchEventProcessor<ByteBuffer>(buffer, buffer.newBarrier(), handler);
+            new BatchEventProcessor<>(buffer, buffer.newBarrier(), handler);
 
     {
         buffer.addGatingSequences(processor.getSequence());
@@ -139,7 +139,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         private final ByteBuffer buffer;
         private final int mask;
 
-        private final ThreadLocal<ByteBuffer> perThreadBuffer = new ThreadLocal<ByteBuffer>()
+        private final ThreadLocal<ByteBuffer> perThreadBuffer = new ThreadLocal<>()
         {
             @Override
             protected ByteBuffer initialValue()

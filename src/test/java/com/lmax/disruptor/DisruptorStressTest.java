@@ -23,7 +23,7 @@ public class DisruptorStressTest
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
-        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
+        Disruptor<TestEvent> disruptor = new Disruptor<>(
                 TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
                 ProducerType.MULTI, new BusySpinWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
@@ -175,13 +175,6 @@ public class DisruptorStressTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<DisruptorStressTest.TestEvent>()
-        {
-            @Override
-            public DisruptorStressTest.TestEvent newInstance()
-            {
-                return new DisruptorStressTest.TestEvent();
-            }
-        };
+        public static final EventFactory<TestEvent> FACTORY = () -> new TestEvent();
     }
 }

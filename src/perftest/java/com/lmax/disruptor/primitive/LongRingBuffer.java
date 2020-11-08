@@ -2,7 +2,6 @@ package com.lmax.disruptor.primitive;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.DataProvider;
-import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.Sequencer;
 
 public class LongRingBuffer
@@ -54,17 +53,9 @@ public class LongRingBuffer
 
     public BatchEventProcessor<LongEvent> createProcessor(final LongHandler handler)
     {
-        return new BatchEventProcessor<LongEvent>(
-            new LongEvent(),
-            sequencer.newBarrier(),
-            new EventHandler<LongEvent>()
-            {
-                @Override
-                public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch)
-                    throws Exception
-                {
-                    handler.onEvent(event.get(), sequence, endOfBatch);
-                }
-            });
+        return new BatchEventProcessor<>(
+                new LongEvent(),
+                sequencer.newBarrier(),
+                (event, sequence, endOfBatch) -> handler.onEvent(event.get(), sequence, endOfBatch));
     }
 }

@@ -26,14 +26,7 @@ public class WaitForProcessing
         disruptor.handleEventsWith(firstConsumer).then(lastConsumer);
         final RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
 
-        EventTranslator<LongEvent> translator = new EventTranslator<LongEvent>()
-        {
-            @Override
-            public void translateTo(LongEvent event, long sequence)
-            {
-                event.set(sequence - 4);
-            }
-        };
+        EventTranslator<LongEvent> translator = (event, sequence) -> event.set(sequence - 4);
 
         ringBuffer.tryPublishEvent(translator);
 

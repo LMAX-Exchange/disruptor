@@ -69,19 +69,16 @@ public final class SequenceBarrierTest
 
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(workers));
 
-        Runnable runnable = new Runnable()
+        Runnable runnable = () ->
         {
-            public void run()
-            {
-                long sequence = ringBuffer.next();
-                StubEvent event = ringBuffer.get(sequence);
-                event.setValue((int) sequence);
-                ringBuffer.publish(sequence);
+            long sequence = ringBuffer.next();
+            StubEvent event = ringBuffer.get(sequence);
+            event.setValue((int) sequence);
+            ringBuffer.publish(sequence);
 
-                for (DummyEventProcessor stubWorker : workers)
-                {
-                    stubWorker.setSequence(sequence);
-                }
+            for (DummyEventProcessor stubWorker : workers)
+            {
+                stubWorker.setSequence(sequence);
             }
         };
 
@@ -108,9 +105,7 @@ public final class SequenceBarrierTest
 
         final boolean[] alerted = {false};
         Thread t = new Thread(
-            new Runnable()
-            {
-                public void run()
+                () ->
                 {
                     try
                     {
@@ -124,8 +119,7 @@ public final class SequenceBarrierTest
                     {
                         // don't care
                     }
-                }
-            });
+                });
 
         t.start();
         latch.await(3, TimeUnit.SECONDS);
@@ -150,14 +144,11 @@ public final class SequenceBarrierTest
 
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(Util.getSequencesFor(eventProcessors));
 
-        Runnable runnable = new Runnable()
+        Runnable runnable = () ->
         {
-            public void run()
+            for (DummyEventProcessor stubWorker : eventProcessors)
             {
-                for (DummyEventProcessor stubWorker : eventProcessors)
-                {
-                    stubWorker.setSequence(stubWorker.getSequence().get() + 1L);
-                }
+                stubWorker.setSequence(stubWorker.getSequence().get() + 1L);
             }
         };
 

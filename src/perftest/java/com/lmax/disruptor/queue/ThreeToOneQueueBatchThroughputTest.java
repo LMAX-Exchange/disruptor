@@ -73,7 +73,7 @@ public final class ThreeToOneQueueBatchThroughputTest extends AbstractPerfTestQu
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
     private final ValueAdditionQueueBatchProcessor queueProcessor =
         new ValueAdditionQueueBatchProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];

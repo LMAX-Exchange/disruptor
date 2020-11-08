@@ -71,7 +71,7 @@ public final class OneToOneSequencedThroughputTest extends AbstractPerfTestDisru
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor =
-        new BatchEventProcessor<ValueEvent>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
 
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());

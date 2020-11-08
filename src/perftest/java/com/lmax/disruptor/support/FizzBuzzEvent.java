@@ -55,11 +55,5 @@ public final class FizzBuzzEvent
         this.buzz = buzz;
     }
 
-    public static final EventFactory<FizzBuzzEvent> EVENT_FACTORY = new EventFactory<FizzBuzzEvent>()
-    {
-        public FizzBuzzEvent newInstance()
-        {
-            return new FizzBuzzEvent();
-        }
-    };
+    public static final EventFactory<FizzBuzzEvent> EVENT_FACTORY = () -> new FizzBuzzEvent();
 }

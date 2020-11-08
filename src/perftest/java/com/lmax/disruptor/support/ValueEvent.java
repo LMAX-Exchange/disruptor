@@ -31,11 +31,5 @@ public final class ValueEvent
         this.value = value;
     }
 
-    public static final EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>()
-    {
-        public ValueEvent newInstance()
-        {
-            return new ValueEvent();
-        }
-    };
+    public static final EventFactory<ValueEvent> EVENT_FACTORY = ValueEvent::new;
 }

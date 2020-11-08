@@ -15,14 +15,7 @@ public class PullWithPoller
 
         public static <T> EventFactory<DataEvent<T>> factory()
         {
-            return new EventFactory<DataEvent<T>>()
-            {
-                @Override
-                public DataEvent<T> newInstance()
-                {
-                    return new DataEvent<T>();
-                }
-            };
+            return DataEvent::new;
         }
 
         public T copyOfData()
@@ -54,17 +47,13 @@ public class PullWithPoller
         final Object[] out = new Object[1];
 
         poller.poll(
-            new EventPoller.Handler<DataEvent<Object>>()
-            {
-                @Override
-                public boolean onEvent(DataEvent<Object> event, long sequence, boolean endOfBatch) throws Exception
+                (event, sequence, endOfBatch) ->
                 {
                     out[0] = event.copyOfData();
 
                     // Return false so that only one event is processed at a time.
                     return false;
-                }
-            });
+                });
 
         return out[0];
     }

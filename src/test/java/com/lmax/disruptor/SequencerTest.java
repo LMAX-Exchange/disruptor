@@ -96,10 +96,7 @@ public class SequencerTest
         assertThat(sequencer.getCursor(), is(expectedFullSequence));
 
         executor.submit(
-            new Runnable()
-            {
-                @Override
-                public void run()
+                () ->
                 {
                     waitingLatch.countDown();
 
@@ -107,8 +104,7 @@ public class SequencerTest
                     sequencer.publish(next);
 
                     doneLatch.countDown();
-                }
-            });
+                });
 
         waitingLatch.await();
         assertThat(sequencer.getCursor(), is(expectedFullSequence));
