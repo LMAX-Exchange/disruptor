@@ -7,10 +7,14 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  checkout-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - name: asciidoctor-ghpages
-        uses: manoelcampos/asciidoctor-ghpages-action@v2
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Build ASCIIDoc with Gradle
+        run: ./gradlew clean asciidoctor
+      - name: Simple deploy with git
+        uses: rdarida/simple-github-pages-deploy-action@v1
+        with:
+          git-base-folder: build/docs/asciidoc/en/
