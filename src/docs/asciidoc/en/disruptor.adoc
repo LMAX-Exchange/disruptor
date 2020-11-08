@@ -1,15 +1,19 @@
-= LMAX Disruptor
-High performance alternative to bounded queues for exchanging data between concurrent threads
+= LMAX Disruptor: High performance alternative to bounded queues for exchanging data between concurrent threads
+Martin Thompson; Dave Farley; Michael Barker; Patricia Gee; Andrew Stewart
+v1.0, May 2011
 
-:Author:    Martin Thompson, Dave Farley, Michael Barker, Patricia Gee, Andrew Stewart
-:Email:
-:Date:      2011-05
-:Version:   1.0
+:sectnums:
+:toc: left
+:authors: Martin Thompson, Dave Farley, Michael Barker, Patricia Gee, Andrew Stewart
+:email:
+:date: 2011-05
+:revnumber: 1.0
 
 http://code.google.com/p/disruptor/
 
+.Abstract
 [Abstract]
-== Abstract
+****
 LMAX was established to create a very high performance financial exchange.
 As part of our work to accomplish this goal we have evaluated several approaches to the design of such a system, but as we began to measure these we ran into some fundamental limits with conventional approaches.
 
@@ -39,6 +43,7 @@ The Disruptor has significantly less write contention, a lower concurrency overh
 On processors at moderate clock rates we have seen over 25 million messages per second and latencies lower than 50 nanoseconds.
 This performance is a significant improvement compared to any other implementation that we have seen.
 This is very close to the theoretical limit of a modern processor to exchange data between cores.
+****
 
 == Overview
 The Disruptor is the result of our efforts to build the world’s highest performance financial exchange at LMAX.

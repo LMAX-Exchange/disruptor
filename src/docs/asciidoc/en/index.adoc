@@ -1,9 +1,9 @@
 = LMAX Disruptor
 High Performance Inter-Thread Messaging Library
 
-:Author:    LMAX Development Team
+:Author: LMAX Development Team
 :Email:
-:Date:      {docdata}
+:Date: {docdata}
 
 == Read This First
 
@@ -74,3 +74,7 @@ We have performance results of the test that produced these results, plus others
 
 - http://www.infoq.com/presentations/LMAX[Disruptor presentation @ QCon SF]
 - https://www.slideshare.net/trishagee/introduction-to-the-disruptor[Introduction to the Disruptor]
+
+== Changelog
+
+The changelog can be <<changelog.adoc#,found here>>.
