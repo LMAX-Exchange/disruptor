@@ -62,11 +62,11 @@ public final class OneToThreeReleasingWorkerPoolThroughputTest
             new YieldingWaitStrategy());
 
     private final WorkerPool<ValueEvent> workerPool =
-        new WorkerPool<ValueEvent>(
-            ringBuffer,
-            ringBuffer.newBarrier(),
-            new FatalExceptionHandler(),
-            handlers);
+            new WorkerPool<>(
+                    ringBuffer,
+                    ringBuffer.newBarrier(),
+                    new FatalExceptionHandler(),
+                    handlers);
 
     {
         ringBuffer.addGatingSequences(workerPool.getWorkerSequences());

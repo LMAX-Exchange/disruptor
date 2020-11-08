@@ -96,9 +96,9 @@ public final class OneToThreeQueueThroughputTest extends AbstractPerfTestQueue
     private final BlockingQueue<Long>[] blockingQueues = new BlockingQueue[NUM_EVENT_PROCESSORS];
 
     {
-        blockingQueues[0] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-        blockingQueues[1] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
-        blockingQueues[2] = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+        blockingQueues[0] = new LinkedBlockingQueue<>(BUFFER_SIZE);
+        blockingQueues[1] = new LinkedBlockingQueue<>(BUFFER_SIZE);
+        blockingQueues[2] = new LinkedBlockingQueue<>(BUFFER_SIZE);
     }
 
     private final ValueMutationQueueProcessor[] queueProcessors = new ValueMutationQueueProcessor[NUM_EVENT_PROCESSORS];

@@ -25,14 +25,7 @@ public class MultiProducerWithTranslator
         ITransportable transportable;
         String string;
 
-        private static final EventFactory<ObjectBox> FACTORY = new EventFactory<ObjectBox>()
-        {
-            @Override
-            public ObjectBox newInstance()
-            {
-                return new ObjectBox();
-            }
-        };
+        private static final EventFactory<ObjectBox> FACTORY = ObjectBox::new;
 
         public void setMessage(IMessage arg0)
         {
@@ -74,9 +67,9 @@ public class MultiProducerWithTranslator
 
     public static void main(String[] args) throws InterruptedException
     {
-        Disruptor<ObjectBox> disruptor = new Disruptor<ObjectBox>(
-            ObjectBox.FACTORY, RING_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.MULTI,
-            new BlockingWaitStrategy());
+        Disruptor<ObjectBox> disruptor = new Disruptor<>(
+                ObjectBox.FACTORY, RING_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.MULTI,
+                new BlockingWaitStrategy());
         disruptor.handleEventsWith(new Consumer()).then(new Consumer());
         final RingBuffer<ObjectBox> ringBuffer = disruptor.getRingBuffer();
         Publisher p = new Publisher();

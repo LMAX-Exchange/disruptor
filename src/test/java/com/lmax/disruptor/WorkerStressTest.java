@@ -23,9 +23,9 @@ public class WorkerStressTest
     @Test
     public void shouldHandleLotsOfThreads() throws Exception
     {
-        Disruptor<TestEvent> disruptor = new Disruptor<TestEvent>(
-            TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
-            ProducerType.MULTI, new SleepingWaitStrategy());
+        Disruptor<TestEvent> disruptor = new Disruptor<>(
+                TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
+                ProducerType.MULTI, new SleepingWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 
@@ -162,13 +162,6 @@ public class WorkerStressTest
         public long b;
         public String s;
 
-        public static final EventFactory<TestEvent> FACTORY = new EventFactory<WorkerStressTest.TestEvent>()
-        {
-            @Override
-            public TestEvent newInstance()
-            {
-                return new TestEvent();
-            }
-        };
+        public static final EventFactory<TestEvent> FACTORY = TestEvent::new;
     }
 }

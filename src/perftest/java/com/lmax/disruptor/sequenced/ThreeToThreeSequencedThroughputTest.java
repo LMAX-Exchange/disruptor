@@ -79,14 +79,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     private final LongArrayEventHandler handler = new LongArrayEventHandler();
     private final MultiBufferBatchEventProcessor<long[]> batchEventProcessor;
 
-    private static final EventFactory<long[]> FACTORY = new EventFactory<long[]>()
-    {
-        @Override
-        public long[] newInstance()
-        {
-            return new long[ARRAY_SIZE];
-        }
-    };
+    private static final EventFactory<long[]> FACTORY = () -> new long[ARRAY_SIZE];
 
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
@@ -100,7 +93,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
                 ARRAY_SIZE);
         }
 
-        batchEventProcessor = new MultiBufferBatchEventProcessor<long[]>(buffers, barriers, handler);
+        batchEventProcessor = new MultiBufferBatchEventProcessor<>(buffers, barriers, handler);
 
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {

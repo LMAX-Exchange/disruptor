@@ -77,9 +77,9 @@ public class BatchingTest
     @Test
     public void shouldBatch() throws Exception
     {
-        Disruptor<LongEvent> d = new Disruptor<LongEvent>(
-            LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
-            producerType, new SleepingWaitStrategy());
+        Disruptor<LongEvent> d = new Disruptor<>(
+                LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
+                producerType, new SleepingWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
         ParallelEventHandler handler2 = new ParallelEventHandler(1, 1);
@@ -88,14 +88,7 @@ public class BatchingTest
 
         RingBuffer<LongEvent> buffer = d.start();
 
-        EventTranslator<LongEvent> translator = new EventTranslator<LongEvent>()
-        {
-            @Override
-            public void translateTo(LongEvent event, long sequence)
-            {
-                event.set(sequence);
-            }
-        };
+        EventTranslator<LongEvent> translator = (event, sequence) -> event.set(sequence);
 
         int eventCount = 10000;
         for (int i = 0; i < eventCount; i++)

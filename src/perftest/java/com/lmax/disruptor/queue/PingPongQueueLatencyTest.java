@@ -64,8 +64,8 @@ public final class PingPongQueueLatencyTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> pingQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
-    private final BlockingQueue<Long> pongQueue = new ArrayBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> pingQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Long> pongQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
     private final QueuePinger qPinger = new QueuePinger(pingQueue, pongQueue, ITERATIONS, PAUSE_NANOS);
     private final QueuePonger qPonger = new QueuePonger(pingQueue, pongQueue);
 

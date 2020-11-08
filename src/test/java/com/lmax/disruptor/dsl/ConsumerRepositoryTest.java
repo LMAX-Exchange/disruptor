@@ -41,7 +41,7 @@ public class ConsumerRepositoryTest
     @Before
     public void setUp() throws Exception
     {
-        consumerRepository = new ConsumerRepository<TestEvent>();
+        consumerRepository = new ConsumerRepository<>();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
         eventProcessor2 = new DummyEventProcessor(new Sequence());
 

@@ -170,10 +170,7 @@ public class RingBufferTest
         buffer2.addGatingSequences(processor.getSequence());
 
         Thread thread = new Thread(
-            new Runnable()
-            {
-                @Override
-                public void run()
+                () ->
                 {
                     for (int i = 0; i <= ringBufferSize; i++)
                     {
@@ -185,8 +182,7 @@ public class RingBufferTest
                     }
 
                     publisherComplete.set(true);
-                }
-            });
+                });
         thread.start();
 
         latch.await();

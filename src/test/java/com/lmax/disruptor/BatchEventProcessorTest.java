@@ -35,8 +35,8 @@ public final class BatchEventProcessorTest
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, new ExceptionEventHandler());
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                ringBuffer, sequenceBarrier, new ExceptionEventHandler());
         batchEventProcessor.setExceptionHandler(null);
     }
 
@@ -46,8 +46,8 @@ public final class BatchEventProcessorTest
     {
         CountDownLatch eventLatch = new CountDownLatch(3);
         LatchEventHandler eventHandler = new LatchEventHandler(eventLatch);
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, eventHandler);
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                ringBuffer, sequenceBarrier, eventHandler);
 
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
 
@@ -70,8 +70,8 @@ public final class BatchEventProcessorTest
     {
         CountDownLatch exceptionLatch = new CountDownLatch(1);
         LatchExceptionHandler latchExceptionHandler = new LatchExceptionHandler(exceptionLatch);
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<StubEvent>(
-            ringBuffer, sequenceBarrier, new ExceptionEventHandler());
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                ringBuffer, sequenceBarrier, new ExceptionEventHandler());
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
 
         batchEventProcessor.setExceptionHandler(latchExceptionHandler);
@@ -144,7 +144,7 @@ public final class BatchEventProcessorTest
     public void reportAccurateBatchSizesAtBatchStartTime()
         throws Exception
     {
-        final List<Long> batchSizes = new ArrayList<Long>();
+        final List<Long> batchSizes = new ArrayList<>();
         final CountDownLatch eventLatch = new CountDownLatch(6);
 
         final class LoopbackEventHandler
@@ -170,8 +170,8 @@ public final class BatchEventProcessorTest
         }
 
         final BatchEventProcessor<StubEvent> batchEventProcessor =
-            new BatchEventProcessor<StubEvent>(
-                ringBuffer, sequenceBarrier, new LoopbackEventHandler());
+                new BatchEventProcessor<>(
+                        ringBuffer, sequenceBarrier, new LoopbackEventHandler());
 
         ringBuffer.publish(ringBuffer.next());
         ringBuffer.publish(ringBuffer.next());
@@ -194,14 +194,7 @@ public final class BatchEventProcessorTest
         final SingleProducerSequencer sequencer = new SingleProducerSequencer(8, waitStrategy);
         final ProcessingSequenceBarrier barrier = new ProcessingSequenceBarrier(
             sequencer, waitStrategy, new Sequence(-1), new Sequence[0]);
-        DataProvider<Object> dp = new DataProvider<Object>()
-        {
-            @Override
-            public Object get(long sequence)
-            {
-                return null;
-            }
-        };
+        DataProvider<Object> dp = sequence -> null;
 
         final LatchLifeCycleHandler h1 = new LatchLifeCycleHandler();
         final BatchEventProcessor p1 = new BatchEventProcessor<>(dp, barrier, h1);

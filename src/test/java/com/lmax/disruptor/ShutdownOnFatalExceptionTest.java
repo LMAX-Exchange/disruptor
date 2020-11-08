@@ -22,9 +22,9 @@ public class ShutdownOnFatalExceptionTest
     @Before
     public void setUp()
     {
-        disruptor = new Disruptor<byte[]>(
-            new ByteArrayFactory(256), 1024, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE,
-            new BlockingWaitStrategy());
+        disruptor = new Disruptor<>(
+                new ByteArrayFactory(256), 1024, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE,
+                new BlockingWaitStrategy());
         disruptor.handleEventsWith(eventHandler);
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
     }

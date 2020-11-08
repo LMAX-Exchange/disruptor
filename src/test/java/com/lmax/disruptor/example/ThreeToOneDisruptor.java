@@ -21,14 +21,7 @@ public class ThreeToOneDisruptor
             output = new Object[size];
         }
 
-        public static final EventFactory<DataEvent> FACTORY = new EventFactory<DataEvent>()
-        {
-            @Override
-            public DataEvent newInstance()
-            {
-                return new DataEvent(3);
-            }
-        };
+        public static final EventFactory<DataEvent> FACTORY = () -> new DataEvent(3);
     }
 
     public static class TransformingHandler implements EventHandler<DataEvent>
@@ -71,8 +64,8 @@ public class ThreeToOneDisruptor
     public static void main(String[] args)
     {
         Executor executor = Executors.newFixedThreadPool(4);
-        Disruptor<DataEvent> disruptor = new Disruptor<DataEvent>(
-            DataEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
+        Disruptor<DataEvent> disruptor = new Disruptor<>(
+                DataEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         TransformingHandler handler1 = new TransformingHandler(0);
         TransformingHandler handler2 = new TransformingHandler(1);

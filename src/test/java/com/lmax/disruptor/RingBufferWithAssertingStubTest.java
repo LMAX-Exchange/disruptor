@@ -19,7 +19,7 @@ public class RingBufferWithAssertingStubTest
     {
         sequencer = new AssertingSequencer(16);
 
-        ringBuffer = new RingBuffer<StubEvent>(StubEvent.EVENT_FACTORY, sequencer);
+        ringBuffer = new RingBuffer<>(StubEvent.EVENT_FACTORY, sequencer);
     }
 
     @Test

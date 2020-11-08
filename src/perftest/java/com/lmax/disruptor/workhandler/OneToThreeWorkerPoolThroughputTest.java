@@ -48,7 +48,7 @@ public final class OneToThreeWorkerPoolThroughputTest
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<Long>(BUFFER_SIZE);
+    private final BlockingQueue<Long> blockingQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
     private final EventCountingQueueProcessor[] queueWorkers = new EventCountingQueueProcessor[NUM_WORKERS];
 
     {
@@ -76,11 +76,11 @@ public final class OneToThreeWorkerPoolThroughputTest
             new YieldingWaitStrategy());
 
     private final WorkerPool<ValueEvent> workerPool =
-        new WorkerPool<ValueEvent>(
-            ringBuffer,
-            ringBuffer.newBarrier(),
-            new FatalExceptionHandler(),
-            handlers);
+            new WorkerPool<>(
+                    ringBuffer,
+                    ringBuffer.newBarrier(),
+                    new FatalExceptionHandler(),
+                    handlers);
 
     {
         ringBuffer.addGatingSequences(workerPool.getWorkerSequences());

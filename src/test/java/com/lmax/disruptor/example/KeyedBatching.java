@@ -9,7 +9,7 @@ public class KeyedBatching implements EventHandler<KeyedBatching.KeyedEvent>
 {
     private static final int MAX_BATCH_SIZE = 100;
     private long key = 0;
-    private List<Object> batch = new ArrayList<Object>();
+    private List<Object> batch = new ArrayList<>();
 
     @Override
     public void onEvent(KeyedEvent event, long sequence, boolean endOfBatch) throws Exception

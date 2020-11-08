@@ -100,17 +100,17 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
     private final BatchEventProcessor<FunctionEvent> stepOneBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
+            new BatchEventProcessor<>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
 
     private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newBarrier(stepOneBatchProcessor.getSequence());
     private final FunctionEventHandler stepTwoFunctionHandler = new FunctionEventHandler(FunctionStep.TWO);
     private final BatchEventProcessor<FunctionEvent> stepTwoBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
+            new BatchEventProcessor<>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
 
     private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newBarrier(stepTwoBatchProcessor.getSequence());
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
-        new BatchEventProcessor<FunctionEvent>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
+            new BatchEventProcessor<>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
 
     {
         ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());
