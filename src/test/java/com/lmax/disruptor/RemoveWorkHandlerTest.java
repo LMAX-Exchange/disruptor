@@ -20,14 +20,20 @@ import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveWorkHandlerTest
 {
     @Test
+    @Category(IntermittentTests.class)
     public void removeWorkHandlerLostEventExample() throws InterruptedException
     {
         int eventSize = 8;

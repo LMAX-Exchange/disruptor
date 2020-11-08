@@ -20,6 +20,7 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
+import com.lmax.disruptor.IntermittentTests;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
@@ -36,6 +37,7 @@ import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,12 +51,7 @@ import static java.lang.Thread.yield;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @SuppressWarnings(value = {"unchecked"})
 public class DisruptorTest
@@ -544,6 +541,7 @@ public class DisruptorTest
     }
 
     @Test
+    @Category(IntermittentTests.class)
     public void shouldProvideEventsToWorkHandlers() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();
@@ -617,6 +615,7 @@ public class DisruptorTest
     }
 
     @Test
+    @Category(IntermittentTests.class)
     public void shouldSupportUsingWorkerPoolWithADependency() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();

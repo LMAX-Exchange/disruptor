@@ -191,3 +191,9 @@ class Version {
         "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
     }
 }
+
+test {
+    useJUnit {
+        excludeCategories 'com.lmax.disruptor.IntermittentTests'
+    }
+}
