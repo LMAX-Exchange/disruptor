@@ -200,6 +200,7 @@ task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'perfor
     }
     args '-jvmArgsPrepend', '-Xmx256m'
     args '-jvmArgsPrepend', '-Xms256m'
+    args '-jvmArgsPrepend', '-XX:MaxDirectMemorySize=1g'
 }
 
 task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'performance') {
