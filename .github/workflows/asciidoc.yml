@@ -9,9 +9,16 @@ on:
 jobs:
   checkout-and-deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11 ]
     steps:
       - name: Checkout
         uses: actions/checkout@master
+      - name: Set up java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
       - name: Build ASCIIDoc with Gradle
         run: ./gradlew clean asciidoctor
       - name: Simple deploy with git
