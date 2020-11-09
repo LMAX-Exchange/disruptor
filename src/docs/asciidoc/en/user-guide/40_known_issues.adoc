@@ -1,0 +1,7 @@
+= Known Issues
+
+:Author: LMAX Development Team
+:Email:
+:Date: {docdata}
+
+- On 32 bit Linux systems it appears that `LockSupport.parkNanos()` is quite expensive, therefore using the `SleepingWaitStrategy` is not recommended.

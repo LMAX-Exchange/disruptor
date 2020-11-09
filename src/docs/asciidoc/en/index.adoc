@@ -31,7 +31,7 @@ It works in a different way to more conventional approaches, so you use it a lit
 For example, applying the pattern to your system is not as simple as replacing all your queues with the https://trishagee.com/2011/06/22/dissecting_the_disruptor_whats_so_special_about_a_ring_buffer/[magic ring buffer].
 We've got:
 
-- https://github.com/LMAX-Exchange/disruptor/wiki/Code-Example-Disruptor2x[code samples] to guide you,
+- a <<user-guide/index.adoc#,User Guide>> to guide you,
 - a growing number of https://github.com/LMAX-Exchange/disruptor/wiki/Blogs-And-Articles[blogs and articles] giving an overview of how it works,
 - the <<disruptor.adoc#,technical paper>> goes into some detail as you'd expect,
 - and the performance tests give examples of how to use the Disruptor.
@@ -47,7 +47,7 @@ It's fast.
 Very fast.
 
 .Latency histogram comparing Disruptor to ArrayBlockingQueue
-image::./resources/images/latency-histogram.png[]
+image::../resources/images/latency-histogram.png[]
 
 Note that this is a log-log scale, not linear.
 If we tried to plot the comparisons on a linear scale, we'd run out of space very quickly.
