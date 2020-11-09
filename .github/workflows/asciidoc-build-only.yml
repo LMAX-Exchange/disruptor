@@ -1,7 +1,9 @@
-name: Generate Github Pages from ASCIIDoc
+name: Generate Documentation from ASCIIDoc
 
 on:
   push:
+    branches-ignore: [ master ]
+  pull_request:
     branches: [ master ]
 
 jobs:
@@ -19,7 +21,3 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Build ASCIIDoc with Gradle
         run: ./gradlew clean asciidoctor
-      - name: Simple deploy with git
-        uses: rdarida/simple-github-pages-deploy-action@v1
-        with:
-          git-base-folder: build/docs/asciidoc/en/
