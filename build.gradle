@@ -28,8 +28,12 @@ plugins {
 asciidoctor {
     languages 'en'
     resources {
-        from('src/docs/resources')
-        into './resources'
+        from(javadoc) {
+            into './javadoc'
+        }
+        from('src/docs/resources') {
+            into './resources'
+        }
     }
     attributes 'toc': 'left'
 }

@@ -56,7 +56,7 @@ We have performance results of the test that produced these results, plus others
 == Great What do I do next?
 
 - https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started[Getting Started]
-- Read the API documentation
+- Read the <<./javadoc/index#,API documentation>>
 - Check out our https://github.com/LMAX-Exchange/disruptor/wiki/Frequently-Asked-Questions[Frequently Asked Questions]
 
 == Discussion, Blogs & Other Useful Links
