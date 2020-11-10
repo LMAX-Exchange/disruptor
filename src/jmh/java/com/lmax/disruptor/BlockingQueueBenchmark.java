@@ -1,13 +1,18 @@
 package com.lmax.disruptor;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import com.lmax.disruptor.util.Constants;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.SimpleEvent;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OperationsPerInvocation;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -19,70 +24,48 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
-
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
 @Fork(1)
 public class BlockingQueueBenchmark
 {
-    private AtomicLong eventsHandled;
     private BlockingQueue<SimpleEvent> arrayBlockingQueue;
     private volatile boolean consumerRunning;
-    private SimpleEvent[] preMadeEvents;
+    private SimpleEvent simpleEvent;
 
     @Setup
-    public void setup(final Blackhole bh)
+    public void setup(final Blackhole bh) throws InterruptedException
     {
-        eventsHandled = new AtomicLong();
-
         arrayBlockingQueue = new ArrayBlockingQueue<>(Constants.RINGBUFFER_SIZE);
-        Thread eventHandler = DaemonThreadFactory.INSTANCE.newThread(() ->
+
+        final CountDownLatch consumerStartedLatch = new CountDownLatch(1);
+        final Thread eventHandler = DaemonThreadFactory.INSTANCE.newThread(() ->
         {
+            consumerStartedLatch.countDown();
             while (consumerRunning)
             {
                 SimpleEvent event = arrayBlockingQueue.poll();
                 if (event != null)
                 {
-                    eventsHandled.incrementAndGet();
                     bh.consume(event);
                 }
             }
         });
         consumerRunning = true;
         eventHandler.start();
+        consumerStartedLatch.await();
 
-        preMadeEvents = IntStream.range(0, Constants.ITERATIONS)
-                .mapToObj(i ->
-                {
-                    SimpleEvent simpleEvent = new SimpleEvent();
-                    simpleEvent.setValue(i);
-                    return simpleEvent;
-                }).toArray(SimpleEvent[]::new);
+        simpleEvent = new SimpleEvent();
+        simpleEvent.setValue(0);
     }
 
     @Benchmark
-    @OperationsPerInvocation(Constants.ITERATIONS)
-    public void publishSimpleEvents() throws InterruptedException
+    public void producing() throws InterruptedException
     {
-        eventsHandled.set(0);
-
-        for (int i = 0; i < Constants.ITERATIONS; i++)
+        if (!arrayBlockingQueue.offer(simpleEvent, 1, TimeUnit.SECONDS))
         {
-            if (!arrayBlockingQueue.offer(preMadeEvents[i], 1, TimeUnit.NANOSECONDS))
-            {
-                throw new IllegalStateException("Queue full, benchmark should not experience backpressure");
-            }
-        }
-
-        while (eventsHandled.get() != Constants.ITERATIONS)
-        {
-            Thread.yield();
+            throw new IllegalStateException("Queue full, benchmark should not experience backpressure");
         }
     }
 
