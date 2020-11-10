@@ -1,0 +1,18 @@
+= LMAX Disruptor User Guide
+
+:Author: LMAX Development Team
+:Email:
+:Date: {docdata}
+:xrefstyle: short
+
+The LMAX Disruptor is a high performance inter-thread messaging library. It grew out of LMAX's research into concurrency, performance and non-blocking algorithms and today forms a core part of their Exchange's infrastructure.
+
+// Leave some gaps between these includes (trust me)
+
+include::10_using_the_disruptor.adoc[leveloffset=+1]
+
+include::20_developing_the_disruptor.adoc[leveloffset=+1]
+
+include::30_design_and_implementation.adoc[leveloffset=+1]
+
+include::40_known_issues.adoc[leveloffset=+1]

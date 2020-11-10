@@ -13,13 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'java'
-apply plugin: 'osgi'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'eclipse'   // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
-apply plugin: 'checkstyle'
-apply plugin: 'idea'
+plugins {
+    id 'java'
+    id 'osgi'
+    id 'maven'
+    id 'signing'
+    id 'eclipse' // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
+    id 'checkstyle'
+    id 'idea'
+
+    id 'org.asciidoctor.jvm.convert' version '3.1.0'
+}
+
+asciidoctor {
+    languages 'en'
+    resources {
+        from(javadoc) {
+            into './javadoc'
+        }
+        from('src/docs/resources') {
+            into './resources'
+        }
+    }
+    attributes 'source-highlighter': 'coderay',
+            'toc': 'left',
+            'xrefstyle': 'short'
+    copyResourcesOnlyIf 'html5'
+    baseDirFollowsSourceFile()
+}
 
 defaultTasks 'build'
 
@@ -45,7 +66,7 @@ sourceSets {
     perf.java.srcDir file('src/perftest/java')
 }
 
-eclipse.classpath.plusConfigurations += [ sourceSets.perf.compileClasspath ]
+eclipse.classpath.plusConfigurations += [sourceSets.perf.compileClasspath]
 
 repositories {
     mavenCentral()
@@ -59,7 +80,7 @@ dependencies {
 
 idea.module {
     testSourceDirs += sourceSets.perf.allSource.srcDirs
-    scopes.TEST.plus += [ configurations.perfCompile ]
+    scopes.TEST.plus += [configurations.perfCompile]
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -99,11 +120,11 @@ javadoc {
 
 jar {
     manifest.attributes('Built-By': System.properties['user.name'],
-                        'Bundle-Name': fullName,
-                        'Bundle-Vendor': teamName,
-                        'Bundle-Description': fullDescription,
-                        'Bundle-DocURL': siteUrl,
-                        'Automatic-Module-Name': moduleName)
+            'Bundle-Name': fullName,
+            'Bundle-Vendor': teamName,
+            'Bundle-Description': fullDescription,
+            'Bundle-DocURL': siteUrl,
+            'Automatic-Module-Name': moduleName)
 }
 
 task sourcesJar(type: Jar) {
