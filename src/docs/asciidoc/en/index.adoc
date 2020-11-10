@@ -47,7 +47,7 @@ It's fast.
 Very fast.
 
 .Latency histogram comparing Disruptor to ArrayBlockingQueue
-image::../resources/images/latency-histogram.png[]
+image::./resources/images/latency-histogram.png[]
 
 Note that this is a log-log scale, not linear.
 If we tried to plot the comparisons on a linear scale, we'd run out of space very quickly.
@@ -55,8 +55,8 @@ We have performance results of the test that produced these results, plus others
 
 == Great What do I do next?
 
-- https://github.com/LMAX-Exchange/disruptor/wiki/Getting-Started[Getting Started]
-- Read the <<./javadoc/index#,API documentation>>
+- Read the <<user-guide/index.adoc#,User Guide>>,
+- Read the <<./javadoc/index#,API documentation>>,
 - Check out our https://github.com/LMAX-Exchange/disruptor/wiki/Frequently-Asked-Questions[Frequently Asked Questions]
 
 == Discussion, Blogs & Other Useful Links
