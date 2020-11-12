@@ -36,6 +36,7 @@ import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -58,10 +58,12 @@ public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
 
+    @Rule
+    public final StubThreadFactory executor = new StubThreadFactory();
+
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<>();
     private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<>();
     private Disruptor<TestEvent> disruptor;
-    private StubThreadFactory executor;
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
@@ -806,15 +808,12 @@ public class DisruptorTest
 
     private void createDisruptor()
     {
-        executor = new StubThreadFactory();
-        createDisruptor(executor);
-    }
-
-    private void createDisruptor(final ThreadFactory threadFactory)
-    {
         disruptor = new Disruptor<>(
-                TestEvent.EVENT_FACTORY, 4, threadFactory,
-                ProducerType.SINGLE, new BlockingWaitStrategy());
+                TestEvent.EVENT_FACTORY,
+                4,
+                executor,
+                ProducerType.SINGLE,
+                new BlockingWaitStrategy());
     }
 
     private TestEvent publishEvent() throws InterruptedException, BrokenBarrierException

@@ -17,25 +17,41 @@ package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.Assert;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class StubThreadFactory implements ThreadFactory
+public final class StubThreadFactory implements ThreadFactory, TestRule
 {
     private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
     private final Collection<Thread> threads = new CopyOnWriteArrayList<>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
+    private final List<Throwable> threadErrors = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public Thread newThread(final Runnable command)
     {
         executionCount.getAndIncrement();
-        Runnable toExecute = command;
+        Runnable toExecute = () -> {
+            try
+            {
+                command.run();
+            }
+            catch (Throwable t)
+            {
+                threadErrors.add(t);
+            }
+        };
         if(ignoreExecutions.get())
         {
             toExecute = new NoOpRunnable();
@@ -77,6 +93,23 @@ public final class StubThreadFactory implements ThreadFactory
     public int getExecutionCount()
     {
         return executionCount.get();
+    }
+
+    @Override
+    public Statement apply(final Statement base, final Description description)
+    {
+        return new Statement()
+        {
+            @Override
+            public void evaluate() throws Throwable
+            {
+                base.evaluate();
+                if (!threadErrors.isEmpty())
+                {
+                    throw threadErrors.get(0);
+                }
+            }
+        };
     }
 
     private static final class NoOpRunnable implements Runnable

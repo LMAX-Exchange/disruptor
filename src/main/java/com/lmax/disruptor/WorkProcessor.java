@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>A {@link WorkProcessor} wraps a single {@link WorkHandler}, effectively consuming the sequence
@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class WorkProcessor<T>
     implements EventProcessor
 {
-    private final AtomicBoolean running = new AtomicBoolean(false);
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     private final SequenceBarrier sequenceBarrier;
@@ -39,6 +38,14 @@ public final class WorkProcessor<T>
     private final EventReleaser eventReleaser = () -> sequence.set(Long.MAX_VALUE);
 
     private final TimeoutHandler timeoutHandler;
+
+    private enum RunState {
+        IDLE,
+        RUNNING,
+        HALTED
+    }
+
+    private final AtomicReference<RunState> runState = new AtomicReference<>(RunState.IDLE);
 
     /**
      * Construct a {@link WorkProcessor}.
@@ -80,7 +87,7 @@ public final class WorkProcessor<T>
     @Override
     public void halt()
     {
-        running.set(false);
+        runState.set(RunState.HALTED);
         sequenceBarrier.alert();
     }
 
@@ -89,13 +96,13 @@ public final class WorkProcessor<T>
      */
     public void haltLater()
     {
-        running.set(false);
+        runState.set(RunState.HALTED);
     }
 
     @Override
     public boolean isRunning()
     {
-        return running.get();
+        return runState.get() == RunState.RUNNING;
     }
 
     /**
@@ -106,9 +113,16 @@ public final class WorkProcessor<T>
     @Override
     public void run()
     {
-        if (!running.compareAndSet(false, true))
+        if (!runState.compareAndSet(RunState.IDLE, RunState.RUNNING))
         {
-            throw new IllegalStateException("Thread is already running");
+            if (runState.get() == RunState.RUNNING)
+            {
+                throw new IllegalStateException("Thread is already running");
+            }
+            else
+            {
+                return;
+            }
         }
         sequenceBarrier.clearAlert();
 
@@ -130,7 +144,7 @@ public final class WorkProcessor<T>
 
                 if (processedSequence)
                 {
-                    if (!running.get())
+                    if (runState.get() != RunState.RUNNING)
                     {
                         sequenceBarrier.alert();
                         sequenceBarrier.checkAlert();
@@ -161,7 +175,7 @@ public final class WorkProcessor<T>
             }
             catch (final AlertException ex)
             {
-                if (!running.get())
+                if (runState.get() != RunState.RUNNING)
                 {
                     break;
                 }
@@ -176,7 +190,7 @@ public final class WorkProcessor<T>
 
         notifyShutdown();
 
-        running.set(false);
+        runState.set(RunState.HALTED);
     }
 
     private void notifyTimeout(final long availableSequence)
