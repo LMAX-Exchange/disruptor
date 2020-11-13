@@ -40,9 +40,9 @@ $ ./gradlew
 ----
 As a result of the build you should find the following files:
 
-${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT.jar
-${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT-javadoc.jar
-${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT-sources.jar
+ - `${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT.jar`
+ - `${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT-javadoc.jar`
+ - `${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT-sources.jar`
 --
 
 3. Run the performance tests
@@ -53,6 +53,13 @@ ${MY_PROJECTS_HOME}/disruptor/build/libs/disruptor-{VERSION_NUMBER}-SNAPSHOT-sou
 $ cd ${MY_PROJECTS_HOME}/disruptor
 $ ./gradlew perfJar
 $ java -cp build/libs/disruptor-perf-3.3.0.jar [test name, e.g. com.lmax.disruptor.sequenced.OneToOneSequencedThroughputTest]
+----
+
+There are also JMH Benchmarks for testing the performance of the Disruptor, these can be run with a gradle command
+
+[source,shell script]
+----
+$ ./gradlew jmh
 ----
 --
 
