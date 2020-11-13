@@ -20,7 +20,6 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
-import com.lmax.disruptor.IntermittentTests;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
@@ -543,7 +542,6 @@ public class DisruptorTest
     }
 
     @Test
-    @Category(IntermittentTests.class)
     public void shouldProvideEventsToWorkHandlers() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();
@@ -617,7 +615,6 @@ public class DisruptorTest
     }
 
     @Test
-    @Category(IntermittentTests.class)
     public void shouldSupportUsingWorkerPoolWithADependency() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();
