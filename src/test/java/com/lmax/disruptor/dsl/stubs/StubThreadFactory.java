@@ -29,14 +29,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 public final class StubThreadFactory implements ThreadFactory, TestRule
 {
+    private static final Logger LOGGER = Logger.getLogger(StubThreadFactory.class.getName());
+
     private final DaemonThreadFactory threadFactory = DaemonThreadFactory.INSTANCE;
     private final Collection<Thread> threads = new CopyOnWriteArrayList<>();
     private final AtomicBoolean ignoreExecutions = new AtomicBoolean(false);
     private final AtomicInteger executionCount = new AtomicInteger(0);
     private final List<Throwable> threadErrors = Collections.synchronizedList(new ArrayList<>());
+    private final List<IgnoredException> ignoredExceptions = new ArrayList<>();
 
     @Override
     public Thread newThread(final Runnable command)
@@ -107,10 +111,44 @@ public final class StubThreadFactory implements ThreadFactory, TestRule
                 base.evaluate();
                 if (!threadErrors.isEmpty())
                 {
-                    throw threadErrors.get(0);
+                    for (final Throwable threadError : threadErrors)
+                    {
+                        boolean ignored = false;
+                        for (final IgnoredException ignoredException : ignoredExceptions)
+                        {
+                            if (threadError.getMessage().equalsIgnoreCase(ignoredException.exceptionMessage))
+                            {
+                                LOGGER.info("Ignoring '" + threadError.getMessage() + "' " +
+                                        "because: " + ignoredException.reason);
+                                ignored = true;
+                                break;
+                            }
+                        }
+                        if (!ignored)
+                        {
+                            throw threadError;
+                        }
+                    }
                 }
             }
         };
+    }
+
+    public void ignoreException(final String exceptionMessage, final String reason)
+    {
+        ignoredExceptions.add(new IgnoredException(exceptionMessage, reason));
+    }
+
+    private static final class IgnoredException
+    {
+        final String exceptionMessage;
+        final String reason;
+
+        public IgnoredException(final String exceptionMessage, final String reason)
+        {
+            this.exceptionMessage = exceptionMessage;
+            this.reason = reason;
+        }
     }
 
     private static final class NoOpRunnable implements Runnable

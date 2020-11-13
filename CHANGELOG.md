@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.0 - Not yet released
+
+ - Breaking Changes
+    - Minimum Java version now 11
+    - `WorkProcessor::halt` and `WorkProcessor::haltLater` will now permanently halt the `WorkProcessor`
+
 ## 3.4.2
 
 - Fix race condition in BatchEventProcessor with 3 or more starting/halting concurrently.
