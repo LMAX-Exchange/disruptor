@@ -144,7 +144,7 @@ public final class StubThreadFactory implements ThreadFactory, TestRule
         final String exceptionMessage;
         final String reason;
 
-        public IgnoredException(final String exceptionMessage, final String reason)
+        IgnoredException(final String exceptionMessage, final String reason)
         {
             this.exceptionMessage = exceptionMessage;
             this.reason = reason;
