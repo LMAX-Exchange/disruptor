@@ -42,7 +42,8 @@ public final class StubThreadFactory implements ThreadFactory, TestRule
     public Thread newThread(final Runnable command)
     {
         executionCount.getAndIncrement();
-        Runnable toExecute = () -> {
+        Runnable toExecute = () ->
+        {
             try
             {
                 command.run();

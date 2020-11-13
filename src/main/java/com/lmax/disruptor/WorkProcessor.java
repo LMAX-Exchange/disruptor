@@ -39,7 +39,8 @@ public final class WorkProcessor<T>
 
     private final TimeoutHandler timeoutHandler;
 
-    private enum RunState {
+    private enum RunState
+    {
         IDLE,
         RUNNING,
         HALTED
