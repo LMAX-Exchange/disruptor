@@ -20,7 +20,6 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
-import com.lmax.disruptor.IntermittentTests;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
@@ -36,14 +35,13 @@ import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,17 +49,24 @@ import static java.lang.Thread.yield;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings(value = {"unchecked"})
 public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
 
+    @Rule
+    public final StubThreadFactory executor = new StubThreadFactory();
+
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<>();
     private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<>();
     private Disruptor<TestEvent> disruptor;
-    private StubThreadFactory executor;
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
@@ -541,7 +546,6 @@ public class DisruptorTest
     }
 
     @Test
-    @Category(IntermittentTests.class)
     public void shouldProvideEventsToWorkHandlers() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();
@@ -615,7 +619,6 @@ public class DisruptorTest
     }
 
     @Test
-    @Category(IntermittentTests.class)
     public void shouldSupportUsingWorkerPoolWithADependency() throws Exception
     {
         final TestWorkHandler workHandler1 = createTestWorkHandler();
@@ -806,15 +809,12 @@ public class DisruptorTest
 
     private void createDisruptor()
     {
-        executor = new StubThreadFactory();
-        createDisruptor(executor);
-    }
-
-    private void createDisruptor(final ThreadFactory threadFactory)
-    {
         disruptor = new Disruptor<>(
-                TestEvent.EVENT_FACTORY, 4, threadFactory,
-                ProducerType.SINGLE, new BlockingWaitStrategy());
+                TestEvent.EVENT_FACTORY,
+                4,
+                executor,
+                ProducerType.SINGLE,
+                new BlockingWaitStrategy());
     }
 
     private TestEvent publishEvent() throws InterruptedException, BrokenBarrierException
