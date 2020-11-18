@@ -39,13 +39,6 @@ public final class WorkProcessor<T>
 
     private final TimeoutHandler timeoutHandler;
 
-    private enum RunState
-    {
-        IDLE,
-        RUNNING,
-        HALTED
-    }
-
     private final AtomicReference<RunState> runState = new AtomicReference<>(RunState.IDLE);
 
     /**
