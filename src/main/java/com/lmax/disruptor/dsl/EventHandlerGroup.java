@@ -19,7 +19,6 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.WorkHandler;
 
 import java.util.Arrays;
 
@@ -115,25 +114,6 @@ public class EventHandlerGroup<T>
     }
 
     /**
-     * <p>Set up a worker pool to handle events from the ring buffer. The worker pool will only process events
-     * after every {@link EventProcessor} in this group has processed the event. Each event will be processed
-     * by one of the work handler instances.</p>
-     *
-     * <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
-     * process events before the worker pool with handlers <code>B, C</code>:</p>
-     *
-     * <pre><code>dw.handleEventsWith(A).thenHandleEventsWithWorkerPool(B, C);</code></pre>
-     *
-     * @param handlers the work handlers that will process events. Each work handler instance will provide an extra thread in the worker pool.
-     * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
-     */
-    @SafeVarargs
-    public final EventHandlerGroup<T> thenHandleEventsWithWorkerPool(final WorkHandler<? super T>... handlers)
-    {
-        return handleEventsWithWorkerPool(handlers);
-    }
-
-    /**
      * <p>Set up batch handlers to handle events from the ring buffer. These handlers will only process events
      * after every {@link EventProcessor} in this group has processed the event.</p>
      *
@@ -167,25 +147,6 @@ public class EventHandlerGroup<T>
     public final EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory<T>... eventProcessorFactories)
     {
         return disruptor.createEventProcessors(sequences, eventProcessorFactories);
-    }
-
-    /**
-     * <p>Set up a worker pool to handle events from the ring buffer. The worker pool will only process events
-     * after every {@link EventProcessor} in this group has processed the event. Each event will be processed
-     * by one of the work handler instances.</p>
-     *
-     * <p>This method is generally used as part of a chain. For example if the handler <code>A</code> must
-     * process events before the worker pool with handlers <code>B, C</code>:</p>
-     *
-     * <pre><code>dw.after(A).handleEventsWithWorkerPool(B, C);</code></pre>
-     *
-     * @param handlers the work handlers that will process events. Each work handler instance will provide an extra thread in the worker pool.
-     * @return a {@link EventHandlerGroup} that can be used to set up a event processor barrier over the created event processors.
-     */
-    @SafeVarargs
-    public final EventHandlerGroup<T> handleEventsWithWorkerPool(final WorkHandler<? super T>... handlers)
-    {
-        return disruptor.createWorkerPool(sequences, handlers);
     }
 
     /**

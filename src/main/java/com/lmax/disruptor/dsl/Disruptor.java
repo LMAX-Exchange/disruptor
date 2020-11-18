@@ -29,8 +29,6 @@ import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.WorkHandler;
-import com.lmax.disruptor.WorkerPool;
 import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.Executor;
@@ -221,21 +219,6 @@ public class Disruptor<T>
         return new EventHandlerGroup<>(this, consumerRepository, Util.getSequencesFor(processors));
     }
 
-
-    /**
-     * Set up a {@link WorkerPool} to distribute an event to one of a pool of work handler threads.
-     * Each event will only be processed by one of the work handlers.
-     * The Disruptor will automatically start this processors when {@link #start()} is called.
-     *
-     * @param workHandlers the work handlers that will process events.
-     * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
-     */
-    @SafeVarargs
-    @SuppressWarnings("varargs")
-    public final EventHandlerGroup<T> handleEventsWithWorkerPool(final WorkHandler<T>... workHandlers)
-    {
-        return createWorkerPool(new Sequence[0], workHandlers);
-    }
 
     /**
      * <p>Specify an exception handler to be used for any future event handlers.</p>
@@ -587,22 +570,6 @@ public class Disruptor<T>
         }
 
         return handleEventsWith(eventProcessors);
-    }
-
-    EventHandlerGroup<T> createWorkerPool(
-        final Sequence[] barrierSequences, final WorkHandler<? super T>[] workHandlers)
-    {
-        final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier(barrierSequences);
-        final WorkerPool<T> workerPool = new WorkerPool<>(ringBuffer, sequenceBarrier, exceptionHandler, workHandlers);
-
-
-        consumerRepository.add(workerPool, sequenceBarrier);
-
-        final Sequence[] workerSequences = workerPool.getWorkerSequences();
-
-        updateGatingSequencesForNextInChain(barrierSequences, workerSequences);
-
-        return new EventHandlerGroup<>(this, consumerRepository, workerSequences);
     }
 
     private void checkNotStarted()
