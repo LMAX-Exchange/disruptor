@@ -18,17 +18,19 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * WorkerPool contains a pool of {@link WorkProcessor}s that will consume sequences so jobs can be farmed out across a pool of workers.
  * Each of the {@link WorkProcessor}s manage and calls a {@link WorkHandler} to process the events.
  *
+ * Once a WorkerPool has been halted it cannot be started again.
+ *
  * @param <T> event to be processed by a pool of workers
  */
 public final class WorkerPool<T>
 {
-    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicReference<RunState> runState = new AtomicReference<>(RunState.IDLE);
     private final Sequence workSequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RingBuffer<T> ringBuffer;
     // WorkProcessors are created to wrap each of the provided WorkHandlers
@@ -122,13 +124,20 @@ public final class WorkerPool<T>
      *
      * @param executor providing threads for running the workers.
      * @return the {@link RingBuffer} used for the work queue.
-     * @throws IllegalStateException if the pool has already been started and not halted yet
+     * @throws IllegalStateException if this pool is anything other than IDLE
      */
     public RingBuffer<T> start(final Executor executor)
     {
-        if (!started.compareAndSet(false, true))
+        if (!runState.compareAndSet(RunState.IDLE, RunState.RUNNING))
         {
-            throw new IllegalStateException("WorkerPool has already been started and cannot be restarted until halted.");
+            if (runState.get() == RunState.RUNNING)
+            {
+                throw new IllegalStateException("WorkerPool has already been started and cannot be restarted until halted.");
+            }
+            else
+            {
+                throw new IllegalStateException("Cannot run a WorkerPool that has been halted");
+            }
         }
 
         final long cursor = ringBuffer.getCursor();
@@ -159,7 +168,7 @@ public final class WorkerPool<T>
             processor.halt();
         }
 
-        started.set(false);
+        runState.set(RunState.HALTED);
     }
 
     /**
@@ -172,11 +181,11 @@ public final class WorkerPool<T>
             processor.halt();
         }
 
-        started.set(false);
+        runState.set(RunState.HALTED);
     }
 
     public boolean isRunning()
     {
-        return started.get();
+        return runState.get() == RunState.RUNNING;
     }
 }

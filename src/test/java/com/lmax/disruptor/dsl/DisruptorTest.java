@@ -557,6 +557,10 @@ public class DisruptorTest
 
         workHandler1.processEvent();
         workHandler2.processEvent();
+
+        executor.ignoreException(
+                "Cannot run a WorkProcessor that has been halted",
+                "Teardown may call halt on the WorkProcessor before it is started");
     }
 
 
@@ -634,6 +638,10 @@ public class DisruptorTest
 
         workHandler1.processEvent();
         workHandler2.processEvent();
+
+        executor.ignoreException(
+                "Cannot run a WorkProcessor that has been halted",
+                "Teardown may call halt on the WorkProcessor before it is started");
     }
 
     @Test

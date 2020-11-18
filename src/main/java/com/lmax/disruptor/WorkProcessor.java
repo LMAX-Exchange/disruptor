@@ -39,13 +39,6 @@ public final class WorkProcessor<T>
 
     private final TimeoutHandler timeoutHandler;
 
-    private enum RunState
-    {
-        IDLE,
-        RUNNING,
-        HALTED
-    }
-
     private final AtomicReference<RunState> runState = new AtomicReference<>(RunState.IDLE);
 
     /**
@@ -107,9 +100,9 @@ public final class WorkProcessor<T>
     }
 
     /**
-     * It is ok to have another thread re-run this method after a halt().
+     * Once a WorkProcessor has been halted it should never be re-run.
      *
-     * @throws IllegalStateException if this processor is already running
+     * @throws IllegalStateException if this processor is anything other than IDLE
      */
     @Override
     public void run()
@@ -118,11 +111,11 @@ public final class WorkProcessor<T>
         {
             if (runState.get() == RunState.RUNNING)
             {
-                throw new IllegalStateException("Thread is already running");
+                throw new IllegalStateException("WorkProcessor is already running");
             }
             else
             {
-                return;
+                throw new IllegalStateException("Cannot run a WorkProcessor that has been halted");
             }
         }
         sequenceBarrier.clearAlert();
