@@ -31,7 +31,6 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.StubThreadFactory;
-import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -65,7 +64,6 @@ public class DisruptorTest
     public final StubThreadFactory executor = new StubThreadFactory();
 
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<>();
-    private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<>();
     private Disruptor<TestEvent> disruptor;
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
@@ -82,10 +80,6 @@ public class DisruptorTest
         for (DelayedEventHandler delayedEventHandler : delayedEventHandlers)
         {
             delayedEventHandler.stopWaiting();
-        }
-        for (TestWorkHandler testWorkHandler : testWorkHandlers)
-        {
-            testWorkHandler.stopWaiting();
         }
 
         disruptor.halt();
@@ -618,13 +612,6 @@ public class DisruptorTest
                 });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
-    }
-
-    private TestWorkHandler createTestWorkHandler()
-    {
-        final TestWorkHandler testWorkHandler = new TestWorkHandler();
-        testWorkHandlers.add(testWorkHandler);
-        return testWorkHandler;
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(
