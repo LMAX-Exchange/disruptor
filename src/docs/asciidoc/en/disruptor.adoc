@@ -516,3 +516,5 @@ For most systems, as load and contention increase there is an exponential increa
 As load increases on the Disruptor, latency remains almost flat until saturation occurs of the memory sub-system.
 
 We believe that the Disruptor establishes a new benchmark for high-performance computing and is very well placed to continue to take advantage of current trends in processor and computer design.
+
+View the original PDF of this paper link:./files/Disruptor-1.0.pdf[here].

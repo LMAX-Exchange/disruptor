@@ -34,6 +34,9 @@ asciidoctor {
         from('src/docs/resources') {
             into './resources'
         }
+        from('src/docs/files') {
+            into './files'
+        }
     }
     attributes 'source-highlighter': 'coderay',
             'toc': 'left',
