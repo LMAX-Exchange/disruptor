@@ -50,16 +50,6 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         consumerInfos.add(consumerInfo);
     }
 
-    public void add(final WorkerPool<T> workerPool, final SequenceBarrier sequenceBarrier)
-    {
-        final WorkerPoolInfo<T> workerPoolInfo = new WorkerPoolInfo<>(workerPool, sequenceBarrier);
-        consumerInfos.add(workerPoolInfo);
-        for (Sequence sequence : workerPool.getWorkerSequences())
-        {
-            eventProcessorInfoBySequence.put(sequence, workerPoolInfo);
-        }
-    }
-
     public boolean hasBacklog(long cursor, boolean includeStopped)
     {
         for (ConsumerInfo consumerInfo : consumerInfos)

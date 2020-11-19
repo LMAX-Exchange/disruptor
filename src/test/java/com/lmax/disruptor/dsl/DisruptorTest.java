@@ -31,7 +31,6 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.StubThreadFactory;
-import com.lmax.disruptor.dsl.stubs.TestWorkHandler;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.After;
 import org.junit.Before;
@@ -65,7 +64,6 @@ public class DisruptorTest
     public final StubThreadFactory executor = new StubThreadFactory();
 
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<>();
-    private final Collection<TestWorkHandler> testWorkHandlers = new ArrayList<>();
     private Disruptor<TestEvent> disruptor;
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
@@ -82,10 +80,6 @@ public class DisruptorTest
         for (DelayedEventHandler delayedEventHandler : delayedEventHandlers)
         {
             delayedEventHandler.stopWaiting();
-        }
-        for (TestWorkHandler testWorkHandler : testWorkHandlers)
-        {
-            testWorkHandler.stopWaiting();
         }
 
         disruptor.halt();
@@ -177,27 +171,6 @@ public class DisruptorTest
         assertThat(disruptor.getSequenceValueFor(b2), is(5L));
         assertThat(disruptor.getSequenceValueFor(b3), is(5L));
     }
-
-    @Test
-    public void shouldSetSequenceForWorkProcessorIfAddedAfterPublish() throws Exception
-    {
-        RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
-        TestWorkHandler wh1 = createTestWorkHandler();
-        TestWorkHandler wh2 = createTestWorkHandler();
-        TestWorkHandler wh3 = createTestWorkHandler();
-
-        rb.publish(rb.next());
-        rb.publish(rb.next());
-        rb.publish(rb.next());
-        rb.publish(rb.next());
-        rb.publish(rb.next());
-        rb.publish(rb.next());
-
-        disruptor.handleEventsWithWorkerPool(wh1, wh2, wh3);
-
-        assertThat(disruptor.getRingBuffer().getMinimumGatingSequence(), is(5L));
-    }
-
 
     @Test
     public void shouldCreateEventProcessorGroupForFirstEventProcessors()
@@ -545,130 +518,6 @@ public class DisruptorTest
         assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
-    @Test
-    public void shouldProvideEventsToWorkHandlers() throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final TestWorkHandler workHandler2 = createTestWorkHandler();
-        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2);
-
-        publishEvent();
-        publishEvent();
-
-        workHandler1.processEvent();
-        workHandler2.processEvent();
-
-        executor.ignoreException(
-                "Cannot run a WorkProcessor that has been halted",
-                "Teardown may call halt on the WorkProcessor before it is started");
-    }
-
-
-    @Test
-    public void shouldProvideEventsMultipleWorkHandlers() throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final TestWorkHandler workHandler2 = createTestWorkHandler();
-        final TestWorkHandler workHandler3 = createTestWorkHandler();
-        final TestWorkHandler workHandler4 = createTestWorkHandler();
-        final TestWorkHandler workHandler5 = createTestWorkHandler();
-        final TestWorkHandler workHandler6 = createTestWorkHandler();
-        final TestWorkHandler workHandler7 = createTestWorkHandler();
-        final TestWorkHandler workHandler8 = createTestWorkHandler();
-
-        disruptor
-            .handleEventsWithWorkerPool(workHandler1, workHandler2)
-            .thenHandleEventsWithWorkerPool(workHandler3, workHandler4);
-        disruptor
-            .handleEventsWithWorkerPool(workHandler5, workHandler6)
-            .thenHandleEventsWithWorkerPool(workHandler7, workHandler8);
-    }
-
-
-    @Test
-    public void shouldSupportUsingWorkerPoolAsDependency() throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final TestWorkHandler workHandler2 = createTestWorkHandler();
-        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2).then(delayedEventHandler);
-
-        publishEvent();
-        publishEvent();
-
-        assertThat(disruptor.getBarrierFor(delayedEventHandler).getCursor(), equalTo(-1L));
-
-        workHandler2.processEvent();
-        workHandler1.processEvent();
-
-        delayedEventHandler.processEvent();
-    }
-
-    @Test
-    public void shouldSupportUsingWorkerPoolAsDependencyAndProcessFirstEventAsSoonAsItIsAvailable() throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final TestWorkHandler workHandler2 = createTestWorkHandler();
-        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWithWorkerPool(workHandler1, workHandler2).then(delayedEventHandler);
-
-        publishEvent();
-        publishEvent();
-
-        workHandler1.processEvent();
-        delayedEventHandler.processEvent();
-
-        workHandler2.processEvent();
-        delayedEventHandler.processEvent();
-    }
-
-    @Test
-    public void shouldSupportUsingWorkerPoolWithADependency() throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final TestWorkHandler workHandler2 = createTestWorkHandler();
-        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWith(delayedEventHandler).thenHandleEventsWithWorkerPool(workHandler1, workHandler2);
-
-        publishEvent();
-        publishEvent();
-
-        delayedEventHandler.processEvent();
-        delayedEventHandler.processEvent();
-
-        workHandler1.processEvent();
-        workHandler2.processEvent();
-
-        executor.ignoreException(
-                "Cannot run a WorkProcessor that has been halted",
-                "Teardown may call halt on the WorkProcessor before it is started");
-    }
-
-    @Test
-    public void shouldSupportCombiningWorkerPoolWithEventHandlerAsDependencyWhenNotPreviouslyRegistered()
-        throws Exception
-    {
-        final TestWorkHandler workHandler1 = createTestWorkHandler();
-        final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
-        final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
-        disruptor
-            .handleEventsWith(delayedEventHandler1)
-            .and(disruptor.handleEventsWithWorkerPool(workHandler1))
-            .then(delayedEventHandler2);
-
-        publishEvent();
-        publishEvent();
-
-        delayedEventHandler1.processEvent();
-        delayedEventHandler1.processEvent();
-
-        workHandler1.processEvent();
-        delayedEventHandler2.processEvent();
-
-        workHandler1.processEvent();
-        delayedEventHandler2.processEvent();
-    }
-
     @Test(expected = TimeoutException.class, timeout = 2000)
     public void shouldThrowTimeoutExceptionIfShutdownDoesNotCompleteNormally() throws Exception
     {
@@ -763,13 +612,6 @@ public class DisruptorTest
                 });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
-    }
-
-    private TestWorkHandler createTestWorkHandler()
-    {
-        final TestWorkHandler testWorkHandler = new TestWorkHandler();
-        testWorkHandlers.add(testWorkHandler);
-        return testWorkHandler;
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(

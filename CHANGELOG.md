@@ -4,8 +4,7 @@
 
  - Breaking Changes
     - Minimum Java version now 11
-    - `WorkerPool::halt` and `WorkerPool::drainAndHalt` will now permanently halt the `WorkerPool`
-    - `WorkProcessor::halt` and `WorkProcessor::haltLater` will now permanently halt the `WorkProcessor`
+    - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
 
 ## 3.4.2
 
