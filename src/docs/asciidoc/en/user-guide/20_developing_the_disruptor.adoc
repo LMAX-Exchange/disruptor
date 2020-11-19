@@ -63,4 +63,21 @@ $ ./gradlew jmh
 ----
 --
 
+4. Development tips
++
+--
+This project uses GitHub Actions for CI which runs the gradle build task to check the project can be built on each
+commit/pull request.
+
+So that you don't push changes that will fail the simple test & check steps we would suggest adding the git pre-commit
+hook which will block any commit you try to do locally if the code fails these steps.
+
+The git hook can be set up using the following gradle task:
+
+[source,shell script]
+----
+$ ./gradlew setUpGitHooks
+----
+--
+
 // Todo: coding standards?
