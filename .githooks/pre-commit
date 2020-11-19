@@ -2,7 +2,7 @@
 set -e
 
 # stash any unstaged changes
-git stash save "prePush" -q --keep-index
+git stash push -m "prePush" -q --keep-index
 
 # unstash the unstashed changes (if any) on exit or interrupt
 function unstash {
