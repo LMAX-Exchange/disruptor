@@ -78,8 +78,7 @@ repositories {
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
     perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
     jmhCompile project
     jmhCompile 'org.openjdk.jmh:jmh-core:1.26'
