@@ -1,0 +1,38 @@
+//
+// Configure JMH benchmarks
+//
+
+sourceSets {
+    jmh {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
+    classpath = sourceSets.jmh.runtimeClasspath
+    main = 'org.openjdk.jmh.Main'
+
+    def profilers = ['pauses']
+    def format = 'json'
+    def resultFile = file("build/reports/jmh/result.${format}")
+    resultFile.parentFile.mkdirs()
+
+    args '-rf', format
+    args '-rff', resultFile
+    args '-foe', 'true' //fail-on-error
+    args '-v', 'NORMAL' //verbosity [SILENT, NORMAL, EXTRA]
+    profilers.each {
+        args '-prof', it
+    }
+    args '-jvmArgsPrepend', '-Xmx256m'
+    args '-jvmArgsPrepend', '-Xms256m'
+    args '-jvmArgsPrepend', '-XX:MaxDirectMemorySize=1g'
+}
+
+
+task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'performance') {
+    classpath = sourceSets.jmh.runtimeClasspath
+    main = 'org.openjdk.jmh.Main'
+    args '-lprof'
+}
