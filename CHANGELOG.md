@@ -4,6 +4,7 @@
 
  - Breaking Changes
     - Minimum Java version now 11
+    - Removed OSGI bundle fields from `MANIFEST.MF`
     - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
 
 ## 3.4.2
