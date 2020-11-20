@@ -245,12 +245,6 @@ class Version {
     }
 }
 
-test {
-    useJUnit {
-        excludeCategories 'com.lmax.disruptor.IntermittentTests'
-    }
-}
-
 task setUpGitHooks(type: Exec, description: 'Add a pre-commit git hook that runs gradle check & test tasks') {
     def hooksFolder = file('.githooks').getAbsolutePath()
     commandLine 'git', 'config','core.hooksPath',hooksFolder
