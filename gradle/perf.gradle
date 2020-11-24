@@ -1,0 +1,38 @@
+//
+// Configure setting up performance tests
+//
+
+sourceSets {
+    perftest.java.srcDir file('src/perftest/java')
+}
+
+compilePerftestJava {
+    classpath += sourceSets.main.runtimeClasspath
+    classpath += sourceSets.test.runtimeClasspath
+}
+
+dependencies {
+    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.10'
+}
+
+build.dependsOn perftestClasses
+
+task perfJar(type: Jar, group: 'build') {
+    archiveAppendix = 'perf'
+    from { configurations.perftestCompile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.perftest.output
+    from sourceSets.test.output
+    with jar
+}
+
+
+project.pluginManager.withPlugin('idea') {
+    idea.module {
+        testSourceDirs += sourceSets.perftest.allSource.srcDirs
+        scopes.TEST.plus += [configurations.perftestCompile]
+    }
+}
+
+project.pluginManager.withPlugin('eclipse') {
+    eclipse.classpath.plusConfigurations += [sourceSets.perftest.compileClasspath]
+}

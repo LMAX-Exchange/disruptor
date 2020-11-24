@@ -1,0 +1,23 @@
+//
+// Configure ASCIIDoc publishing
+//
+
+asciidoctor {
+    languages 'en'
+    resources {
+        from(javadoc) {
+            into './javadoc'
+        }
+        from('src/docs/resources') {
+            into './resources'
+        }
+        from('src/docs/files') {
+            into './files'
+        }
+    }
+    attributes 'source-highlighter': 'coderay',
+            'toc': 'left',
+            'xrefstyle': 'short'
+    copyResourcesOnlyIf 'html5'
+    baseDirFollowsSourceFile()
+}

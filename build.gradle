@@ -14,40 +14,19 @@
  * limitations under the License.
  */
 plugins {
-    id 'java'
-    id 'maven'
+    id 'java-library'
+    id 'maven-publish'
     id 'signing'
-    id 'eclipse' // Only used so the Eclipse STS Gradle plugin can see the 'perf' source set dependencies. :-(
     id 'checkstyle'
     id 'idea'
 
     id 'org.asciidoctor.jvm.convert' version '3.1.0'
 }
 
-asciidoctor {
-    languages 'en'
-    resources {
-        from(javadoc) {
-            into './javadoc'
-        }
-        from('src/docs/resources') {
-            into './resources'
-        }
-        from('src/docs/files') {
-            into './files'
-        }
-    }
-    attributes 'source-highlighter': 'coderay',
-            'toc': 'left',
-            'xrefstyle': 'short'
-    copyResourcesOnlyIf 'html5'
-    baseDirFollowsSourceFile()
-}
+group = 'com.lmax'
+version = new Version(major: 4, minor: 0, revision: 0, snapshot: true)
 
 defaultTasks 'build'
-
-group = 'com.lmax'
-version = new Version(major: 3, minor: 4, revision: 3)
 
 ext {
     fullName = 'Disruptor Framework'
@@ -56,59 +35,33 @@ ext {
     siteUrl = 'http://lmax-exchange.github.com/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
     moduleName = 'com.lmax.disruptor'
-
-    javaCompilerExecutable = System.env['JAVA_HOME'] ? System.env['JAVA_HOME'] + '/bin/javac' : 'javac'
-
-    if (!project.hasProperty('sonatypeUrl')) sonatypeUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-    if (!project.hasProperty('sonatypeUsername')) sonatypeUsername = ''
-    if (!project.hasProperty('sonatypePassword')) sonatypePassword = ''
 }
 
-sourceSets {
-    perf.java.srcDir file('src/perftest/java')
-    jmh
-}
+apply from: 'gradle/maven.gradle'
+apply from: 'gradle/perf.gradle'
+apply from: 'gradle/jmh.gradle'
+apply from: 'gradle/asciidoc.gradle'
 
-eclipse.classpath.plusConfigurations += [sourceSets.perf.compileClasspath]
+wrapper.gradleVersion = '6.5'
 
 repositories {
     mavenCentral()
 }
 
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
-    testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
-    perfCompile 'org.hdrhistogram:HdrHistogram:2.1.10'
-    jmhCompile project
-    jmhCompile 'org.openjdk.jmh:jmh-core:1.26'
-    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
+
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
 }
-
-idea.module {
-    testSourceDirs += sourceSets.perf.allSource.srcDirs
-    scopes.TEST.plus += [configurations.perfCompile]
-}
-
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
-
 
 compileJava {
     // Suppress warnings about using Unsafe and sun.misc
     options.compilerArgs << '-XDignore.symbol.file'
     options.fork = true
     options.debug = true
-    options.forkOptions.executable = javaCompilerExecutable
     options.warnings = false
-}
-
-tasks.withType(Test) {
-    maxParallelForks = Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
-}
-
-compilePerfJava {
-    classpath += sourceSets.main.runtimeClasspath
-    classpath += sourceSets.test.runtimeClasspath
 }
 
 javadoc {
@@ -131,107 +84,13 @@ jar {
             'Automatic-Module-Name': moduleName)
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+tasks.withType(Test) {
+    maxParallelForks = Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar, javadocJar
-}
-
-def projectPom = {
-    name = fullName
-    description = fullDescription
-    url = siteUrl
-
-    scm {
-        url = "scm:$sourceUrl"
-        connection = "scm:$sourceUrl"
-    }
-
-    licenses {
-        license {
-            name = 'The Apache Software License, Version 2.0'
-            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution = 'repo'
-        }
-    }
-
-    developers {
-        developer {
-            id = 'team'
-            name = teamName
-            email = 'lmax-disruptor@googlegroups.com'
-        }
-    }
-}
-
-install {
-    repositories.mavenInstaller.pom.project(projectPom)
-}
-
-signing {
-    required { gradle.taskGraph.hasTask('uploadArchives') }
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-        beforeDeployment { deployment -> signing.signPom(deployment) }
-
-        repository(url: sonatypeUrl) {
-            authentication(userName: sonatypeUsername, password: sonatypePassword)
-        }
-
-        pom.project(projectPom)
-    }
-}
-
-build.dependsOn perfClasses
-
-task perfJar(type: Jar) {
-    baseName = project.name + '-perf'
-    from { configurations.perfCompile.collect { it.isDirectory() ? it : zipTree(it) } }
-    from sourceSets.perf.output
-    from sourceSets.test.output
-    with jar
-}
-
-task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
-    classpath = sourceSets.jmh.runtimeClasspath
-    main = 'org.openjdk.jmh.Main'
-
-    def profilers = ['pauses']
-    def format = 'json'
-    def resultFile = file("build/reports/jmh/result.${format}")
-    resultFile.parentFile.mkdirs()
-
-    args '-rf', format
-    args '-rff', resultFile
-    args '-foe', 'true' //fail-on-error
-    args '-v', 'NORMAL' //verbosity [SILENT, NORMAL, EXTRA]
-    profilers.each {
-        args '-prof', it
-    }
-    args '-jvmArgsPrepend', '-Xmx256m'
-    args '-jvmArgsPrepend', '-Xms256m'
-    args '-jvmArgsPrepend', '-XX:MaxDirectMemorySize=1g'
-}
-
-task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'performance') {
-    classpath = sourceSets.jmh.runtimeClasspath
-    main = 'org.openjdk.jmh.Main'
-    args '-lprof'
-}
-
-wrapper {
-    gradleVersion = '6.5'
+task setUpGitHooks(type: Exec, description: 'Add a pre-commit git hook that runs gradle check & test tasks') {
+    def hooksFolder = file('.githooks').getAbsolutePath()
+    commandLine 'git', 'config', 'core.hooksPath', hooksFolder
 }
 
 class Version {
@@ -242,9 +101,4 @@ class Version {
     String toString() {
         "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
     }
-}
-
-task setUpGitHooks(type: Exec, description: 'Add a pre-commit git hook that runs gradle check & test tasks') {
-    def hooksFolder = file('.githooks').getAbsolutePath()
-    commandLine 'git', 'config','core.hooksPath',hooksFolder
 }
