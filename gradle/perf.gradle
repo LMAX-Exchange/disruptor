@@ -11,6 +11,10 @@ compilePerftestJava {
     classpath += sourceSets.test.runtimeClasspath
 }
 
+dependencies {
+    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.10'
+}
+
 build.dependsOn perftestClasses
 
 task perfJar(type: Jar, group: 'build') {

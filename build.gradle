@@ -48,18 +48,12 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.12'
 
     testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
-
-    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.10'
-
-    jmhImplementation 'org.openjdk.jmh:jmh-core:1.26'
-    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
 }
 
 compileJava {

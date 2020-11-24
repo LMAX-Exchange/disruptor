@@ -9,6 +9,11 @@ sourceSets {
     }
 }
 
+dependencies {
+    jmhImplementation 'org.openjdk.jmh:jmh-core:1.26'
+    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
+}
+
 task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
     classpath = sourceSets.jmh.runtimeClasspath
     main = 'org.openjdk.jmh.Main'
