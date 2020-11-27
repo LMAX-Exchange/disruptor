@@ -1,8 +1,10 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.examples.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class WaitForProcessing
@@ -10,13 +12,13 @@ public class WaitForProcessing
     public static class Consumer implements EventHandler<LongEvent>
     {
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
         {
 
         }
     }
 
-    public static void main(String[] args) throws InterruptedException
+    public static void main(String[] args)
     {
         final Disruptor<LongEvent> disruptor = new Disruptor<>(
             LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);

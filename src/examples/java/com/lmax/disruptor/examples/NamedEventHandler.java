@@ -1,4 +1,4 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.LifecycleAware;
@@ -14,7 +14,7 @@ public class NamedEventHandler<T> implements EventHandler<T>, LifecycleAware
     }
 
     @Override
-    public void onEvent(final T event, final long sequence, final boolean endOfBatch) throws Exception
+    public void onEvent(final T event, final long sequence, final boolean endOfBatch)
     {
     }
 

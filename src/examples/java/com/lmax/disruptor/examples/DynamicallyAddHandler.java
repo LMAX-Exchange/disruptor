@@ -1,22 +1,25 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.support.StubEvent;
+import com.lmax.disruptor.examples.support.StubEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DynamiclyAddHandler
+public class DynamicallyAddHandler
 {
     private static class DynamicHandler implements EventHandler<StubEvent>, LifecycleAware
     {
         private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
         @Override
-        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch)
         {
         }
 

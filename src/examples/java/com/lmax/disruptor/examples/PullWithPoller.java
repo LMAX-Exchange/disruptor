@@ -1,12 +1,9 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventPoller;
 import com.lmax.disruptor.RingBuffer;
 
-/**
- * Created by barkerm on 02/02/15.
- */
 public class PullWithPoller
 {
     public static class DataEvent<T>

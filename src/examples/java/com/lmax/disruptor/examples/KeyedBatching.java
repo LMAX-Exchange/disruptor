@@ -1,4 +1,4 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
 
@@ -8,11 +8,11 @@ import java.util.List;
 public class KeyedBatching implements EventHandler<KeyedBatching.KeyedEvent>
 {
     private static final int MAX_BATCH_SIZE = 100;
+    private final List<Object> batch = new ArrayList<>();
     private long key = 0;
-    private List<Object> batch = new ArrayList<>();
 
     @Override
-    public void onEvent(KeyedEvent event, long sequence, boolean endOfBatch) throws Exception
+    public void onEvent(KeyedEvent event, long sequence, boolean endOfBatch)
     {
         if (!batch.isEmpty() && event.key != key)
         {
