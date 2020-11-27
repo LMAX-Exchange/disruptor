@@ -102,3 +102,10 @@ class Version {
         "$major.$minor.$revision${stage ? '.' + stage : ''}${snapshot ? '-SNAPSHOT' : ''}"
     }
 }
+
+sourceSets {
+    examples {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}

@@ -1,4 +1,4 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
@@ -48,7 +48,7 @@ public class Pipeliner
         }
 
         @Override
-        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch)
         {
             if (sequence % totalHandlers == ordinal)
             {
@@ -62,7 +62,7 @@ public class Pipeliner
         private long lastEvent = -1;
 
         @Override
-        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch)
         {
             if (event.input != lastEvent + 1 || event.result == null)
             {

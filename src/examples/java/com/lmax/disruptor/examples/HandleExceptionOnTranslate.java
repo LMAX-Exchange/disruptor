@@ -1,9 +1,9 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.examples.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class HandleExceptionOnTranslate
@@ -14,7 +14,7 @@ public class HandleExceptionOnTranslate
     {
 
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
         {
             if (event.get() == NO_VALUE_SPECIFIED)
             {

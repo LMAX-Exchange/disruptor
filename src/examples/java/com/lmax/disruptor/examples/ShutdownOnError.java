@@ -1,12 +1,12 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ShutdownOnError
@@ -18,19 +18,10 @@ public class ShutdownOnError
         public static final EventFactory<Event> FACTORY = Event::new;
     }
 
-    private static class DefaultThreadFactory implements ThreadFactory
-    {
-        @Override
-        public Thread newThread(Runnable r)
-        {
-            return new Thread(r);
-        }
-    }
-
     private static class Handler implements EventHandler<Event>
     {
         @Override
-        public void onEvent(Event event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(Event event, long sequence, boolean endOfBatch)
         {
             // do work, if a failure occurs throw exception.
         }
@@ -75,7 +66,7 @@ public class ShutdownOnError
 
     public static void main(String[] args)
     {
-        Disruptor<Event> disruptor = new Disruptor<>(Event.FACTORY, 1024, new DefaultThreadFactory());
+        Disruptor<Event> disruptor = new Disruptor<>(Event.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
         AtomicBoolean running = new AtomicBoolean(true);
 

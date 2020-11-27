@@ -1,10 +1,10 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.LifecycleAware;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.examples.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.CountDownLatch;
@@ -35,7 +35,7 @@ public class WaitForShutdown
         }
 
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
         {
             value = 1;
         }

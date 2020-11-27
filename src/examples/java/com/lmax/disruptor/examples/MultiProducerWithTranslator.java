@@ -1,4 +1,4 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventFactory;
@@ -57,7 +57,7 @@ public class MultiProducerWithTranslator
     public static class Consumer implements EventHandler<ObjectBox>
     {
         @Override
-        public void onEvent(ObjectBox event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(ObjectBox event, long sequence, boolean endOfBatch)
         {
 
         }

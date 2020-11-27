@@ -1,13 +1,10 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class ThreeToOneDisruptor
 {
@@ -34,7 +31,7 @@ public class ThreeToOneDisruptor
         }
 
         @Override
-        public void onEvent(DataEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(DataEvent event, long sequence, boolean endOfBatch)
         {
             // Do Stuff.
             event.output[outputIndex] = doSomething(event.input);
@@ -50,7 +47,7 @@ public class ThreeToOneDisruptor
     public static class CollatingHandler implements EventHandler<DataEvent>
     {
         @Override
-        public void onEvent(DataEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(DataEvent event, long sequence, boolean endOfBatch)
         {
             collate(event.output);
         }
@@ -63,7 +60,6 @@ public class ThreeToOneDisruptor
 
     public static void main(String[] args)
     {
-        Executor executor = Executors.newFixedThreadPool(4);
         Disruptor<DataEvent> disruptor = new Disruptor<>(
                 DataEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 

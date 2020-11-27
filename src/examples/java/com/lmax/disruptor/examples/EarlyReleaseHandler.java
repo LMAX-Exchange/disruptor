@@ -1,8 +1,8 @@
-package com.lmax.disruptor.example;
+package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceReportingEventHandler;
-import com.lmax.disruptor.support.LongEvent;
+import com.lmax.disruptor.examples.support.LongEvent;
 
 public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEvent>
 {
@@ -16,7 +16,7 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
     }
 
     @Override
-    public void onEvent(LongEvent event, long sequence, boolean endOfBatch) throws Exception
+    public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
     {
         processEvent(event);
 
@@ -31,7 +31,7 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
 
     private boolean isLogicalChunkOfWorkComplete()
     {
-        // Ret true or false based on whatever cirteria is required for the smaller
+        // Ret true or false based on whatever criteria is required for the smaller
         // chunk.  If this is doing I/O, it may be after flushing/syncing to disk
         // or at the end of DB batch+commit.
         // Or it could simply be working off a smaller batch size.
