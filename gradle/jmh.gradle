@@ -21,7 +21,9 @@ task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'perfor
     def profilers = ['pauses']
     def format = 'json'
     def resultFile = file("build/reports/jmh/result.${format}")
-    resultFile.parentFile.mkdirs()
+    doFirst {
+        resultFile.parentFile.mkdirs()
+    }
 
     args '-rf', format
     args '-rff', resultFile
