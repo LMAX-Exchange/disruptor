@@ -5,31 +5,21 @@ import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.locks.LockSupport;
+import java.util.stream.Stream;
 
-@RunWith(Parameterized.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 public class BatchingTest
 {
-    private final ProducerType producerType;
-
-    public BatchingTest(ProducerType producerType)
+    public static Stream<Arguments> generateData()
     {
-        this.producerType = producerType;
-    }
-
-    @Parameters
-    public static Collection<Object[]> generateData()
-    {
-        Object[][] producerTypes = {{ProducerType.MULTI}, {ProducerType.SINGLE}};
-        return Arrays.asList(producerTypes);
+        return Stream.of(arguments(ProducerType.MULTI), arguments(ProducerType.SINGLE));
     }
 
     private static class ParallelEventHandler implements EventHandler<LongEvent>
@@ -74,8 +64,9 @@ public class BatchingTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBatch() throws Exception
+    @ParameterizedTest
+    @MethodSource("generateData")
+    public void shouldBatch(ProducerType producerType) throws Exception
     {
         Disruptor<LongEvent> d = new Disruptor<>(
                 LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
@@ -102,9 +93,9 @@ public class BatchingTest
             Thread.sleep(1);
         }
 
-        Assert.assertThat(handler1.publishedValue, CoreMatchers.is((long) eventCount - 2));
-        Assert.assertThat(handler1.eventCount, CoreMatchers.is((long) eventCount / 2));
-        Assert.assertThat(handler2.publishedValue, CoreMatchers.is((long) eventCount - 1));
-        Assert.assertThat(handler2.eventCount, CoreMatchers.is((long) eventCount / 2));
+        assertThat(handler1.publishedValue, CoreMatchers.is((long) eventCount - 2));
+        assertThat(handler1.eventCount, CoreMatchers.is((long) eventCount / 2));
+        assertThat(handler2.publishedValue, CoreMatchers.is((long) eventCount - 1));
+        assertThat(handler2.eventCount, CoreMatchers.is((long) eventCount / 2));
     }
 }
