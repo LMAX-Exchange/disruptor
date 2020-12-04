@@ -16,10 +16,8 @@
 package com.lmax.disruptor.dsl.stubs;
 
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.Assert;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-public final class StubThreadFactory implements ThreadFactory, TestRule
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+public final class StubThreadFactory implements ThreadFactory, AfterEachCallback
 {
     private static final Logger LOGGER = Logger.getLogger(StubThreadFactory.class.getName());
 
@@ -84,7 +84,7 @@ public final class StubThreadFactory implements ThreadFactory, TestRule
                 }
             }
 
-            Assert.assertFalse("Failed to stop thread: " + thread, thread.isAlive());
+            assertFalse(thread.isAlive(), "Failed to stop thread: " + thread);
         }
 
         threads.clear();
@@ -101,42 +101,29 @@ public final class StubThreadFactory implements ThreadFactory, TestRule
     }
 
     @Override
-    public Statement apply(final Statement base, final Description description)
+    public void afterEach(final ExtensionContext context) throws Exception
     {
-        return new Statement()
+        if (!threadErrors.isEmpty())
         {
-            @Override
-            public void evaluate() throws Throwable
+            for (final Throwable threadError : threadErrors)
             {
-                base.evaluate();
-                if (!threadErrors.isEmpty())
+                boolean ignored = false;
+                for (final IgnoredException ignoredException : ignoredExceptions)
                 {
-                    for (final Throwable threadError : threadErrors)
+                    if (threadError.getMessage().equalsIgnoreCase(ignoredException.exceptionMessage))
                     {
-                        boolean ignored = false;
-                        for (final IgnoredException ignoredException : ignoredExceptions)
-                        {
-                            if (threadError.getMessage().equalsIgnoreCase(ignoredException.exceptionMessage))
-                            {
-                                LOGGER.info("Ignoring '" + threadError.getMessage() + "' " +
-                                        "because: " + ignoredException.reason);
-                                ignored = true;
-                                break;
-                            }
-                        }
-                        if (!ignored)
-                        {
-                            throw threadError;
-                        }
+                        LOGGER.info("Ignoring '" + threadError.getMessage() + "' " +
+                                "because: " + ignoredException.reason);
+                        ignored = true;
+                        break;
                     }
                 }
+                if (!ignored)
+                {
+                    throw new Exception(threadError);
+                }
             }
-        };
-    }
-
-    public void ignoreException(final String exceptionMessage, final String reason)
-    {
-        ignoredExceptions.add(new IgnoredException(exceptionMessage, reason));
+        }
     }
 
     private static final class IgnoredException
