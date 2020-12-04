@@ -15,12 +15,13 @@
  */
 package com.lmax.disruptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.lmax.disruptor.support.TestEvent;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class SequenceGroupTest
 {
