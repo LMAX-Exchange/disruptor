@@ -32,10 +32,10 @@ import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.StubThreadFactory;
 import com.lmax.disruptor.support.TestEvent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,19 +48,19 @@ import static java.lang.Thread.yield;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings(value = {"unchecked"})
 public class DisruptorTest
 {
     private static final int TIMEOUT_IN_SECONDS = 2;
 
-    @Rule
     public final StubThreadFactory executor = new StubThreadFactory();
 
     private final Collection<DelayedEventHandler> delayedEventHandlers = new ArrayList<>();
@@ -68,13 +68,13 @@ public class DisruptorTest
     private RingBuffer<TestEvent> ringBuffer;
     private TestEvent lastPublishedEvent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         createDisruptor();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         for (DelayedEventHandler delayedEventHandler : delayedEventHandlers)
@@ -267,24 +267,28 @@ public class DisruptorTest
         assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming()
         throws Exception
     {
-        disruptor.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler());
+        assertThrows(IllegalArgumentException.class, () ->
+                disruptor.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldTrackEventHandlersByIdentityNotEquality()
         throws Exception
     {
-        EvilEqualsEventHandler handler1 = new EvilEqualsEventHandler();
-        EvilEqualsEventHandler handler2 = new EvilEqualsEventHandler();
+        assertThrows(IllegalArgumentException.class, () ->
+        {
+            EvilEqualsEventHandler handler1 = new EvilEqualsEventHandler();
+            EvilEqualsEventHandler handler2 = new EvilEqualsEventHandler();
 
-        disruptor.handleEventsWith(handler1);
+            disruptor.handleEventsWith(handler1);
 
-        // handler2.equals(handler1) but it hasn't yet been registered so should throw exception.
-        disruptor.after(handler2);
+            // handler2.equals(handler1) but it hasn't yet been registered so should throw exception.
+            disruptor.after(handler2);
+        });
     }
 
     @SuppressWarnings("deprecation")
@@ -410,24 +414,30 @@ public class DisruptorTest
         waitFor(reference);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated()
         throws Exception
     {
-        executor.ignoreExecutions();
-        disruptor.handleEventsWith(new SleepingEventHandler());
-        disruptor.start();
-        disruptor.handleEventsWith(new SleepingEventHandler());
+        assertThrows(IllegalStateException.class, () ->
+        {
+            executor.ignoreExecutions();
+            disruptor.handleEventsWith(new SleepingEventHandler());
+            disruptor.start();
+            disruptor.handleEventsWith(new SleepingEventHandler());
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionIfStartIsCalledTwice()
         throws Exception
     {
-        executor.ignoreExecutions();
-        disruptor.handleEventsWith(new SleepingEventHandler());
-        disruptor.start();
-        disruptor.start();
+        assertThrows(IllegalStateException.class, () ->
+        {
+            executor.ignoreExecutions();
+            disruptor.handleEventsWith(new SleepingEventHandler());
+            disruptor.start();
+            disruptor.start();
+        });
     }
 
     @Test
@@ -518,21 +528,23 @@ public class DisruptorTest
         assertThat(executor.getExecutionCount(), equalTo(3));
     }
 
-    @Test(expected = TimeoutException.class, timeout = 2000)
+    @Test
+    @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
     public void shouldThrowTimeoutExceptionIfShutdownDoesNotCompleteNormally() throws Exception
     {
-        //Given
-        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
-        disruptor.handleEventsWith(delayedEventHandler);
-        publishEvent();
-
-        //When
-        disruptor.shutdown(1, SECONDS);
-
-        //Then
+        assertThrows(TimeoutException.class, () ->
+        {
+            //Given
+            final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+            disruptor.handleEventsWith(delayedEventHandler);
+            publishEvent();
+            //Then
+            disruptor.shutdown(1, SECONDS);
+        });
     }
 
-    @Test(timeout = 1000)
+    @Test
+    @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
     public void shouldTrackRemainingCapacity() throws Exception
     {
         final long[] remainingCapacity = {-1};
@@ -586,7 +598,8 @@ public class DisruptorTest
         disruptor.handleEventsWith(
                 (ringBuffer, barrierSequences) ->
                 {
-                    assertEquals("Should not have had any barrier sequences", 0, barrierSequences.length);
+                    assertEquals(0, barrierSequences.length,
+                            "Should not have had any barrier sequences");
                     return new BatchEventProcessor<>(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
                             barrierSequences), eventHandler);
@@ -605,7 +618,7 @@ public class DisruptorTest
         disruptor.handleEventsWith(delayedEventHandler).then(
                 (ringBuffer, barrierSequences) ->
                 {
-                    assertSame("Should have had a barrier sequence", 1, barrierSequences.length);
+                    assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
                     return new BatchEventProcessor<>(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
                             barrierSequences), eventHandler);
@@ -651,9 +664,9 @@ public class DisruptorTest
         else
         {
             final int actualPublicationCount = stubPublisher.getPublicationCount();
-            assertTrue(
-                "Producer reached unexpected count. Expected at least " + expectedPublicationCount +
-                    " but only reached " + actualPublicationCount, actualPublicationCount >= expectedPublicationCount);
+            final String msg = "Producer reached unexpected count. Expected at least " + expectedPublicationCount +
+                    " but only reached " + actualPublicationCount;
+            assertTrue(actualPublicationCount >= expectedPublicationCount, msg);
         }
     }
 
@@ -712,6 +725,6 @@ public class DisruptorTest
         throws InterruptedException
     {
         boolean released = countDownLatch.await(TIMEOUT_IN_SECONDS, SECONDS);
-        assertTrue("Batch handler did not receive entries: " + countDownLatch.getCount(), released);
+        assertTrue(released, "Batch handler did not receive entries: " + countDownLatch.getCount());
     }
 }
