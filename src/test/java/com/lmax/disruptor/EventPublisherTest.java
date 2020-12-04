@@ -15,13 +15,12 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.support.LongEvent;
+import org.junit.jupiter.api.Test;
+
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
-import com.lmax.disruptor.support.LongEvent;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class EventPublisherTest implements EventTranslator<LongEvent>
 {

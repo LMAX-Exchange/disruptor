@@ -16,8 +16,9 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class FatalExceptionHandlerTest
 {
@@ -35,7 +36,7 @@ public final class FatalExceptionHandlerTest
         }
         catch (RuntimeException ex)
         {
-            Assert.assertEquals(causeException, ex.getCause());
+            assertEquals(causeException, ex.getCause());
         }
     }
 }

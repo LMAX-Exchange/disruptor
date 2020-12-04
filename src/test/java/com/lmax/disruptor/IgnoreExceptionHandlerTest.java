@@ -16,7 +16,7 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public final class IgnoreExceptionHandlerTest
 {

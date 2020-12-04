@@ -15,10 +15,11 @@
  */
 package com.lmax.disruptor;
 
+import org.junit.jupiter.api.Test;
+
 import static com.lmax.disruptor.support.WaitStrategyTestUtil.assertWaitForWithDelayOf;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import org.junit.Test;
 
 public class PhasedBackoffWaitStrategyTest
 {

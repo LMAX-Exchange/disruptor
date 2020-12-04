@@ -22,11 +22,17 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;
 import com.lmax.disruptor.support.TestEvent;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConsumerRepositoryTest
 {
@@ -38,7 +44,7 @@ public class ConsumerRepositoryTest
     private SequenceBarrier barrier1;
     private SequenceBarrier barrier2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         consumerRepository = new ConsumerRepository<>();
@@ -91,10 +97,12 @@ public class ConsumerRepositoryTest
         assertThat(consumerRepository.getEventProcessorFor(handler1), sameInstance(eventProcessor1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenHandlerIsNotRegistered() throws Exception
     {
-        consumerRepository.getEventProcessorFor(new SleepingEventHandler());
+        assertThrows(IllegalArgumentException.class, () ->
+                consumerRepository.getEventProcessorFor(new SleepingEventHandler())
+        );
     }
 
     @Test
@@ -124,7 +132,7 @@ public class ConsumerRepositoryTest
             }
         }
 
-        assertTrue("Included eventProcessor 1", seen1);
-        assertTrue("Included eventProcessor 2", seen2);
+        assertTrue(seen1, "Included eventProcessor 1");
+        assertTrue(seen2, "Included eventProcessor 2");
     }
 }

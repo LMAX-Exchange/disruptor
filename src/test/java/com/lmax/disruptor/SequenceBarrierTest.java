@@ -18,14 +18,14 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.Util;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public final class SequenceBarrierTest
@@ -126,7 +126,7 @@ public final class SequenceBarrierTest
         sequenceBarrier.alert();
         t.join();
 
-        assertTrue("Thread was not interrupted", alerted[0]);
+        assertTrue(alerted[0], "Thread was not interrupted");
     }
 
     @Test

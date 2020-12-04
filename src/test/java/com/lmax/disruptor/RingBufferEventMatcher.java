@@ -1,7 +1,6 @@
 package com.lmax.disruptor;
 
 import org.hamcrest.Description;
-import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -16,13 +15,11 @@ final class RingBufferEventMatcher extends TypeSafeMatcher<RingBuffer<Object[]>>
         this.expectedValueMatchers = expectedValueMatchers;
     }
 
-    @Factory
     public static RingBufferEventMatcher ringBufferWithEvents(final Matcher<?>... valueMatchers)
     {
         return new RingBufferEventMatcher(valueMatchers);
     }
 
-    @Factory
     public static RingBufferEventMatcher ringBufferWithEvents(final Object... values)
     {
         Matcher<?>[] valueMatchers = new Matcher[values.length];
