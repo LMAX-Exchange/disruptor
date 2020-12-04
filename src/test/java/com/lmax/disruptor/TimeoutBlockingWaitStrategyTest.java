@@ -1,12 +1,13 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.DummySequenceBarrier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 public class TimeoutBlockingWaitStrategyTest
 {
