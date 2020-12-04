@@ -16,28 +16,38 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class BatchEventProcessorTest
 {
     private final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowExceptionOnSettingNullExceptionHandler()
     {
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
-                ringBuffer, sequenceBarrier, new ExceptionEventHandler());
-        batchEventProcessor.setExceptionHandler(null);
+        assertThrows(NullPointerException.class, () ->
+        {
+            final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
+                    ringBuffer, sequenceBarrier, new ExceptionEventHandler());
+            batchEventProcessor.setExceptionHandler(null);
+        });
     }
 
     @Test
