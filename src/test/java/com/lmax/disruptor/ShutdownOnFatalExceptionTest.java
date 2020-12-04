@@ -3,11 +3,13 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class ShutdownOnFatalExceptionTest
 {
@@ -19,7 +21,7 @@ public class ShutdownOnFatalExceptionTest
     private Disruptor<byte[]> disruptor;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setUp()
     {
         disruptor = new Disruptor<>(
@@ -29,7 +31,8 @@ public class ShutdownOnFatalExceptionTest
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
     }
 
-    @Test(timeout = 1000)
+    @Test
+    @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
     public void shouldShutdownGracefulEvenWithFatalExceptionHandler()
     {
         disruptor.start();
@@ -43,7 +46,7 @@ public class ShutdownOnFatalExceptionTest
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown()
     {
         disruptor.shutdown();
