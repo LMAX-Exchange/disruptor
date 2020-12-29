@@ -64,6 +64,10 @@ compileJava {
     options.warnings = false
 }
 
+test {
+    useJUnitPlatform()
+}
+
 javadoc {
     title = 'Disruptor'
 
