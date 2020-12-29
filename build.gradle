@@ -19,7 +19,7 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-
+    id "com.github.erizo.gradle.jcstress" version "0.8.6"
     id 'org.asciidoctor.jvm.convert' version '3.1.0'
 }
 
