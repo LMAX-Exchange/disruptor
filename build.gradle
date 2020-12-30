@@ -41,6 +41,7 @@ apply from: 'gradle/maven.gradle'
 apply from: 'gradle/perf.gradle'
 apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
+apply from: 'gradle/jcstress.gradle'
 
 wrapper.gradleVersion = '6.5'
 
