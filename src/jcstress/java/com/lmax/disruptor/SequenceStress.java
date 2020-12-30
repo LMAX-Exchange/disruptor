@@ -160,6 +160,33 @@ public class SequenceStress
         }
     }
 
+    /**
+     * Updates to non-volatile long values in Java are issued as two separate 32-bit writes.
+     * Sequence should store its underlying value as a volatile long and therefore should not experience this effect.
+     */
+    @JCStressTest
+    @Outcome(id = "0", expect = ACCEPTABLE, desc = "Seeing the default value: writer had not acted yet.")
+    @Outcome(id = "-1", expect = ACCEPTABLE, desc = "Seeing the full value.")
+    @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
+    @Ref("https://docs.oracle.com/javase/specs/jls/se11/html/jls-17.html#jls-17.7")
+    @State
+    public static class LongFullCompareAndSet
+    {
+        Sequence sequence = new Sequence(0);
+
+        @Actor
+        public void writer()
+        {
+            sequence.compareAndSet(0, 0xFFFFFFFF_FFFFFFFFL);
+        }
+
+        @Actor
+        public void reader(J_Result r)
+        {
+            r.r1 = sequence.get();
+        }
+    }
+
 
     /**
      * In absence of synchronization, the order of independent reads is undefined.
