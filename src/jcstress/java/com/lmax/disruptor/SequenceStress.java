@@ -6,9 +6,8 @@ import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.annotations.Ref;
 import org.openjdk.jcstress.annotations.State;
+import org.openjdk.jcstress.infra.results.JJ_Result;
 import org.openjdk.jcstress.infra.results.J_Result;
-import org.openjdk.jcstress.infra.results.LL_Result;
-import org.openjdk.jcstress.infra.results.L_Result;
 
 import static org.openjdk.jcstress.annotations.Expect.*;
 
@@ -38,7 +37,7 @@ public class SequenceStress
         }
 
         @Arbiter
-        public void arbiter(L_Result r)
+        public void arbiter(J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -68,7 +67,7 @@ public class SequenceStress
         }
 
         @Arbiter
-        public void arbiter(L_Result r)
+        public void arbiter(J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -99,7 +98,7 @@ public class SequenceStress
         }
 
         @Arbiter
-        public void arbiter(L_Result r)
+        public void arbiter(J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -216,7 +215,7 @@ public class SequenceStress
         }
 
         @Actor
-        public void actor2(LL_Result r)
+        public void actor2(JJ_Result r)
         {
             Holder h1 = this.h1;
             Holder h2 = this.h2;
@@ -253,7 +252,7 @@ public class SequenceStress
         }
 
         @Actor
-        public void actor2(LL_Result r)
+        public void actor2(JJ_Result r)
         {
             r.r1 = y.get();
             r.r2 = x;
@@ -288,7 +287,7 @@ public class SequenceStress
         }
 
         @Actor
-        public void actor2(LL_Result r)
+        public void actor2(JJ_Result r)
         {
             r.r1 = y.get();
             r.r2 = x;
@@ -309,14 +308,14 @@ public class SequenceStress
         Sequence y = new Sequence(0);
 
         @Actor
-        public void actor1(LL_Result r)
+        public void actor1(JJ_Result r)
         {
             x.setVolatile(1);
             r.r1 = y.get();
         }
 
         @Actor
-        public void actor2(LL_Result r)
+        public void actor2(JJ_Result r)
         {
             y.setVolatile(1);
             r.r2 = x.get();
@@ -337,14 +336,14 @@ public class SequenceStress
         Sequence y = new Sequence(0);
 
         @Actor
-        public void actor1(LL_Result r)
+        public void actor1(JJ_Result r)
         {
             x.set(1);
             r.r1 = y.get();
         }
 
         @Actor
-        public void actor2(LL_Result r)
+        public void actor2(JJ_Result r)
         {
             y.set(1);
             r.r2 = x.get();
