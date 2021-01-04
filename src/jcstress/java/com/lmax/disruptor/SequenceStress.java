@@ -8,6 +8,7 @@ import org.openjdk.jcstress.annotations.Ref;
 import org.openjdk.jcstress.annotations.State;
 import org.openjdk.jcstress.infra.results.JJ_Result;
 import org.openjdk.jcstress.infra.results.J_Result;
+import org.openjdk.jcstress.infra.results.ZZJ_Result;
 
 import static org.openjdk.jcstress.annotations.Expect.*;
 
@@ -47,29 +48,29 @@ public class SequenceStress
      * `Sequence::compareAndSet` is atomic and should never lose an update, even with multiple threads racing
      */
     @JCStressTest
-    @Outcome(id = "0", expect = FORBIDDEN, desc = "Neither update applied")
-    @Outcome(id = {"10", "20"}, expect = ACCEPTABLE, desc = "Either updated.")
+    @Outcome(id = {"true, false, 10", "false, true, 20"}, expect = ACCEPTABLE, desc = "Either updated.")
+    @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
     @State
     public static class CompareAndSet
     {
         Sequence sequence = new Sequence(0);
 
         @Actor
-        public void actor1()
+        public void actor1(ZZJ_Result r)
         {
-            sequence.compareAndSet(0, 10);
+            r.r1 = sequence.compareAndSet(0, 10);
         }
 
         @Actor
-        public void actor2()
+        public void actor2(ZZJ_Result r)
         {
-            sequence.compareAndSet(0, 20);
+            r.r2 = sequence.compareAndSet(0, 20);
         }
 
         @Arbiter
-        public void arbiter(J_Result r)
+        public void arbiter(ZZJ_Result r)
         {
-            r.r1 = sequence.get();
+            r.r3 = sequence.get();
         }
     }
 
