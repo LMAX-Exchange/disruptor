@@ -3,6 +3,7 @@ name: JCStress Testing - Thorough stress testing
 on:
   schedule:
     - cron: "0 0 * * WED"
+  workflow_dispatch:
 
 jobs:
   build:
