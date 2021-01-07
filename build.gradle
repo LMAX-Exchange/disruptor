@@ -19,7 +19,7 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-
+    id "com.github.erizo.gradle.jcstress" version "0.8.6"
     id 'org.asciidoctor.jvm.convert' version '3.1.0'
 }
 
@@ -41,6 +41,7 @@ apply from: 'gradle/maven.gradle'
 apply from: 'gradle/perf.gradle'
 apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
+apply from: 'gradle/jcstress.gradle'
 
 wrapper.gradleVersion = '6.5'
 

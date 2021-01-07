@@ -1,0 +1,26 @@
+name: JCStress Testing - commit-level sanity check
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11 ]
+    name: Java ${{ matrix.java }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew jcstress -Pmode=sanity
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: jcstress-report-sanity
+          path: build/reports/jcstress
