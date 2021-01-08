@@ -1,24 +1,8 @@
-/*
- * Copyright 2012 LMAX Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.lmax.disruptor;
 
-import sun.misc.Unsafe;
 
-import com.lmax.disruptor.util.Util;
-
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 
 class LhsPadding
 {
@@ -27,7 +11,7 @@ class LhsPadding
 
 class Value extends LhsPadding
 {
-    protected volatile long value;
+    protected long value;
 }
 
 class RhsPadding extends Value
@@ -46,20 +30,20 @@ class RhsPadding extends Value
 public class Sequence extends RhsPadding
 {
     static final long INITIAL_VALUE = -1L;
-    private static final Unsafe UNSAFE;
-    private static final long VALUE_OFFSET;
+    private static final VarHandle VALUE_FIELD;
 
     static
     {
-        UNSAFE = Util.getUnsafe();
         try
         {
-            VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField("value"));
+            VALUE_FIELD = MethodHandles.lookup().in(Sequence.class)
+                    .findVarHandle(Sequence.class, "value", long.class);
         }
         catch (final Exception e)
         {
             throw new RuntimeException(e);
         }
+
     }
 
     /**
@@ -77,7 +61,8 @@ public class Sequence extends RhsPadding
      */
     public Sequence(final long initialValue)
     {
-        UNSAFE.putOrderedLong(this, VALUE_OFFSET, initialValue);
+        this.value = initialValue;
+        VarHandle.releaseFence();
     }
 
     /**
@@ -87,6 +72,8 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
+        long value = this.value;
+        VarHandle.acquireFence();
         return value;
     }
 
@@ -99,7 +86,8 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        UNSAFE.putOrderedLong(this, VALUE_OFFSET, value);
+        this.value = value;
+        VarHandle.releaseFence();
     }
 
     /**
@@ -112,19 +100,32 @@ public class Sequence extends RhsPadding
      */
     public void setVolatile(final long value)
     {
-        UNSAFE.putLongVolatile(this, VALUE_OFFSET, value);
+        this.value = value;
+        VarHandle.fullFence();
     }
 
     /**
      * Perform a compare and set operation on the sequence.
      *
      * @param expectedValue The expected current value.
-     * @param newValue The value to update to.
+     * @param newValue      The value to update to.
      * @return true if the operation succeeds, false otherwise.
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return UNSAFE.compareAndSwapLong(this, VALUE_OFFSET, expectedValue, newValue);
+        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
+    }
+
+    /**
+     * Atomically increment the sequence by one.
+     *
+     * @return The value after the increment
+     * @deprecated Naming is inconsistent with the rest of the JVM, should use getAndIncrement instead
+     */
+    @Deprecated
+    public long incrementAndGet()
+    {
+        return getAndIncrement();
     }
 
     /**
@@ -132,9 +133,22 @@ public class Sequence extends RhsPadding
      *
      * @return The value after the increment
      */
-    public long incrementAndGet()
+    public long getAndIncrement()
     {
-        return addAndGet(1L);
+        return getAndAdd(1L);
+    }
+
+    /**
+     * Atomically add the supplied value.
+     *
+     * @param increment The value to add to the sequence.
+     * @return The value after the increment.
+     * @deprecated Naming is inconsistent with the rest of the JVM, should use getAndAdd instead
+     */
+    @Deprecated
+    public long addAndGet(final long increment)
+    {
+        return getAndAdd(increment);
     }
 
     /**
@@ -143,19 +157,17 @@ public class Sequence extends RhsPadding
      * @param increment The value to add to the sequence.
      * @return The value after the increment.
      */
-    public long addAndGet(final long increment)
+    public long getAndAdd(final long increment)
     {
-        long currentValue;
-        long newValue;
-
+        long v;
         do
         {
-            currentValue = get();
-            newValue = currentValue + increment;
+            v = value;
+            VarHandle.fullFence();
         }
-        while (!compareAndSet(currentValue, newValue));
+        while (!compareAndSet(v, v + increment));
 
-        return newValue;
+        return v;
     }
 
     @Override
