@@ -1,4 +1,4 @@
-name: JCStress Testing - Thorough stress testing
+name: JCStress Testing - stress testing
 
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew jcstress -Pmode=stress
+        run: ./gradlew jcstress -Pmode=tough
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
