@@ -133,7 +133,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
                 if (wrapPoint > gatingSequence)
                 {
-                    LockSupport.parkNanos(1); // TODO, should we spin based on the wait strategy?
+                    LockSupport.parkNanos(1); 
                     continue;
                 }
 
