@@ -5,6 +5,7 @@ import com.lmax.disruptor.alternatives.SequenceUnsafe;
 import com.lmax.disruptor.alternatives.SequenceVarHandle;
 import com.lmax.disruptor.alternatives.SequenceVarHandleArray;
 import com.lmax.disruptor.alternatives.SequenceVarHandleBarrier;
+import net.openhft.affinity.AffinityLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -13,14 +14,20 @@ import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @BenchmarkMode(Mode.Throughput)
@@ -28,8 +35,56 @@ import java.util.concurrent.atomic.AtomicLong;
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 5, time = 1)
 @Fork(2)
+@Threads(1)
 public class SequenceBenchmark
 {
+    // To run this on a tuned system with benchmark threads pinned to isolated cpus:
+    // Put a list of cpu ids in the field below, e.g. Optional.of(Arrays.asList(38, 40, 42, 44, 46))
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static final Optional<List<Integer>> ISOLATED_CPUS = Optional.empty();
+
+    private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
+
+    @State(Scope.Thread)
+    public static class ThreadPinningState
+    {
+        int threadId = THREAD_COUNTER.getAndIncrement();
+        private AffinityLock affinityLock;
+
+        @Setup
+        public void setup()
+        {
+            ISOLATED_CPUS.ifPresent(isolcpus ->
+            {
+                if (threadId > isolcpus.size())
+                {
+                    throw new IllegalArgumentException(
+                            String.format("Benchmark uses at least %d threads, only defined %d isolated cpus",
+                                    threadId,
+                                    isolcpus.size()
+                            ));
+                }
+
+                final Integer cpuId = isolcpus.get(threadId);
+                affinityLock = AffinityLock.acquireLock(cpuId);
+                System.out.printf("Attempted to set thread affinity for %s to %d, success = %b%n",
+                        Thread.currentThread().getName(),
+                        cpuId,
+                        affinityLock.isAllocated()
+                );
+            });
+        }
+
+        @TearDown
+        public void teardown()
+        {
+            if (ISOLATED_CPUS.isPresent())
+            {
+                affinityLock.release();
+            }
+        }
+    }
+
     /*
      * APPROACH 1: AtomicLong
      *
@@ -44,21 +99,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("AtomicLong")
-    public long read1(final StateAtomic s)
+    public long read1(final StateAtomic s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public long read2(final StateAtomic s)
+    public long read2(final StateAtomic s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public void setValue1Opaque(final StateAtomic s)
+    public void setValue1Opaque(final StateAtomic s, final ThreadPinningState t)
     {
         // Put Long Opaque
         s.value1.setOpaque(1234L);
@@ -66,7 +121,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("AtomicLong")
-    public void setValue1Volatile(final StateAtomic s)
+    public void setValue1Volatile(final StateAtomic s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.set(5678L);
@@ -74,7 +129,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("AtomicLong")
-    public long incrementValue2(final StateAtomic s)
+    public long incrementValue2(final StateAtomic s, final ThreadPinningState t)
     {
         return s.value2.getAndIncrement();
     }
@@ -95,21 +150,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long read1(final StateSequenceUnsafe s)
+    public long read1(final StateSequenceUnsafe s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long read2(final StateSequenceUnsafe s)
+    public long read2(final StateSequenceUnsafe s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public void setValue1(final StateSequenceUnsafe s)
+    public void setValue1(final StateSequenceUnsafe s, final ThreadPinningState t)
     {
         // Put Ordered Long
         s.value1.set(1234L);
@@ -117,7 +172,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public void setValue1Volatile(final StateSequenceUnsafe s)
+    public void setValue1Volatile(final StateSequenceUnsafe s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
@@ -125,7 +180,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long incrementValue2(final StateSequenceUnsafe s)
+    public long incrementValue2(final StateSequenceUnsafe s, final ThreadPinningState t)
     {
         return s.value2.incrementAndGet();
     }
@@ -149,21 +204,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long read1(final StateSequenceDoublePadded s)
+    public long read1(final StateSequenceDoublePadded s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long read2(final StateSequenceDoublePadded s)
+    public long read2(final StateSequenceDoublePadded s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public void setValue1(final StateSequenceDoublePadded s)
+    public void setValue1(final StateSequenceDoublePadded s, final ThreadPinningState t)
     {
         // Put Ordered Long
         s.value1.set(1234L);
@@ -171,7 +226,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public void setValue1Volatile(final StateSequenceDoublePadded s)
+    public void setValue1Volatile(final StateSequenceDoublePadded s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
@@ -179,7 +234,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long incrementValue2(final StateSequenceDoublePadded s)
+    public long incrementValue2(final StateSequenceDoublePadded s, final ThreadPinningState t)
     {
         return s.value2.incrementAndGet();
     }
@@ -199,21 +254,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long read1(final StateSequenceVarHandle s)
+    public long read1(final StateSequenceVarHandle s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long read2(final StateSequenceVarHandle s)
+    public long read2(final StateSequenceVarHandle s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public void setValue1(final StateSequenceVarHandle s)
+    public void setValue1(final StateSequenceVarHandle s, final ThreadPinningState t)
     {
         // Put Ordered Long
         s.value1.set(1234L);
@@ -221,7 +276,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public void setValue1Volatile(final StateSequenceVarHandle s)
+    public void setValue1Volatile(final StateSequenceVarHandle s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
@@ -229,7 +284,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long incrementValue2(final StateSequenceVarHandle s)
+    public long incrementValue2(final StateSequenceVarHandle s, final ThreadPinningState t)
     {
         return s.value2.incrementAndGet();
     }
@@ -249,21 +304,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long read1(final StateSequenceVarHandleBarrier s)
+    public long read1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long read2(final StateSequenceVarHandleBarrier s)
+    public long read2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public void setValue1(final StateSequenceVarHandleBarrier s)
+    public void setValue1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
         // Put Ordered Long
         s.value1.set(1234L);
@@ -271,7 +326,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public void setValue1Volatile(final StateSequenceVarHandleBarrier s)
+    public void setValue1Volatile(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
@@ -279,7 +334,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long incrementValue2(final StateSequenceVarHandleBarrier s)
+    public long incrementValue2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
         return s.value2.getAndIncrement();
     }
@@ -301,21 +356,21 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long read1(final StateSequenceVarHandleArray s)
+    public long read1(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long read2(final StateSequenceVarHandleArray s)
+    public long read2(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public void setValue1(final StateSequenceVarHandleArray s)
+    public void setValue1(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
         // Put Ordered Long
         s.value1.set(1234L);
@@ -323,7 +378,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public void setValue1Volatile(final StateSequenceVarHandleArray s)
+    public void setValue1Volatile(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
@@ -331,7 +386,7 @@ public class SequenceBenchmark
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long incrementValue2(final StateSequenceVarHandleArray s)
+    public long incrementValue2(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
         return s.value2.getAndIncrement();
     }
@@ -340,7 +395,6 @@ public class SequenceBenchmark
     {
         Options opt = new OptionsBuilder()
                 .include(SequenceBenchmark.class.getSimpleName())
-                .threads(Runtime.getRuntime().availableProcessors())
                 .build();
         new Runner(opt).run();
     }
