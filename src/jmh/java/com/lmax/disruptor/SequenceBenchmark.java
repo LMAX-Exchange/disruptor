@@ -24,8 +24,8 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,9 +39,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SequenceBenchmark
 {
     // To run this on a tuned system with benchmark threads pinned to isolated cpus:
-    // Put a list of cpu ids in the field below, e.g. Optional.of(Arrays.asList(38, 40, 42, 44, 46))
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private static final Optional<List<Integer>> ISOLATED_CPUS = Optional.empty();
+    // Put a list of cpu ids in the field below, e.g. Arrays.asList(38, 40, 42, 44, 46)
+    private static final List<Integer> ISOLATED_CPUS = Collections.emptyList();
 
     private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
@@ -54,31 +53,31 @@ public class SequenceBenchmark
         @Setup
         public void setup()
         {
-            ISOLATED_CPUS.ifPresent(isolcpus ->
+            if (ISOLATED_CPUS.size() > 0)
             {
-                if (threadId > isolcpus.size())
+                if (threadId > ISOLATED_CPUS.size())
                 {
                     throw new IllegalArgumentException(
                             String.format("Benchmark uses at least %d threads, only defined %d isolated cpus",
                                     threadId,
-                                    isolcpus.size()
+                                    ISOLATED_CPUS.size()
                             ));
                 }
 
-                final Integer cpuId = isolcpus.get(threadId);
+                final Integer cpuId = ISOLATED_CPUS.get(threadId);
                 affinityLock = AffinityLock.acquireLock(cpuId);
                 System.out.printf("Attempted to set thread affinity for %s to %d, success = %b%n",
                         Thread.currentThread().getName(),
                         cpuId,
                         affinityLock.isAllocated()
                 );
-            });
+            }
         }
 
         @TearDown
         public void teardown()
         {
-            if (ISOLATED_CPUS.isPresent())
+            if (ISOLATED_CPUS.size() > 0)
             {
                 affinityLock.release();
             }
