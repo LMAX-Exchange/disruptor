@@ -336,7 +336,7 @@ public class SequenceBenchmark
     @Group("SequenceVarHandleBarrier")
     public long incrementValue2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
     {
-        return s.value2.getAndIncrement();
+        return s.value2.incrementAndGet();
     }
 
     /*
@@ -388,7 +388,7 @@ public class SequenceBenchmark
     @Group("SequenceVarHandleArray")
     public long incrementValue2(final StateSequenceVarHandleArray s, final ThreadPinningState t)
     {
-        return s.value2.getAndIncrement();
+        return s.value2.incrementAndGet();
     }
 
     public static void main(String[] args) throws RunnerException

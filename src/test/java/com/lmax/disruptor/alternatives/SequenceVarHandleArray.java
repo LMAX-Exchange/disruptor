@@ -90,22 +90,10 @@ public class SequenceVarHandleArray
      * Atomically increment the sequence by one.
      *
      * @return The value after the increment
-     * @deprecated Naming is inconsistent with the rest of the JVM, should use getAndIncrement instead
      */
-    @Deprecated
     public long incrementAndGet()
     {
-        return getAndIncrement();
-    }
-
-    /**
-     * Atomically increment the sequence by one.
-     *
-     * @return The value after the increment
-     */
-    public long getAndIncrement()
-    {
-        return getAndAdd(1L);
+        return addAndGet(1L);
     }
 
     /**
@@ -113,21 +101,8 @@ public class SequenceVarHandleArray
      *
      * @param increment The value to add to the sequence.
      * @return The value after the increment.
-     * @deprecated Naming is inconsistent with the rest of the JVM, should use getAndAdd instead
      */
-    @Deprecated
     public long addAndGet(final long increment)
-    {
-        return getAndAdd(increment);
-    }
-
-    /**
-     * Atomically add the supplied value.
-     *
-     * @param increment The value to add to the sequence.
-     * @return The value after the increment.
-     */
-    public long getAndAdd(final long increment)
     {
         final long oldValue = (Long) VALUE_FIELD.getAndAdd(this.paddedValue, VALUE_INDEX, increment);
         return oldValue + increment;
