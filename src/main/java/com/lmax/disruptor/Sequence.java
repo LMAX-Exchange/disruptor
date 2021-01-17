@@ -61,8 +61,8 @@ public class Sequence extends RhsPadding
      */
     public Sequence(final long initialValue)
     {
-        this.value = initialValue;
         VarHandle.releaseFence();
+        this.value = initialValue;
     }
 
     /**
@@ -86,8 +86,8 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        this.value = value;
         VarHandle.releaseFence();
+        this.value = value;
     }
 
     /**
