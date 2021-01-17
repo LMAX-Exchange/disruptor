@@ -76,6 +76,7 @@ public class ConsumerRepositoryTest
     }
 
     @Test
+    @Deprecated
     public void shouldGetLastEventProcessorsInChain() throws Exception
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);

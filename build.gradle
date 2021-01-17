@@ -58,11 +58,16 @@ dependencies {
 }
 
 compileJava {
-    // Suppress warnings about using Unsafe and sun.misc
-    options.compilerArgs << '-XDignore.symbol.file'
     options.fork = true
     options.debug = true
-    options.warnings = false
+    options.warnings = true
+    options.deprecation = true
+}
+compileTestJava {
+    options.fork = true
+    options.debug = true
+    options.warnings = true
+    options.deprecation = true
 }
 
 test {
