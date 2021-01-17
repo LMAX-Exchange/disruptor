@@ -100,6 +100,7 @@ public class SequenceVarHandleBarrier extends RhsPaddingVarHandleBarrier
      */
     public void setVolatile(final long value)
     {
+        VarHandle.releaseFence();
         this.value = value;
         VarHandle.fullFence();
     }
