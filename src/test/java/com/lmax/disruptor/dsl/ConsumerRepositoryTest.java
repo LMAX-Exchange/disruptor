@@ -45,7 +45,7 @@ public class ConsumerRepositoryTest
     private SequenceBarrier barrier2;
 
     @BeforeEach
-    public void setUp() throws Exception
+    public void setUp()
     {
         consumerRepository = new ConsumerRepository<>();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
@@ -62,7 +62,7 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldGetBarrierByHandler() throws Exception
+    public void shouldGetBarrierByHandler()
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
 
@@ -70,14 +70,14 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() throws Exception
+    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered()
     {
         assertThat(consumerRepository.getBarrierFor(handler1), is(nullValue()));
     }
 
     @Test
     @Deprecated
-    public void shouldGetLastEventProcessorsInChain() throws Exception
+    public void shouldGetLastEventProcessorsInChain()
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
@@ -91,7 +91,7 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldRetrieveEventProcessorForHandler() throws Exception
+    public void shouldRetrieveEventProcessorForHandler()
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
 
@@ -99,7 +99,7 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldThrowExceptionWhenHandlerIsNotRegistered() throws Exception
+    public void shouldThrowExceptionWhenHandlerIsNotRegistered()
     {
         assertThrows(IllegalArgumentException.class, () ->
                 consumerRepository.getEventProcessorFor(new SleepingEventHandler())
@@ -107,7 +107,7 @@ public class ConsumerRepositoryTest
     }
 
     @Test
-    public void shouldIterateAllEventProcessors() throws Exception
+    public void shouldIterateAllEventProcessors()
     {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
         consumerRepository.add(eventProcessor2, handler2, barrier2);
