@@ -228,6 +228,7 @@ public class Disruptor<T>
      * @param exceptionHandler the exception handler to use for any future {@link EventProcessor}.
      * @deprecated This method only applies to future event handlers. Use setDefaultExceptionHandler instead which applies to existing and new event handlers.
      */
+    @Deprecated
     public void handleExceptionsWith(final ExceptionHandler<? super T> exceptionHandler)
     {
         this.exceptionHandler = exceptionHandler;
