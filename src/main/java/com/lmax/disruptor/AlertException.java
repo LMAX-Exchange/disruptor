@@ -20,7 +20,7 @@ package com.lmax.disruptor;
  * <p>
  * It does not fill in a stack trace for performance reasons.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
 public final class AlertException extends Exception
 {
     /**
