@@ -1,5 +1,6 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.alternatives.SequenceVarHandle;
 import org.openjdk.jcstress.annotations.Actor;
 import org.openjdk.jcstress.annotations.Arbiter;
 import org.openjdk.jcstress.annotations.JCStressTest;
@@ -10,12 +11,14 @@ import org.openjdk.jcstress.infra.results.JJ_Result;
 import org.openjdk.jcstress.infra.results.J_Result;
 import org.openjdk.jcstress.infra.results.ZZJ_Result;
 
-import static org.openjdk.jcstress.annotations.Expect.*;
+import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE;
+import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE_INTERESTING;
+import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 
-public class SequenceStress
+public class SequenceStressVarHandle
 {
     /**
-     * `Sequence::incrementAndGet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::incrementAndGet` is atomic and should never lose an update, even with multiple threads racing
      */
     @JCStressTest
     @Outcome(id = "1", expect = FORBIDDEN, desc = "One update lost.")
@@ -23,7 +26,7 @@ public class SequenceStress
     @State
     public static class IncrementAndGet
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void actor1()
@@ -45,7 +48,7 @@ public class SequenceStress
     }
 
     /**
-     * `Sequence::compareAndSet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::compareAndSet` is atomic and should never lose an update, even with multiple threads racing
      */
     @JCStressTest
     @Outcome(id = {"true, false, 10", "false, true, 20"}, expect = ACCEPTABLE, desc = "Either updated.")
@@ -53,7 +56,7 @@ public class SequenceStress
     @State
     public static class CompareAndSet
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void actor1(ZZJ_Result r)
@@ -75,7 +78,7 @@ public class SequenceStress
     }
 
     /**
-     * `Sequence::addAndGet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::addAndGet` is atomic and should never lose an update, even with multiple threads racing
      */
     @JCStressTest
     @Outcome(id = "10", expect = FORBIDDEN, desc = "One update lost.")
@@ -84,7 +87,7 @@ public class SequenceStress
     @State
     public static class AddAndGet
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void actor1()
@@ -107,7 +110,7 @@ public class SequenceStress
 
     /**
      * Updates to non-volatile long values in Java are issued as two separate 32-bit writes.
-     * Sequence should store its underlying value as a volatile long and therefore should not experience this effect
+     * SequenceVarHandle should store its underlying value as a volatile long and therefore should not experience this effect
      * even when a non-volatile UNSAFE set method is used.
      */
     @JCStressTest
@@ -118,7 +121,7 @@ public class SequenceStress
     @State
     public static class LongFullSet
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void writer()
@@ -135,7 +138,7 @@ public class SequenceStress
 
     /**
      * Updates to non-volatile long values in Java are issued as two separate 32-bit writes.
-     * Sequence should store its underlying value as a volatile long and therefore should not experience this effect.
+     * SequenceVarHandle should store its underlying value as a volatile long and therefore should not experience this effect.
      */
     @JCStressTest
     @Outcome(id = "0", expect = ACCEPTABLE, desc = "Seeing the default value: writer had not acted yet.")
@@ -145,7 +148,7 @@ public class SequenceStress
     @State
     public static class LongFullSetVolatile
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void writer()
@@ -162,7 +165,7 @@ public class SequenceStress
 
     /**
      * Updates to non-volatile long values in Java are issued as two separate 32-bit writes.
-     * Sequence should store its underlying value as a volatile long and therefore should not experience this effect.
+     * SequenceVarHandle should store its underlying value as a volatile long and therefore should not experience this effect.
      */
     @JCStressTest
     @Outcome(id = "0", expect = ACCEPTABLE, desc = "Seeing the default value: writer had not acted yet.")
@@ -172,7 +175,7 @@ public class SequenceStress
     @State
     public static class LongFullCompareAndSet
     {
-        Sequence sequence = new Sequence(0);
+        SequenceVarHandle sequence = new SequenceVarHandle(0);
 
         @Actor
         public void writer()
@@ -190,7 +193,7 @@ public class SequenceStress
 
     /**
      * In absence of synchronization, the order of independent reads is undefined.
-     * In our case, the value in Sequence is volatile which mandates the writes to the same
+     * In our case, the value in SequenceVarHandle is volatile which mandates the writes to the same
      * variable to be observed in a total order (that implies that _observers_ are also ordered)
      */
     @JCStressTest
@@ -206,7 +209,7 @@ public class SequenceStress
 
         private static class Holder
         {
-            Sequence sequence = new Sequence(0);
+            SequenceVarHandle sequence = new SequenceVarHandle(0);
         }
 
         @Actor
@@ -228,7 +231,7 @@ public class SequenceStress
 
 
     /**
-     * The value field in Sequence is volatile so we should never see an update to it without seeing the update to a
+     * The value field in SequenceVarHandle is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
      * <p>
      * If the value was not volatile there would be no ordering rules stopping it being seen updated before the
@@ -243,7 +246,7 @@ public class SequenceStress
     public static class SetVolatileGuard
     {
         long x = 0;
-        Sequence y = new Sequence(0);
+        SequenceVarHandle y = new SequenceVarHandle(0);
 
         @Actor
         public void actor1()
@@ -261,7 +264,7 @@ public class SequenceStress
     }
 
     /**
-     * The value field in Sequence is volatile so we should never see an update to it without seeing the update to a
+     * The value field in SequenceVarHandle is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
      * <p>
      * If the value was not volatile there would be no ordering rules stopping it being seen updated before the
@@ -278,7 +281,7 @@ public class SequenceStress
     public static class SetGuard
     {
         long x = 0;
-        Sequence y = new Sequence(0);
+        SequenceVarHandle y = new SequenceVarHandle(0);
 
         @Actor
         public void actor1()
@@ -305,8 +308,8 @@ public class SequenceStress
     @State
     public static class SetVolatileDekker
     {
-        Sequence x = new Sequence(0);
-        Sequence y = new Sequence(0);
+        SequenceVarHandle x = new SequenceVarHandle(0);
+        SequenceVarHandle y = new SequenceVarHandle(0);
 
         @Actor
         public void actor1(JJ_Result r)
@@ -333,8 +336,8 @@ public class SequenceStress
     @State
     public static class SetDekker
     {
-        Sequence x = new Sequence(0);
-        Sequence y = new Sequence(0);
+        SequenceVarHandle x = new SequenceVarHandle(0);
+        SequenceVarHandle y = new SequenceVarHandle(0);
 
         @Actor
         public void actor1(JJ_Result r)

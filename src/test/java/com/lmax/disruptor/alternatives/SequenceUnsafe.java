@@ -1,20 +1,19 @@
-package com.lmax.disruptor;
+package com.lmax.disruptor.alternatives;
 
+import com.lmax.disruptor.util.Util;
+import sun.misc.Unsafe;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-
-class LhsPadding
+class LhsPaddingUnsafe
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
 }
 
-class Value extends LhsPadding
+class ValueUnsafe extends LhsPaddingUnsafe
 {
-    protected long value;
+    protected volatile long value;
 }
 
-class RhsPadding extends Value
+class RhsPaddingUnsafe extends ValueUnsafe
 {
     protected long p9, p10, p11, p12, p13, p14, p15;
 }
@@ -27,29 +26,29 @@ class RhsPadding extends Value
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
  */
-public class Sequence extends RhsPadding
+public class SequenceUnsafe extends RhsPaddingUnsafe
 {
     static final long INITIAL_VALUE = -1L;
-    private static final VarHandle VALUE_FIELD;
+    private static final Unsafe UNSAFE;
+    private static final long VALUE_OFFSET;
 
     static
     {
+        UNSAFE = Util.getUnsafe();
         try
         {
-            VALUE_FIELD = MethodHandles.lookup().in(Sequence.class)
-                    .findVarHandle(Sequence.class, "value", long.class);
+            VALUE_OFFSET = UNSAFE.objectFieldOffset(ValueUnsafe.class.getDeclaredField("value"));
         }
         catch (final Exception e)
         {
             throw new RuntimeException(e);
         }
-
     }
 
     /**
      * Create a sequence initialised to -1.
      */
-    public Sequence()
+    public SequenceUnsafe()
     {
         this(INITIAL_VALUE);
     }
@@ -59,10 +58,9 @@ public class Sequence extends RhsPadding
      *
      * @param initialValue The initial value for this sequence.
      */
-    public Sequence(final long initialValue)
+    public SequenceUnsafe(final long initialValue)
     {
-        VarHandle.releaseFence();
-        this.value = initialValue;
+        UNSAFE.putOrderedLong(this, VALUE_OFFSET, initialValue);
     }
 
     /**
@@ -72,8 +70,6 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        long value = this.value;
-        VarHandle.acquireFence();
         return value;
     }
 
@@ -86,8 +82,7 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
+        UNSAFE.putOrderedLong(this, VALUE_OFFSET, value);
     }
 
     /**
@@ -100,9 +95,7 @@ public class Sequence extends RhsPadding
      */
     public void setVolatile(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
-        VarHandle.fullFence();
+        UNSAFE.putLongVolatile(this, VALUE_OFFSET, value);
     }
 
     /**
@@ -114,7 +107,7 @@ public class Sequence extends RhsPadding
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
+        return UNSAFE.compareAndSwapLong(this, VALUE_OFFSET, expectedValue, newValue);
     }
 
     /**
@@ -124,7 +117,7 @@ public class Sequence extends RhsPadding
      */
     public long incrementAndGet()
     {
-        return addAndGet(1);
+        return addAndGet(1L);
     }
 
     /**
@@ -135,15 +128,17 @@ public class Sequence extends RhsPadding
      */
     public long addAndGet(final long increment)
     {
-        long v;
+        long currentValue;
+        long newValue;
+
         do
         {
-            v = value;
-            VarHandle.fullFence();
+            currentValue = get();
+            newValue = currentValue + increment;
         }
-        while (!compareAndSet(v, v + increment));
+        while (!compareAndSet(currentValue, newValue));
 
-        return v;
+        return newValue;
     }
 
     @Override

@@ -1,23 +1,8 @@
-package com.lmax.disruptor;
-
+package com.lmax.disruptor.alternatives;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
-class LhsPadding
-{
-    protected long p1, p2, p3, p4, p5, p6, p7;
-}
-
-class Value extends LhsPadding
-{
-    protected long value;
-}
-
-class RhsPadding extends Value
-{
-    protected long p9, p10, p11, p12, p13, p14, p15;
-}
 
 /**
  * <p>Concurrent sequence class used for tracking the progress of
@@ -27,29 +12,19 @@ class RhsPadding extends Value
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
  */
-public class Sequence extends RhsPadding
+public class SequenceVarHandleArray
 {
+    private static final int VALUE_INDEX = 8;
+    private static final VarHandle VALUE_FIELD = MethodHandles.arrayElementVarHandle(long[].class);
+
+    private final long[] paddedValue = new long[16];
+
     static final long INITIAL_VALUE = -1L;
-    private static final VarHandle VALUE_FIELD;
-
-    static
-    {
-        try
-        {
-            VALUE_FIELD = MethodHandles.lookup().in(Sequence.class)
-                    .findVarHandle(Sequence.class, "value", long.class);
-        }
-        catch (final Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     /**
      * Create a sequence initialised to -1.
      */
-    public Sequence()
+    public SequenceVarHandleArray()
     {
         this(INITIAL_VALUE);
     }
@@ -59,10 +34,9 @@ public class Sequence extends RhsPadding
      *
      * @param initialValue The initial value for this sequence.
      */
-    public Sequence(final long initialValue)
+    public SequenceVarHandleArray(final long initialValue)
     {
-        VarHandle.releaseFence();
-        this.value = initialValue;
+        this.set(initialValue);
     }
 
     /**
@@ -72,9 +46,7 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        long value = this.value;
-        VarHandle.acquireFence();
-        return value;
+        return (long) (Long) VALUE_FIELD.getAcquire(this.paddedValue, VALUE_INDEX);
     }
 
     /**
@@ -86,8 +58,7 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
+        VALUE_FIELD.setRelease(this.paddedValue, VALUE_INDEX, value);
     }
 
     /**
@@ -100,21 +71,19 @@ public class Sequence extends RhsPadding
      */
     public void setVolatile(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
-        VarHandle.fullFence();
+        VALUE_FIELD.setVolatile(this.paddedValue, VALUE_INDEX, value);
     }
 
     /**
      * Perform a compare and set operation on the sequence.
      *
      * @param expectedValue The expected current value.
-     * @param newValue      The value to update to.
+     * @param newValue The value to update to.
      * @return true if the operation succeeds, false otherwise.
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
+        return (boolean) VALUE_FIELD.compareAndSet(this.paddedValue, VALUE_INDEX, expectedValue, newValue);
     }
 
     /**
@@ -124,7 +93,7 @@ public class Sequence extends RhsPadding
      */
     public long incrementAndGet()
     {
-        return addAndGet(1);
+        return addAndGet(1L);
     }
 
     /**
@@ -135,15 +104,8 @@ public class Sequence extends RhsPadding
      */
     public long addAndGet(final long increment)
     {
-        long v;
-        do
-        {
-            v = value;
-            VarHandle.fullFence();
-        }
-        while (!compareAndSet(v, v + increment));
-
-        return v;
+        final long oldValue = (Long) VALUE_FIELD.getAndAdd(this.paddedValue, VALUE_INDEX, increment);
+        return oldValue + increment;
     }
 
     @Override
@@ -152,3 +114,4 @@ public class Sequence extends RhsPadding
         return Long.toString(get());
     }
 }
+

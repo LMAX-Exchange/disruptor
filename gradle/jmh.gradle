@@ -4,14 +4,16 @@
 
 sourceSets {
     jmh {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
     }
 }
 
 dependencies {
     jmhImplementation 'org.openjdk.jmh:jmh-core:1.26'
     jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
+
+    jmhImplementation 'net.openhft:affinity:3.20.0'
 }
 
 task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
