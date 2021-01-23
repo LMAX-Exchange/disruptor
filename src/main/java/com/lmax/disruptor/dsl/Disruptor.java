@@ -31,7 +31,6 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.util.Util;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,50 +56,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
-    private final Executor executor;
+    private final ThreadFactory threadFactory;
     private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<>();
     private final AtomicBoolean started = new AtomicBoolean(false);
     private ExceptionHandler<? super T> exceptionHandler = new ExceptionHandlerWrapper<>();
-
-    /**
-     * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
-     * {@link ProducerType}.MULTI
-     *
-     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors when it is unable to construct a thread to run a producer.
-     *
-     * @param eventFactory   the factory to create events in the ring buffer.
-     * @param ringBufferSize the size of the ring buffer.
-     * @param executor       an {@link Executor} to execute event processors.
-     */
-    @Deprecated
-    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final Executor executor)
-    {
-        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), executor);
-    }
-
-    /**
-     * Create a new Disruptor.
-     *
-     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors when it is unable to construct a thread to run a producer.
-     *
-     * @param eventFactory   the factory to create events in the ring buffer.
-     * @param ringBufferSize the size of the ring buffer, must be power of 2.
-     * @param executor       an {@link Executor} to execute event processors.
-     * @param producerType   the claim strategy to use for the ring buffer.
-     * @param waitStrategy   the wait strategy to use for the ring buffer.
-     */
-    @Deprecated
-    public Disruptor(
-        final EventFactory<T> eventFactory,
-        final int ringBufferSize,
-        final Executor executor,
-        final ProducerType producerType,
-        final WaitStrategy waitStrategy)
-    {
-        this(RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy), executor);
-    }
 
     /**
      * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
@@ -112,7 +71,7 @@ public class Disruptor<T>
      */
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final ThreadFactory threadFactory)
     {
-        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), new BasicExecutor(threadFactory));
+        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), threadFactory);
     }
 
     /**
@@ -133,16 +92,16 @@ public class Disruptor<T>
     {
         this(
             RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
-            new BasicExecutor(threadFactory));
+            threadFactory);
     }
 
     /**
      * Private constructor helper
      */
-    private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor)
+    private Disruptor(final RingBuffer<T> ringBuffer, final ThreadFactory threadFactory)
     {
         this.ringBuffer = ringBuffer;
-        this.executor = executor;
+        this.threadFactory = threadFactory;
     }
 
     /**
@@ -379,7 +338,7 @@ public class Disruptor<T>
         checkOnlyStartedOnce();
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
-            consumerInfo.start(executor);
+            consumerInfo.start(threadFactory);
         }
 
         return ringBuffer;
@@ -595,7 +554,7 @@ public class Disruptor<T>
         return "Disruptor{" +
             "ringBuffer=" + ringBuffer +
             ", started=" + started +
-            ", executor=" + executor +
+            ", threadFactory=" + threadFactory +
             '}';
     }
 }
