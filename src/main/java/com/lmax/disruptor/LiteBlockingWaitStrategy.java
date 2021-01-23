@@ -15,8 +15,6 @@
  */
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.ThreadHints;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -58,7 +56,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
 
         return availableSequence;
