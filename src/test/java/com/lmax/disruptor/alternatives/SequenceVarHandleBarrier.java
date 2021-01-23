@@ -43,7 +43,6 @@ public class SequenceVarHandleBarrier extends RhsPaddingVarHandleBarrier
         {
             throw new RuntimeException(e);
         }
-
     }
 
     /**

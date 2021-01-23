@@ -43,7 +43,6 @@ public class Sequence extends RhsPadding
         {
             throw new RuntimeException(e);
         }
-
     }
 
     /**

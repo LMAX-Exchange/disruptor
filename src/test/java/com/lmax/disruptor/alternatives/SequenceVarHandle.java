@@ -43,7 +43,6 @@ public class SequenceVarHandle extends RhsPaddingVarHandle
         {
             throw new RuntimeException(e);
         }
-
     }
 
     /**

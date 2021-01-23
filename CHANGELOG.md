@@ -7,6 +7,7 @@
     - Removed OSGI bundle fields from `MANIFEST.MF`
     - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
     - Deprecated ThreadHints.onSpinWait()
+    - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
 
 ## 3.4.2
 
