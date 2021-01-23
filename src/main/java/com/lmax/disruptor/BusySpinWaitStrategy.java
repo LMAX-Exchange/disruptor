@@ -15,9 +15,6 @@
  */
 package com.lmax.disruptor;
 
-
-import com.lmax.disruptor.util.ThreadHints;
-
 /**
  * Busy Spin strategy that uses a busy spin loop for {@link com.lmax.disruptor.EventProcessor}s waiting on a barrier.
  * <p>
@@ -36,7 +33,7 @@ public final class BusySpinWaitStrategy implements WaitStrategy
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
-            ThreadHints.onSpinWait();
+            Thread.onSpinWait();
         }
 
         return availableSequence;
