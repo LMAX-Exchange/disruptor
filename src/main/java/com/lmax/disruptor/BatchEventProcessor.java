@@ -113,7 +113,8 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
-        if (running.compareAndSet(IDLE, RUNNING))
+        int witnessValue = running.compareAndExchange(IDLE, RUNNING);
+        if (witnessValue == IDLE) // Successful CAS
         {
             sequenceBarrier.clearAlert();
 
@@ -133,10 +134,7 @@ public final class BatchEventProcessor<T>
         }
         else
         {
-            // This is a little bit of guess work.  The running state could of changed to HALTED by
-            // this point.  However, Java does not have compareAndExchange which is the only way
-            // to get it exactly correct.
-            if (running.get() == RUNNING)
+            if (witnessValue == RUNNING)
             {
                 throw new IllegalStateException("Thread is already running");
             }
