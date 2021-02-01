@@ -21,7 +21,14 @@ import com.lmax.disruptor.util.Util;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    protected byte
+        p10, p11, p12, p13, p14, p15, p16, p17,
+        p20, p21, p22, p23, p24, p25, p26, p27,
+        p30, p31, p32, p33, p34, p35, p36, p37,
+        p40, p41, p42, p43, p44, p45, p46, p47,
+        p50, p51, p52, p53, p54, p55, p56, p57,
+        p60, p61, p62, p63, p64, p65, p66, p67,
+        p70, p71, p72, p73, p74, p75, p76, p77;
 
     SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
     {
@@ -53,7 +60,14 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 
 public final class SingleProducerSequencer extends SingleProducerSequencerFields
 {
-    protected long p1, p2, p3, p4, p5, p6, p7;
+    protected byte
+        p10, p11, p12, p13, p14, p15, p16, p17,
+        p20, p21, p22, p23, p24, p25, p26, p27,
+        p30, p31, p32, p33, p34, p35, p36, p37,
+        p40, p41, p42, p43, p44, p45, p46, p47,
+        p50, p51, p52, p53, p54, p55, p56, p57,
+        p60, p61, p62, p63, p64, p65, p66, p67,
+        p70, p71, p72, p73, p74, p75, p76, p77;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
