@@ -278,7 +278,8 @@ Instance size: 152 bytes
 Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
      */
     @State(Scope.Group)
-    public static class PaddedRingBufferWithNoisyNeighbour extends PaddedRingBuffer {
+    public static class PaddedRingBufferWithNoisyNeighbour extends PaddedRingBuffer
+    {
         int writeOnly;
     }
 
