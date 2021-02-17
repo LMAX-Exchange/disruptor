@@ -21,6 +21,7 @@ plugins {
     id 'idea'
     id "com.github.erizo.gradle.jcstress" version "0.8.6"
     id 'org.asciidoctor.jvm.convert' version '3.1.0'
+    id 'me.champeau.gradle.jmh' version '0.5.3'
 }
 
 group = 'com.lmax'

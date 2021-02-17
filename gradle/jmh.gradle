@@ -16,31 +16,18 @@ dependencies {
     jmhImplementation 'net.openhft:affinity:3.20.0'
 }
 
-task jmh(type: JavaExec, description: 'Executing JMH benchmarks', group: 'performance') {
-    classpath = sourceSets.jmh.runtimeClasspath
-    main = 'org.openjdk.jmh.Main'
-
-    def profilers = ['pauses']
-    def format = 'json'
-    def resultFile = file("build/reports/jmh/result.${format}")
-    doFirst {
-        resultFile.parentFile.mkdirs()
-    }
-
-    args '-rf', format
-    args '-rff', resultFile
-    args '-foe', 'true' //fail-on-error
-    args '-v', 'NORMAL' //verbosity [SILENT, NORMAL, EXTRA]
-    profilers.each {
-        args '-prof', it
-    }
-    args '-jvmArgsPrepend', '-Xmx256m'
-    args '-jvmArgsPrepend', '-Xms256m'
-    args '-jvmArgsPrepend', '-XX:MaxDirectMemorySize=1g'
+jmh {
+    jmhVersion = '1.26'
+    jvmArgsPrepend =[ '-Xms256m', '-Xmx256m', '-XX:MaxDirectMemorySize=1g' ]
+    resultsFile = project.file("${project.buildDir}/reports/jmh/result.json")
+    profilers = [ 'pauses' ]
+    resultFormat = 'JSON'
+    failOnError = true
+    verbosity = 'NORMAL'
+    includeTests = true
 }
 
-
-task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'performance') {
+task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'jmh') {
     classpath = sourceSets.jmh.runtimeClasspath
     main = 'org.openjdk.jmh.Main'
     args '-lprof'
