@@ -61,6 +61,38 @@ There are also JMH Benchmarks for testing the performance of the Disruptor, thes
 ----
 $ ./gradlew jmh
 ----
+
+Some JMH Benchmarks can be run on machines with isolated cpus to get results with less error.
+
+Assuming a system set up with isolated cores, e.g.
+
+[source,shell script]
+----
+$ cat /proc/cmdline
+... isolcpus=31,33,35,37,39,41,43,45,47,7,9,11,13,15,17,19,21,23 nohz_full=31,33,35,37,39,41,43,45,47,7,9,11,13,15,17,19,21,23 ...
+----
+
+And the system may have a `cpuset` setup to split application threads from sharing cpus with kernel code:
+
+[source,shell script]
+----
+$ cat /cpusets/app/cpus
+5,7-23,29,31-47
+----
+
+You can run the benchmarks taskset to some of those cpus so that Java threads (like GC and complication) run on some cores
+and JMH Benchmark threads are pinned to isolated cpus using the following command (which is running just the one benchmark, `MultiProducersSequencerBenchmark`):
+
+[source,shell script]
+----
+$ cat runBenchmarks.sh
+#!/bin/bash
+JAVA_HOME=/var/lib/jenkins/workspace/_beant/cache/jdk11/1.11.0.6_zulu11.37.17_ca-1
+ISOLATED_CPUS=7,9,11,13,15,17,19,21,23 $JAVA_HOME/bin/java -jar ./disruptor-4.0.0-SNAPSHOT-jmh.jar -rf json -rff /tmp/jmh-result.json -foe true -v NORMAL -prof perf -jvmArgsPrepend -Xmx256m -jvmArgsPrepend -Xms256m -jvmArgsPrepend -XX:MaxDirectMemorySize=1g $@
+
+$ sudo cset proc -v --exec app -- taskset -c 5,8,10,12,14,16,18,20,22,29,32,34,36,38,40,42,44,46 ./runBenchmarks.sh MultiProducersSequencerBenchmark
+----
+
 --
 
 4. Development tips
