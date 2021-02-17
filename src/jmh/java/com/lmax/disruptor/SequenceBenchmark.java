@@ -24,11 +24,14 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
@@ -39,8 +42,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SequenceBenchmark
 {
     // To run this on a tuned system with benchmark threads pinned to isolated cpus:
-    // Put a list of cpu ids in the field below, e.g. Arrays.asList(38, 40, 42, 44, 46)
-    private static final List<Integer> ISOLATED_CPUS = Collections.emptyList();
+    // Run the JMH process with an env var defining the isolated cpu list, e.g. ISOLATED_CPUS=38,40,42,44,46,48 java -jar disruptor-jmh.jar
+    private static final List<Integer> ISOLATED_CPUS = Arrays.stream(System.getenv().getOrDefault("ISOLATED_CPUS", "").split(","))
+            .map(String::trim)
+            .filter(not(String::isBlank))
+            .map(Integer::valueOf)
+            .collect(Collectors.toList());
 
     private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
