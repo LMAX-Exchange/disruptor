@@ -116,37 +116,24 @@ public final class MultiProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        long current;
-        long next;
+        long current = cursor.getAndAdd(n);
 
-        do
+        long nextSequence = current + n;
+        long wrapPoint = nextSequence - bufferSize;
+        long cachedGatingSequence = gatingSequenceCache.get();
+
+        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
         {
-            current = cursor.get();
-            next = current + n;
-
-            long wrapPoint = next - bufferSize;
-            long cachedGatingSequence = gatingSequenceCache.get();
-
-            if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
+            long gatingSequence;
+            while (wrapPoint > (gatingSequence = Util.getMinimumSequence(gatingSequences, current)))
             {
-                long gatingSequence = Util.getMinimumSequence(gatingSequences, current);
-
-                if (wrapPoint > gatingSequence)
-                {
-                    LockSupport.parkNanos(1); // TODO, should we spin based on the wait strategy?
-                    continue;
-                }
-
-                gatingSequenceCache.set(gatingSequence);
+                LockSupport.parkNanos(1L); // TODO, should we spin based on the wait strategy?
             }
-            else if (cursor.compareAndSet(current, next))
-            {
-                break;
-            }
+
+            gatingSequenceCache.set(gatingSequence);
         }
-        while (true);
 
-        return next;
+        return nextSequence;
     }
 
     /**

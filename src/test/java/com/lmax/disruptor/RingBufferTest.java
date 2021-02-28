@@ -190,7 +190,8 @@ public class RingBufferTest
         thread.start();
 
         latch.await();
-        assertThat(Long.valueOf(buffer2.getCursor()), is(Long.valueOf(ringBufferSize - 1)));
+        assertThat(Long.valueOf(buffer2.getCursor()), is(Long.valueOf(ringBufferSize)));
+        assertFalse(buffer2.isPublished(buffer2.getCursor()));
         assertFalse(publisherComplete.get());
 
         processor.run();
