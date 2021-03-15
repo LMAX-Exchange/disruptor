@@ -111,7 +111,7 @@ public class Sequence extends RhsPadding
      */
     public long getAndAdd(final long increment)
     {
-        return UNSAFE.getAndAddLong(this, VALUE_OFFSET, increment);
+        return (long) VALUE_FIELD.getAndAdd(this, increment);
     }
 
     /**
