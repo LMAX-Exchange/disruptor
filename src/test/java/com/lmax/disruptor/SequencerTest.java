@@ -107,7 +107,9 @@ public class SequencerTest
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
         final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        assertThat(sequencer.getCursor(), is(expectedFullSequence));
+        assertThat(
+            sequencer.getHighestPublishedSequence(Sequencer.INITIAL_CURSOR_VALUE + 1, sequencer.getCursor()),
+            is(expectedFullSequence));
 
         executor.submit(
                 () ->
@@ -121,12 +123,14 @@ public class SequencerTest
                 });
 
         waitingLatch.await();
-        assertThat(sequencer.getCursor(), is(expectedFullSequence));
+        assertThat(
+            sequencer.getHighestPublishedSequence(expectedFullSequence, sequencer.getCursor()),
+            is(expectedFullSequence));
 
         gatingSequence.set(Sequencer.INITIAL_CURSOR_VALUE + 1L);
 
         doneLatch.await();
-        assertThat(sequencer.getCursor(), is(expectedFullSequence + 1L));
+        assertThat(sequencer.getHighestPublishedSequence(expectedFullSequence, sequencer.getCursor()), is(expectedFullSequence + 1L));
     }
 
     @ParameterizedTest
