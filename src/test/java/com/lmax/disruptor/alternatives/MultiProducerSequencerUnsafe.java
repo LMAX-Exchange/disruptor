@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.alternatives;
 
+import com.lmax.disruptor.AbstractSequencer;
+import com.lmax.disruptor.InsufficientCapacityException;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.Sequencer;
+import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.util.Util;
+import sun.misc.Unsafe;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.util.concurrent.locks.LockSupport;
 
 
@@ -30,9 +34,11 @@ import java.util.concurrent.locks.LockSupport;
  * to {@link Sequencer#next()}, to determine the highest available sequence that can be read, then
  * {@link Sequencer#getHighestPublishedSequence(long, long)} should be used.</p>
  */
-public final class MultiProducerSequencer extends AbstractSequencer
+public final class MultiProducerSequencerUnsafe extends AbstractSequencer
 {
-    private static final VarHandle AVAILABLE_ARRAY = MethodHandles.arrayElementVarHandle(int[].class);
+    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
+    private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
 
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
@@ -48,7 +54,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
-    public MultiProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
+    public MultiProducerSequencerUnsafe(int bufferSize, final WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
@@ -255,7 +261,8 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
     private void setAvailableBufferValue(int index, int flag)
     {
-        AVAILABLE_ARRAY.setRelease(availableBuffer, index, flag);
+        long bufferAddress = (index * SCALE) + BASE;
+        UNSAFE.putOrderedInt(availableBuffer, bufferAddress, flag);
     }
 
     /**
@@ -266,7 +273,8 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
-        return (int)AVAILABLE_ARRAY.getAcquire(availableBuffer, index) == flag;
+        long bufferAddress = (index * SCALE) + BASE;
+        return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
 
     @Override

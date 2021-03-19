@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lmax.disruptor;
+package com.lmax.disruptor.alternatives;
 
+import com.lmax.disruptor.AbstractSequencer;
+import com.lmax.disruptor.InsufficientCapacityException;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.Sequencer;
+import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.util.Util;
 
 import java.lang.invoke.MethodHandles;
@@ -30,7 +35,7 @@ import java.util.concurrent.locks.LockSupport;
  * to {@link Sequencer#next()}, to determine the highest available sequence that can be read, then
  * {@link Sequencer#getHighestPublishedSequence(long, long)} should be used.</p>
  */
-public final class MultiProducerSequencer extends AbstractSequencer
+public final class MultiProducerSequencerVarHandle extends AbstractSequencer
 {
     private static final VarHandle AVAILABLE_ARRAY = MethodHandles.arrayElementVarHandle(int[].class);
 
@@ -48,7 +53,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
-    public MultiProducerSequencer(int bufferSize, final WaitStrategy waitStrategy)
+    public MultiProducerSequencerVarHandle(int bufferSize, final WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
