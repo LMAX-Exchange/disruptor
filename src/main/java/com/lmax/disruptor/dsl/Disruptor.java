@@ -477,6 +477,16 @@ public class Disruptor<T>
         return consumerRepository.hasBacklog(cursor, false);
     }
 
+    /**
+     * Checks if disruptor has been started
+     *
+     * @return true when start has been called on this instance; otherwise false
+     */
+    public boolean hasStarted()
+    {
+      return started.get();
+    }
+
     EventHandlerGroup<T> createEventProcessors(
         final Sequence[] barrierSequences,
         final EventHandler<? super T>[] eventHandlers)

@@ -54,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings(value = {"unchecked"})
@@ -84,6 +85,16 @@ public class DisruptorTest
 
         disruptor.halt();
         executor.joinAllThreads();
+    }
+
+    @Test
+    public void shouldHaveStartedAfterStartCalled() throws Exception
+    {
+        assertFalse(disruptor.hasStarted(), "Should only be set to started after start is called");
+
+        disruptor.start();
+
+        assertTrue(disruptor.hasStarted(), "Should be set to started after start is called");
     }
 
     @Test
