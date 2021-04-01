@@ -87,7 +87,8 @@ public class DisruptorTest
     }
 
     @Test
-    public void shouldHaveStartedAfterStartCalled() throws Exception {
+    public void shouldHaveStartedAfterStartCalled() throws Exception
+    {
       if (disruptor.hasStarted())
       {
         fail("Should only be set to started after start is called");
