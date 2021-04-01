@@ -87,6 +87,21 @@ public class DisruptorTest
     }
 
     @Test
+    public void shouldHaveStartedAfterStartCalled() throws Exception {
+      if (disruptor.hasStarted())
+      {
+        fail("Should only be set to started after start is called");
+      }
+
+      disruptor.start();
+
+      if (!disruptor.hasStarted())
+      {
+        fail("Should be set to started after start is called");
+      }
+    }
+
+    @Test
     public void shouldProcessMessagesPublishedBeforeStartIsCalled() throws Exception
     {
         final CountDownLatch eventCounter = new CountDownLatch(2);
