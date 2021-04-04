@@ -21,7 +21,10 @@ package com.lmax.disruptor.util;
  * behaviours that are implemented in or anticipated to be spec'ed under the
  * {@link java.lang.Thread} class in some Java SE versions, but missing in prior
  * versions.
+ * @deprecated Use Thread.onSpinWait() directly. This class previously existed to accommodate
+ * Java versions which do not have Thread.onSpinWait().
  */
+@Deprecated
 public final class ThreadHints
 {
 
@@ -36,7 +39,7 @@ public final class ThreadHints
      * the calling thread indicates to the runtime that it is busy-waiting. The runtime
      * may take action to improve the performance of invoking spin-wait loop constructions.
      *
-     * @deprecated Use Thread.onSpinWait() directly. This method previously existed to accomodate
+     * @deprecated Use Thread.onSpinWait() directly. This method previously existed to accommodate
      * Java versions which do not have Thread.onSpinWait().
      */
     @Deprecated
