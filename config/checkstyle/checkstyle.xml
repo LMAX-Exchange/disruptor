@@ -139,4 +139,8 @@
 
         <module name="FinalParameters"/>
     </module>
+
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="module\-info\.java$"/>
+    </module>
 </module>
