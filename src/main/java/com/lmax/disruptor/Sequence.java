@@ -104,6 +104,17 @@ public class Sequence extends RhsPadding
     }
 
     /**
+     * Perform an atomic getAndAdd operation on the sequence.
+     *
+     * @param increment The value to add to the sequence.
+     * @return the value before increment
+     */
+    public long getAndAdd(final long increment)
+    {
+        return (long) VALUE_FIELD.getAndAdd(this, increment);
+    }
+
+    /**
      * Performs a volatile write of this sequence.  The intent is
      * a Store/Store barrier between this write and any previous
      * write and a Store/Load barrier between this write and any
