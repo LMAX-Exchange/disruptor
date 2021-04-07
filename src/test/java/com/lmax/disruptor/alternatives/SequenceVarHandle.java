@@ -121,7 +121,7 @@ public class SequenceVarHandle extends RhsPaddingVarHandle
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
+        return VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
     }
 
     /**
@@ -142,8 +142,7 @@ public class SequenceVarHandle extends RhsPaddingVarHandle
      */
     public long addAndGet(final long increment)
     {
-        final long oldValue = (Long) VALUE_FIELD.getAndAdd(this, increment);
-        return oldValue + increment;
+        return (long) VALUE_FIELD.getAndAdd(this, increment) + increment;
     }
 
     @Override

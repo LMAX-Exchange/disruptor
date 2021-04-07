@@ -138,7 +138,7 @@ public class Sequence extends RhsPadding
      */
     public boolean compareAndSet(final long expectedValue, final long newValue)
     {
-        return (boolean) VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
+        return VALUE_FIELD.compareAndSet(this, expectedValue, newValue);
     }
 
     /**
@@ -159,15 +159,7 @@ public class Sequence extends RhsPadding
      */
     public long addAndGet(final long increment)
     {
-        long v;
-        do
-        {
-            v = value;
-            VarHandle.fullFence();
-        }
-        while (!compareAndSet(v, v + increment));
-
-        return v;
+        return (long) VALUE_FIELD.getAndAdd(this, increment) + increment;
     }
 
     @Override
