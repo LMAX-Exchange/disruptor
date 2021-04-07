@@ -172,7 +172,8 @@ public class RingBufferTest
         Thread thread = new Thread(
                 () ->
                 {
-                    for (int i = 0; i <= ringBufferSize; i++)
+                    // Attempt to put in enough events to wrap around the ringbuffer
+                    for (int i = 0; i < ringBufferSize + 1; i++)
                     {
                         long sequence = buffer2.next();
                         StubEvent event = buffer2.get(sequence);
@@ -181,18 +182,21 @@ public class RingBufferTest
                         latch.countDown();
                     }
 
+                    // Only marked complete after enough events published that the ringbuffer must have wrapped
                     publisherComplete.set(true);
                 });
         thread.start();
 
         latch.await();
-        assertThat(Long.valueOf(buffer2.getCursor()), is(Long.valueOf(ringBufferSize)));
-        assertFalse(buffer2.isPublished(buffer2.getCursor()));
+
+        // Publisher should not be complete, blocked at RingBuffer::next
         assertFalse(publisherComplete.get());
 
+        // Run the processor, freeing up entries in the ringbuffer for the producer to continue and "complete"
         processor.run();
         thread.join();
 
+        // Check producer completes, ideally this should be in some kind of waiter
         assertTrue(publisherComplete.get());
     }
 
