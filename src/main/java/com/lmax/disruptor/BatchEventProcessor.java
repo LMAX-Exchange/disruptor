@@ -42,6 +42,7 @@ public final class BatchEventProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
     private final BatchStartAware batchStartAware;
+    private RewindPauseStrategy rewindPauseStrategy = new NoOpRewindPauseStrategy();
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -106,6 +107,22 @@ public final class BatchEventProcessor<T>
     }
 
     /**
+     * Set a new {@link RewindPauseStrategy} for throttling rewinding of batches
+     * in the event a {@link RewindableException} is thrown to prevent spamming in a recoverable scenario
+     * the default is a {@link NoOpRewindPauseStrategy}
+     * @param rewindPauseStrategy to replace the existing rewindThrottleStrategy.
+     */
+    public void setRewindPauseStrategy(final RewindPauseStrategy rewindPauseStrategy)
+    {
+        if (null == rewindPauseStrategy)
+        {
+            throw new NullPointerException();
+        }
+
+        this.rewindPauseStrategy = rewindPauseStrategy;
+    }
+
+    /**
      * It is ok to have another thread rerun this method after a halt().
      *
      * @throws IllegalStateException if this object instance is already running in a thread
@@ -152,6 +169,7 @@ public final class BatchEventProcessor<T>
 
         while (true)
         {
+            final long startOfBatchSequence = nextSequence;
             try
             {
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
@@ -179,6 +197,11 @@ public final class BatchEventProcessor<T>
                 {
                     break;
                 }
+            }
+            catch (final RewindableException e)
+            {
+                this.rewindPauseStrategy.pause();
+                nextSequence = startOfBatchSequence;
             }
             catch (final Throwable ex)
             {
