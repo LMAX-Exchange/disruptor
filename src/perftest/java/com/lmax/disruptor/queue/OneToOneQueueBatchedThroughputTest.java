@@ -89,7 +89,7 @@ public final class OneToOneQueueBatchedThroughputTest extends AbstractPerfTestQu
         return opsPerSecond;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneQueueBatchedThroughputTest test = new OneToOneQueueBatchedThroughputTest();
         test.testImplementations();

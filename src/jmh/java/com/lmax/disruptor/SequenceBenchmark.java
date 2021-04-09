@@ -397,7 +397,7 @@ public class SequenceBenchmark
         return s.value2.incrementAndGet();
     }
 
-    public static void main(String[] args) throws RunnerException
+    public static void main(final String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
                 .include(SequenceBenchmark.class.getSimpleName())

@@ -28,12 +28,12 @@ public final class StubEvent
                 event.setTestString(arg1);
             };
 
-    public StubEvent(int i)
+    public StubEvent(final int i)
     {
         this.value = i;
     }
 
-    public void copy(StubEvent event)
+    public void copy(final StubEvent event)
     {
         value = event.value;
     }
@@ -43,7 +43,7 @@ public final class StubEvent
         return value;
     }
 
-    public void setValue(int value)
+    public void setValue(final int value)
     {
         this.value = value;
     }
@@ -61,31 +61,31 @@ public final class StubEvent
     public static final EventFactory<StubEvent> EVENT_FACTORY = () -> new StubEvent(-1);
 
     @Override
-    public int hashCode()
+    public boolean equals(final Object o)
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + value;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
+        if (this == o)
         {
             return true;
         }
-        if (obj == null)
+        if (o == null || getClass() != o.getClass())
         {
             return false;
         }
-        if (getClass() != obj.getClass())
-        {
-            return false;
-        }
-        StubEvent other = (StubEvent) obj;
 
-        return value == other.value;
+        final StubEvent stubEvent = (StubEvent) o;
+
+        if (value != stubEvent.value)
+        {
+            return false;
+        }
+        return testString != null ? testString.equals(stubEvent.testString) : stubEvent.testString == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = value;
+        result = 31 * result + (testString != null ? testString.hashCode() : 0);
+        return result;
     }
 }

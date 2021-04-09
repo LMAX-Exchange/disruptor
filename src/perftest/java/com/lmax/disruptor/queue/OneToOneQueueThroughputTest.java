@@ -89,7 +89,7 @@ public final class OneToOneQueueThroughputTest extends AbstractPerfTestQueue
         return opsPerSecond;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneQueueThroughputTest test = new OneToOneQueueThroughputTest();
         test.testImplementations();

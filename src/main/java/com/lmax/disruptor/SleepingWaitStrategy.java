@@ -41,12 +41,12 @@ public final class SleepingWaitStrategy implements WaitStrategy
         this(DEFAULT_RETRIES, DEFAULT_SLEEP);
     }
 
-    public SleepingWaitStrategy(int retries)
+    public SleepingWaitStrategy(final int retries)
     {
         this(retries, DEFAULT_SLEEP);
     }
 
-    public SleepingWaitStrategy(int retries, long sleepTimeNs)
+    public SleepingWaitStrategy(final int retries, final long sleepTimeNs)
     {
         this.retries = retries;
         this.sleepTimeNs = sleepTimeNs;
@@ -54,7 +54,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(
-        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
+        final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException
     {
         long availableSequence;
@@ -73,19 +73,19 @@ public final class SleepingWaitStrategy implements WaitStrategy
     {
     }
 
-    private int applyWaitMethod(final SequenceBarrier barrier, int counter)
+    private int applyWaitMethod(final SequenceBarrier barrier, final int counter)
         throws AlertException
     {
         barrier.checkAlert();
 
         if (counter > 100)
         {
-            --counter;
+            return counter - 1;
         }
         else if (counter > 0)
         {
-            --counter;
             Thread.yield();
+            return counter - 1;
         }
         else
         {

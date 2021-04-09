@@ -15,7 +15,7 @@ public class PerfTestContext
         return disruptorOps;
     }
 
-    public void setDisruptorOps(long disruptorOps)
+    public void setDisruptorOps(final long disruptorOps)
     {
         this.disruptorOps = disruptorOps;
     }
@@ -37,7 +37,7 @@ public class PerfTestContext
         return (double)iterations / batchesProcessedCount;
     }
 
-    public void setBatchData(long batchesProcessedCount, long iterations)
+    public void setBatchData(final long batchesProcessedCount, final long iterations)
     {
         this.batchesProcessedCount = batchesProcessedCount;
         this.iterations = iterations;

@@ -124,13 +124,13 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
         private static final Translator INSTANCE = new Translator();
 
         @Override
-        public void translateTo(ValueEvent event, long sequence, MutableLong arg0)
+        public void translateTo(final ValueEvent event, final long sequence, final MutableLong arg0)
         {
             event.setValue(arg0.get());
         }
     }
 
-    private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
+    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException
     {
         while (ringBuffer.getMinimumGatingSequence() != expectedCount)
         {
@@ -138,7 +138,7 @@ public final class OneToOneTranslatorThroughputTest extends AbstractPerfTestDisr
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneTranslatorThroughputTest test = new OneToOneTranslatorThroughputTest();
         test.testImplementations();

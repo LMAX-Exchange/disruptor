@@ -31,7 +31,7 @@ public class WaitStrategyTestUtil
 {
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    public static void assertWaitForWithDelayOf(long sleepTimeMillis, WaitStrategy waitStrategy)
+    public static void assertWaitForWithDelayOf(final long sleepTimeMillis, final WaitStrategy waitStrategy)
         throws InterruptedException, BrokenBarrierException, AlertException, TimeoutException
     {
         SequenceUpdater sequenceUpdater = new SequenceUpdater(sleepTimeMillis, waitStrategy);

@@ -46,7 +46,7 @@ public final class EventTranslatorTest
         }
 
         @Override
-        public void translateTo(final StubEvent event, long sequence)
+        public void translateTo(final StubEvent event, final long sequence)
         {
             event.setTestString(testValue);
         }

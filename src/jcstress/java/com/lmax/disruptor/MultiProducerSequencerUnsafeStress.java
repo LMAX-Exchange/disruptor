@@ -33,7 +33,7 @@ public final class MultiProducerSequencerUnsafeStress
         }
 
         @Actor
-        public void actor2(ZZ_Result r)
+        public void actor2(final ZZ_Result r)
         {
             // The load in isAvailable is a full store/load barrier, so any stores from actor1 should get flushed
             r.r2 = sequencer.isAvailable(2);
@@ -67,7 +67,7 @@ public final class MultiProducerSequencerUnsafeStress
         }
 
         @Actor
-        public void actor2(ZZ_Result r)
+        public void actor2(final ZZ_Result r)
         {
             r.r1 = y.isAvailable(1);
             r.r2 = x;
@@ -102,7 +102,7 @@ public final class MultiProducerSequencerUnsafeStress
         }
 
         @Actor
-        public void actor2(ZZ_Result r)
+        public void actor2(final ZZ_Result r)
         {
             SameVolatileRead.Holder h1 = this.h1;
             SameVolatileRead.Holder h2 = this.h2;

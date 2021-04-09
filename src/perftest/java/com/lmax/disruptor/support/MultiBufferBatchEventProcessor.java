@@ -15,9 +15,9 @@ public class MultiBufferBatchEventProcessor<T>
     private long count;
 
     public MultiBufferBatchEventProcessor(
-        DataProvider<T>[] providers,
-        SequenceBarrier[] barriers,
-        EventHandler<T> handler)
+        final DataProvider<T>[] providers,
+        final SequenceBarrier[] barriers,
+        final EventHandler<T> handler)
     {
         if (providers.length != barriers.length)
         {

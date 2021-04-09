@@ -64,7 +64,7 @@ public final class ValueMutationEventHandler implements EventHandler<ValueEvent>
     }
 
     @Override
-    public void onBatchStart(long batchSize)
+    public void onBatchStart(final long batchSize)
     {
         batchesProcessed.increment();
     }

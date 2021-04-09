@@ -31,10 +31,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private final WaitStrategy fallbackStrategy;
 
     public PhasedBackoffWaitStrategy(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units,
-        WaitStrategy fallbackStrategy)
+        final long spinTimeout,
+        final long yieldTimeout,
+        final TimeUnit units,
+        final WaitStrategy fallbackStrategy)
     {
         this.spinTimeoutNanos = units.toNanos(spinTimeout);
         this.yieldTimeoutNanos = spinTimeoutNanos + units.toNanos(yieldTimeout);
@@ -50,9 +50,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLock(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+        final long spinTimeout,
+        final long yieldTimeout,
+        final TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
             spinTimeout, yieldTimeout,
@@ -68,9 +68,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withLiteLock(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+        final long spinTimeout,
+        final long yieldTimeout,
+        final TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
             spinTimeout, yieldTimeout,
@@ -86,9 +86,9 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
      * @return The constructed wait strategy.
      */
     public static PhasedBackoffWaitStrategy withSleep(
-        long spinTimeout,
-        long yieldTimeout,
-        TimeUnit units)
+        final long spinTimeout,
+        final long yieldTimeout,
+        final TimeUnit units)
     {
         return new PhasedBackoffWaitStrategy(
             spinTimeout, yieldTimeout,
@@ -96,7 +96,7 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     }
 
     @Override
-    public long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException
     {
         long availableSequence;

@@ -247,7 +247,7 @@ import java.nio.ByteBuffer;
 
 public class LongEventMain
 {
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         // The factory for the event
         LongEventFactory factory = new LongEventFactory();
@@ -293,7 +293,7 @@ import java.nio.ByteBuffer;
 
 public class LongEventMain
 {
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         // Specify the size of the ring buffer, must be power of 2.
         int bufferSize = 1024;
@@ -360,7 +360,7 @@ public class LongEventMain
         event.set(buffer.getLong(0));
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         // Specify the size of the ring buffer, must be power of 2.
         int bufferSize = 1024;
@@ -402,7 +402,7 @@ If you are in the situation where there will only ever be a single thread produc
 ----
 public class LongEventMain
 {
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         //.....
         // Construct the Disruptor with a SingleProducerSequencer
@@ -501,7 +501,7 @@ public class ClearingEventHandler<T> implements EventHandler<ObjectEvent<T>>
     }
 }
 
-public static void main(String[] args)
+public static void main(final String[] args)
 {
     Disruptor<ObjectEvent<String>> disruptor = new Disruptor<>(
         () -> ObjectEvent<String>(), bufferSize, DaemonThreadFactory.INSTANCE);

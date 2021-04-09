@@ -154,7 +154,7 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
         return perfTestContext;
     }
 
-    private long sumBatches(ValueMutationEventHandler[] handlers)
+    private long sumBatches(final ValueMutationEventHandler[] handlers)
     {
         long sum = 0;
         for (ValueMutationEventHandler handler : handlers)
@@ -164,7 +164,7 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
         return sum;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new OneToThreeSequencedThroughputTest().testImplementations();
     }

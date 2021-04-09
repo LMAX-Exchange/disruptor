@@ -94,7 +94,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         private CountDownLatch latch;
         private long count;
 
-        PollRunnable(EventPoller<ValueEvent> poller)
+        PollRunnable(final EventPoller<ValueEvent> poller)
         {
             this.poller = poller;
         }
@@ -119,7 +119,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         }
 
         @Override
-        public boolean onEvent(ValueEvent event, long sequence, boolean endOfBatch)
+        public boolean onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch)
         {
             value.set(value.get() + event.getValue());
 
@@ -156,7 +156,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         }
 
         @Override
-        public void onBatchStart(long batchSize)
+        public void onBatchStart(final long batchSize)
         {
             batchesProcessed.increment();
         }
@@ -192,7 +192,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
+    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException
     {
         while (poller.getSequence().get() != expectedCount)
         {
@@ -200,7 +200,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneSequencedPollerThroughputTest test = new OneToOneSequencedPollerThroughputTest();
         test.testImplementations();

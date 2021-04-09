@@ -183,7 +183,7 @@ public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTest
         return opsPerSecond;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new OneToThreeDiamondQueueThroughputTest().testImplementations();
     }

@@ -13,14 +13,14 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
         private final EventHandler<T> handler;
         private final LifecycleAware lifecycle;
 
-        private AccessorEventHandler(EventHandler<T> handler)
+        private AccessorEventHandler(final EventHandler<T> handler)
         {
             this.handler = handler;
             lifecycle = handler instanceof LifecycleAware ? (LifecycleAware) handler : null;
         }
 
         @Override
-        public void onEvent(EventAccessor<T> accessor, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final EventAccessor<T> accessor, final long sequence, final boolean endOfBatch) throws Exception
         {
             this.handler.onEvent(accessor.take(sequence), sequence, endOfBatch);
         }
@@ -48,19 +48,19 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
     private final Object[] buffer;
     private final int mask;
 
-    public CustomRingBuffer(Sequencer sequencer)
+    public CustomRingBuffer(final Sequencer sequencer)
     {
         this.sequencer = sequencer;
         buffer = new Object[sequencer.getBufferSize()];
         mask = sequencer.getBufferSize() - 1;
     }
 
-    private int index(long sequence)
+    private int index(final long sequence)
     {
         return (int) sequence & mask;
     }
 
-    public void put(T e)
+    public void put(final T e)
     {
         long next = sequencer.next();
         buffer[index(next)] = e;
@@ -69,7 +69,7 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
 
     @SuppressWarnings("unchecked")
     @Override
-    public T take(long sequence)
+    public T take(final long sequence)
     {
         int index = index(sequence);
 
@@ -80,7 +80,7 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
     }
 
     @Override
-    public EventAccessor<T> get(long sequence)
+    public EventAccessor<T> get(final long sequence)
     {
         return this;
     }

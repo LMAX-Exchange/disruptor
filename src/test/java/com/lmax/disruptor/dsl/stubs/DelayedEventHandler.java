@@ -29,7 +29,7 @@ public class DelayedEventHandler implements EventHandler<TestEvent>, LifecycleAw
     private volatile boolean stopped = false;
     private final CyclicBarrier barrier;
 
-    public DelayedEventHandler(CyclicBarrier barrier)
+    public DelayedEventHandler(final CyclicBarrier barrier)
     {
         this.barrier = barrier;
     }

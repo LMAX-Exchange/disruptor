@@ -25,7 +25,7 @@ public final class BlockingWaitStrategy implements WaitStrategy
     private final Object mutex = new Object();
 
     @Override
-    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence cursorSequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;

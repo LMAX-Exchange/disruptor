@@ -14,7 +14,7 @@ public class HandleExceptionOnTranslate
     {
 
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch)
         {
             if (event.get() == NO_VALUE_SPECIFIED)
             {
@@ -27,7 +27,7 @@ public class HandleExceptionOnTranslate
         }
     }
 
-    public static void main(String[] args) throws InterruptedException
+    public static void main(final String[] args) throws InterruptedException
     {
         Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 

@@ -93,7 +93,7 @@ class SequenceGroups
         return numToRemove != 0;
     }
 
-    private static <T> int countMatching(T[] values, final T toMatch)
+    private static <T> int countMatching(final T[] values, final T toMatch)
     {
         int numToRemove = 0;
         for (T value : values)

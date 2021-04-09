@@ -22,7 +22,7 @@ import com.lmax.disruptor.SequenceBarrier;
 public class DummySequenceBarrier implements SequenceBarrier
 {
     @Override
-    public long waitFor(long sequence) throws AlertException, InterruptedException
+    public long waitFor(final long sequence) throws AlertException, InterruptedException
     {
         return 0;
     }

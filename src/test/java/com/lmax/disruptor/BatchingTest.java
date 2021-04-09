@@ -34,14 +34,14 @@ public class BatchingTest
         private long tempValue;
         private volatile long processed;
 
-        ParallelEventHandler(long mask, long ordinal)
+        ParallelEventHandler(final long mask, final long ordinal)
         {
             this.mask = mask;
             this.ordinal = ordinal;
         }
 
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
             if ((sequence & mask) == ordinal)
             {
@@ -66,7 +66,7 @@ public class BatchingTest
     @SuppressWarnings("unchecked")
     @ParameterizedTest
     @MethodSource("generateData")
-    public void shouldBatch(ProducerType producerType) throws Exception
+    public void shouldBatch(final ProducerType producerType) throws Exception
     {
         Disruptor<LongEvent> d = new Disruptor<>(
                 LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,

@@ -13,7 +13,7 @@ public class SequentialThreeConsumers
         private Object d;
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         Disruptor<MyEvent> disruptor = new Disruptor<>(MyEvent::new, 1024, DaemonThreadFactory.INSTANCE);
 

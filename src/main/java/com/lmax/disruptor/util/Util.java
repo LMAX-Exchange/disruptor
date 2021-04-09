@@ -60,15 +60,16 @@ public final class Util
      * @return the smaller of minimum sequence value found in {@code sequences} and {@code minimum};
      * {@code minimum} if {@code sequences} is empty
      */
-    public static long getMinimumSequence(final Sequence[] sequences, long minimum)
+    public static long getMinimumSequence(final Sequence[] sequences, final long minimum)
     {
+        long minimumSequence = minimum;
         for (int i = 0, n = sequences.length; i < n; i++)
         {
             long value = sequences[i].get();
-            minimum = Math.min(minimum, value);
+            minimumSequence = Math.min(minimumSequence, value);
         }
 
-        return minimum;
+        return minimumSequence;
     }
 
     /**
@@ -127,17 +128,18 @@ public final class Util
      * @param i Value to calculate log2 for.
      * @return The log2 value
      */
-    public static int log2(int i)
+    public static int log2(final int i)
     {
+        long value = i;
         int r = 0;
-        while ((i >>= 1) != 0)
+        while ((value >>= 1) != 0)
         {
             ++r;
         }
         return r;
     }
 
-    public static long awaitNanos(Object mutex, long timeoutNanos) throws InterruptedException
+    public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException
     {
         long millis = timeoutNanos / 1_000_000;
         long nanos = timeoutNanos % 1_000_000;

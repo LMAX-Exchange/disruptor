@@ -69,8 +69,8 @@ public class DisruptorStressTest
     }
 
     private Publisher[] initialise(
-        Publisher[] publishers, RingBuffer<TestEvent> buffer,
-        int messageCount, CyclicBarrier barrier, CountDownLatch latch)
+            final Publisher[] publishers, final RingBuffer<TestEvent> buffer,
+            final int messageCount, final CyclicBarrier barrier, final CountDownLatch latch)
     {
         for (int i = 0; i < publishers.length; i++)
         {
@@ -81,7 +81,7 @@ public class DisruptorStressTest
     }
 
     @SuppressWarnings("unchecked")
-    private TestEventHandler[] initialise(Disruptor<TestEvent> disruptor, TestEventHandler[] testEventHandlers)
+    private TestEventHandler[] initialise(final Disruptor<TestEvent> disruptor, final TestEventHandler[] testEventHandlers)
     {
         for (int i = 0; i < testEventHandlers.length; i++)
         {
@@ -103,7 +103,7 @@ public class DisruptorStressTest
         }
 
         @Override
-        public void onEvent(TestEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final TestEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
             if (event.sequence != sequence ||
                 event.a != sequence + 13 ||
@@ -127,10 +127,10 @@ public class DisruptorStressTest
         public boolean failed = false;
 
         Publisher(
-            RingBuffer<TestEvent> ringBuffer,
-            int iterations,
-            CyclicBarrier barrier,
-            CountDownLatch shutdownLatch)
+            final RingBuffer<TestEvent> ringBuffer,
+            final int iterations,
+            final CyclicBarrier barrier,
+            final CountDownLatch shutdownLatch)
         {
             this.ringBuffer = ringBuffer;
             this.barrier = barrier;

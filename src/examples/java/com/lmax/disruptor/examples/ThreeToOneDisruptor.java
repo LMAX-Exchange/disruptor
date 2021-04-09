@@ -13,7 +13,7 @@ public class ThreeToOneDisruptor
         Object input;
         Object[] output;
 
-        public DataEvent(int size)
+        public DataEvent(final int size)
         {
             output = new Object[size];
         }
@@ -25,19 +25,19 @@ public class ThreeToOneDisruptor
     {
         private final int outputIndex;
 
-        public TransformingHandler(int outputIndex)
+        public TransformingHandler(final int outputIndex)
         {
             this.outputIndex = outputIndex;
         }
 
         @Override
-        public void onEvent(DataEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final DataEvent event, final long sequence, final boolean endOfBatch)
         {
             // Do Stuff.
             event.output[outputIndex] = doSomething(event.input);
         }
 
-        private Object doSomething(Object input)
+        private Object doSomething(final Object input)
         {
             // Do required transformation here....
             return input;
@@ -47,18 +47,18 @@ public class ThreeToOneDisruptor
     public static class CollatingHandler implements EventHandler<DataEvent>
     {
         @Override
-        public void onEvent(DataEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final DataEvent event, final long sequence, final boolean endOfBatch)
         {
             collate(event.output);
         }
 
-        private void collate(Object[] output)
+        private void collate(final Object[] output)
         {
             // Do required collation here....
         }
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         Disruptor<DataEvent> disruptor = new Disruptor<>(
                 DataEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);

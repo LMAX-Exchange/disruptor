@@ -118,7 +118,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
+    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException
     {
         while (batchEventProcessor.getSequence().get() != expectedCount)
         {
@@ -126,7 +126,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneSequencedLongArrayThroughputTest test = new OneToOneSequencedLongArrayThroughputTest();
         test.testImplementations();

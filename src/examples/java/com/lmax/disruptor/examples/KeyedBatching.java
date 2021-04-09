@@ -12,7 +12,7 @@ public class KeyedBatching implements EventHandler<KeyedBatching.KeyedEvent>
     private long key = 0;
 
     @Override
-    public void onEvent(KeyedEvent event, long sequence, boolean endOfBatch)
+    public void onEvent(final KeyedEvent event, final long sequence, final boolean endOfBatch)
     {
         if (!batch.isEmpty() && event.key != key)
         {
@@ -28,7 +28,7 @@ public class KeyedBatching implements EventHandler<KeyedBatching.KeyedEvent>
         }
     }
 
-    private void processBatch(List<Object> batch)
+    private void processBatch(final List<Object> batch)
     {
         // do work.
         batch.clear();

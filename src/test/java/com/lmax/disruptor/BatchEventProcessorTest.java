@@ -101,13 +101,13 @@ public final class BatchEventProcessorTest
     {
         private final CountDownLatch latch;
 
-        LatchEventHandler(CountDownLatch latch)
+        LatchEventHandler(final CountDownLatch latch)
         {
             this.latch = latch;
         }
 
         @Override
-        public void onEvent(StubEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
             latch.countDown();
         }
@@ -117,25 +117,25 @@ public final class BatchEventProcessorTest
     {
         private final CountDownLatch latch;
 
-        LatchExceptionHandler(CountDownLatch latch)
+        LatchExceptionHandler(final CountDownLatch latch)
         {
             this.latch = latch;
         }
 
         @Override
-        public void handleEventException(Throwable ex, long sequence, StubEvent event)
+        public void handleEventException(final Throwable ex, final long sequence, final StubEvent event)
         {
             latch.countDown();
         }
 
         @Override
-        public void handleOnStartException(Throwable ex)
+        public void handleOnStartException(final Throwable ex)
         {
 
         }
 
         @Override
-        public void handleOnShutdownException(Throwable ex)
+        public void handleOnShutdownException(final Throwable ex)
         {
 
         }
@@ -144,7 +144,7 @@ public final class BatchEventProcessorTest
     private static class ExceptionEventHandler implements EventHandler<StubEvent>
     {
         @Override
-        public void onEvent(StubEvent event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
             throw new NullPointerException(null);
         }
@@ -162,13 +162,13 @@ public final class BatchEventProcessorTest
         {
 
             @Override
-            public void onBatchStart(long batchSize)
+            public void onBatchStart(final long batchSize)
             {
                 batchSizes.add(batchSize);
             }
 
             @Override
-            public void onEvent(StubEvent event, long sequence, boolean endOfBatch)
+            public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch)
                 throws Exception
             {
                 if (!endOfBatch)
@@ -248,7 +248,7 @@ public final class BatchEventProcessorTest
         private final CountDownLatch stopLatch = new CountDownLatch(1);
 
         @Override
-        public void onEvent(Object event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final Object event, final long sequence, final boolean endOfBatch) throws Exception
         {
 
         }
@@ -265,13 +265,13 @@ public final class BatchEventProcessorTest
             stopLatch.countDown();
         }
 
-        public boolean awaitStart(long time, TimeUnit unit) throws InterruptedException
+        public boolean awaitStart(final long time, final TimeUnit unit) throws InterruptedException
         {
             return startLatch.await(time, unit);
         }
 
 
-        public boolean awaitStop(long time, TimeUnit unit) throws InterruptedException
+        public boolean awaitStop(final long time, final TimeUnit unit) throws InterruptedException
         {
             return stopLatch.await(time, unit);
         }
@@ -309,13 +309,13 @@ public final class BatchEventProcessorTest
         private SequenceBarrier delegate;
         private boolean suppress = true;
 
-        DelegatingSequenceBarrier(SequenceBarrier delegate)
+        DelegatingSequenceBarrier(final SequenceBarrier delegate)
         {
             this.delegate = delegate;
         }
 
         @Override
-        public long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException
+        public long waitFor(final long sequence) throws AlertException, InterruptedException, TimeoutException
         {
             long result = suppress ? sequence - 1 : delegate.waitFor(sequence);
             suppress = !suppress;
@@ -357,13 +357,13 @@ public final class BatchEventProcessorTest
     {
         final Map<Long, Integer> batchSizeToCountMap = new HashMap<>();
 
-        BatchAwareEventHandler(CountDownLatch latch)
+        BatchAwareEventHandler(final CountDownLatch latch)
         {
             super(latch);
         }
 
         @Override
-        public void onBatchStart(long batchSize)
+        public void onBatchStart(final long batchSize)
         {
             final Integer currentCount = batchSizeToCountMap.get(batchSize);
             final int nextCount = null == currentCount ? 1 : currentCount + 1;

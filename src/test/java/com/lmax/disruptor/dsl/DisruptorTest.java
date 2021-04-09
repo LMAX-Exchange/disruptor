@@ -659,7 +659,7 @@ public class DisruptorTest
     private void assertProducerReaches(
         final StubPublisher stubPublisher,
         final int expectedPublicationCount,
-        boolean strict)
+        final boolean strict)
     {
         long loopStart = System.currentTimeMillis();
         while (stubPublisher.getPublicationCount() < expectedPublicationCount && System

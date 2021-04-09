@@ -41,7 +41,7 @@ public class DynamicallyAddHandler
         }
     }
 
-    public static void main(String[] args) throws InterruptedException
+    public static void main(final String[] args) throws InterruptedException
     {
         ExecutorService executor = Executors.newCachedThreadPool(DaemonThreadFactory.INSTANCE);
 

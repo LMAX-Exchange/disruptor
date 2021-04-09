@@ -10,7 +10,7 @@ import com.lmax.disruptor.RingBuffer;
  */
 public class PullWithBatchedPoller
 {
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         int batchSize = 40;
         RingBuffer<BatchedPoller.DataEvent<Object>> ringBuffer =
@@ -29,22 +29,14 @@ public class PullWithBatchedPoller
 
     static class BatchedPoller<T>
     {
-
         private final EventPoller<DataEvent<T>> poller;
-        private final int maxBatchSize;
         private final BatchedData<T> polledData;
 
-        BatchedPoller(RingBuffer<DataEvent<T>> ringBuffer, int batchSize)
+        BatchedPoller(final RingBuffer<DataEvent<T>> ringBuffer, final int batchSize)
         {
             this.poller = ringBuffer.newPoller();
             ringBuffer.addGatingSequences(poller.getSequence());
-
-            if (batchSize < 1)
-            {
-                batchSize = 20;
-            }
-            this.maxBatchSize = batchSize;
-            this.polledData = new BatchedData<>(this.maxBatchSize);
+            this.polledData = new BatchedData<>(batchSize);
         }
 
         public T poll() throws Exception
@@ -58,7 +50,7 @@ public class PullWithBatchedPoller
             return polledData.getMsgCount() > 0 ? polledData.pollMessage() : null;
         }
 
-        private EventPoller.PollState loadNextValues(EventPoller<DataEvent<T>> poller, final BatchedData<T> batch)
+        private EventPoller.PollState loadNextValues(final EventPoller<DataEvent<T>> poller, final BatchedData<T> batch)
                 throws Exception
         {
             return poller.poll((event, sequence, endOfBatch) ->
@@ -88,7 +80,7 @@ public class PullWithBatchedPoller
                 return data;
             }
 
-            void set(T d)
+            void set(final T d)
             {
                 data = d;
             }
@@ -102,7 +94,7 @@ public class PullWithBatchedPoller
             private int cursor;
 
             @SuppressWarnings("unchecked")
-            BatchedData(int size)
+            BatchedData(final int size)
             {
                 this.capacity = size;
                 data = (T[]) new Object[this.capacity];
@@ -119,7 +111,7 @@ public class PullWithBatchedPoller
                 return msgHighBound - cursor;
             }
 
-            public boolean addDataItem(T item) throws IndexOutOfBoundsException
+            public boolean addDataItem(final T item) throws IndexOutOfBoundsException
             {
                 if (msgHighBound >= capacity)
                 {

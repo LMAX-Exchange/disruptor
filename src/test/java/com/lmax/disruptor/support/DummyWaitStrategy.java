@@ -8,7 +8,7 @@ public class DummyWaitStrategy implements WaitStrategy
 
     @Override
     public long waitFor(
-        long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
+            final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException, TimeoutException
     {
         return 0;

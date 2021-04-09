@@ -146,7 +146,7 @@ public final class OneToThreePipelineQueueThroughputTest extends AbstractPerfTes
         return opsPerSecond;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new OneToThreePipelineQueueThroughputTest().testImplementations();
     }

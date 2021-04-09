@@ -143,7 +143,7 @@ public final class ThreeToOneSequencedThroughputTest extends AbstractPerfTestDis
         return perfTestContext;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new ThreeToOneSequencedThroughputTest().testImplementations();
     }

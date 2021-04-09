@@ -72,7 +72,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(long expectedCount)
+    private void waitForEventProcessorSequence(final long expectedCount)
     {
         while (processor.getSequence().get() < expectedCount)
         {
@@ -80,7 +80,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new OneToOneOffHeapThroughputTest().testImplementations();
     }
@@ -93,7 +93,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         private CountDownLatch latch;
 
         @Override
-        public void onEvent(ByteBuffer event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final ByteBuffer event, final long sequence, final boolean endOfBatch) throws Exception
         {
             final int start = event.position();
             for (int i = start, size = start + BLOCK_SIZE; i < size; i += 8)
@@ -117,7 +117,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             return batchesProcessed.get();
         }
 
-        public void reset(CountDownLatch latch, long expectedCount)
+        public void reset(final CountDownLatch latch, final long expectedCount)
         {
             this.latch = latch;
             this.expectedCount = expectedCount;
@@ -126,7 +126,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         }
 
         @Override
-        public void onBatchStart(long batchSize)
+        public void onBatchStart(final long batchSize)
         {
             batchesProcessed.increment();
         }
@@ -148,7 +148,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             }
         };
 
-        public OffHeapRingBuffer(Sequencer sequencer, int entrySize)
+        public OffHeapRingBuffer(final Sequencer sequencer, final int entrySize)
         {
             this.sequencer = sequencer;
             this.entrySize = entrySize;
@@ -156,7 +156,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             buffer = ByteBuffer.allocateDirect(sequencer.getBufferSize() * entrySize).order(ByteOrder.nativeOrder());
         }
 
-        public void addGatingSequences(Sequence sequence)
+        public void addGatingSequences(final Sequence sequence)
         {
             sequencer.addGatingSequences(sequence);
         }
@@ -167,7 +167,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         }
 
         @Override
-        public ByteBuffer get(long sequence)
+        public ByteBuffer get(final long sequence)
         {
             int index = index(sequence);
             int position = index * entrySize;
@@ -179,7 +179,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             return byteBuffer;
         }
 
-        public void put(byte[] data)
+        public void put(final byte[] data)
         {
             long next = sequencer.next();
             try
@@ -192,7 +192,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
             }
         }
 
-        private int index(long next)
+        private int index(final long next)
         {
             return (int) (next & mask);
         }

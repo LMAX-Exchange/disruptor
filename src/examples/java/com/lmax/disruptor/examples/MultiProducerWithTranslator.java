@@ -27,17 +27,17 @@ public class MultiProducerWithTranslator
 
         private static final EventFactory<ObjectBox> FACTORY = ObjectBox::new;
 
-        public void setMessage(IMessage arg0)
+        public void setMessage(final IMessage arg0)
         {
             message = arg0;
         }
 
-        public void setTransportable(ITransportable arg1)
+        public void setTransportable(final ITransportable arg1)
         {
             transportable = arg1;
         }
 
-        public void setStreamName(String arg2)
+        public void setStreamName(final String arg2)
         {
             string = arg2;
         }
@@ -46,7 +46,7 @@ public class MultiProducerWithTranslator
     public static class Publisher implements EventTranslatorThreeArg<ObjectBox, IMessage, ITransportable, String>
     {
         @Override
-        public void translateTo(ObjectBox event, long sequence, IMessage arg0, ITransportable arg1, String arg2)
+        public void translateTo(final ObjectBox event, final long sequence, final IMessage arg0, final ITransportable arg1, final String arg2)
         {
             event.setMessage(arg0);
             event.setTransportable(arg1);
@@ -57,7 +57,7 @@ public class MultiProducerWithTranslator
     public static class Consumer implements EventHandler<ObjectBox>
     {
         @Override
-        public void onEvent(ObjectBox event, long sequence, boolean endOfBatch)
+        public void onEvent(final ObjectBox event, final long sequence, final boolean endOfBatch)
         {
 
         }
@@ -65,7 +65,7 @@ public class MultiProducerWithTranslator
 
     static final int RING_SIZE = 1024;
 
-    public static void main(String[] args) throws InterruptedException
+    public static void main(final String[] args) throws InterruptedException
     {
         Disruptor<ObjectBox> disruptor = new Disruptor<>(
                 ObjectBox.FACTORY, RING_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.MULTI,

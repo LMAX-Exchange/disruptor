@@ -115,7 +115,7 @@ public final class OneToOneSequencedThroughputTest extends AbstractPerfTestDisru
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(long expectedCount) throws InterruptedException
+    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException
     {
         while (batchEventProcessor.getSequence().get() != expectedCount)
         {
@@ -123,7 +123,7 @@ public final class OneToOneSequencedThroughputTest extends AbstractPerfTestDisru
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         OneToOneSequencedThroughputTest test = new OneToOneSequencedThroughputTest();
         test.testImplementations();

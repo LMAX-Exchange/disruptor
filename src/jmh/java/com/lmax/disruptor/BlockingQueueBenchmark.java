@@ -75,7 +75,7 @@ public class BlockingQueueBenchmark
         consumerRunning = false;
     }
 
-    public static void main(String[] args) throws RunnerException
+    public static void main(final String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
                 .include(BlockingQueueBenchmark.class.getSimpleName())

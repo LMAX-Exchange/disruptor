@@ -24,7 +24,7 @@ public class PullWithPoller
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         RingBuffer<DataEvent<Object>> ringBuffer = RingBuffer.createMultiProducer(DataEvent.factory(), 1024);
 
@@ -39,7 +39,7 @@ public class PullWithPoller
         }
     }
 
-    private static Object getNextValue(EventPoller<DataEvent<Object>> poller) throws Exception
+    private static Object getNextValue(final EventPoller<DataEvent<Object>> poller) throws Exception
     {
         final Object[] out = new Object[1];
 

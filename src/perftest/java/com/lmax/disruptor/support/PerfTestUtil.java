@@ -28,7 +28,7 @@ public final class PerfTestUtil
         return temp;
     }
 
-    public static void failIf(long a, long b)
+    public static void failIf(final long a, final long b)
     {
         if (a == b)
         {
@@ -36,7 +36,7 @@ public final class PerfTestUtil
         }
     }
 
-    public static void failIfNot(long a, long b)
+    public static void failIfNot(final long a, final long b)
     {
         if (a != b)
         {

@@ -130,7 +130,7 @@ public final class ThreeToOneQueueThroughputTest extends AbstractPerfTestQueue
         return opsPerSecond;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new ThreeToOneQueueThroughputTest().testImplementations();
     }

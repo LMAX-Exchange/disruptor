@@ -8,7 +8,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 
 public class Pipeliner
 {
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         Disruptor<PipelinerEvent> disruptor = new Disruptor<>(
                 PipelinerEvent.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
@@ -41,14 +41,14 @@ public class Pipeliner
         private final int ordinal;
         private final int totalHandlers;
 
-        ParallelHandler(int ordinal, int totalHandlers)
+        ParallelHandler(final int ordinal, final int totalHandlers)
         {
             this.ordinal = ordinal;
             this.totalHandlers = totalHandlers;
         }
 
         @Override
-        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final PipelinerEvent event, final long sequence, final boolean endOfBatch)
         {
             if (sequence % totalHandlers == ordinal)
             {
@@ -62,7 +62,7 @@ public class Pipeliner
         private long lastEvent = -1;
 
         @Override
-        public void onEvent(PipelinerEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final PipelinerEvent event, final long sequence, final boolean endOfBatch)
         {
             if (event.input != lastEvent + 1 || event.result == null)
             {

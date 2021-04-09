@@ -11,7 +11,7 @@ public class DummyEventProcessor implements EventProcessor
     private final Sequence sequence;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    public DummyEventProcessor(Sequence sequence)
+    public DummyEventProcessor(final Sequence sequence)
     {
         this.sequence = sequence;
     }
@@ -21,7 +21,7 @@ public class DummyEventProcessor implements EventProcessor
         this(new Sequence(SingleProducerSequencer.INITIAL_CURSOR_VALUE));
     }
 
-    public void setSequence(long sequence)
+    public void setSequence(final long sequence)
     {
         this.sequence.set(sequence);
     }

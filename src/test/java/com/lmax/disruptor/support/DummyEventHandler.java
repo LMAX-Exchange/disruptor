@@ -23,7 +23,7 @@ public class DummyEventHandler<T> implements EventHandler<T>, LifecycleAware
     }
 
     @Override
-    public void onEvent(T event, long sequence, boolean endOfBatch) throws Exception
+    public void onEvent(final T event, final long sequence, final boolean endOfBatch) throws Exception
     {
         lastEvent = event;
         lastSequence = sequence;

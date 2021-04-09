@@ -74,7 +74,7 @@ public final class AggregateEventHandlerTest
         aggregateEventHandler.onShutdown();
     }
 
-    private static void assertLastEvent(int[] event, long sequence, DummyEventHandler<int[]>... eh1)
+    private static void assertLastEvent(final int[] event, final long sequence, final DummyEventHandler<int[]>... eh1)
     {
         for (DummyEventHandler<int[]> eh : eh1)
         {
@@ -83,7 +83,7 @@ public final class AggregateEventHandlerTest
         }
     }
 
-    private static void assertStartCalls(int startCalls, DummyEventHandler<int[]>... handlers)
+    private static void assertStartCalls(final int startCalls, final DummyEventHandler<int[]>... handlers)
     {
         for (DummyEventHandler<int[]> handler : handlers)
         {
@@ -91,7 +91,7 @@ public final class AggregateEventHandlerTest
         }
     }
 
-    private static void assertShutoownCalls(int startCalls, DummyEventHandler<int[]>... handlers)
+    private static void assertShutoownCalls(final int startCalls, final DummyEventHandler<int[]>... handlers)
     {
         for (DummyEventHandler<int[]> handler : handlers)
         {

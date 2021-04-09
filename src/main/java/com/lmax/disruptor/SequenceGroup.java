@@ -118,7 +118,7 @@ public final class SequenceGroup extends Sequence
      *                 be pulling it's events from.
      * @param sequence The sequence to add.
      */
-    public void addWhileRunning(Cursored cursored, Sequence sequence)
+    public void addWhileRunning(final Cursored cursored, final Sequence sequence)
     {
         SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
     }

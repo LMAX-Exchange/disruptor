@@ -191,7 +191,7 @@ public class MultiProducerSequencerBenchmark
         s.value2.publish(2L);
     }
 
-    public static void main(String[] args) throws RunnerException
+    public static void main(final String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
                 .include(MultiProducerSequencerBenchmark.class.getSimpleName())

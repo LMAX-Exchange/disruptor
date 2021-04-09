@@ -46,7 +46,7 @@ public class ExceptionHandlerSetting<T>
      * @param exceptionHandler the exception handler to use.
      */
     @SuppressWarnings("unchecked")
-    public void with(ExceptionHandler<? super T> exceptionHandler)
+    public void with(final ExceptionHandler<? super T> exceptionHandler)
     {
         final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(eventHandler);
         if (eventProcessor instanceof BatchEventProcessor)

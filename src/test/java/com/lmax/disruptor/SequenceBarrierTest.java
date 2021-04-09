@@ -175,7 +175,7 @@ public final class SequenceBarrierTest
         assertFalse(sequenceBarrier.isAlerted());
     }
 
-    private void fillRingBuffer(long expectedNumberMessages) throws InterruptedException
+    private void fillRingBuffer(final long expectedNumberMessages) throws InterruptedException
     {
         for (long i = 0; i < expectedNumberMessages; i++)
         {

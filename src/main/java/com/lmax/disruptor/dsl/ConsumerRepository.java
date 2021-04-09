@@ -50,7 +50,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         consumerInfos.add(consumerInfo);
     }
 
-    public boolean hasBacklog(long cursor, boolean includeStopped)
+    public boolean hasBacklog(final long cursor, final boolean includeStopped)
     {
         for (ConsumerInfo consumerInfo : consumerInfos)
         {
@@ -75,7 +75,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
      * of a backlog, instead use hasBacklog
      */
     @Deprecated
-    public Sequence[] getLastSequenceInChain(boolean includeStopped)
+    public Sequence[] getLastSequenceInChain(final boolean includeStopped)
     {
         List<Sequence> lastSequence = new ArrayList<>();
         for (ConsumerInfo consumerInfo : consumerInfos)

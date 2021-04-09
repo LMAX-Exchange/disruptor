@@ -18,7 +18,7 @@ public class WaitForShutdown
     {
         private final CountDownLatch latch;
 
-        Handler(CountDownLatch latch)
+        Handler(final CountDownLatch latch)
         {
             this.latch = latch;
         }
@@ -35,13 +35,13 @@ public class WaitForShutdown
         }
 
         @Override
-        public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch)
         {
             value = 1;
         }
     }
 
-    public static void main(String[] args) throws TimeoutException, InterruptedException
+    public static void main(final String[] args) throws TimeoutException, InterruptedException
     {
         Disruptor<LongEvent> disruptor = new Disruptor<>(
                 LongEvent.FACTORY, 16, DaemonThreadFactory.INSTANCE

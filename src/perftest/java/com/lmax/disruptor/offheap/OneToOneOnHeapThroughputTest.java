@@ -80,7 +80,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(long expectedCount)
+    private void waitForEventProcessorSequence(final long expectedCount)
     {
         while (processor.getSequence().get() < expectedCount)
         {
@@ -88,7 +88,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         }
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new OneToOneOnHeapThroughputTest().testImplementations();
     }
@@ -101,7 +101,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         private CountDownLatch latch;
 
         @Override
-        public void onEvent(ByteBuffer event, long sequence, boolean endOfBatch) throws Exception
+        public void onEvent(final ByteBuffer event, final long sequence, final boolean endOfBatch) throws Exception
         {
             for (int i = 0; i < BLOCK_SIZE; i += 8)
             {
@@ -124,7 +124,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             return batchesProcessed.get();
         }
 
-        public void reset(CountDownLatch latch, long expectedCount)
+        public void reset(final CountDownLatch latch, final long expectedCount)
         {
             this.latch = latch;
             this.expectedCount = expectedCount;
@@ -133,7 +133,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         }
 
         @Override
-        public void onBatchStart(long batchSize)
+        public void onBatchStart(final long batchSize)
         {
             batchesProcessed.increment();
         }
@@ -144,7 +144,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         private final boolean isDirect;
         private final int size;
 
-        private BufferFactory(boolean isDirect, int size)
+        private BufferFactory(final boolean isDirect, final int size)
         {
             this.isDirect = isDirect;
             this.size = size;
@@ -163,13 +163,13 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             }
         }
 
-        public static BufferFactory direct(int size)
+        public static BufferFactory direct(final int size)
         {
             return new BufferFactory(true, size);
         }
 
         @SuppressWarnings("unused")
-        public static BufferFactory heap(int size)
+        public static BufferFactory heap(final int size)
         {
             return new BufferFactory(false, size);
         }
@@ -182,7 +182,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
         private final int total;
         private ByteBuffer buffer;
 
-        private SlicedBufferFactory(boolean isDirect, int size, int total)
+        private SlicedBufferFactory(final boolean isDirect, final int size, final int total)
         {
             this.isDirect = isDirect;
             this.size = size;
@@ -210,13 +210,13 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
             return slice;
         }
 
-        public static SlicedBufferFactory direct(int size, int total)
+        public static SlicedBufferFactory direct(final int size, final int total)
         {
             return new SlicedBufferFactory(true, size, total);
         }
 
         @SuppressWarnings("unused")
-        public static SlicedBufferFactory heap(int size, int total)
+        public static SlicedBufferFactory heap(final int size, final int total)
         {
             return new SlicedBufferFactory(false, size, total);
         }

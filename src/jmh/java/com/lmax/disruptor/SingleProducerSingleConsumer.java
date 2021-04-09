@@ -62,7 +62,7 @@ public class SingleProducerSingleConsumer
         disruptor.shutdown();
     }
 
-    public static void main(String[] args) throws RunnerException
+    public static void main(final String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
                 .include(SingleProducerSingleConsumer.class.getSimpleName())

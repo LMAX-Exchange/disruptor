@@ -61,7 +61,7 @@ public class SimplePerformanceTest
     private static final EventTranslatorOneArg<EventHolder, SimpleEvent> TRANSLATOR =
             (holder, arg1, event) -> holder.event = event;
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         new SimplePerformanceTest().run();
     }

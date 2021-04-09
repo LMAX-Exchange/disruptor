@@ -1459,7 +1459,7 @@ public class RingBufferTest
     }
 
     @SuppressWarnings("deprecation")
-    private void assertHandleResetAndNotWrap(RingBuffer<StubEvent> rb)
+    private void assertHandleResetAndNotWrap(final RingBuffer<StubEvent> rb)
     {
         Sequence sequence = new Sequence();
         rb.addGatingSequences(sequence);
@@ -1561,7 +1561,7 @@ public class RingBufferTest
     {
         private final int size;
 
-        ArrayFactory(int size)
+        ArrayFactory(final int size)
         {
             this.size = size;
         }
@@ -1576,7 +1576,7 @@ public class RingBufferTest
     private static class NoArgEventTranslator implements EventTranslator<Object[]>
     {
         @Override
-        public void translateTo(Object[] event, long sequence)
+        public void translateTo(final Object[] event, final long sequence)
         {
             event[0] = sequence;
         }
@@ -1585,7 +1585,7 @@ public class RingBufferTest
     private static class VarArgEventTranslator implements EventTranslatorVararg<Object[]>
     {
         @Override
-        public void translateTo(Object[] event, long sequence, Object... args)
+        public void translateTo(final Object[] event, final long sequence, final Object... args)
         {
             event[0] = (String) args[0] + args[1] + args[2] + args[3] + "-" + sequence;
         }
@@ -1594,7 +1594,7 @@ public class RingBufferTest
     private static class ThreeArgEventTranslator implements EventTranslatorThreeArg<Object[], String, String, String>
     {
         @Override
-        public void translateTo(Object[] event, long sequence, String arg0, String arg1, String arg2)
+        public void translateTo(final Object[] event, final long sequence, final String arg0, final String arg1, final String arg2)
         {
             event[0] = arg0 + arg1 + arg2 + "-" + sequence;
         }
@@ -1603,7 +1603,7 @@ public class RingBufferTest
     private static class TwoArgEventTranslator implements EventTranslatorTwoArg<Object[], String, String>
     {
         @Override
-        public void translateTo(Object[] event, long sequence, String arg0, String arg1)
+        public void translateTo(final Object[] event, final long sequence, final String arg0, final String arg1)
         {
             event[0] = arg0 + arg1 + "-" + sequence;
         }
@@ -1612,7 +1612,7 @@ public class RingBufferTest
     private static class OneArgEventTranslator implements EventTranslatorOneArg<Object[], String>
     {
         @Override
-        public void translateTo(Object[] event, long sequence, String arg0)
+        public void translateTo(final Object[] event, final long sequence, final String arg0)
         {
             event[0] = arg0 + "-" + sequence;
         }

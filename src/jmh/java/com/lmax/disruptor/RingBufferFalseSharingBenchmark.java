@@ -118,14 +118,14 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
 
     @Benchmark
     @Group("halfpadded")
-    public int reader(HalfPaddedRingBufferWithNoisyNeighbour s)
+    public int reader(final HalfPaddedRingBufferWithNoisyNeighbour s)
     {
         return s.bufferSize;
     }
 
     @Benchmark
     @Group("halfpadded")
-    public void writer(HalfPaddedRingBufferWithNoisyNeighbour s)
+    public void writer(final HalfPaddedRingBufferWithNoisyNeighbour s)
     {
         s.writeOnly++;
     }
@@ -285,19 +285,19 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
 
     @Benchmark
     @Group("padded")
-    public int reader(PaddedRingBufferWithNoisyNeighbour s)
+    public int reader(final PaddedRingBufferWithNoisyNeighbour s)
     {
         return s.bufferSize;
     }
 
     @Benchmark
     @Group("padded")
-    public void writer(PaddedRingBufferWithNoisyNeighbour s)
+    public void writer(final PaddedRingBufferWithNoisyNeighbour s)
     {
         s.writeOnly++;
     }
 
-    public static void main(String[] args) throws RunnerException
+    public static void main(final String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder()
             .include(RingBufferFalseSharingBenchmark.class.getSimpleName())

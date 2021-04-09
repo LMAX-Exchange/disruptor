@@ -142,7 +142,7 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
         return perfTestContext;
     }
 
-    public static void main(String[] args) throws Exception
+    public static void main(final String[] args) throws Exception
     {
         new ThreeToOneSequencedBatchThroughputTest().testImplementations();
     }

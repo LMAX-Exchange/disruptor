@@ -21,7 +21,7 @@ public class LongEvent
 {
     private long value;
 
-    public void set(long value)
+    public void set(final long value)
     {
         this.value = value;
     }

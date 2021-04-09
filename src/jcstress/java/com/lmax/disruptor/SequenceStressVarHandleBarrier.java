@@ -41,7 +41,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Arbiter
-        public void arbiter(J_Result r)
+        public void arbiter(final J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -59,19 +59,19 @@ public class SequenceStressVarHandleBarrier
         SequenceVarHandleBarrier sequence = new SequenceVarHandleBarrier(0);
 
         @Actor
-        public void actor1(ZZJ_Result r)
+        public void actor1(final ZZJ_Result r)
         {
             r.r1 = sequence.compareAndSet(0, 10);
         }
 
         @Actor
-        public void actor2(ZZJ_Result r)
+        public void actor2(final ZZJ_Result r)
         {
             r.r2 = sequence.compareAndSet(0, 20);
         }
 
         @Arbiter
-        public void arbiter(ZZJ_Result r)
+        public void arbiter(final ZZJ_Result r)
         {
             r.r3 = sequence.get();
         }
@@ -102,7 +102,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Arbiter
-        public void arbiter(J_Result r)
+        public void arbiter(final J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -130,7 +130,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void reader(J_Result r)
+        public void reader(final J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -157,7 +157,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void reader(J_Result r)
+        public void reader(final J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -184,7 +184,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void reader(J_Result r)
+        public void reader(final J_Result r)
         {
             r.r1 = sequence.get();
         }
@@ -219,7 +219,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void actor2(JJ_Result r)
+        public void actor2(final JJ_Result r)
         {
             Holder h1 = this.h1;
             Holder h2 = this.h2;
@@ -256,7 +256,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void actor2(JJ_Result r)
+        public void actor2(final JJ_Result r)
         {
             r.r1 = y.get();
             r.r2 = x;
@@ -291,7 +291,7 @@ public class SequenceStressVarHandleBarrier
         }
 
         @Actor
-        public void actor2(JJ_Result r)
+        public void actor2(final JJ_Result r)
         {
             r.r1 = y.get();
             r.r2 = x;
@@ -312,14 +312,14 @@ public class SequenceStressVarHandleBarrier
         SequenceVarHandleBarrier y = new SequenceVarHandleBarrier(0);
 
         @Actor
-        public void actor1(JJ_Result r)
+        public void actor1(final JJ_Result r)
         {
             x.setVolatile(1);
             r.r1 = y.get();
         }
 
         @Actor
-        public void actor2(JJ_Result r)
+        public void actor2(final JJ_Result r)
         {
             y.setVolatile(1);
             r.r2 = x.get();
@@ -340,14 +340,14 @@ public class SequenceStressVarHandleBarrier
         SequenceVarHandleBarrier y = new SequenceVarHandleBarrier(0);
 
         @Actor
-        public void actor1(JJ_Result r)
+        public void actor1(final JJ_Result r)
         {
             x.set(1);
             r.r1 = y.get();
         }
 
         @Actor
-        public void actor2(JJ_Result r)
+        public void actor2(final JJ_Result r)
         {
             y.set(1);
             r.r2 = x.get();

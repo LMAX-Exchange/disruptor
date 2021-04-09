@@ -21,7 +21,7 @@ public class ShutdownOnError
     private static class Handler implements EventHandler<Event>
     {
         @Override
-        public void onEvent(Event event, long sequence, boolean endOfBatch)
+        public void onEvent(final Event event, final long sequence, final boolean endOfBatch)
         {
             // do work, if a failure occurs throw exception.
         }
@@ -31,13 +31,13 @@ public class ShutdownOnError
     {
         private final AtomicBoolean running;
 
-        private ErrorHandler(AtomicBoolean running)
+        private ErrorHandler(final AtomicBoolean running)
         {
             this.running = running;
         }
 
         @Override
-        public void handleEventException(Throwable ex, long sequence, Event event)
+        public void handleEventException(final Throwable ex, final long sequence, final Event event)
         {
             if (execeptionIsFatal(ex))
             {
@@ -45,26 +45,26 @@ public class ShutdownOnError
             }
         }
 
-        private boolean execeptionIsFatal(Throwable ex)
+        private boolean execeptionIsFatal(final Throwable ex)
         {
             // Do what is appropriate here.
             return true;
         }
 
         @Override
-        public void handleOnStartException(Throwable ex)
+        public void handleOnStartException(final Throwable ex)
         {
 
         }
 
         @Override
-        public void handleOnShutdownException(Throwable ex)
+        public void handleOnShutdownException(final Throwable ex)
         {
 
         }
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         Disruptor<Event> disruptor = new Disruptor<>(Event.FACTORY, 1024, DaemonThreadFactory.INSTANCE);
 
@@ -79,7 +79,7 @@ public class ShutdownOnError
         simplePublish(disruptor, running);
     }
 
-    private static void simplePublish(Disruptor<Event> disruptor, AtomicBoolean running)
+    private static void simplePublish(final Disruptor<Event> disruptor, final AtomicBoolean running)
     {
         while (running.get())
         {
@@ -87,7 +87,7 @@ public class ShutdownOnError
         }
     }
 
-    private static void smarterPublish(Disruptor<Event> disruptor, AtomicBoolean running)
+    private static void smarterPublish(final Disruptor<Event> disruptor, final AtomicBoolean running)
     {
         final RingBuffer<Event> ringBuffer = disruptor.getRingBuffer();
 

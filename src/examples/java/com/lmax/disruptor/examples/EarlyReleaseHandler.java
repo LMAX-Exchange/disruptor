@@ -10,13 +10,13 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
     private int batchRemaining = 20;
 
     @Override
-    public void setSequenceCallback(Sequence sequenceCallback)
+    public void setSequenceCallback(final Sequence sequenceCallback)
     {
         this.sequenceCallback = sequenceCallback;
     }
 
     @Override
-    public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
+    public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch)
     {
         processEvent(event);
 
@@ -39,7 +39,7 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
         return --batchRemaining == -1;
     }
 
-    private void processEvent(LongEvent event)
+    private void processEvent(final LongEvent event)
     {
         // Do processing
     }

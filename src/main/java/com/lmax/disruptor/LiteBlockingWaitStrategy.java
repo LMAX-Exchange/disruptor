@@ -29,7 +29,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
     private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
     @Override
-    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)
+    public long waitFor(final long sequence, final Sequence cursorSequence, final Sequence dependentSequence, final SequenceBarrier barrier)
         throws AlertException, InterruptedException
     {
         long availableSequence;
