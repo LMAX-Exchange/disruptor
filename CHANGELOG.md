@@ -8,6 +8,7 @@
     - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
     - Deprecated ThreadHints.onSpinWait()
     - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
+    - FatalExceptionHandler and IgnoreExceptionHandler now use the JDK 9 Platform Logging API, i.e. System.Logger
 
 ## 3.4.2
 
