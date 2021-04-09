@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import java.util.Arrays;
 import java.util.concurrent.locks.LockSupport;
 
 import com.lmax.disruptor.util.Util;
@@ -236,12 +237,24 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     @Override
     public boolean isAvailable(long sequence)
     {
-        return sequence <= cursor.get();
+        final long currentSequence = cursor.get();
+        return sequence <= currentSequence && sequence > currentSequence - bufferSize;
     }
 
     @Override
     public long getHighestPublishedSequence(long lowerBound, long availableSequence)
     {
         return availableSequence;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SingleProducerSequencer{" +
+                "bufferSize=" + bufferSize +
+                ", waitStrategy=" + waitStrategy +
+                ", cursor=" + cursor +
+                ", gatingSequences=" + Arrays.toString(gatingSequences) +
+                '}';
     }
 }

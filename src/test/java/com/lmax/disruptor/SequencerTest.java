@@ -294,4 +294,31 @@ public class SequencerTest
     {
         assertThrows(IllegalArgumentException.class, () -> sequencer.tryNext(0));
     }
+
+    @ParameterizedTest
+    @MethodSource("sequencerGenerator")
+    void sequencesBecomeAvailableAfterAPublish(Sequencer sequencer)
+    {
+        final long seq = sequencer.next();
+        assertFalse(sequencer.isAvailable(seq));
+        sequencer.publish(seq);
+
+        assertTrue(sequencer.isAvailable(seq));
+    }
+
+    @ParameterizedTest
+    @MethodSource("sequencerGenerator")
+    void sequencesBecomeUnavailableAfterWrapping(Sequencer sequencer)
+    {
+        final long seq = sequencer.next();
+        sequencer.publish(seq);
+        assertTrue(sequencer.isAvailable(seq));
+
+        for (int i = 0; i < BUFFER_SIZE; i++)
+        {
+            sequencer.publish(sequencer.next());
+        }
+
+        assertFalse(sequencer.isAvailable(seq));
+    }
 }

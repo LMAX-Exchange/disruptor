@@ -360,17 +360,29 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Determines if a particular entry is available.  Note that using this when not within a context that is
-     * maintaining a sequence barrier, it is likely that using this to determine if you can read a value is likely
-     * to result in a race condition and broken code.
+     * Determines if the event for a given sequence is currently available.
+     *
+     * Note that this does not guarantee that event will still be available
+     * on the next interaction with the RingBuffer. For example, it is not
+     * necessarily safe to write code like this:
+     *
+     * <pre>{@code
+     * if (ringBuffer.isAvailable(sequence))
+     * {
+     *     final E e = ringBuffer.get(sequence);
+     *     // ...do something with e
+     * }
+     * }</pre>
+     *
+     * because there is a race between the reading thread and the writing thread.
+     *
+     * This method will also return false when querying for sequences that are
+     * behind the ring buffer's wrap point.
      *
      * @param sequence The sequence to identify the entry.
-     * @return If the value can be read or not.
-     * @deprecated Please don't use this method.  It probably won't
-     * do what you think that it does.
+     * @return If the event published with the given sequence number is currently available.
      */
-    @Deprecated
-    public boolean isPublished(long sequence)
+    public boolean isAvailable(long sequence)
     {
         return sequencer.isAvailable(sequence);
     }

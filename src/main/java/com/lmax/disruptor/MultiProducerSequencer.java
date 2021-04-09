@@ -19,6 +19,7 @@ import com.lmax.disruptor.util.Util;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.util.Arrays;
 import java.util.concurrent.locks.LockSupport;
 
 
@@ -278,5 +279,16 @@ public final class MultiProducerSequencer extends AbstractSequencer
     private int calculateIndex(final long sequence)
     {
         return ((int) sequence) & indexMask;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MultiProducerSequencer{" +
+                "bufferSize=" + bufferSize +
+                ", waitStrategy=" + waitStrategy +
+                ", cursor=" + cursor +
+                ", gatingSequences=" + Arrays.toString(gatingSequences) +
+                '}';
     }
 }
