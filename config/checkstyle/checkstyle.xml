@@ -76,6 +76,11 @@
 
         <module name="CovariantEquals" />
 
+        <module name="NeedBraces">
+            <property name="tokens"
+                      value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+        </module>
+
         <module name="LeftCurly">
             <property name="option" value="nl" />
         </module>
