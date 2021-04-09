@@ -31,7 +31,7 @@ public class PerfTestContext
         {
             return 0;
         }
-        return 1 - (double)batchesProcessedCount / iterations;
+        return 1 - (double) batchesProcessedCount / iterations;
     }
 
     public double getAverageBatchSize()
@@ -40,7 +40,7 @@ public class PerfTestContext
         {
             return -1;
         }
-        return (double)iterations / batchesProcessedCount;
+        return (double) iterations / batchesProcessedCount;
     }
 
     public void setBatchData(final long batchesProcessedCount, final long iterations)

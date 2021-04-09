@@ -57,7 +57,7 @@ public final class StubThreadFactory implements ThreadFactory, AfterEachCallback
                 threadErrors.add(t);
             }
         };
-        if(ignoreExecutions.get())
+        if (ignoreExecutions.get())
         {
             toExecute = new NoOpRunnable();
         }

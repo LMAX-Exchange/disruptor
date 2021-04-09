@@ -39,7 +39,7 @@ public abstract class AbstractPerfTestDisruptor
             PerfTestContext context = runDisruptorPass();
             contexts[i] = context;
             System.out.format("Run %d, Disruptor=%,d ops/sec BatchPercent=%.2f%% AverageBatchSize=%,d\n",
-                    i, context.getDisruptorOps(), context.getBatchPercent() * 100, (long)context.getAverageBatchSize());
+                    i, context.getDisruptorOps(), context.getBatchPercent() * 100, (long) context.getAverageBatchSize());
         }
     }
 

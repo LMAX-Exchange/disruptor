@@ -254,7 +254,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         int index = calculateIndex(sequence);
         int flag = calculateAvailabilityFlag(sequence);
-        return (int)AVAILABLE_ARRAY.getAcquire(availableBuffer, index) == flag;
+        return (int) AVAILABLE_ARRAY.getAcquire(availableBuffer, index) == flag;
     }
 
     @Override
