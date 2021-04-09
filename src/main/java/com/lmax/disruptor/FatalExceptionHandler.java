@@ -30,7 +30,7 @@ public final class FatalExceptionHandler implements ExceptionHandler<Object>
     @Override
     public void handleEventException(final Throwable ex, final long sequence, final Object event)
     {
-        LOGGER.log(Level.ERROR, "Exception processing: " + sequence + " " + event, ex);
+        LOGGER.log(Level.ERROR, () -> "Exception processing: " + sequence + " " + event, ex);
 
         throw new RuntimeException(ex);
     }

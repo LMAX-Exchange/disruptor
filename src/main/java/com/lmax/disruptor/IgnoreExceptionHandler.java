@@ -29,7 +29,7 @@ public final class IgnoreExceptionHandler implements ExceptionHandler<Object>
     @Override
     public void handleEventException(final Throwable ex, final long sequence, final Object event)
     {
-        LOGGER.log(Level.INFO, "Exception processing: " + sequence + " " + event, ex);
+        LOGGER.log(Level.INFO, () -> "Exception processing: " + sequence + " " + event, ex);
     }
 
     @Override
