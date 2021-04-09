@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor;
 
-import static java.util.Arrays.copyOf;
-
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+import static java.util.Arrays.copyOf;
 
 /**
  * Provides static methods for managing a {@link SequenceGroup} object.

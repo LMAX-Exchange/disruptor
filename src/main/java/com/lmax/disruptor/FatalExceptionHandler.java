@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor;
 
-import java.lang.System.Logger.Level;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 /**
  * Convenience implementation of an exception handler that uses the standard JDK logging

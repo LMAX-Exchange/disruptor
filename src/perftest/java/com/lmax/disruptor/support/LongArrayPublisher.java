@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.support;
 
-import java.util.concurrent.CyclicBarrier;
-
 import com.lmax.disruptor.RingBuffer;
+
+import java.util.concurrent.CyclicBarrier;
 
 public final class LongArrayPublisher implements Runnable
 {

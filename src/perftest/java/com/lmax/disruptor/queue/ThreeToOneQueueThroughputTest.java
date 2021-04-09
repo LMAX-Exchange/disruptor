@@ -15,6 +15,11 @@
  */
 package com.lmax.disruptor.queue;
 
+import com.lmax.disruptor.AbstractPerfTestQueue;
+import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
+import com.lmax.disruptor.support.ValueQueuePublisher;
+import com.lmax.disruptor.util.DaemonThreadFactory;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -22,11 +27,6 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import com.lmax.disruptor.AbstractPerfTestQueue;
-import com.lmax.disruptor.support.ValueAdditionQueueProcessor;
-import com.lmax.disruptor.support.ValueQueuePublisher;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 
 /**
  * <pre>

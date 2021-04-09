@@ -15,13 +15,13 @@
  */
 package com.lmax.disruptor.support;
 
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SequenceBarrier;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
-
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
 
 public final class TestWaiter implements Callable<List<StubEvent>>
 {

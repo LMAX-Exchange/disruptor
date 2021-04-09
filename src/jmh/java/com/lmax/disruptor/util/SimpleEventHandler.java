@@ -1,7 +1,6 @@
 package com.lmax.disruptor.util;
 
 import com.lmax.disruptor.EventHandler;
-
 import org.openjdk.jmh.infra.Blackhole;
 
 public class SimpleEventHandler implements EventHandler<SimpleEvent>
