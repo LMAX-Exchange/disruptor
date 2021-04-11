@@ -9,4 +9,8 @@
               files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
     <suppress checks="JavadocMethod"
               files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
+    <suppress checks="MagicNumber"
+              files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
+    <suppress checks="MissingSwitchDefault"
+              files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
 </suppressions>

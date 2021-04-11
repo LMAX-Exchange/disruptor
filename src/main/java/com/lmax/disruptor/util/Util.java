@@ -28,6 +28,8 @@ import java.security.PrivilegedExceptionAction;
  */
 public final class Util
 {
+    private static final int ONE_MILLISECOND_IN_NANOSECONDS = 1_000_000;
+
     /**
      * Calculate the next power of 2, greater than or equal to x.
      *
@@ -38,7 +40,7 @@ public final class Util
      */
     public static int ceilingNextPowerOfTwo(final int x)
     {
-        return 1 << (32 - Integer.numberOfLeadingZeros(x - 1));
+        return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
     }
 
     /**
@@ -142,8 +144,8 @@ public final class Util
 
     public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException
     {
-        long millis = timeoutNanos / 1_000_000;
-        long nanos = timeoutNanos % 1_000_000;
+        long millis = timeoutNanos / ONE_MILLISECOND_IN_NANOSECONDS;
+        long nanos = timeoutNanos % ONE_MILLISECOND_IN_NANOSECONDS;
 
         long t0 = System.nanoTime();
         mutex.wait(millis, (int) nanos);

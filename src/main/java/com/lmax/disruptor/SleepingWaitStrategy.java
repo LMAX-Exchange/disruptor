@@ -30,6 +30,7 @@ import java.util.concurrent.locks.LockSupport;
  */
 public final class SleepingWaitStrategy implements WaitStrategy
 {
+    private static final int SPIN_THRESHOLD = 100;
     private static final int DEFAULT_RETRIES = 200;
     private static final long DEFAULT_SLEEP = 100;
 
@@ -78,7 +79,7 @@ public final class SleepingWaitStrategy implements WaitStrategy
     {
         barrier.checkAlert();
 
-        if (counter > 100)
+        if (counter > SPIN_THRESHOLD)
         {
             return counter - 1;
         }
