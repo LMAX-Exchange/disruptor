@@ -23,9 +23,9 @@ import com.lmax.disruptor.SequenceBarrier;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * <p>Wrapper class to tie together a particular event processing stage</p>
- * <p>
- * <p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
+ * Wrapper class to tie together a particular event processing stage</p>
+ *
+ * <p><p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
  *
  * @param <T> the type of the configured {@link EventHandler}
  */

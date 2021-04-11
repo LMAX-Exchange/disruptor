@@ -18,7 +18,7 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 public class SequenceStressVarHandle
 {
     /**
-     * `SequenceVarHandle::incrementAndGet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::incrementAndGet` is atomic and should never lose an update, even with multiple threads racing.
      */
     @JCStressTest
     @Outcome(id = "1", expect = FORBIDDEN, desc = "One update lost.")
@@ -48,7 +48,7 @@ public class SequenceStressVarHandle
     }
 
     /**
-     * `SequenceVarHandle::compareAndSet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::compareAndSet` is atomic and should never lose an update, even with multiple threads racing.
      */
     @JCStressTest
     @Outcome(id = {"true, false, 10", "false, true, 20"}, expect = ACCEPTABLE, desc = "Either updated.")
@@ -78,7 +78,7 @@ public class SequenceStressVarHandle
     }
 
     /**
-     * `SequenceVarHandle::addAndGet` is atomic and should never lose an update, even with multiple threads racing
+     * `SequenceVarHandle::addAndGet` is atomic and should never lose an update, even with multiple threads racing.
      */
     @JCStressTest
     @Outcome(id = "10", expect = FORBIDDEN, desc = "One update lost.")
@@ -233,8 +233,8 @@ public class SequenceStressVarHandle
     /**
      * The value field in SequenceVarHandle is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
-     * <p>
-     * If the value was not volatile there would be no ordering rules stopping it being seen updated before the
+     *
+     * <p>If the value was not volatile there would be no ordering rules stopping it being seen updated before the
      * other value.
      */
     @JCStressTest
@@ -266,11 +266,11 @@ public class SequenceStressVarHandle
     /**
      * The value field in SequenceVarHandle is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
-     * <p>
-     * If the value was not volatile there would be no ordering rules stopping it being seen updated before the
+     *
+     * <p>If the value was not volatile there would be no ordering rules stopping it being seen updated before the
      * other value.
-     * <p>
-     * This is a property of the field, not a property of the method used to set the value of it.
+     *
+     * <p>This is a property of the field, not a property of the method used to set the value of it.
      */
     @JCStressTest
     @Outcome(id = "0, 0", expect = ACCEPTABLE, desc = "Doing both reads early.")
@@ -300,7 +300,7 @@ public class SequenceStressVarHandle
 
 
     /**
-     * Volatile setting will experience total ordering
+     * Volatile setting will experience total ordering.
      */
     @JCStressTest
     @Outcome(id = {"0, 1", "1, 0", "1, 1"}, expect = ACCEPTABLE, desc = "Trivial under sequential consistency")
@@ -328,7 +328,7 @@ public class SequenceStressVarHandle
     }
 
     /**
-     * Non-volatile setting will not experience total ordering, those gets can be re-ordered and happen before either set
+     * Non-volatile setting will not experience total ordering, those gets can be re-ordered and happen before either set.
      */
     @JCStressTest
     @Outcome(id = {"0, 1", "1, 0", "1, 1"}, expect = ACCEPTABLE, desc = "Trivial under sequential consistency")

@@ -5,7 +5,7 @@ import java.lang.invoke.VarHandle;
 
 
 /**
- * <p>Concurrent sequence class used for tracking the progress of
+ * Concurrent sequence class used for tracking the progress of
  * the ring buffer and event processors.  Support a number
  * of concurrent operations including CAS and order writes.
  *

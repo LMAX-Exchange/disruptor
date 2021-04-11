@@ -18,10 +18,10 @@ package com.lmax.disruptor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
+ * Phased wait strategy for waiting {@link EventProcessor}s on a barrier.
  *
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
- * Spins, then yields, then waits using the configured fallback WaitStrategy.</p>
+ * Spins, then yields, then waits using the configured fallback WaitStrategy.
  */
 public final class PhasedBackoffWaitStrategy implements WaitStrategy
 {

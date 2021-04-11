@@ -64,8 +64,8 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
  * SB2 - PongBarrier
  *
  * </pre>
- * <p>
- * Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
+ *
+ * <p>Note: <b>This test is only useful on a system using an invariant TSC in user space from the System.nanoTime() call.</b>
  */
 public final class PingPongSequencedLatencyTest
 {

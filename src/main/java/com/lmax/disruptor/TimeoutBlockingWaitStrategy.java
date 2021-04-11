@@ -9,8 +9,8 @@ import static com.lmax.disruptor.util.Util.awaitNanos;
  * However it will periodically wake up if it has been idle for specified period by throwing a
  * {@link TimeoutException}.  To make use of this, the event handler class should implement the {@link TimeoutHandler},
  * which the {@link BatchEventProcessor} will call if the timeout occurs.
- * <p>
- * This strategy can be used when throughput and low-latency are not as important as CPU resource.
+ *
+ * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
  */
 public class TimeoutBlockingWaitStrategy implements WaitStrategy
 {

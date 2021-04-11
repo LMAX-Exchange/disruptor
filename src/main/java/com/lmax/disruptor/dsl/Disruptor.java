@@ -36,11 +36,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * <p>A DSL-style API for setting up the disruptor pattern around a ring buffer
- * (aka the Builder pattern).</p>
+ * A DSL-style API for setting up the disruptor pattern around a ring buffer
+ * (aka the Builder pattern).
  *
  * <p>A simple example of setting up the disruptor with two event handlers that
- * must process events in order:</p>
+ * must process events in order:
+ *
  * <pre>
  * <code>Disruptor&lt;MyEvent&gt; disruptor = new Disruptor&lt;MyEvent&gt;(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
  * EventHandler&lt;MyEvent&gt; handler1 = new EventHandler&lt;MyEvent&gt;() { ... };

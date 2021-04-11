@@ -24,13 +24,14 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
 /**
- * Set of common functions used by the Disruptor
+ * Set of common functions used by the Disruptor.
  */
 public final class Util
 {
     /**
-     * Calculate the next power of 2, greater than or equal to x.<p>
-     * From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
+     * Calculate the next power of 2, greater than or equal to x.
+     *
+     * <p>From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
      *
      * @param x Value to round up
      * @return The next power of 2 from x inclusive
@@ -73,7 +74,7 @@ public final class Util
     }
 
     /**
-     * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s
+     * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s.
      *
      * @param processors for which to get the sequences
      * @return the array of {@link Sequence}s

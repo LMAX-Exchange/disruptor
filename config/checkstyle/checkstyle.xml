@@ -5,56 +5,56 @@
 
 <module name="Checker">
     <module name="SeverityMatchFilter">
-        <property name="severity" value="info" />
-        <property name="acceptOnMatch" value="false" />
+        <property name="severity" value="info"/>
+        <property name="acceptOnMatch" value="false"/>
     </module>
 
     <module name="FileTabCharacter">
-        <property name="eachLine" value="true" />
+        <property name="eachLine" value="true"/>
     </module>
 
     <module name="SuppressionFilter">
-        <property name="file" value="${config_loc}/suppress.xml" />
+        <property name="file" value="${config_loc}/suppress.xml"/>
     </module>
 
     <module name="TreeWalker">
-        <property name="tabWidth" value="4" />
-        <property name="severity" value="error" />
+        <property name="tabWidth" value="4"/>
+        <property name="severity" value="error"/>
 
-        <module name="ConstantName" />
+        <module name="ConstantName"/>
 
-        <module name="LocalFinalVariableName" />
+        <module name="LocalFinalVariableName"/>
 
-        <module name="LocalVariableName" />
+        <module name="LocalVariableName"/>
 
         <module name="MemberName">
-            <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
         </module>
 
-        <module name="MethodName" />
+        <module name="MethodName"/>
 
-        <module name="PackageName" />
+        <module name="PackageName"/>
 
-        <module name="ParameterName" />
+        <module name="ParameterName"/>
 
-        <module name="StaticVariableName" />
+        <module name="StaticVariableName"/>
 
-        <module name="TypeName" />
+        <module name="TypeName"/>
 
-        <module name="AvoidStarImport" />
+        <module name="AvoidStarImport"/>
         <module name="RedundantImport"/>
-        <module name="UnusedImports" />
+        <module name="UnusedImports"/>
 
         <module name="LineLength">
-            <property name="max" value="200" />
-            <property name="ignorePattern" value="^[ \t]*\*.*@.*$" />
+            <property name="max" value="200"/>
+            <property name="ignorePattern" value="^[ \t]*\*.*@.*$"/>
         </module>
 
-        <module name="EmptyForInitializerPad" />
+        <module name="EmptyForInitializerPad"/>
 
-        <module name="MethodParamPad" />
+        <module name="MethodParamPad"/>
 
-        <module name="NoWhitespaceBefore" />
+        <module name="NoWhitespaceBefore"/>
 
         <module name="WhitespaceAfter">
             <property name="tokens"
@@ -84,23 +84,23 @@
         </module>
 
         <module name="OperatorWrap">
-            <property name="tokens" value="PLUS, ASSIGN" />
-            <property name="option" value="eol" />
+            <property name="tokens" value="PLUS, ASSIGN"/>
+            <property name="option" value="eol"/>
         </module>
 
-        <module name="ParenPad" />
+        <module name="ParenPad"/>
 
-        <module name="TypecastParenPad" />
+        <module name="TypecastParenPad"/>
 
-        <module name="ModifierOrder" />
+        <module name="ModifierOrder"/>
 
-        <module name="RedundantModifier" />
+        <module name="RedundantModifier"/>
 
         <module name="NestedTryDepth">
-            <property name="max" value="2" />
+            <property name="max" value="2"/>
         </module>
 
-        <module name="CovariantEquals" />
+        <module name="CovariantEquals"/>
 
         <module name="NeedBraces">
             <property name="tokens"
@@ -108,67 +108,79 @@
         </module>
 
         <module name="LeftCurly">
-            <property name="option" value="nl" />
+            <property name="option" value="nl"/>
         </module>
 
         <module name="RightCurly">
-            <property name="option" value="alone" />
+            <property name="option" value="alone"/>
         </module>
 
-        <module name="EmptyStatement" />
+        <module name="EmptyStatement"/>
 
-        <module name="EqualsHashCode" />
+        <module name="EqualsHashCode"/>
 
-        <module name="DefaultComesLast" />
+        <module name="DefaultComesLast"/>
 
-        <module name="SimplifyBooleanExpression" />
+        <module name="SimplifyBooleanExpression"/>
 
-        <module name="SimplifyBooleanReturn" />
+        <module name="SimplifyBooleanReturn"/>
 
-        <module name="StringLiteralEquality" />
+        <module name="StringLiteralEquality"/>
 
-        <module name="PackageDeclaration" />
+        <module name="PackageDeclaration"/>
 
         <module name="ReturnCount">
-            <property name="max" value="3" />
+            <property name="max" value="3"/>
         </module>
 
-        <module name="FallThrough" />
+        <module name="FallThrough"/>
 
-        <module name="FinalClass" />
+        <module name="FinalClass"/>
 
-        <module name="MutableException" />
+        <module name="MutableException"/>
 
-        <module name="ArrayTypeStyle" />
+        <module name="ArrayTypeStyle"/>
 
         <module name="TodoComment">
-            <property name="severity" value="info" />
-            <property name="format" value="TODO" />
+            <property name="severity" value="info"/>
+            <property name="format" value="TODO"/>
         </module>
 
-        <module name="UpperEll" />
+        <module name="UpperEll"/>
 
         <module name="IllegalType">
             <property name="legalAbstractClassNames"
-                value="AbstractBeanDefinition, AbstractAccountEvInstruction, AbstractEmsInstruction, AbstractEvInstruction, AbstractEmsAction, AbstractInstrumentAction, AbstractEntry" />
+                      value="AbstractBeanDefinition, AbstractAccountEvInstruction, AbstractEmsInstruction, AbstractEvInstruction, AbstractEmsAction, AbstractInstrumentAction, AbstractEntry"/>
             <property name="illegalClassNames"
-                value="java.util.GregorianCalendar, java.util.Hashtable, java.util.Vector" />
+                      value="java.util.GregorianCalendar, java.util.Hashtable, java.util.Vector"/>
         </module>
 
         <module name="DescendantToken">
-            <property name="tokens" value="LITERAL_ASSERT" />
+            <property name="tokens" value="LITERAL_ASSERT"/>
             <property name="limitedTokens"
-                value="ASSIGN,DEC,INC,POST_DEC,POST_INC,PLUS_ASSIGN,MINUS_ASSIGN,STAR_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,BSR_ASSIGN,SR_ASSIGN,SL_ASSIGN,BAND_ASSIGN,BXOR_ASSIGN,BOR_ASSIGN,METHOD_CALL" />
-            <property name="maximumNumber" value="2" />
+                      value="ASSIGN,DEC,INC,POST_DEC,POST_INC,PLUS_ASSIGN,MINUS_ASSIGN,STAR_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,BSR_ASSIGN,SR_ASSIGN,SL_ASSIGN,BAND_ASSIGN,BXOR_ASSIGN,BOR_ASSIGN,METHOD_CALL"/>
+            <property name="maximumNumber" value="2"/>
         </module>
 
         <module name="Regexp">
-            <property name="format" value="[ \t]+$" />
-            <property name="illegalPattern" value="true" />
-            <property name="message" value="Trailing whitespace" />
+            <property name="format" value="[ \t]+$"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="Trailing whitespace"/>
         </module>
 
         <module name="FinalParameters"/>
+
+        <module name="JavadocParagraph"/>
+        <module name="SingleLineJavadoc"/>
+        <!-- module name="JavadocMethod">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="scope" value="public"/>
+        </module -->
 
         <module name="JavadocParagraph"/>
         <module name="SingleLineJavadoc"/>

@@ -19,8 +19,8 @@ package com.lmax.disruptor;
 /**
  * Yielding strategy that uses a Thread.yield() for {@link com.lmax.disruptor.EventProcessor}s waiting on a barrier
  * after an initially spinning.
- * <p>
- * This strategy will use 100% CPU, but will more readily give up the CPU than a busy spin strategy if other threads
+ *
+ * <p>This strategy will use 100% CPU, but will more readily give up the CPU than a busy spin strategy if other threads
  * require CPU resource.
  */
 public final class YieldingWaitStrategy implements WaitStrategy

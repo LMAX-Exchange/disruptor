@@ -34,15 +34,13 @@ import static com.lmax.disruptor.RingBuffer.createSingleProducer;
 import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
 
 /**
- * <pre>
- *
  * Pipeline a series of stages from a publisher to ultimate event processor.
  * Each event processor depends on the output of the event processor.
  *
+ * <pre>{@code
  * +----+    +-----+    +-----+    +-----+
  * | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
  * +----+    +-----+    +-----+    +-----+
- *
  *
  * Disruptor:
  * ==========
@@ -56,7 +54,6 @@ import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
  *      claim   ^  get    |   waitFor           |   waitFor           |  waitFor
  *              |         |                     |                     |
  *              +---------+---------------------+---------------------+
- *        </pre>
  *
  * P1  - Publisher 1
  * RB  - RingBuffer
@@ -66,8 +63,7 @@ import static com.lmax.disruptor.support.PerfTestUtil.failIfNot;
  * EP2 - EventProcessor 2
  * SB3 - SequenceBarrier 3
  * EP3 - EventProcessor 3
- *
- * </pre>
+ * }</pre>
  */
 public final class OneToThreePipelineSequencedThroughputTest extends AbstractPerfTestDisruptor
 {

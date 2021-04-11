@@ -10,6 +10,8 @@ import com.lmax.disruptor.Sequence;
  * <pre><code>
  * disruptor.handleEventsWith(handler1).then((ringBuffer, barrierSequences) -&gt; new CustomEventProcessor(ringBuffer, barrierSequences));
  * </code></pre>
+ *
+ * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public interface EventProcessorFactory<T>
 {

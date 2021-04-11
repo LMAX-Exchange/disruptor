@@ -28,7 +28,7 @@ import java.util.concurrent.locks.LockSupport;
 
 
 /**
- * <p>Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
+ * Coordinator for claiming sequences for access to a data structure while tracking dependent {@link Sequence}s.
  * Suitable for use for sequencing across multiple publisher threads.</p>
  *
  * <p> * Note on {@link Sequencer#getCursor()}:  With this sequencer the cursor value is updated after the call
@@ -236,12 +236,12 @@ public final class MultiProducerSequencerVarHandle extends AbstractSequencer
 
     /**
      * The below methods work on the availableBuffer flag.
-     * <p>
-     * The prime reason is to avoid a shared sequence object between publisher threads.
+     *
+     * <p>The prime reason is to avoid a shared sequence object between publisher threads.
      * (Keeping single pointers tracking start and end would require coordination
      * between the threads).
-     * <p>
-     * --  Firstly we have the constraint that the delta between the cursor and minimum
+     *
+     * <p>--  Firstly we have the constraint that the delta between the cursor and minimum
      * gating sequence will never be larger than the buffer size (the code in
      * next/tryNext in the Sequence takes care of that).
      * -- Given that; take the sequence value and mask off the lower portion of the

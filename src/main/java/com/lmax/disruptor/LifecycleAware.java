@@ -27,9 +27,9 @@ public interface LifecycleAware
     void onStart();
 
     /**
-     * <p>Called once just before the thread is shutdown.</p>
-     * <p>
-     * Sequence event processing will already have stopped before this method is called. No events will
+     * Called once just before the thread is shutdown.
+     *
+     * <p>Sequence event processing will already have stopped before this method is called. No events will
      * be processed after this message.
      */
     void onShutdown();

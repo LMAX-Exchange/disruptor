@@ -45,8 +45,8 @@ public final class MultiProducerSequencerUnsafeStress
     /**
      * The isAvailable implementation is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
-     * <p>
-     * If the value was not volatile there would be no ordering rules stopping it being seen updated before the
+     *
+     * <p>If the value was not volatile there would be no ordering rules stopping it being seen updated before the
      * other value.
      */
     @JCStressTest

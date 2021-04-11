@@ -2,6 +2,8 @@ package com.lmax.disruptor;
 
 /**
  * Experimental poll-based interface for the Disruptor.
+ *
+ * @param <T> the type of event used.
  */
 public class EventPoller<T>
 {

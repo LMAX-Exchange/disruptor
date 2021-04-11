@@ -16,11 +16,11 @@
 package com.lmax.disruptor;
 
 /**
- * <p>Exception thrown when it is not possible to insert a value into
+ * Exception thrown when it is not possible to insert a value into
  * the ring buffer without it wrapping the consuming sequences.  Used
- * specifically when claiming with the {@link RingBuffer#tryNext()} call.</p>
+ * specifically when claiming with the {@link RingBuffer#tryNext()} call.
  *
- * <p>For efficiency this exception will not have a stack trace.</p>
+ * <p>For efficiency this exception will not have a stack trace.
  */
 @SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
 public final class InsufficientCapacityException extends Exception

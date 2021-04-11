@@ -17,14 +17,14 @@ package com.lmax.disruptor;
 
 /**
  * Used to alert {@link EventProcessor}s waiting at a {@link SequenceBarrier} of status changes.
- * <p>
- * It does not fill in a stack trace for performance reasons.
+ *
+ * <p>It does not fill in a stack trace for performance reasons.
  */
 @SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
 public final class AlertException extends Exception
 {
     /**
-     * Pre-allocated exception to avoid garbage generation
+     * Pre-allocated exception to avoid garbage generation.
      */
     public static final AlertException INSTANCE = new AlertException();
 

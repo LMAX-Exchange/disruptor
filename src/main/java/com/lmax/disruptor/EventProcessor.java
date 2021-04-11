@@ -20,8 +20,8 @@ package com.lmax.disruptor;
  * using the appropriate wait strategy.  It is unlikely that you will need to implement this interface yourself.
  * Look at using the {@link EventHandler} interface along with the pre-supplied BatchEventProcessor in the first
  * instance.
- * <p>
- * An EventProcessor will generally be associated with a Thread for execution.
+ *
+ * <p>An EventProcessor will generally be associated with a Thread for execution.
  */
 public interface EventProcessor extends Runnable
 {

@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
  * and delegating the available events to an {@link EventHandler}.
- * <p>
- * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
+ *
+ * <p>If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
  * is started and just before the thread is shutdown.
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
@@ -91,7 +91,7 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEventProcessor}
+     * Set a new {@link ExceptionHandler} for handling exceptions propagated out of the {@link BatchEventProcessor}.
      *
      * @param exceptionHandler to replace the existing exceptionHandler.
      */
@@ -211,7 +211,7 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Notifies the EventHandler when this processor is starting up
+     * Notifies the EventHandler when this processor is starting up.
      */
     private void notifyStart()
     {
@@ -229,7 +229,7 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Notifies the EventHandler immediately prior to this processor shutting down
+     * Notifies the EventHandler immediately prior to this processor shutting down.
      */
     private void notifyShutdown()
     {

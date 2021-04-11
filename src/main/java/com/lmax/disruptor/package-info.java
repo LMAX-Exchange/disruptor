@@ -1,19 +1,16 @@
 /**
- * <p>
- *      The Disruptor is a concurrent programming framework for exchanging and coordinating work as a continuous series of events.
- *      It can be used as an alternative to wiring processing stages together via queues.  The Disruptor design has the
- *      characteristics of generating significantly less garbage than queues and separates the concurrency concerns so
- *      non-locking algorithms can be employed resulting in greater scalability and performance.
- * </p>
- * <p>
- *      It works on the principle of having a number of stages that are each single threaded with local state and memory.
- *      No global memory exists and all communication is achieved by passing messages/state via managed ring buffers.
- * </p>
- * <p>
- *      Almost any graph or pipeline structure can be composed via one or more Disruptor patterns.
- * </p>
+ * The Disruptor is a concurrent programming framework for exchanging and coordinating work as a continuous series of events.
+ * It can be used as an alternative to wiring processing stages together via queues.
+ * The Disruptor design has the characteristics of generating significantly less garbage than queues and separates the
+ * concurrency concerns so non-locking algorithms can be employed resulting in greater scalability and performance.
  *
- * <b>UniCast a series of items between 1 publisher and 1 EventProcessor.</b>
+ * <p>It works on the principle of having a number of stages that are each single threaded with local state and memory.
+ * No global memory exists and all communication is achieved by passing messages/state via managed ring buffers.
+ *
+ * <p>Almost any graph or pipeline structure can be composed via one or more Disruptor patterns.
+ *
+ * <h3>UniCast a series of items between 1 publisher and 1 EventProcessor.</h3>
+ *
  * <pre>{@code
  *                                           track to prevent wrap
  *                                           +------------------+
@@ -28,7 +25,7 @@
  *                                                       waitFor
  * }</pre>
  *
- * <b>Sequence a series of messages from multiple publishers</b>
+ * <h3>Sequence a series of messages from multiple publishers</h3>
  * <pre>{@code
  *                                          track to prevent wrap
  *                                          +--------------------+
@@ -47,7 +44,7 @@
  * +----+                       +----+
  * }</pre>
  *
- * <b>Pipeline a series of messages</b>
+ * <h3>Pipeline a series of messages</h3>
  * <pre>{@code
  *                           +----+    +-----+    +-----+    +-----+
  *                           | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
@@ -67,7 +64,7 @@
  *              +---------+---------------------+---------------------+
  * }</pre>
  *
- * <b>Multicast a series of messages to multiple EventProcessors</b>
+ * <h3>Multicast a series of messages to multiple EventProcessors</h3>
  * <pre>{@code
  *           +-----+                                        track to prevent wrap
  *    +----->| EP1 |                        +--------------------+----------+----------+
@@ -82,7 +79,7 @@
  *           +-----+                                                 waitFor
  * }</pre>
  *
- * <b>Replicate a message then fold back the results</b>
+ * <h3>Replicate a message then fold back the results</h3>
  * <pre>{@code
  *           +-----+                               track to prevent wrap
  *    +----->| EP1 |-----+                   +-------------------------------+

@@ -361,7 +361,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     /**
      * Determines if the event for a given sequence is currently available.
      *
-     * Note that this does not guarantee that event will still be available
+     * <p>Note that this does not guarantee that event will still be available
      * on the next interaction with the RingBuffer. For example, it is not
      * necessarily safe to write code like this:
      *
@@ -373,9 +373,9 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * }
      * }</pre>
      *
-     * because there is a race between the reading thread and the writing thread.
+     * <p>because there is a race between the reading thread and the writing thread.
      *
-     * This method will also return false when querying for sequences that are
+     * <p>This method will also return false when querying for sequences that are
      * behind the ring buffer's wrap point.
      *
      * @param sequence The sequence to identify the entry.
@@ -459,6 +459,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
 
     /**
      * The size of the buffer.
+     *
+     * @return size of buffer
      */
     public int getBufferSize()
     {
