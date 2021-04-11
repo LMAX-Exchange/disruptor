@@ -2,7 +2,7 @@ name: JCStress Testing - stress testing
 
 on:
   schedule:
-    - cron: "0 0 * * WED"
+    - cron: "0 0 1,15 * *"
   workflow_dispatch:
 
 jobs:
