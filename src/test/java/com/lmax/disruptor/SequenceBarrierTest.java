@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -103,30 +104,14 @@ public final class SequenceBarrierTest
         final SequenceBarrier sequenceBarrier =
             ringBuffer.newBarrier(sequence1, sequence2, sequence3);
 
-        final boolean[] alerted = {false};
         Thread t = new Thread(
-                () ->
-                {
-                    try
-                    {
-                        sequenceBarrier.waitFor(expectedNumberMessages - 1);
-                    }
-                    catch (AlertException e)
-                    {
-                        alerted[0] = true;
-                    }
-                    catch (Exception e)
-                    {
-                        // don't care
-                    }
-                });
+                () -> assertThrows(AlertException.class, () ->
+                        sequenceBarrier.waitFor(expectedNumberMessages - 1)));
 
         t.start();
         latch.await(3, TimeUnit.SECONDS);
         sequenceBarrier.alert();
         t.join();
-
-        assertTrue(alerted[0], "Thread was not interrupted");
     }
 
     @Test

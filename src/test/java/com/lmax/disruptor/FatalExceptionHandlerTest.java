@@ -19,6 +19,7 @@ import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public final class FatalExceptionHandlerTest
 {
@@ -30,13 +31,8 @@ public final class FatalExceptionHandlerTest
 
         ExceptionHandler<Object> exceptionHandler = new FatalExceptionHandler();
 
-        try
-        {
-            exceptionHandler.handleEventException(causeException, 0L, event);
-        }
-        catch (RuntimeException ex)
-        {
-            assertEquals(causeException, ex.getCause());
-        }
+        Throwable ex =  assertThrows(RuntimeException.class, () -> exceptionHandler.handleEventException(causeException, 0L, event));
+
+        assertEquals(causeException, ex.getCause());
     }
 }

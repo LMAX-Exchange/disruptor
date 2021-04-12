@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class RingBufferTest
 {
@@ -137,26 +136,12 @@ public class RingBufferTest
     {
         ringBuffer.addGatingSequences(new Sequence(ringBuffer.getBufferSize()));
 
-        try
+        for (int i = 0; i < ringBuffer.getBufferSize(); i++)
         {
-            for (int i = 0; i < ringBuffer.getBufferSize(); i++)
-            {
-                ringBuffer.publish(ringBuffer.tryNext());
-            }
-        }
-        catch (Exception e)
-        {
-            fail("Should not of thrown exception");
+            ringBuffer.publish(ringBuffer.tryNext());
         }
 
-        try
-        {
-            ringBuffer.tryNext();
-            fail("Exception should have been thrown");
-        }
-        catch (InsufficientCapacityException e)
-        {
-        }
+        assertThrows(InsufficientCapacityException.class, ringBuffer::tryNext);
     }
 
     @Test
