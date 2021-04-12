@@ -25,6 +25,9 @@ package com.lmax.disruptor;
 @SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
 public final class InsufficientCapacityException extends Exception
 {
+    /**
+     * The efficiency saving singleton instance
+     */
     public static final InsufficientCapacityException INSTANCE = new InsufficientCapacityException();
 
     private InsufficientCapacityException()

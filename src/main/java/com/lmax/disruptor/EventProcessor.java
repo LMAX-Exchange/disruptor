@@ -38,5 +38,9 @@ public interface EventProcessor extends Runnable
      */
     void halt();
 
+    /**
+     * @return whether this event processor is running or not
+     * Implementations should ideally return true only when the associated thread is idle.
+     */
     boolean isRunning();
 }
