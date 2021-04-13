@@ -11,8 +11,6 @@ The LMAX Disruptor is a high performance inter-thread messaging library. It grew
 
 include::10_using_the_disruptor.adoc[leveloffset=+1]
 
-include::20_developing_the_disruptor.adoc[leveloffset=+1]
+include::20_design_and_implementation.adoc[leveloffset=+1]
 
-include::30_design_and_implementation.adoc[leveloffset=+1]
-
-include::40_known_issues.adoc[leveloffset=+1]
+include::30_known_issues.adoc[leveloffset=+1]

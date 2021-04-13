@@ -519,5 +519,5 @@ public static void main(final String[] args)
 .Early Release Example
 [source,java]
 ----
-include::{gradle-rootdir}/src/test/java/com/lmax/disruptor/example/EarlyReleaseHandler.java[]
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/EarlyReleaseHandler.java[]
 ----

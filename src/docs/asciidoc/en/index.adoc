@@ -58,6 +58,7 @@ We have performance results of the test that produced these results, plus others
 - Read the <<user-guide/index.adoc#,User Guide>>,
 - Read the <<./javadoc/index#,API documentation>>,
 - Check out our https://github.com/LMAX-Exchange/disruptor/wiki/Frequently-Asked-Questions[Frequently Asked Questions]
+- Want to work on the Disruptor? Read the <<developer-guide/index.adoc#,Developer Guide>>,
 
 == Discussion, Blogs & Other Useful Links
 
