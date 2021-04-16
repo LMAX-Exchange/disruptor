@@ -1,5 +1,8 @@
 package com.lmax.disruptor;
 
+/**
+ * The result returned from the {@link BatchRewindStrategy} that decides whether to rewind or throw the exception
+ */
 public enum RewindAction
 {
     /**

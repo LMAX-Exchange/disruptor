@@ -1,10 +1,15 @@
 package com.lmax.disruptor;
 
+/**
+ * <p>Strategy for handling a rewindableException when processing an event.</p>
+ *
+ */
+
 public interface BatchRewindStrategy
 {
 
     /**
-     * <p>Strategy for handling a rewindableException when processing an event.</p>
+     * <p>When a {@link RewindableException} is thrown, this will be called.</p>
      *
      * @param e       the exception that propagated from the {@link EventHandler}.
      * @param attempts how many attempts there have been for the batch
