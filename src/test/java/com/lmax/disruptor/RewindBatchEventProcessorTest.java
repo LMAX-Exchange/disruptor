@@ -11,8 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,7 +24,6 @@ public class RewindBatchEventProcessorTest
 {
     private static final int BUFFER_SIZE = 2048;
     private RingBuffer<LongEvent> ringBuffer;
-    private int numberOfTimesRewound = 0;
     private final List<EventResult> values = new ArrayList<>();
 
     @BeforeEach
@@ -34,15 +37,15 @@ public class RewindBatchEventProcessorTest
     {
         fill(ringBuffer, 1);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 0, 1, 0, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values, asList(rewind(0, 1)), 0, -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
 
-        assertThat(values, containsExactSequence(
-                event(0, 0)));
+        assertThat(values, containsExactSequence(event(0, 0)));
     }
+
 
     @Test
     public void shouldRewindOnFirstEventOfBatch()
@@ -51,7 +54,11 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 0, 1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(
+                values,
+                singletonList(rewind(0, 1)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -68,7 +75,11 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 8, 1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(
+                values,
+                singletonList(rewind(8, 1)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -86,7 +97,13 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, lastSequenceNumber, 1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(
+                values,
+                singletonList(rewind(lastSequenceNumber, 1)),
+                lastSequenceNumber,
+                -1
+        );
+
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -104,7 +121,10 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 4, 1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(4, 1)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -120,7 +140,7 @@ public class RewindBatchEventProcessorTest
     {
         fill(ringBuffer, 1);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 0, 1, 0, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values, singletonList(rewind(0, 1)), 0, -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -137,7 +157,10 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 8, 3, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(8, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -157,7 +180,10 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, lastSequenceNumber, 3, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(lastSequenceNumber, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -177,7 +203,10 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 5, 3, lastSequenceNumber, true, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                asList(rewind(5, 3), rewind(7, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -198,7 +227,7 @@ public class RewindBatchEventProcessorTest
     {
         fill(ringBuffer, 1);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 0, 3, 0, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values, singletonList(rewind(0, 3)), 0, -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -216,7 +245,7 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, -1, -1, lastSequenceNumber, false, 8);
+        final TestEventHandler eventHandler = new TestEventHandler(values, emptyList(), lastSequenceNumber, 8);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -233,7 +262,7 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, -1, -1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values, emptyList(), lastSequenceNumber, -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -252,7 +281,10 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 15, 3, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(15, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -272,12 +304,15 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 15, 3, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(15, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
-        CountingRewindPauseStrategy rewindPauseStrategy = new CountingRewindPauseStrategy();
-        eventProcessor.setRewindPauseStrategy(rewindPauseStrategy);
+        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
+        eventProcessor.setRewindStrategy(rewindPauseStrategy);
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -296,12 +331,15 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, -1, -1, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(-1, -1)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
-        CountingRewindPauseStrategy rewindPauseStrategy = new CountingRewindPauseStrategy();
-        eventProcessor.setRewindPauseStrategy(rewindPauseStrategy);
+        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
+        eventProcessor.setRewindStrategy(rewindPauseStrategy);
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -317,11 +355,14 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, 15, 3, lastSequenceNumber, false, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                singletonList(rewind(15, 3)),
+                lastSequenceNumber,
+                -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
-        eventProcessor.setRewindPauseStrategy(new NanosecondRewindPauseStrategy(1000));
+        eventProcessor.setRewindStrategy(new NanosecondPauseBatchRewindStrategy(1000));
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -330,6 +371,45 @@ public class RewindBatchEventProcessorTest
                 event(0, 14),
                 event(0, lastSequenceNumber)));
 
+    }
+
+
+    @Test
+    void shouldGiveUpWhenUsingTheGiveUpRewindStrategy()
+    {
+        int ringBufferEntries = 30;
+        int lastSequenceNumber = ringBufferEntries - 1;
+        fill(ringBuffer, ringBufferEntries);
+
+        EventuallyGiveUpBatchRewindStrategy batchRewindStrategy = new EventuallyGiveUpBatchRewindStrategy(3);
+
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                asList(rewind(15, 99), rewind(25, 99)),
+                lastSequenceNumber,
+                -1);
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
+        eventHandler.setRewindable(eventProcessor);
+
+        AtomicReference<Throwable> exceptionHandled = new AtomicReference<>();
+        eventProcessor.setExceptionHandler(new StubExceptionHandler(exceptionHandled));
+
+        eventProcessor.setRewindStrategy(batchRewindStrategy);
+        eventProcessor.run();
+
+        assertThat(values, containsExactSequence(
+                event(0, 14),
+                event(0, 14),
+                event(0, 14),
+                event(16, 24), // unable to process 15 so it ends up skipping it
+                event(16, 24),
+                event(16, 24),
+                event(26, lastSequenceNumber))); // unable to process 25 so it ends up skipping it
+    }
+
+
+    private static ForceRewindSequence rewind(final long sequenceNumberToFailOn, final long timesToFail)
+    {
+        return new ForceRewindSequence(sequenceNumberToFailOn, timesToFail);
     }
 
     private EventRangeExpectation event(final long sequenceStart, final long sequenceEnd)
@@ -348,29 +428,23 @@ public class RewindBatchEventProcessorTest
     private final class TestEventHandler implements EventHandler<LongEvent>
     {
         private final List<EventResult> values;
-        private int rewindableErrorSequence;
         private BatchEventProcessor<LongEvent> processor;
-        private final int numberOfTimesToRewind;
+        private final List<ForceRewindSequence> forceRewindSequences;
         private final long exitValue;
-        private final boolean multipleFails;
         private final int nonRewindableErrorSequence;
-        boolean firstPassComplete = false;
 
         private TestEventHandler(
                 final List<EventResult> values,
-                final int rewindableErrorSequence,
-                final int numberOfTimesToRewind,
+                final List<ForceRewindSequence> forceRewindSequences,
                 final long exitValue,
-                final boolean multipleFails,
                 final int nonRewindableErrorSequence)
         {
             this.values = values;
-            this.rewindableErrorSequence = rewindableErrorSequence;
-            this.numberOfTimesToRewind = numberOfTimesToRewind;
+            this.forceRewindSequences = forceRewindSequences;
             this.exitValue = exitValue;
-            this.multipleFails = multipleFails;
             this.nonRewindableErrorSequence = nonRewindableErrorSequence;
         }
+
 
         public void setRewindable(final BatchEventProcessor<LongEvent> processor)
         {
@@ -379,37 +453,24 @@ public class RewindBatchEventProcessorTest
 
         public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            if (multipleFails)
+
+            if (sequence == nonRewindableErrorSequence)
             {
-                if ((sequence == rewindableErrorSequence) && (numberOfTimesRewound != numberOfTimesToRewind) && !firstPassComplete)
-                {
-                    numberOfTimesRewound++;
-                    if (numberOfTimesRewound == numberOfTimesToRewind)
-                    {
-                        firstPassComplete = true;
-                        numberOfTimesRewound = 0;
-                    }
-
-                    throw new RewindableException(new RuntimeException());
-                }
-
-                if ((sequence == rewindableErrorSequence + 2) && (numberOfTimesRewound != numberOfTimesToRewind) && firstPassComplete)
-                {
-                    numberOfTimesRewound++;
-                    throw new RewindableException(new RuntimeException());
-                }
+                throw new RuntimeException("not rewindable");
             }
-            else
-            {
-                if (sequence == nonRewindableErrorSequence)
-                {
-                    throw new RuntimeException("not rewindable");
-                }
 
-                if ((sequence == rewindableErrorSequence) && (numberOfTimesRewound != numberOfTimesToRewind))
+            Optional<ForceRewindSequence> maybeForceRewindSequence = this.forceRewindSequences.stream()
+                    .filter(r -> r.sequenceNumberToFailOn == sequence).findFirst();
+
+            if (maybeForceRewindSequence.isPresent())
+            {
+                ForceRewindSequence forceRewindSequence = maybeForceRewindSequence.get();
+
+                if (forceRewindSequence.numberOfTimesRewound != forceRewindSequence.timesToFail)
                 {
-                    numberOfTimesRewound++;
+                    forceRewindSequence.numberOfTimesRewound++;
                     throw new RewindableException(new RuntimeException());
+
                 }
             }
 
@@ -420,7 +481,6 @@ public class RewindBatchEventProcessorTest
                 processor.halt();
             }
         }
-
     }
 
     private static void fill(final RingBuffer<LongEvent> ringBuffer, final int batchSize)
@@ -510,13 +570,29 @@ public class RewindBatchEventProcessorTest
         }
     }
 
-    private static final class CountingRewindPauseStrategy implements RewindPauseStrategy
+    private static final class CountingBatchRewindStrategy implements BatchRewindStrategy
     {
         int count = 0;
+
         @Override
-        public void pause()
+        public RewindAction handleRewindException(final RewindableException e, final int retriesAttempted)
         {
             count++;
+            return RewindAction.REWIND;
+        }
+
+    }
+
+    private static final class ForceRewindSequence
+    {
+        final long sequenceNumberToFailOn;
+        final long timesToFail;
+        long numberOfTimesRewound = 0;
+
+        private ForceRewindSequence(final long sequenceNumberToFailOn, final long timesToFail)
+        {
+            this.sequenceNumberToFailOn = sequenceNumberToFailOn;
+            this.timesToFail = timesToFail;
         }
     }
 }

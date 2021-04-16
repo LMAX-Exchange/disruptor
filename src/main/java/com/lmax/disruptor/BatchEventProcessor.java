@@ -17,6 +17,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.lmax.disruptor.RewindAction.REWIND;
+
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
@@ -42,7 +44,8 @@ public final class BatchEventProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
     private final BatchStartAware batchStartAware;
-    private RewindPauseStrategy rewindPauseStrategy = new NoOpRewindPauseStrategy();
+    private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
+    private int retriesAttempted = 0;
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -107,19 +110,20 @@ public final class BatchEventProcessor<T>
     }
 
     /**
-     * Set a new {@link RewindPauseStrategy} for throttling rewinding of batches
-     * in the event a {@link RewindableException} is thrown to prevent spamming in a recoverable scenario
-     * the default is a {@link NoOpRewindPauseStrategy}
-     * @param rewindPauseStrategy to replace the existing rewindThrottleStrategy.
+     * Set a new {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}
+     * Which can include whether the batch should be rewound and reattempted,
+     * or simply thrown and move on to the next sequence
+     * the default is a {@link SimpleBatchRewindStrategy} which always rewinds
+     * @param batchRewindStrategy to replace the existing rewindStrategy.
      */
-    public void setRewindPauseStrategy(final RewindPauseStrategy rewindPauseStrategy)
+    public void setRewindStrategy(final BatchRewindStrategy batchRewindStrategy)
     {
-        if (null == rewindPauseStrategy)
+        if (null == batchRewindStrategy)
         {
             throw new NullPointerException();
         }
 
-        this.rewindPauseStrategy = rewindPauseStrategy;
+        this.batchRewindStrategy = batchRewindStrategy;
     }
 
     /**
@@ -172,20 +176,37 @@ public final class BatchEventProcessor<T>
             final long startOfBatchSequence = nextSequence;
             try
             {
-                final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                if (batchStartAware != null && availableSequence >= nextSequence)
+                try
                 {
-                    batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
-                }
 
-                while (nextSequence <= availableSequence)
+                    final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                    if (batchStartAware != null && availableSequence >= nextSequence)
+                    {
+                        batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                    }
+
+                    while (nextSequence <= availableSequence)
+                    {
+                        event = dataProvider.get(nextSequence);
+                        eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                        nextSequence++;
+                    }
+
+                    retriesAttempted = 0;
+                    sequence.set(availableSequence);
+                }
+                catch (final RewindableException e)
                 {
-                    event = dataProvider.get(nextSequence);
-                    eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
-                    nextSequence++;
+                    if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
+                    {
+                        nextSequence = startOfBatchSequence;
+                    }
+                    else
+                    {
+                        retriesAttempted = 0;
+                        throw e;
+                    }
                 }
-
-                sequence.set(availableSequence);
             }
             catch (final TimeoutException e)
             {
@@ -198,11 +219,7 @@ public final class BatchEventProcessor<T>
                     break;
                 }
             }
-            catch (final RewindableException e)
-            {
-                this.rewindPauseStrategy.pause();
-                nextSequence = startOfBatchSequence;
-            }
+
             catch (final Throwable ex)
             {
                 exceptionHandler.handleEventException(ex, nextSequence, event);
