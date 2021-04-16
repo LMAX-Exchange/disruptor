@@ -2,7 +2,7 @@ package com.lmax.disruptor;
 
 public class RewindableException extends RuntimeException
 {
-    public RewindableException(Throwable cause)
+    public RewindableException(final Throwable cause)
     {
         super("REWINDING BATCH", cause);
     }

@@ -7,7 +7,7 @@ public class NanosecondRewindPauseStrategy implements RewindPauseStrategy
 
     private final long nanoSecondPauseTime;
 
-    public NanosecondRewindPauseStrategy(long nanoSecondPauseTime)
+    public NanosecondRewindPauseStrategy(final long nanoSecondPauseTime)
     {
         this.nanoSecondPauseTime = nanoSecondPauseTime;
     }
