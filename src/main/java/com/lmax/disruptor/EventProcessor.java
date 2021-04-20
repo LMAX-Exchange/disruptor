@@ -40,7 +40,7 @@ public interface EventProcessor extends Runnable
 
     /**
      * @return whether this event processor is running or not
-     * Implementations should ideally return true only when the associated thread is idle.
+     * Implementations should ideally return false only when the associated thread is idle.
      */
     boolean isRunning();
 }
