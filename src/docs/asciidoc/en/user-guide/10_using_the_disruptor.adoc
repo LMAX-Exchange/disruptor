@@ -4,6 +4,8 @@
 :Email:
 :Date: {docdata}
 
+:gradle-rootdir: ../../../../../
+
 == Introduction
 
 The best way to understand what the Disruptor is, is to compare it to something well understood and quite similar in purpose.
@@ -108,30 +110,14 @@ Firstly we will define the Event that will carry the data.
 
 [source,java]
 ----
-public class LongEvent
-{
-    private long value;
-
-    public void set(long value)
-    {
-        this.value = value;
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEvent.java[tag=example]
 ----
 
 In order to allow the Disruptor to preallocate these events for us, we need to an `EventFactory` that will perform the construction.
 
 [source,java]
 ----
-import com.lmax.disruptor.EventFactory;
-
-public class LongEventFactory implements EventFactory<LongEvent>
-{
-    public LongEvent newInstance()
-    {
-        return new LongEvent();
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEventFactory.java[tag=example]
 ----
 
 
@@ -140,15 +126,7 @@ In our case all we want to do is print the value out the the console.
 
 [source,java]
 ----
-import com.lmax.disruptor.EventHandler;
-
-public class LongEventHandler implements EventHandler<LongEvent>
-{
-    public void onEvent(LongEvent event, long sequence, boolean endOfBatch)
-    {
-        System.out.println("Event: " + event);
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEventHandler.java[tag=example]
 ----
 
 We will need a source for these events, for the sake of an example I am going to assume that the data is coming from some sort of I/O device, e.g. network or file in the form of a `ByteBuffer`.
@@ -160,32 +138,7 @@ E.g.
 
 [source,java]
 ----
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.EventTranslatorOneArg;
-
-public class LongEventProducerWithTranslator
-{
-    private final RingBuffer<LongEvent> ringBuffer;
-
-    public LongEventProducerWithTranslator(RingBuffer<LongEvent> ringBuffer)
-    {
-        this.ringBuffer = ringBuffer;
-    }
-
-    private static final EventTranslatorOneArg<LongEvent, ByteBuffer> TRANSLATOR =
-        new EventTranslatorOneArg<LongEvent, ByteBuffer>()
-        {
-            public void translateTo(LongEvent event, long sequence, ByteBuffer bb)
-            {
-                event.set(bb.getLong(0));
-            }
-        };
-
-    public void onData(ByteBuffer bb)
-    {
-        ringBuffer.publishEvent(TRANSLATOR, bb);
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEventProducerWithTranslator.java[tag=example]
 ----
 
 The other advantage of this approach is that the translator code can be pulled into a separate class and easily unit tested independently.
@@ -197,32 +150,7 @@ There is a more "raw" approach that we can use.
 
 [source,java]
 ----
-import com.lmax.disruptor.RingBuffer;
-
-public class LongEventProducer
-{
-    private final RingBuffer<LongEvent> ringBuffer;
-
-    public LongEventProducer(RingBuffer<LongEvent> ringBuffer)
-    {
-        this.ringBuffer = ringBuffer;
-    }
-
-    public void onData(ByteBuffer bb)
-    {
-        long sequence = ringBuffer.next();  // Grab the next sequence
-        try
-        {
-            LongEvent event = ringBuffer.get(sequence); // Get the entry in the Disruptor
-                                                        // for the sequence
-            event.set(bb.getLong(0));  // Fill with data
-        }
-        finally
-        {
-            ringBuffer.publish(sequence);
-        }
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/legacy/LongEventProducer.java[tag=example]
 ----
 
 What becomes immediately obvious is that event publication becomes more involved than using a simple queue.
@@ -240,44 +168,7 @@ Some of the more complicated options are not available via the DSL, however it i
 
 [source,java]
 ----
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-import java.nio.ByteBuffer;
-
-public class LongEventMain
-{
-    public static void main(final String[] args) throws Exception
-    {
-        // The factory for the event
-        LongEventFactory factory = new LongEventFactory();
-
-        // Specify the size of the ring buffer, must be power of 2.
-        int bufferSize = 1024;
-
-        // Construct the Disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<>(factory, bufferSize, DaemonThreadFactory.INSTANCE);
-
-        // Connect the handler
-        disruptor.handleEventsWith(new LongEventHandler());
-
-        // Start the Disruptor, starts all threads running
-        disruptor.start();
-
-        // Get the ring buffer from the Disruptor to be used for publishing.
-        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-
-        LongEventProducer producer = new LongEventProducer(ringBuffer);
-
-        ByteBuffer bb = ByteBuffer.allocate(8);
-        for (long l = 0; true; l++)
-        {
-            bb.putLong(0, l);
-            producer.onData(bb);
-            Thread.sleep(1000);
-        }
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/legacy/LongEventMain.java[tag=example]
 ----
 
 ==== Using Java 8
@@ -286,39 +177,7 @@ Most of the interface definitions in the Disruptor API fit the requirements of a
 
 [source,java]
 ----
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-import java.nio.ByteBuffer;
-
-public class LongEventMain
-{
-    public static void main(final String[] args) throws Exception
-    {
-        // Specify the size of the ring buffer, must be power of 2.
-        int bufferSize = 1024;
-
-        // Construct the Disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE);
-
-        // Connect the handler
-        disruptor.handleEventsWith((event, sequence, endOfBatch) -> System.out.println("Event: " + event));
-
-        // Start the Disruptor, starts all threads running
-        disruptor.start();
-
-        // Get the ring buffer from the Disruptor to be used for publishing.
-        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-
-        ByteBuffer bb = ByteBuffer.allocate(8);
-        for (long l = 0; true; l++)
-        {
-            bb.putLong(0, l);
-            ringBuffer.publishEvent((event, sequence, buffer) -> event.set(buffer.getLong(0)), bb);
-            Thread.sleep(1000);
-        }
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/lambdas/LongEventMain.java[tag=example]
 ----
 
 Note how a number of the classes (e.g. handler, translator) are no longer required.
@@ -343,49 +202,7 @@ Give that method references can be used instead of anonymous lamdbas it is possi
 
 [source,java]
 ----
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.util.DaemonThreadFactory;
-import java.nio.ByteBuffer;
-
-public class LongEventMain
-{
-    public static void handleEvent(LongEvent event, long sequence, boolean endOfBatch)
-    {
-        System.out.println(event);
-    }
-
-    public static void translate(LongEvent event, long sequence, ByteBuffer buffer)
-    {
-        event.set(buffer.getLong(0));
-    }
-
-    public static void main(final String[] args) throws Exception
-    {
-        // Specify the size of the ring buffer, must be power of 2.
-        int bufferSize = 1024;
-
-        // Construct the Disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE);
-
-        // Connect the handler
-        disruptor.handleEventsWith(LongEventMain::handleEvent);
-
-        // Start the Disruptor, starts all threads running
-        disruptor.start();
-
-        // Get the ring buffer from the Disruptor to be used for publishing.
-        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-
-        ByteBuffer bb = ByteBuffer.allocate(8);
-        for (long l = 0; true; l++)
-        {
-            bb.putLong(0, l);
-            ringBuffer.publishEvent(LongEventMain::translate, bb);
-            Thread.sleep(1000);
-        }
-    }
-}
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/methodrefs/LongEventMain.java[tag=example]
 ----
 
 === Basic Tuning Options
@@ -402,7 +219,7 @@ If you are in the situation where there will only ever be a single thread produc
 ----
 public class LongEventMain
 {
-    public static void main(final String[] args) throws Exception
+    public static void main(final String[] args)
     {
         //.....
         // Construct the Disruptor with a SingleProducerSequencer
@@ -479,37 +296,17 @@ If you have a chain of event handlers, then you may need a specific handler plac
 
 [source,java]
 ----
-class ObjectEvent<T>
-{
-    T val;
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/objectevent/ObjectEvent.java[tag=example]
+----
 
-    void clear()
-    {
-        val = null;
-    }
-}
+[source,java]
+----
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/objectevent/ClearingEventHandler.java[tag=example]
+----
 
-public class ClearingEventHandler<T> implements EventHandler<ObjectEvent<T>>
-{
-    public void onEvent(ObjectEvent<T> event, long sequence, boolean endOfBatch)
-    {
-        // Failing to call clear here will result in the
-        // object associated with the event to live until
-        // it is overwritten once the ring buffer has wrapped
-        // around to the beginning.
-        event.clear();
-    }
-}
-
-public static void main(final String[] args)
-{
-    Disruptor<ObjectEvent<String>> disruptor = new Disruptor<>(
-        () -> ObjectEvent<String>(), bufferSize, DaemonThreadFactory.INSTANCE);
-
-    disruptor
-        .handleEventsWith(new ProcessingEventHandler())
-        .then(new ClearingObjectHandler());
-}
+[source,java]
+----
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/objectevent/Main.java[tag=example]
 ----
 
 == Advanced Techniques
@@ -519,5 +316,5 @@ public static void main(final String[] args)
 .Early Release Example
 [source,java]
 ----
-include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/EarlyReleaseHandler.java[]
+include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/EarlyReleaseHandler.java[tag=example]
 ----
