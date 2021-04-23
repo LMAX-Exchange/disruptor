@@ -11,21 +11,17 @@ public class LongEventMain
 {
     public static void main(String[] args) throws Exception
     {
-        // Specify the size of the ring buffer, must be power of 2.
-        int bufferSize = 1024;
+        int bufferSize = 1024; // <1>
 
-        // Construct the Disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE);
+        Disruptor<LongEvent> disruptor = // <2>
+                new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE);
 
-        // Connect the handler
-        disruptor.handleEventsWith((event, sequence, endOfBatch) -> System.out.println("Event: " + event));
+        disruptor.handleEventsWith((event, sequence, endOfBatch) ->
+                System.out.println("Event: " + event)); // <3>
+        disruptor.start(); // <4>
 
-        // Start the Disruptor, starts all threads running
-        disruptor.start();
 
-        // Get the ring buffer from the Disruptor to be used for publishing.
-        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-
+        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer(); // <5>
         ByteBuffer bb = ByteBuffer.allocate(8);
         for (long l = 0; true; l++)
         {
