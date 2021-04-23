@@ -80,7 +80,8 @@ The canonical example from LMAX is where we have three operations:
 - replication (sending the input data to another machine to ensure that there is a remote copy of the data);
 - and business logic (the real processing work).
 
-Looking at <<user-guide-models>> is possible to see that there are 3 Event Handlers listening (`JournalConsumer`, `ReplicationConsumer` and `ApplicationConsumer`) to the Disruptor, each of these Event Handlers will receive all of the messages available in the Disruptor (in the same order).
+Looking at <<user-guide-models>> is possible to see that there are 3 ``EventHandler``s listening (`JournalConsumer`, `ReplicationConsumer` and `ApplicationConsumer`) to the Disruptor.
+Each of these Event Handlers will receive *all* the messages available in the Disruptor (in the same order).
 This allows for work for each of these consumers to operate in parallel.
 ****
 
@@ -88,7 +89,7 @@ This allows for work for each of these consumers to operate in parallel.
 === Consumer Dependency Graph
 
 To support real world applications of the parallel processing behaviour it was necessary to support co-ordination between the consumers.
-Referring back to the example described above, it necessary to prevent the business logic consumer from making progress until the journalling and replication consumers have completed their tasks.
+Referring back to the example described above, it is necessary to prevent the business logic consumer from making progress until the journalling and replication consumers have completed their tasks.
 We call this concept "`gating`" (or, more correctly, the feature is a form of "`gating`").
 
 "`Gating`" happens in two places:
@@ -170,8 +171,8 @@ This could be a method reference, such as `LongEvent::new` or an explicit implem
 include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEventFactory.java[tag=example]
 ----
 
-Once we have the event defined we need to create a consumer that will handle these events.
-In our case all we want to do is print the value out to the console.
+Once we have the event defined, we need to create a consumer that will handle these events.
+As an example, we will create an `EventHandler` that will print the value out to the console.
 
 .Example `LongEventHandler`
 [source,java]
@@ -179,7 +180,7 @@ In our case all we want to do is print the value out to the console.
 include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longevent/LongEventHandler.java[tag=example]
 ----
 
-We will need a source for these events.
+Finally, we will need a source for these events.
 For simplicity, we will assume that the data is coming from some sort of I/O device, e.g. network or file in the form of a `ByteBuffer`.
 
 ==== Publishing
@@ -263,13 +264,13 @@ include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longeven
 
 What becomes immediately obvious is that event publication becomes more involved than using a simple queue.
 This is due to the desire for Event pre-allocation.
-It requires (at the lowest level) a 2-phase approach to message publication, i.e. claim the slot in the ring buffer then publish the available data.
+It requires (at the lowest level) a 2-phase approach to message publication, i.e. claim the slot in the ring buffer and then publish the available data.
 
 [CAUTION]
 --
 It is also necessary to wrap publication in a `try`/`finally` block.
 
-If we claim a slot in the Ring Buffer (calling `RingBuffer.next()`) then we must publish this sequence.
+If we claim a slot in the Ring Buffer (calling ``RingBuffer#next()``) then we must publish this sequence.
 Failing to do so can result in corruption of the state of the Disruptor.
 
 Specifically, in the multi-producer case, this will result in the consumers stalling and being unable to recover without a restart.
@@ -277,8 +278,9 @@ Therefore, it is recommended that either the lambda or `EventTranslator` APIs be
 --
 
 The final step is to wire the whole thing together.
-It is possible to wire all of the components manually, however it can be a little bit complicated so a DSL is provided to simplify construction.
-Some of the more complicated options are not available via the DSL, however it is suitable for most circumstances.
+Whilst it is possible to wire up each component manually, this can be complicated and so a DSL is provided to simplify construction.
+
+TIP: Some of the more complicated options are not available via the DSL; however, it is suitable for most circumstances.
 
 .Example using the legacy `LongEventProducer`
 [source,java]
@@ -289,15 +291,16 @@ include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longeven
 === Basic Tuning Options
 
 Using the above approach will work functionally in the widest set of deployment scenarios.
-However, if you able to make certain assumptions about the hardware and software environment that the Disruptor will run in then you can take advantage of a number of tuning options to improve performance.
-There are 2 main options for tuning, single vs. multiple producers and alternative wait strategies.
+However, there are a number of tuning options that can be used to improve performance.
 
-==== Single vs. Multiple Producers
+The two main options for tuning are:
 
-One of the best ways to improve performance in concurrent systems is to adhere to the http://mechanical-sympathy.blogspot.co.nz/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
-If you are in the situation where there will only ever be a single thread producing events into the Disruptor, then you can take advantage of this to gain additional performance.
+- <<_single_vs_multiple_producers, Single vs. multiple producers>>, _and_
+- <<_alternative_wait_strategies, Alternative wait strategies>>.
 
-.Using a single producer
+Both of these options are set when constructing a Disruptor:
+
+.Tuning the Disruptor
 [source,java]
 ----
 public class LongEventMain
@@ -310,13 +313,21 @@ public class LongEventMain
             bufferSize,
             DaemonThreadFactory.INSTANCE,
             ProducerType.SINGLE, // <1>
-            new BlockingWaitStrategy()
+            new BlockingWaitStrategy() // <2>
         );
         //.....
     }
 }
 ----
-<1> Construct the Disruptor with a `SingleProducerSequencer`
+<1> Use `ProducerType#SINGLE` to create a `SingleProducerSequencer`; use `ProducerType#MULTI` to create a `MultiProducerSequence`
+<2> Set the desired `WaitStrategy`
+
+
+[#_single_vs_multiple_producers]
+==== Single vs. Multiple Producers
+
+One of the best ways to improve performance in concurrent systems is to adhere to the http://mechanical-sympathy.blogspot.co.nz/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
+If you are in the situation where there will only ever be a single thread producing events into the Disruptor, then you can take advantage of this to gain additional performance.
 
 To give an indication of how much of a performance advantage can be achieved through this technique we can change the producer type in the OneToOne performance test.
 Tests run on i7 Sandy Bridge MacBook Air.
@@ -345,20 +356,25 @@ Tests run on i7 Sandy Bridge MacBook Air.
 | Run 6 | Disruptor=81,699,346 ops/sec
 |===
 
+[#_alternative_wait_strategies]
 ==== Alternative Wait Strategies
 
-The default wait strategy used by the Disruptor is the `BlockingWaitStrategy`.
+The default `WaitStrategy` used by the Disruptor is the `BlockingWaitStrategy`.
 Internally the `BlockingWaitStrategy` uses a typical lock and condition variable to handle thread wake-up.
 The `BlockingWaitStrategy` is the slowest of the available wait strategies, but is the most conservative with the respect to CPU usage and will give the most consistent behaviour across the widest variety of deployment options.
-However, again knowledge of the deployed system can allow for additional performance.
+
+Knowledge of the deployed system can allow for additional performance by choosing a more appropriate wait strategy:
 
 - **SleepingWaitStrategy** ->
 
 --
-Like the `BlockingWaitStrategy` the `SleepingWaitStrategy` it attempts to be conservative with CPU usage, by using a simple busy wait loop, but uses a call to link:http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
+Like the `BlockingWaitStrategy` the `SleepingWaitStrategy` it attempts to be conservative with CPU usage by using a simple busy wait loop.
+The difference is that the `SleepingWaitStrategy` uses a call to link:http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
 On a typical Linux system this will pause the thread for around 60µs.
-However it has the benefit that the producing thread does not need to take any action other increment the appropriate counter and does not require the cost of signalling a condition variable.
+
+This has the benefits that the producing thread does not need to take any action other increment the appropriate counter and that it does not require the cost of signalling a condition variable.
 However, the mean latency of moving the event between the producer and consumer threads will be higher.
+
 It works best in situations where low latency is not required, but a low impact on the producing thread is desired.
 A common use case is for asynchronous logging.
 --
@@ -366,24 +382,30 @@ A common use case is for asynchronous logging.
 - **YieldingWaitStrategy** ->
 
 --
-The `YieldingWaitStrategy` is one of 2 Wait Strategies that can be use in low latency systems, where there is the option to burn CPU cycles with the goal of improving latency.
-The `YieldingWaitStrategy` will busy spin waiting for the sequence to increment to the appropriate value.
-Inside the body of the loop `Thread.yield()` will be called allowing other queued threads to run.
-This is the recommended wait strategy when need very high performance and the number of Event Handler threads is less than the total number of logical cores, e.g. you have hyper-threading enabled.
+The `YieldingWaitStrategy` is one of two ``WaitStrategy``s that can be use in low-latency systems.
+It is designed for cases where there is the option to burn CPU cycles with the goal of improving latency.
+
+The `YieldingWaitStrategy` will busy spin, waiting for the sequence to increment to the appropriate value.
+Inside the body of the loop `Thread#yield()` will be called allowing other queued threads to run.
+
+This is the recommended wait strategy when you need very high performance, and the number of `EventHandler` threads is lower than the total number of logical cores, e.g. you have hyper-threading enabled.
 --
 
 - **BusySpinWaitStrategy** ->
 
 --
-The `BusySpinWaitStrategy` is the highest performing Wait Strategy, but puts the highest constraints on the deployment environment.
-This wait strategy should only be used if the number of Event Handler threads is smaller than the number of physical cores on the box. E.g. hyper-threading should be disabled.
+The `BusySpinWaitStrategy` is the highest performing `WaitStrategy`.
+Like the `YieldingWaitStrategy`, it can be used in low-latency systems, but puts the highest constraints on the deployment environment.
+
+This wait strategy should only be used if the number of `EventHandler` threads is lower than the number of physical cores on the box, e.g. hyper-threading should be disabled.
 --
 
 === Clearing Objects From the Ring Buffer
 
 When passing data via the Disruptor, it is possible for objects to live longer than intended.
 To avoid this happening it may be necessary to clear out the event after processing it.
-If you have a single event handler clearing out the value within the same handler is sufficient.
+
+If you have a single event handler, clearing out the value within the same handler is sufficient.
 If you have a chain of event handlers, then you may need a specific handler placed at the end of the chain to handle clearing out the object.
 
 .Example `ObjectEvent`
