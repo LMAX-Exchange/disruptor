@@ -4,6 +4,9 @@
 :Email:
 :Date: {docdata}
 
+// If you're changing these, also check out asciidoctor.gradle!
+:xrefstyle: short
+:icons: font
 :gradle-rootdir: ../../../../../
 
 == Introduction
@@ -128,9 +131,13 @@ The Disruptor provides guarantees that these operations will be concurrency-safe
 Another key implementation detail pushed by the desire for low-latency is the extensive use of lock-free algorithms to implement the Disruptor.
 All memory visibility and correctness guarantees are implemented using memory barriers and/or compare-and-swap operations.
 
-WARNING: There is only one use-case where an actual lock is required and that is within the `BlockingWaitStrategy`.
-This is done solely for the purpose of using a Condition so that a consuming thread can be parked while waiting for new events to arrive.
-Many low-latency systems will use a busy-wait to avoid the jitter that can be incurred by using a Condition, however in number of system busy-wait operations can lead to significant degradation in performance, especially where the CPU resources are heavily constrained, e.g. web servers in virtualised-environments.
+[CAUTION]
+--
+There is only one use-case where an actual lock is required and that is within the `BlockingWaitStrategy`.
+
+This is done solely for the purpose of using a *condition* so that a consuming thread can be parked while waiting for new events to arrive.
+Many low-latency systems will use a busy-wait to avoid the jitter that can be incurred by using a *condition*; however, in number of system busy-wait operations can lead to significant degradation in performance, especially where the CPU resources are heavily constrained, e.g. web servers in virtualised-environments.
+--
 
 == Getting Started
 
@@ -194,7 +201,7 @@ include::{gradle-rootdir}/src/examples/java/com/lmax/disruptor/examples/longeven
 <4> Start the Disruptor, starts all threads running
 <5> Get the ring buffer from the Disruptor to be used for publishing.
 
-[NOTE]
+[WARNING]
 --
 Notice that the lambda used for `publishEvent()` only refers to the parameters that are passed in.
 
@@ -258,11 +265,16 @@ What becomes immediately obvious is that event publication becomes more involved
 This is due to the desire for Event pre-allocation.
 It requires (at the lowest level) a 2-phase approach to message publication, i.e. claim the slot in the ring buffer then publish the available data.
 
-CAUTION: It is also necessary to wrap publication in a try/finally block.
+[CAUTION]
+--
+It is also necessary to wrap publication in a `try`/`finally` block.
+
 If we claim a slot in the Ring Buffer (calling `RingBuffer.next()`) then we must publish this sequence.
 Failing to do so can result in corruption of the state of the Disruptor.
-Specifically, in the multi-producer case this will result in the consumers stalling and being unable to recover without a restart.
-Therefore, it is recommended that either lambdas or the `EventTranslator` APIs be used.
+
+Specifically, in the multi-producer case, this will result in the consumers stalling and being unable to recover without a restart.
+Therefore, it is recommended that either the lambda or `EventTranslator` APIs be used.
+--
 
 The final step is to wire the whole thing together.
 It is possible to wire all of the components manually, however it can be a little bit complicated so a DSL is provided to simplify construction.

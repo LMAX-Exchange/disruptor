@@ -20,7 +20,7 @@ plugins {
     id 'checkstyle'
     id 'idea'
     id "io.github.reyerizo.gradle.jcstress" version "0.8.11"
-    id 'org.asciidoctor.jvm.convert' version '3.1.0'
+    id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id "me.champeau.jmh" version "0.6.5"
 }
 
