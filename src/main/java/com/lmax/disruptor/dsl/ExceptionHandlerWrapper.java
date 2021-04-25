@@ -33,6 +33,10 @@ public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
     private ExceptionHandler<? super T> getExceptionHandler()
     {
         ExceptionHandler<? super T> handler = delegate;
-        return handler == null ? ExceptionHandlers.defaultHandler() : handler;
+        if (handler == null)
+        {
+            return ExceptionHandlers.defaultHandler();
+        }
+        return handler;
     }
 }

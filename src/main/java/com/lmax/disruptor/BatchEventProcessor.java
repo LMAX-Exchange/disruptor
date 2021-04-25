@@ -278,6 +278,10 @@ public final class BatchEventProcessor<T>
     private ExceptionHandler<? super T> getExceptionHandler()
     {
         ExceptionHandler<? super T> handler = exceptionHandler;
-        return handler == null ? ExceptionHandlers.defaultHandler() : handler;
+        if (handler == null)
+        {
+            return ExceptionHandlers.defaultHandler();
+        }
+        return handler;
     }
 }
