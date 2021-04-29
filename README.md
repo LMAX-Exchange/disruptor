@@ -13,6 +13,10 @@ LMAX Development Team
 
 ## Changelog
 
+### 3.4.4
+
+- Lazy-loading of Logger instances
+
 ### 3.4.3
 
 - Add Automatic-Module-Name to MANIFEST.MF
