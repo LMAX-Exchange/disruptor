@@ -35,7 +35,7 @@ public final class BatchEventProcessor<T>
     private static final int RUNNING = HALTED + 1;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
-    private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
+    private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<? super T> eventHandler;
@@ -184,7 +184,7 @@ public final class BatchEventProcessor<T>
             }
             catch (final Throwable ex)
             {
-                exceptionHandler.handleEventException(ex, nextSequence, event);
+                handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
                 nextSequence++;
             }
@@ -208,7 +208,7 @@ public final class BatchEventProcessor<T>
         }
         catch (Throwable e)
         {
-            exceptionHandler.handleEventException(e, availableSequence, null);
+            handleEventException(e, availableSequence, null);
         }
     }
 
@@ -225,7 +225,7 @@ public final class BatchEventProcessor<T>
             }
             catch (final Throwable ex)
             {
-                exceptionHandler.handleOnStartException(ex);
+                handleOnStartException(ex);
             }
         }
     }
@@ -243,8 +243,45 @@ public final class BatchEventProcessor<T>
             }
             catch (final Throwable ex)
             {
-                exceptionHandler.handleOnShutdownException(ex);
+                handleOnShutdownException(ex);
             }
         }
+    }
+
+    /**
+     * Delegate to {@link ExceptionHandler#handleEventException(Throwable, long, Object)} on the delegate or
+     * the default {@link ExceptionHandler} if one has not been configured.
+     */
+    private void handleEventException(final Throwable ex, final long sequence, final T event)
+    {
+        getExceptionHandler().handleEventException(ex, sequence, event);
+    }
+
+    /**
+     * Delegate to {@link ExceptionHandler#handleOnStartException(Throwable)} on the delegate or
+     * the default {@link ExceptionHandler} if one has not been configured.
+     */
+    private void handleOnStartException(final Throwable ex)
+    {
+        getExceptionHandler().handleOnStartException(ex);
+    }
+
+    /**
+     * Delegate to {@link ExceptionHandler#handleOnShutdownException(Throwable)} on the delegate or
+     * the default {@link ExceptionHandler} if one has not been configured.
+     */
+    private void handleOnShutdownException(final Throwable ex)
+    {
+        getExceptionHandler().handleOnShutdownException(ex);
+    }
+
+    private ExceptionHandler<? super T> getExceptionHandler()
+    {
+        ExceptionHandler<? super T> handler = exceptionHandler;
+        if (handler == null)
+        {
+            return ExceptionHandlers.defaultHandler();
+        }
+        return handler;
     }
 }
