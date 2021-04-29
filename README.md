@@ -4,9 +4,7 @@ A High Performance Inter-Thread Messaging Library
 
 ## Maintainer
 
-[Michael Barker](https://github.com/mikeb01)
-
-[![Build Status](https://semaphoreci.com/api/v1/mikeb01/disruptor/branches/master/badge.svg)](https://semaphoreci.com/mikeb01/disruptor)
+LMAX Development Team
 
 ## Documentation
 
