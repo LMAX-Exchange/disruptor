@@ -23,6 +23,7 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'org.asciidoctor.jvm.gems' version '3.3.0'
     id "me.champeau.jmh" version "0.6.5"
+    id "biz.aQute.bnd.builder" version "5.3.0"
 }
 
 group = 'com.lmax'
@@ -94,11 +95,11 @@ javadoc {
 
 jar {
     manifest.attributes('Built-By': System.properties.get('user.name'),
-            'Bundle-Name': fullName,
-            'Bundle-Vendor': teamName,
-            'Bundle-Description': fullDescription,
-            'Bundle-DocURL': siteUrl,
             'Automatic-Module-Name': moduleName)
+    bnd ('Bundle-Name': fullName,
+        'Bundle-Vendor': teamName,
+        'Bundle-Description': fullDescription,
+        'Bundle-DocURL': siteUrl)
 }
 
 tasks.withType(Test) {
