@@ -43,7 +43,7 @@ public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
     {
         try
         {
-            getExceptionHandler() .handleOnShutdownException(ex);
+            getExceptionHandler().handleOnShutdownException(ex);
         }
         catch (Exception e)
         {
