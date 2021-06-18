@@ -14,3 +14,5 @@ include::10_using_the_disruptor.adoc[leveloffset=+1]
 include::20_design_and_implementation.adoc[leveloffset=+1]
 
 include::30_known_issues.adoc[leveloffset=+1]
+
+include::40_batch_rewind_use_case.adoc[leveloffset=+1]

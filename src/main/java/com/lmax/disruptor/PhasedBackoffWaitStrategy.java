@@ -30,6 +30,13 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy
     private final long yieldTimeoutNanos;
     private final WaitStrategy fallbackStrategy;
 
+    /**
+     *
+     * @param spinTimeout The maximum time in to busy spin for.
+     * @param yieldTimeout The maximum time in to yield for.
+     * @param units Time units used for the timeout values.
+     * @param fallbackStrategy After spinning + yielding, the strategy to fall back to
+     */
     public PhasedBackoffWaitStrategy(
         final long spinTimeout,
         final long yieldTimeout,
