@@ -18,7 +18,7 @@ dependencies {
 build.dependsOn perftestClasses
 
 task perfJar(type: Jar, group: 'build') {
-    archiveAppendix = 'perf'
+    archiveAppendix.set('perf')
     from sourceSets.perftest.output
     from sourceSets.test.output
     with jar

@@ -91,7 +91,7 @@ javadoc {
 }
 
 jar {
-    manifest.attributes('Built-By': System.properties['user.name'],
+    manifest.attributes('Built-By': System.properties.get('user.name'),
             'Bundle-Name': fullName,
             'Bundle-Vendor': teamName,
             'Bundle-Description': fullDescription,
@@ -100,7 +100,7 @@ jar {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
+    maxParallelForks = (int) Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
 }
 
 task setUpGitHooks(type: Exec, description: 'Add a pre-commit git hook that runs gradle check & test tasks') {

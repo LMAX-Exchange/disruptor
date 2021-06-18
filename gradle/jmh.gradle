@@ -31,6 +31,6 @@ jmh {
 
 task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'jmh') {
     classpath = sourceSets.jmh.runtimeClasspath
-    main = 'org.openjdk.jmh.Main'
+    mainClass.set('org.openjdk.jmh.Main')
     args '-lprof'
 }
