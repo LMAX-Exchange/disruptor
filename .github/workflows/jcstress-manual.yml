@@ -1,9 +1,12 @@
-name: JCStress Testing - stress testing
+name: JCStress Testing - manual testing
 
 on:
-  schedule:
-    - cron: "0 0 1,15 * *"
   workflow_dispatch:
+    inputs :
+      mode :
+        description : 'JCStress run mode: sanity, quick, default, tough, stress'
+        required : true
+        default : 'default'
 
 jobs:
   build:
@@ -21,9 +24,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew jcstress -Pmode=default
+        run: ./gradlew jcstress -Pmode="${{ github.event.inputs.mode }}"
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: jcstress-report-stress
+          name: jcstress-report-manual
           path: build/reports/jcstress
