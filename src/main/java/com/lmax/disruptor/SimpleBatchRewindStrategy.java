@@ -1,5 +1,8 @@
 package com.lmax.disruptor;
 
+/**
+ * Batch rewind strategy that always rewinds
+ */
 public class SimpleBatchRewindStrategy implements BatchRewindStrategy
 {
     @Override
