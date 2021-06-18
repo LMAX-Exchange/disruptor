@@ -172,15 +172,15 @@
 
         <module name="JavadocParagraph"/>
         <module name="SingleLineJavadoc"/>
-<!--        <module name="JavadocMethod">-->
-<!--            <property name="scope" value="public"/>-->
-<!--        </module>-->
-<!--        <module name="JavadocType">-->
-<!--            <property name="scope" value="public"/>-->
-<!--        </module>-->
-<!--        <module name="JavadocVariable">-->
-<!--            <property name="scope" value="public"/>-->
-<!--        </module>-->
+        <module name="JavadocMethod">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="scope" value="public"/>
+        </module>
 
         <module name="IllegalInstantiation"/>
         <module name="MagicNumber"/>

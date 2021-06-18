@@ -10,6 +10,10 @@
     - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
     - FatalExceptionHandler and IgnoreExceptionHandler now use the JDK 9 Platform Logging API, i.e. System.Logger
 
+## 3.4.3
+
+- Add Automatic-Module-Name to MANIFEST.MF
+
 ## 3.4.2
 
 - Fix race condition in BatchEventProcessor with 3 or more starting/halting concurrently.

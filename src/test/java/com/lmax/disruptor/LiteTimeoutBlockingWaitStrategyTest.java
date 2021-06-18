@@ -5,31 +5,23 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class LiteTimeoutBlockingWaitStrategyTest
 {
     @Test
-    public void shouldTimeoutWaitFor() throws Exception
+    public void shouldTimeoutWaitFor()
     {
         final SequenceBarrier sequenceBarrier = new DummySequenceBarrier();
 
         long theTimeout = 500;
         LiteTimeoutBlockingWaitStrategy waitStrategy = new LiteTimeoutBlockingWaitStrategy(theTimeout, TimeUnit.MILLISECONDS);
         Sequence cursor = new Sequence(5);
-        Sequence dependent = cursor;
 
         long t0 = System.currentTimeMillis();
 
-        try
-        {
-            waitStrategy.waitFor(6, cursor, dependent, sequenceBarrier);
-            fail("TimeoutException should have been thrown");
-        }
-        catch (TimeoutException e)
-        {
-        }
+        assertThrows(TimeoutException.class, () -> waitStrategy.waitFor(6, cursor, cursor, sequenceBarrier));
 
         long t1 = System.currentTimeMillis();
 

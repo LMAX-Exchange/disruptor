@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class SequencerTest
@@ -245,15 +244,7 @@ public class SequencerTest
             sequencer.publish(sequencer.tryNext());
         }
 
-        try
-        {
-            sequencer.tryNext();
-            fail("Should of thrown: " + InsufficientCapacityException.class.getSimpleName());
-        }
-        catch (InsufficientCapacityException e)
-        {
-            // No-op
-        }
+        assertThrows(InsufficientCapacityException.class, sequencer::tryNext);
     }
 
     @ParameterizedTest
