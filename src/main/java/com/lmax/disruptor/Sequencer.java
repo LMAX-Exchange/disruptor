@@ -90,5 +90,13 @@ public interface Sequencer extends Cursored, Sequenced
      */
     long getHighestPublishedSequence(long nextSequence, long availableSequence);
 
+    /**
+     * Creates an event poller from this sequencer
+     *
+     * @param provider from which events are drawn
+     * @param gatingSequences sequences to be gated on
+     * @param <T> the type of the event
+     * @return the event poller
+     */
     <T> EventPoller<T> newPoller(DataProvider<T> provider, Sequence... gatingSequences);
 }
