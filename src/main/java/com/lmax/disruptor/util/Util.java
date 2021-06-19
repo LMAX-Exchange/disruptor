@@ -142,6 +142,12 @@ public final class Util
         return r;
     }
 
+    /**
+     * @param mutex The object to wait on
+     * @param timeoutNanos The number of nanoseconds to wait for
+     * @return the number of nanoseconds waited (approximately)
+     * @throws InterruptedException if the underlying call to wait is interrupted
+     */
     public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException
     {
         long millis = timeoutNanos / ONE_MILLISECOND_IN_NANOSECONDS;

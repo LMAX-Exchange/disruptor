@@ -17,6 +17,10 @@ public class TimeoutBlockingWaitStrategy implements WaitStrategy
     private final Object mutex = new Object();
     private final long timeoutInNanos;
 
+    /**
+     * @param timeout how long to wait before waking up
+     * @param units the unit in which timeout is specified
+     */
     public TimeoutBlockingWaitStrategy(final long timeout, final TimeUnit units)
     {
         timeoutInNanos = units.toNanos(timeout);

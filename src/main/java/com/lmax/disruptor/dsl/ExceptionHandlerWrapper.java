@@ -3,10 +3,18 @@ package com.lmax.disruptor.dsl;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.ExceptionHandlers;
 
+/**
+ * A mutable exception handler wrapper
+ * @param <T> The data type of the underlying {@link com.lmax.disruptor.RingBuffer}
+ */
 public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
 {
     private ExceptionHandler<? super T> delegate;
 
+    /**
+     * Switch to a different exception handler
+     * @param exceptionHandler the exception handler to use from now on
+     */
     public void switchTo(final ExceptionHandler<? super T> exceptionHandler)
     {
         this.delegate = exceptionHandler;
