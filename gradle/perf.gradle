@@ -18,21 +18,8 @@ dependencies {
 build.dependsOn perftestClasses
 
 task perfJar(type: Jar, group: 'build') {
-    archiveAppendix = 'perf'
-    from { configurations.perftestCompile.collect { it.isDirectory() ? it : zipTree(it) } }
+    archiveAppendix.set('perf')
     from sourceSets.perftest.output
     from sourceSets.test.output
     with jar
-}
-
-
-project.pluginManager.withPlugin('idea') {
-    idea.module {
-        testSourceDirs += sourceSets.perftest.allSource.srcDirs
-        scopes.TEST.plus += [configurations.perftestCompile]
-    }
-}
-
-project.pluginManager.withPlugin('eclipse') {
-    eclipse.classpath.plusConfigurations += [sourceSets.perftest.compileClasspath]
 }

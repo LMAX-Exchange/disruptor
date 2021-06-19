@@ -9,16 +9,18 @@ sourceSets {
     }
 }
 
+def jmhLibVersion = '1.32'
+
 dependencies {
-    jmhImplementation 'org.openjdk.jmh:jmh-core:1.26'
-    jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
+    jmhImplementation "org.openjdk.jmh:jmh-core:${jmhLibVersion}"
+    jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhLibVersion}"
 
     jmhImplementation 'net.openhft:affinity:3.20.0'
 }
 
 jmh {
-    jmhVersion = '1.26'
-    jvmArgsPrepend =[ '-Xms256m', '-Xmx256m', '-XX:MaxDirectMemorySize=1g' ]
+    jmhVersion = jmhLibVersion
+    jvmArgsPrepend = ['-Xms256m -Xmx256m -XX:MaxDirectMemorySize=1g']
     resultsFile = project.file("${project.buildDir}/reports/jmh/result.json")
     profilers = [ 'pauses' ]
     resultFormat = 'JSON'
@@ -29,6 +31,6 @@ jmh {
 
 task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'jmh') {
     classpath = sourceSets.jmh.runtimeClasspath
-    main = 'org.openjdk.jmh.Main'
+    mainClass.set('org.openjdk.jmh.Main')
     args '-lprof'
 }

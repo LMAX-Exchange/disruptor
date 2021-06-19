@@ -1,9 +1,6 @@
-name: JCStress Testing - stress testing
+name: JCStress Testing - commit-level quick check
 
-on:
-  schedule:
-    - cron: "0 0 1,15 * *"
-  workflow_dispatch:
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -21,9 +18,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew jcstress -Pmode=default
+        run: ./gradlew jcstress -Pmode=quick
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: jcstress-report-stress
+          name: jcstress-report-quick
           path: build/reports/jcstress

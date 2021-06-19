@@ -9,6 +9,7 @@
     - Deprecated ThreadHints.onSpinWait()
     - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
     - FatalExceptionHandler and IgnoreExceptionHandler now use the JDK 9 Platform Logging API, i.e. System.Logger
+    - Add rewind batch feature to the BatchEventProcessor
 
 ## 3.4.3
 

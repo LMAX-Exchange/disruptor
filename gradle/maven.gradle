@@ -55,5 +55,3 @@ publishing {
 signing {
     sign publishing.publications.disruptor
 }
-
-uploadArchives.dependsOn publish

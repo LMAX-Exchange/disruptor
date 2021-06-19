@@ -17,6 +17,8 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.lmax.disruptor.RewindAction.REWIND;
+
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
@@ -42,6 +44,8 @@ public final class BatchEventProcessor<T>
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
     private final BatchStartAware batchStartAware;
+    private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
+    private int retriesAttempted = 0;
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
@@ -106,6 +110,23 @@ public final class BatchEventProcessor<T>
     }
 
     /**
+     * Set a new {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}
+     * Which can include whether the batch should be rewound and reattempted,
+     * or simply thrown and move on to the next sequence
+     * the default is a {@link SimpleBatchRewindStrategy} which always rewinds
+     * @param batchRewindStrategy to replace the existing rewindStrategy.
+     */
+    public void setRewindStrategy(final BatchRewindStrategy batchRewindStrategy)
+    {
+        if (null == batchRewindStrategy)
+        {
+            throw new NullPointerException();
+        }
+
+        this.batchRewindStrategy = batchRewindStrategy;
+    }
+
+    /**
      * It is ok to have another thread rerun this method after a halt().
      *
      * @throws IllegalStateException if this object instance is already running in a thread
@@ -152,22 +173,40 @@ public final class BatchEventProcessor<T>
 
         while (true)
         {
+            final long startOfBatchSequence = nextSequence;
             try
             {
-                final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                if (batchStartAware != null && availableSequence >= nextSequence)
+                try
                 {
-                    batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
-                }
 
-                while (nextSequence <= availableSequence)
+                    final long availableSequence = sequenceBarrier.waitFor(nextSequence);
+                    if (batchStartAware != null && availableSequence >= nextSequence)
+                    {
+                        batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                    }
+
+                    while (nextSequence <= availableSequence)
+                    {
+                        event = dataProvider.get(nextSequence);
+                        eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                        nextSequence++;
+                    }
+
+                    retriesAttempted = 0;
+                    sequence.set(availableSequence);
+                }
+                catch (final RewindableException e)
                 {
-                    event = dataProvider.get(nextSequence);
-                    eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
-                    nextSequence++;
+                    if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
+                    {
+                        nextSequence = startOfBatchSequence;
+                    }
+                    else
+                    {
+                        retriesAttempted = 0;
+                        throw e;
+                    }
                 }
-
-                sequence.set(availableSequence);
             }
             catch (final TimeoutException e)
             {
@@ -180,6 +219,7 @@ public final class BatchEventProcessor<T>
                     break;
                 }
             }
+
             catch (final Throwable ex)
             {
                 handleEventException(ex, nextSequence, event);

@@ -8,7 +8,7 @@
 
 1. All tests should be completing successfully in CI and locally
 2. The changelog is updated with relevant information
-3. `build.gradle` has been updated with the version information for the proposed release, and pushed to github
+3. `build.gradle` has been updated with the version information for the proposed release, and pushed to GitHub
 4. Create a new release via GitHub UI, this should tag the commit
 
 == GPG Key
@@ -117,7 +117,7 @@ signing.secretKeyRingFile=/home/dev/.gnupg/secring.gpg
 --
 [source,shell script]
 ----
-$ ./gradlew uploadArchives
+$ ./gradlew publish
 ----
 *Note: Make sure the signing step was not skipped*
 --

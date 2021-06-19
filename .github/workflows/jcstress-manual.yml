@@ -1,6 +1,12 @@
-name: JCStress Testing - commit-level sanity check
+name: JCStress Testing - manual testing
 
-on: [ push, pull_request ]
+on:
+  workflow_dispatch:
+    inputs :
+      mode :
+        description : 'JCStress run mode: sanity, quick, default, tough, stress'
+        required : true
+        default : 'default'
 
 jobs:
   build:
@@ -18,9 +24,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew jcstress -Pmode=sanity
+        run: ./gradlew jcstress -Pmode="${{ github.event.inputs.mode }}"
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: jcstress-report-sanity
+          name: jcstress-report-manual
           path: build/reports/jcstress

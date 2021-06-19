@@ -19,9 +19,9 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-    id "com.github.erizo.gradle.jcstress" version "0.8.6"
+    id "io.github.reyerizo.gradle.jcstress" version "0.8.11"
     id 'org.asciidoctor.jvm.convert' version '3.1.0'
-    id 'me.champeau.gradle.jmh' version '0.5.3'
+    id "me.champeau.jmh" version "0.6.5"
 }
 
 group = 'com.lmax'
@@ -91,7 +91,7 @@ javadoc {
 }
 
 jar {
-    manifest.attributes('Built-By': System.properties['user.name'],
+    manifest.attributes('Built-By': System.properties.get('user.name'),
             'Bundle-Name': fullName,
             'Bundle-Vendor': teamName,
             'Bundle-Description': fullDescription,
@@ -100,7 +100,7 @@ jar {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
+    maxParallelForks = (int) Math.max(Math.floor(Runtime.runtime.availableProcessors() / 2), 1)
 }
 
 task setUpGitHooks(type: Exec, description: 'Add a pre-commit git hook that runs gradle check & test tasks') {
