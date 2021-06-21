@@ -15,6 +15,10 @@ public class LiteTimeoutBlockingWaitStrategy implements WaitStrategy
     private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
     private final long timeoutInNanos;
 
+    /**
+     * @param timeout how long to wait before timing out
+     * @param units the unit in which timeout is specified
+     */
     public LiteTimeoutBlockingWaitStrategy(final long timeout, final TimeUnit units)
     {
         timeoutInNanos = units.toNanos(timeout);

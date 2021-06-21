@@ -1,5 +1,9 @@
 package com.lmax.disruptor;
 
+/**
+ * Write interface for {@link RingBuffer}.
+ * @param <E> The event type
+ */
 public interface EventSink<E>
 {
     /**

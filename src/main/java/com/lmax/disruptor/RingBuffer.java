@@ -115,6 +115,9 @@ abstract class RingBufferFields<E> extends RingBufferPad
  */
 public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored, EventSequencer<E>, EventSink<E>
 {
+    /**
+     * The initial cursor value
+     */
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
     protected byte
         p10, p11, p12, p13, p14, p15, p16, p17,

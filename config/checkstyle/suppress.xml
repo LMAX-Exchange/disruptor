@@ -14,31 +14,10 @@
     <suppress checks="MissingSwitchDefault"
               files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
 
-    <suppress checks="JavadocMethod" files="BatchStartAware.java" lines="8"/>
-    <suppress checks="JavadocType" files="DataProvider.java" lines="18"/>
-    <suppress checks="JavadocMethod" files="DataProvider.java" lines="20"/>
     <suppress checks="JavadocType" files="EventPoller.java" lines="15"/>
     <suppress checks="JavadocMethod" files="EventPoller.java" lines="17"/>
     <suppress checks="JavadocType" files="EventPoller.java" lines="20"/>
     <suppress checks="JavadocVariable" files="EventPoller.java" lines="22"/>
     <suppress checks="JavadocMethod" files="EventPoller.java" lines="25,37,77,101"/>
-    <suppress checks="JavadocMethod" files="EventProcessor.java" lines="41"/>
-    <suppress checks="JavadocType" files="EventSequencer.java" lines="3"/>
-    <suppress checks="JavadocType" files="EventSink.java" lines="3"/>
-    <suppress checks="JavadocVariable" files="InsufficientCapacityException.java" lines="28"/>
-    <suppress checks="JavadocMethod" files="LiteTimeoutBlockingWaitStrategy.java" lines="18"/>
-    <suppress checks="JavadocMethod" files="PhasedBackoffWaitStrategy.java" lines="33"/>
-    <suppress checks="JavadocVariable" files="RingBuffer.java" lines="118"/>
-    <suppress checks="JavadocType" files="Sequenced.java" lines="3"/>
     <suppress checks="JavadocMethod" files="Sequencer.java" lines="93"/>
-    <suppress checks="JavadocMethod" files="SleepingWaitStrategy.java" lines="40,45,50"/>
-    <suppress checks="JavadocMethod" files="TimeoutBlockingWaitStrategy.java" lines="20"/>
-    <suppress checks="JavadocType" files="TimeoutException.java" lines="3"/>
-    <suppress checks="JavadocVariable" files="TimeoutException.java" lines="6"/>
-    <suppress checks="JavadocType" files="TimeoutHandler.java" lines="3"/>
-    <suppress checks="JavadocMethod" files="TimeoutHandler.java" lines="5"/>
-    <suppress checks="JavadocType" files="ExceptionHandlerWrapper.java" lines="6"/>
-    <suppress checks="JavadocMethod" files="ExceptionHandlerWrapper.java" lines="10"/>
-    <suppress checks="JavadocVariable" files="DaemonThreadFactory.java" lines="25"/>
-    <suppress checks="JavadocMethod" files="Util.java" lines="145"/>
 </suppressions>

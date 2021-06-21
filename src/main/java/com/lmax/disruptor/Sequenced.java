@@ -1,5 +1,9 @@
 package com.lmax.disruptor;
 
+/**
+ * Operations related to the sequencing of items in a {@link RingBuffer}.
+ * See the two child interfaces, {@link Sequencer} and {@link EventSequencer} for more details.
+ */
 public interface Sequenced
 {
     /**

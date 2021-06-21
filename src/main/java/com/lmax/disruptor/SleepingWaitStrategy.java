@@ -37,16 +37,26 @@ public final class SleepingWaitStrategy implements WaitStrategy
     private final int retries;
     private final long sleepTimeNs;
 
+    /**
+     * Provides a sleeping wait strategy with the default retry and sleep settings
+     */
     public SleepingWaitStrategy()
     {
         this(DEFAULT_RETRIES, DEFAULT_SLEEP);
     }
 
+    /**
+     * @param retries How many times the strategy should retry before sleeping
+     */
     public SleepingWaitStrategy(final int retries)
     {
         this(retries, DEFAULT_SLEEP);
     }
 
+    /**
+     * @param retries How many times the strategy should retry before sleeping
+     * @param sleepTimeNs How long the strategy should sleep, in nanoseconds
+     */
     public SleepingWaitStrategy(final int retries, final long sleepTimeNs)
     {
         this.retries = retries;

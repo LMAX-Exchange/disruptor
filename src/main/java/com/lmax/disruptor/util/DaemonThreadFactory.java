@@ -22,6 +22,9 @@ import java.util.concurrent.ThreadFactory;
  */
 public enum DaemonThreadFactory implements ThreadFactory
 {
+    /**
+     * The singleton instance
+     */
     INSTANCE;
 
     @Override
