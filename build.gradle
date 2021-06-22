@@ -33,7 +33,7 @@ ext {
     fullName = 'Disruptor Framework'
     fullDescription = 'Disruptor - Concurrent Programming Framework'
     teamName = 'LMAX Disruptor Development Team'
-    siteUrl = 'http://lmax-exchange.github.com/disruptor'
+    siteUrl = 'https://lmax-exchange.github.io/disruptor'
     sourceUrl = 'git@github.com:LMAX-Exchange/disruptor.git'
     moduleName = 'com.lmax.disruptor'
 }
