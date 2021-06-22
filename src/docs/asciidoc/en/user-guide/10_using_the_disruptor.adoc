@@ -100,7 +100,7 @@ Many low-latency systems will use a busy-wait to avoid the jitter that can be in
 == Getting Started
 
 === Getting the Disruptor
-The Disruptor jar file is available from http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.lmax%22%20AND%20a%3A%22disruptor%22[Maven Central] and can be integrated into your dependency manager of choice from there.
+The Disruptor jar file is available from https://search.maven.org/artifact/com.lmax/disruptor[Maven Central] and can be integrated into your dependency manager of choice from there.
 
 === Basic Produce and Consume
 To get started with the Disruptor we are going to consider very simple and contrived example, one that will pass a single long value from a producer to a consumer, where the consumer will simply print out the value.
@@ -395,7 +395,7 @@ However, if you able to make certain assumptions about the hardware and software
 There are 2 main options for tuning, single vs. multiple producers and alternative wait strategies.
 
 ==== Single vs. Multiple Producers
-One of the best ways to improve performance in concurrent systems is to adhere to the http://mechanical-sympathy.blogspot.co.nz/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
+One of the best ways to improve performance in concurrent systems is to adhere to the https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
 If you are in the situation where there will only ever be a single thread producing events into the Disruptor, then you can take advantage of this to gain additional performance.
 
 [source,java]
@@ -449,7 +449,7 @@ However, again knowledge of the deployed system can allow for additional perform
 
 - **SleepingWaitStrategy** ->
 --
-Like the `BlockingWaitStrategy` the `SleepingWaitStrategy` it attempts to be conservative with CPU usage, by using a simple busy wait loop, but uses a call to link:http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
+Like the `BlockingWaitStrategy` the `SleepingWaitStrategy` it attempts to be conservative with CPU usage, by using a simple busy wait loop, but uses a call to link:https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
 On a typical Linux system this will pause the thread for around 60µs.
 However it has the benefit that the producing thread does not need to take any action other increment the appropriate counter and does not require the cost of signalling a condition variable.
 However, the mean latency of moving the event between the producer and consumer threads will be higher.
