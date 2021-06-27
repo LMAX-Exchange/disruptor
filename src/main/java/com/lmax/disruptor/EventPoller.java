@@ -37,7 +37,6 @@ public class EventPoller<T>
 
     /**
      * Indicates the result of a call to {@link #poll(Handler)}
-     *
      */
     public enum PollState
     {
@@ -47,12 +46,10 @@ public class EventPoller<T>
         PROCESSING,
         /**
          * The poller is waiting for gated sequences to advance before events become available
-         *
          */
         GATING,
         /**
          * No events need to be processed
-         *
          */
         IDLE
     }
