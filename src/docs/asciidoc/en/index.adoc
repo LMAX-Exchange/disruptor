@@ -5,6 +5,11 @@ High Performance Inter-Thread Messaging Library
 :Email:
 :Date: {docdata}
 
+// If you're changing these, also check out asciidoctor.gradle!
+:xrefstyle: short
+:icons: font
+:gradle-rootdir: ../../../../
+
 == Read This First
 
 To understand the problem the Disruptor is trying to solve, and to get a feel for why this concurrency framework is so fast, read the <<disruptor.adoc#,Technical Paper>>.

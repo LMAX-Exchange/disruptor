@@ -14,6 +14,9 @@
     <suppress checks="MissingSwitchDefault"
               files="(examples|jcstress|perf|jmh|test)[\\/].*"/>
 
+    <suppress checks="FinalParameters"
+              files="(examples)[\\/].*"/>
+
     <suppress checks="JavadocType" files="EventPoller.java" lines="15"/>
     <suppress checks="JavadocMethod" files="EventPoller.java" lines="17"/>
     <suppress checks="JavadocType" files="EventPoller.java" lines="20"/>

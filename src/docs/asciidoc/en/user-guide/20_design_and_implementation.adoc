@@ -4,5 +4,9 @@
 :Email:
 :Date: {docdata}
 
+// If you're changing these, also check out asciidoctor.gradle!
+:xrefstyle: short
+:icons: font
+
 - Single Producer Algorithm
 - Multiple Producer Algorithm

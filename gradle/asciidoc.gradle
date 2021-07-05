@@ -2,6 +2,14 @@
 // Configure ASCIIDoc publishing
 //
 
+dependencies {
+    asciidoctorGems 'rubygems:pygments.rb:2.+'
+}
+
+asciidoctorj {
+    requires("pygments")
+}
+
 asciidoctor {
     languages 'en'
     resources {
@@ -15,9 +23,18 @@ asciidoctor {
             into './files'
         }
     }
-    attributes 'source-highlighter': 'coderay',
+
+    // The attributes set here appear to _completely_ override whatever is set in
+    // the documents themselves - so to some degree it's pointless setting anything
+    // at a document level. That said, IntelliJ IDEA doesn't know this, so it's
+    // still kind of nice to have them at a document level so it doesn't complain!
+    attributes 'source-highlighter': 'pygments',
             'toc': 'left',
+            'icons': 'font',
             'xrefstyle': 'short'
     copyResourcesOnlyIf 'html5'
     baseDirFollowsSourceFile()
+
+    asciidoctorj.version = '2.4.3'
+    dependsOn asciidoctorGemsPrepare
 }
