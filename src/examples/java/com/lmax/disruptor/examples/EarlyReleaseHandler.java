@@ -4,6 +4,8 @@ import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceReportingEventHandler;
 import com.lmax.disruptor.examples.support.LongEvent;
 
+@SuppressWarnings("unused")
+// tag::example[]
 public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEvent>
 {
     private Sequence sequenceCallback;
@@ -44,3 +46,4 @@ public class EarlyReleaseHandler implements SequenceReportingEventHandler<LongEv
         // Do processing
     }
 }
+// end::example[]

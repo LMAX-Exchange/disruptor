@@ -9,6 +9,11 @@ v1.0, May 2011
 :date: 2011-05
 :revnumber: 1.0
 
+// If you're changing these, also check out asciidoctor.gradle!
+:xrefstyle: short
+:icons: font
+:gradle-rootdir: ../../../../
+
 http://code.google.com/p/disruptor/
 
 .Abstract

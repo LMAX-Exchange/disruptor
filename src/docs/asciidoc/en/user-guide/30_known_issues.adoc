@@ -4,4 +4,8 @@
 :Email:
 :Date: {docdata}
 
+// If you're changing these, also check out asciidoctor.gradle!
+:xrefstyle: short
+:icons: font
+
 - On 32 bit Linux systems it appears that `LockSupport.parkNanos()` is quite expensive, therefore using the `SleepingWaitStrategy` is not recommended.
