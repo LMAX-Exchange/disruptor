@@ -96,10 +96,16 @@ javadoc {
 jar {
     manifest.attributes('Built-By': System.properties.get('user.name'),
             'Automatic-Module-Name': moduleName)
-    bnd ('Bundle-Name': fullName,
-        'Bundle-Vendor': teamName,
-        'Bundle-Description': fullDescription,
-        'Bundle-DocURL': siteUrl)
+    bnd(
+            '-exportcontents': 'com.lmax.disruptor.*;-noimport:=true',
+            '-noimportjava': 'true',
+            'Import-Package': '!*',
+            'Bundle-Name': fullName,
+            'Bundle-Vendor': teamName,
+            'Bundle-Description': fullDescription,
+            'Bundle-DocURL': siteUrl,
+            'Bundle-SymbolicName': moduleName,
+    )
 }
 
 tasks.withType(Test) {

@@ -4,7 +4,6 @@
 
  - Breaking Changes
     - Minimum Java version now 11
-    - Removed OSGI bundle fields from `MANIFEST.MF`
     - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
     - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
  - Deprecated ThreadHints.onSpinWait()
