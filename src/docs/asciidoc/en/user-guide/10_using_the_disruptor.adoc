@@ -144,7 +144,7 @@ Many low-latency systems will use a busy-wait to avoid the jitter that can be in
 
 === Getting the Disruptor
 
-The Disruptor jar file is available from http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.lmax%22%20AND%20a%3A%22disruptor%22[Maven Central] and can be integrated into your dependency manager of choice from there.
+The Disruptor jar file is available from https://search.maven.org/artifact/com.lmax/disruptor[Maven Central] and can be integrated into your dependency manager of choice from there.
 
 === Basic Produce and Consume
 
@@ -326,7 +326,7 @@ public class LongEventMain
 [#_single_vs_multiple_producers]
 ==== Single vs. Multiple Producers
 
-One of the best ways to improve performance in concurrent systems is to adhere to the http://mechanical-sympathy.blogspot.co.nz/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
+One of the best ways to improve performance in concurrent systems is to adhere to the https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html[Single Writer Principle], this applies to the Disruptor.
 If you are in the situation where there will only ever be a single thread producing events into the Disruptor, then you can take advantage of this to gain additional performance.
 
 To give an indication of how much of a performance advantage can be achieved through this technique we can change the producer type in the OneToOne performance test.
@@ -369,7 +369,7 @@ Knowledge of the deployed system can allow for additional performance by choosin
 
 --
 Like the `BlockingWaitStrategy` the `SleepingWaitStrategy` it attempts to be conservative with CPU usage by using a simple busy wait loop.
-The difference is that the `SleepingWaitStrategy` uses a call to link:http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
+The difference is that the `SleepingWaitStrategy` uses a call to link:https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/locks/LockSupport.html#parkNanos(long)[`LockSupport.parkNanos(1)`^] in the middle of the loop.
 On a typical Linux system this will pause the thread for around 60µs.
 
 This has the benefits that the producing thread does not need to take any action other increment the appropriate counter and that it does not require the cost of signalling a condition variable.

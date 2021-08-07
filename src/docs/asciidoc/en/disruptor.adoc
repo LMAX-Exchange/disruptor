@@ -52,7 +52,7 @@ This is very close to the theoretical limit of a modern processor to exchange da
 
 == Overview
 The Disruptor is the result of our efforts to build the world’s highest performance financial exchange at LMAX.
-Early designs focused on architectures derived from SEDA footnote:SEDA[Staged Event Driven Architecture – http://www.eecs.harvard.edu/~mdw/proj/seda/] and Actors footnote:actors[Actor model – http://dspace.mit.edu/handle/1721.1/6952] using pipelines for throughput.
+Early designs focused on architectures derived from SEDA footnote:SEDA[Staged Event-Driven Architecture – https://en.wikipedia.org/wiki/Staged_event-driven_architecture] and Actors footnote:actors[Actor model – http://dspace.mit.edu/handle/1721.1/6952] using pipelines for throughput.
 After profiling various implementations it became evident that the queuing of events between stages in the pipeline was dominating the costs.
 We found that queues also introduced latency and high levels of jitter.
 We expended significant effort on developing new queue implementations with better performance.
@@ -165,7 +165,7 @@ A full memory barrier orders both loads and stores but only on the CPU that exec
 
 Some CPUs have more variants in addition to these three primitives but these three are sufficient to understand the complexities of what is involved.
 In the Java memory model the read and write of a volatile field implements the read and write barriers respectively.
-This was made explicit in the Java Memory Model footnote:jmm[Java Memory Model - http://www.ibm.com/developerworks/library/j-jtp02244/index.html] as defined with the release of Java 5.
+This was made explicit in the Java Memory Model footnote:jmm[Java Memory Model - https://jcp.org/en/jsr/detail?id=133] as defined with the release of Java 5.
 
 === Cache Lines
 The way in which caching is used in modern processors is of immense importance to successful high performance operation.
@@ -221,7 +221,7 @@ It would be ideal if the graph of dependencies could be expressed without incurr
 While trying to address the problems described above, a design emerged through a rigorous separation of the concerns that we saw as being conflated in queues.
 This approach was combined with a focus on ensuring that any data should be owned by only one thread for write access, therefore eliminating write contention.
 That design became known as the "`Disruptor`".
-It was so named because it had elements of similarity for dealing with graphs of dependencies to the concept of "`Phasers`" footnote:phasers[Phasers - http://gee.cs.oswego.edu/dl/jsr166/dist/jsr166ydocs/jsr166y/Phaser.html] in Java 7, introduced to support Fork-Join.
+It was so named because it had elements of similarity for dealing with graphs of dependencies to the concept of "`Phasers`" footnote:phasers[Phasers - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/Phaser.html] in Java 7, introduced to support Fork-Join.
 
 The LMAX disruptor is designed to address all of the issues outlined above in an attempt to maximize the efficiency of memory allocation, and operate in a cache-friendly manner so that it will perform optimally on modern hardware.
 
@@ -235,7 +235,7 @@ The limitations of the Java language mean that entries are associated with the r
 Each of these entries is typically not the data being passed itself, but a container for it.
 This pre-allocation of entries eliminates issues in languages that support garbage collection, since the entries will be re-used and live for the duration of the Disruptor instance.
 The memory for these entries is allocated at the same time and it is highly likely that it will be laid out contiguously in main memory and so support cache striding.
-There is a proposal by John Rose to introduce "`value types`" footnote:valuetypes[Value Types - http://blogs.oracle.com/jrose/entry/tuples_in_the_vm] to the Java language which would allow arrays of tuples, like other languages such as C, and so ensure that memory would be allocated contiguously and avoid the pointer indirection.
+There is a proposal by John Rose to introduce "`value types`" footnote:valuetypes[Value Types - https://blogs.oracle.com/jrose/tuples-in-the-vm] to the Java language which would allow arrays of tuples, like other languages such as C, and so ensure that memory would be allocated contiguously and avoid the pointer indirection.
 
 Garbage collection can be problematic when developing low-latency systems in a managed runtime environment like Java.
 The more memory that is allocated the greater the burden this puts on the garbage collector.
@@ -324,7 +324,7 @@ When consumers are waiting on an advancing cursor sequence in the ring buffer an
 If the consumer finds the ring buffer cursor has advanced a number of steps since it last checked it can process up to that sequence without getting involved in the concurrency mechanisms.
 This results in the lagging consumer quickly regaining pace with the producers when the producers burst ahead thus balancing the system.
 This type of batching increases throughput while reducing and smoothing latency at the same time.
-Based on our observations, this effect results in a close to constant time for latency regardless of load, up until the memory sub-system is saturated, and then the profile is linear following Little’s Law footnote:littleslaw[Little’s Law - http://en.wikipedia.org/wiki/Little%27s_law].
+Based on our observations, this effect results in a close to constant time for latency regardless of load, up until the memory sub-system is saturated, and then the profile is linear following Little’s Law footnote:littleslaw[Little’s Law - https://en.wikipedia.org/wiki/Little%27s_law].
 This is very different to the "`J`" curve effect on latency we have observed with queues as load increases.
 
 === Dependency Graphs
@@ -402,7 +402,7 @@ producerBarrier.commit(entry);
 ----
 
 == Throughput Performance Testing
-As a reference we choose Doug Lea’s excellent ``java.util.concurrent.ArrayBlockingQueue``footnote:arrayblockingqueue[ArrayBlockingQueue - http://download.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ArrayBlockingQueue.html] which has the highest performance of any bounded queue based on our testing.
+As a reference we choose Doug Lea’s excellent ``java.util.concurrent.ArrayBlockingQueue``footnote:arrayblockingqueue[ArrayBlockingQueue - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ArrayBlockingQueue.html] which has the highest performance of any bounded queue based on our testing.
 The tests are conducted in a blocking programming style to match that of the Disruptor.
 The tests cases detailed below are available in the Disruptor open source project.
 
