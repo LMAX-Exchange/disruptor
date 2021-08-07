@@ -83,7 +83,7 @@ See: https://docs.gradle.org/current/userguide/signing_plugin.html
 You need to publish your public key so that sonatype can verify who signed the release artifacts.
 
 ----
-gpg --keyserver http://keys.gnupg.net/ --send-keys 9F712BEC
+gpg --keyserver https://keyserver.ubuntu.com/ --send-keys 9F712BEC
 ----
 
 Note: Other `keyservers` are available
