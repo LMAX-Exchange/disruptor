@@ -53,9 +53,10 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
+        Arrays.fill(availableBuffer, -1);
+
         indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
-        initialiseAvailableBuffer();
     }
 
     /**
@@ -182,16 +183,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
         long consumed = Util.getMinimumSequence(gatingSequences, cursor.get());
         long produced = cursor.get();
         return getBufferSize() - (produced - consumed);
-    }
-
-    private void initialiseAvailableBuffer()
-    {
-        for (int i = availableBuffer.length - 1; i != 0; i--)
-        {
-            setAvailableBufferValue(i, -1);
-        }
-
-        setAvailableBufferValue(0, -1);
     }
 
     /**
