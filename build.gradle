@@ -56,7 +56,7 @@ sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.45'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
