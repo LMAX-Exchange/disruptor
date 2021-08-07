@@ -12,7 +12,7 @@ compilePerftestJava {
 }
 
 dependencies {
-    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.10'
+    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.12'
 }
 
 build.dependsOn perftestClasses
