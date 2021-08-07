@@ -14,7 +14,7 @@ v1.0, May 2011
 :icons: font
 :gradle-rootdir: ../../../../
 
-http://code.google.com/p/disruptor/
+https://github.com/LMAX-Exchange/disruptor
 
 .Abstract
 [Abstract]
