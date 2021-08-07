@@ -21,7 +21,7 @@ dependencies {
 jmh {
     jmhVersion = jmhLibVersion
     jvmArgsPrepend = ['-Xms256m -Xmx256m -XX:MaxDirectMemorySize=1g']
-    resultsFile = project.file("${project.buildDir}/reports/jmh/result.json")
+    resultsFile.set(project.file("${project.buildDir}/reports/jmh/result.json"))
     profilers = [ 'pauses' ]
     resultFormat = 'JSON'
     failOnError = true
