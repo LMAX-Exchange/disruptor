@@ -3,12 +3,10 @@
 //
 
 sourceSets {
-    perftest.java.srcDir file('src/perftest/java')
-}
-
-compilePerftestJava {
-    classpath += sourceSets.main.runtimeClasspath
-    classpath += sourceSets.test.runtimeClasspath
+    perftest {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
 }
 
 dependencies {
