@@ -20,7 +20,7 @@ import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.util.Util;
+import com.lmax.disruptor.util.UnsafeAccess;
 import sun.misc.Unsafe;
 
 abstract class RingBufferPadUnsafe
@@ -40,7 +40,7 @@ abstract class RingBufferFieldsUnsafe<E> extends RingBufferPadUnsafe
     private static final int BUFFER_PAD;
     private static final long REF_ARRAY_BASE;
     private static final int REF_ELEMENT_SHIFT;
-    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final Unsafe UNSAFE = UnsafeAccess.getUnsafe();
 
     private static final int POINTER_SIZE_32_BIT = 4;
     private static final int BITSHIFT_MULTIPLIER_FOUR = 2;

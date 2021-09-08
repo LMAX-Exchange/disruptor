@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.alternatives;
 
-import com.lmax.disruptor.util.Util;
+import com.lmax.disruptor.util.UnsafeAccess;
 import sun.misc.Unsafe;
 
 // https://github.com/LMAX-Exchange/disruptor/issues/231
@@ -55,7 +55,7 @@ public class SequenceDoublePadded extends RhsPaddingDouble
 
     static
     {
-        UNSAFE = Util.getUnsafe();
+        UNSAFE = UnsafeAccess.getUnsafe();
         try
         {
             VALUE_OFFSET = UNSAFE.objectFieldOffset(ValueDoublePadded.class.getDeclaredField("value"));

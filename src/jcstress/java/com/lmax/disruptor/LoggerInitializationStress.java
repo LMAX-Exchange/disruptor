@@ -2,7 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import com.lmax.disruptor.util.Util;
+import com.lmax.disruptor.util.UnsafeAccess;
 import org.openjdk.jcstress.annotations.Actor;
 import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Mode;
@@ -56,7 +56,7 @@ public class LoggerInitializationStress
         // results in initialization which modifies static state and prevents
         // subsequent runs from executing successfully.
         Field managerField = LogManager.class.getDeclaredField("manager");
-        Unsafe unsafe = Util.getUnsafe();
+        Unsafe unsafe = UnsafeAccess.getUnsafe();
         Object managerBase = unsafe.staticFieldBase(managerField);
         long managerOffset = unsafe.staticFieldOffset(managerField);
         Object logManager = unsafe.getObject(managerBase, managerOffset);

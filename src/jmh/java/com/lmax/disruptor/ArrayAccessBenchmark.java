@@ -1,7 +1,7 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.SimpleEvent;
-import com.lmax.disruptor.util.Util;
+import com.lmax.disruptor.util.UnsafeAccess;
 import net.openhft.affinity.AffinityLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -96,7 +96,7 @@ public class ArrayAccessBenchmark
     private final Object[] entries = new Object[EVENT_COUNT];
     public int sequence;
 
-    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final Unsafe UNSAFE = UnsafeAccess.getUnsafe();
     private final int scale = UNSAFE.arrayIndexScale(Object[].class);
     private final int offset = UNSAFE.arrayBaseOffset(Object[].class);
 

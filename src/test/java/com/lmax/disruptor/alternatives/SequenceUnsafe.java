@@ -1,6 +1,6 @@
 package com.lmax.disruptor.alternatives;
 
-import com.lmax.disruptor.util.Util;
+import com.lmax.disruptor.util.UnsafeAccess;
 import sun.misc.Unsafe;
 
 class LhsPaddingUnsafe
@@ -48,7 +48,7 @@ public class SequenceUnsafe extends RhsPaddingUnsafe
 
     static
     {
-        UNSAFE = Util.getUnsafe();
+        UNSAFE = UnsafeAccess.getUnsafe();
         try
         {
             VALUE_OFFSET = UNSAFE.objectFieldOffset(ValueUnsafe.class.getDeclaredField("value"));
