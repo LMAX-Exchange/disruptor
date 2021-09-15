@@ -20,6 +20,7 @@ import com.lmax.disruptor.InsufficientCapacityException;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.util.UnsafeAccess;
 import com.lmax.disruptor.util.Util;
 import sun.misc.Unsafe;
 
@@ -36,7 +37,7 @@ import java.util.concurrent.locks.LockSupport;
  */
 public final class MultiProducerSequencerUnsafe extends AbstractSequencer
 {
-    private static final Unsafe UNSAFE = Util.getUnsafe();
+    private static final Unsafe UNSAFE = UnsafeAccess.getUnsafe();
     private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
 
