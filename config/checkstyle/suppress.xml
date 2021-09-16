@@ -16,11 +16,4 @@
 
     <suppress checks="FinalParameters"
               files="(examples)[\\/].*"/>
-
-    <suppress checks="JavadocType" files="EventPoller.java" lines="15"/>
-    <suppress checks="JavadocMethod" files="EventPoller.java" lines="17"/>
-    <suppress checks="JavadocType" files="EventPoller.java" lines="20"/>
-    <suppress checks="JavadocVariable" files="EventPoller.java" lines="22"/>
-    <suppress checks="JavadocMethod" files="EventPoller.java" lines="25,37,77,101"/>
-    <suppress checks="JavadocMethod" files="Sequencer.java" lines="93"/>
 </suppressions>
