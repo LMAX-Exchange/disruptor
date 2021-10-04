@@ -14,9 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: Set up java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'zulu'
       - name: Build ASCIIDoc with Gradle
         run: ./gradlew clean asciidoctor
       - name: Simple deploy with git
