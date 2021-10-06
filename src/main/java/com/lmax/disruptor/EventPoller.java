@@ -109,7 +109,7 @@ public class EventPoller<T>
                     nextSequence++;
 
                 }
-                while (nextSequence <= availableSequence & processNextEvent);
+                while (nextSequence <= availableSequence && processNextEvent);
             }
             finally
             {
