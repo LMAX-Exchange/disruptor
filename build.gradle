@@ -46,7 +46,7 @@ apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
 apply from: 'gradle/jcstress.gradle'
 
-wrapper.gradleVersion = '7.1'
+wrapper.gradleVersion = '7.2'
 
 repositories {
     mavenCentral()
