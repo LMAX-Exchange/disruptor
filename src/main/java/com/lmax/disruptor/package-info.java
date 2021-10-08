@@ -9,7 +9,7 @@
  *
  * <p>Almost any graph or pipeline structure can be composed via one or more Disruptor patterns.
  *
- * <h3>UniCast a series of items between 1 publisher and 1 EventProcessor.</h3>
+ * <h2>UniCast a series of items between 1 publisher and 1 EventProcessor.</h2>
  *
  * <pre>{@code
  *                                           track to prevent wrap
@@ -25,7 +25,7 @@
  *                                                       waitFor
  * }</pre>
  *
- * <h3>Sequence a series of messages from multiple publishers</h3>
+ * <h2>Sequence a series of messages from multiple publishers</h2>
  * <pre>{@code
  *                                          track to prevent wrap
  *                                          +--------------------+
@@ -44,7 +44,7 @@
  * +----+                       +----+
  * }</pre>
  *
- * <h3>Pipeline a series of messages</h3>
+ * <h2>Pipeline a series of messages</h2>
  * <pre>{@code
  *                           +----+    +-----+    +-----+    +-----+
  *                           | P1 |--->| EP1 |--->| EP2 |--->| EP3 |
@@ -64,7 +64,7 @@
  *              +---------+---------------------+---------------------+
  * }</pre>
  *
- * <h3>Multicast a series of messages to multiple EventProcessors</h3>
+ * <h2>Multicast a series of messages to multiple EventProcessors</h2>
  * <pre>{@code
  *           +-----+                                        track to prevent wrap
  *    +----->| EP1 |                        +--------------------+----------+----------+
@@ -79,7 +79,7 @@
  *           +-----+                                                 waitFor
  * }</pre>
  *
- * <h3>Replicate a message then fold back the results</h3>
+ * <h2>Replicate a message then fold back the results</h2>
  * <pre>{@code
  *           +-----+                               track to prevent wrap
  *    +----->| EP1 |-----+                   +-------------------------------+
