@@ -44,7 +44,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.lang.Thread.yield;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -665,7 +664,7 @@ public class DisruptorTest
         while (stubPublisher.getPublicationCount() < expectedPublicationCount && System
             .currentTimeMillis() - loopStart < 5000)
         {
-            yield();
+            Thread.yield();
         }
 
         if (strict)
@@ -712,7 +711,7 @@ public class DisruptorTest
     {
         while (reference.get() == null)
         {
-            yield();
+            Thread.yield();
         }
 
         return reference.get();
