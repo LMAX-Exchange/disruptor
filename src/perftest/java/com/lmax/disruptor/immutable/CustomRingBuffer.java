@@ -11,12 +11,10 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
     private static final class AccessorEventHandler<T> implements EventHandler<EventAccessor<T>>, LifecycleAware
     {
         private final EventHandler<T> handler;
-        private final LifecycleAware lifecycle;
 
         private AccessorEventHandler(final EventHandler<T> handler)
         {
             this.handler = handler;
-            lifecycle = handler instanceof LifecycleAware ? (LifecycleAware) handler : null;
         }
 
         @Override
@@ -28,19 +26,13 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
         @Override
         public void onShutdown()
         {
-            if (null != lifecycle)
-            {
-                lifecycle.onShutdown();
-            }
+            handler.onShutdown();
         }
 
         @Override
         public void onStart()
         {
-            if (null != lifecycle)
-            {
-                lifecycle.onStart();
-            }
+            handler.onStart();
         }
     }
 

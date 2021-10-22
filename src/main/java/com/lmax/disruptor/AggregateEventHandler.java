@@ -51,10 +51,7 @@ public final class AggregateEventHandler<T>
     {
         for (final EventHandler<T> eventHandler : eventHandlers)
         {
-            if (eventHandler instanceof LifecycleAware)
-            {
-                ((LifecycleAware) eventHandler).onStart();
-            }
+            eventHandler.onStart();
         }
     }
 
@@ -63,10 +60,7 @@ public final class AggregateEventHandler<T>
     {
         for (final EventHandler<T> eventHandler : eventHandlers)
         {
-            if (eventHandler instanceof LifecycleAware)
-            {
-                ((LifecycleAware) eventHandler).onShutdown();
-            }
+            eventHandler.onShutdown();
         }
     }
 }

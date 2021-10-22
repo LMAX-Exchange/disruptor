@@ -42,8 +42,6 @@ public final class BatchEventProcessor<T>
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<? super T> eventHandler;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private final TimeoutHandler timeoutHandler;
-    private final BatchStartAware batchStartAware;
     private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
     private int retriesAttempted = 0;
 
@@ -64,15 +62,7 @@ public final class BatchEventProcessor<T>
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
 
-        if (eventHandler instanceof SequenceReportingEventHandler)
-        {
-            ((SequenceReportingEventHandler<?>) eventHandler).setSequenceCallback(sequence);
-        }
-
-        batchStartAware =
-            (eventHandler instanceof BatchStartAware) ? (BatchStartAware) eventHandler : null;
-        timeoutHandler =
-            (eventHandler instanceof TimeoutHandler) ? (TimeoutHandler) eventHandler : null;
+        eventHandler.setSequenceCallback(sequence);
     }
 
     @Override
@@ -180,9 +170,9 @@ public final class BatchEventProcessor<T>
                 {
 
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                    if (batchStartAware != null && availableSequence >= nextSequence)
+                    if (availableSequence >= nextSequence)
                     {
-                        batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
+                        eventHandler.onBatchStart(availableSequence - nextSequence + 1);
                     }
 
                     while (nextSequence <= availableSequence)
@@ -239,10 +229,7 @@ public final class BatchEventProcessor<T>
     {
         try
         {
-            if (timeoutHandler != null)
-            {
-                timeoutHandler.onTimeout(availableSequence);
-            }
+            eventHandler.onTimeout(availableSequence);
         }
         catch (Throwable e)
         {
@@ -255,16 +242,13 @@ public final class BatchEventProcessor<T>
      */
     private void notifyStart()
     {
-        if (eventHandler instanceof LifecycleAware)
+        try
         {
-            try
-            {
-                ((LifecycleAware) eventHandler).onStart();
-            }
-            catch (final Throwable ex)
-            {
-                handleOnStartException(ex);
-            }
+            eventHandler.onStart();
+        }
+        catch (final Throwable ex)
+        {
+            handleOnStartException(ex);
         }
     }
 
@@ -273,16 +257,13 @@ public final class BatchEventProcessor<T>
      */
     private void notifyShutdown()
     {
-        if (eventHandler instanceof LifecycleAware)
+        try
         {
-            try
-            {
-                ((LifecycleAware) eventHandler).onShutdown();
-            }
-            catch (final Throwable ex)
-            {
-                handleOnShutdownException(ex);
-            }
+            eventHandler.onShutdown();
+        }
+        catch (final Throwable ex)
+        {
+            handleOnShutdownException(ex);
         }
     }
 

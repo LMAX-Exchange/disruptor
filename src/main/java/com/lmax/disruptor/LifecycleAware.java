@@ -24,7 +24,9 @@ public interface LifecycleAware
     /**
      * Called once on thread start before first event is available.
      */
-    void onStart();
+    default void onStart()
+    {
+    }
 
     /**
      * Called once just before the thread is shutdown.
@@ -32,5 +34,7 @@ public interface LifecycleAware
      * <p>Sequence event processing will already have stopped before this method is called. No events will
      * be processed after this message.
      */
-    void onShutdown();
+    default void onShutdown()
+    {
+    }
 }

@@ -13,5 +13,7 @@ public interface TimeoutHandler
      * @param sequence - the last processed sequence.
      * @throws Exception if the implementation is unable to handle this timeout.
      */
-    void onTimeout(long sequence) throws Exception;
+    default void onTimeout(long sequence) throws Exception
+    {
+    }
 }
