@@ -10,7 +10,7 @@ sourceSets {
 }
 
 dependencies {
-    perftestImplementation 'org.hdrhistogram:HdrHistogram:2.1.12'
+    perftestCompileClasspath 'org.hdrhistogram:HdrHistogram:2.1.12'
 }
 
 build.dependsOn perftestClasses
@@ -19,5 +19,6 @@ task perfJar(type: Jar, group: 'build') {
     archiveAppendix.set('perf')
     from sourceSets.perftest.output
     from sourceSets.test.output
+    from { configurations.perftestCompileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
