@@ -35,14 +35,14 @@ public interface ExceptionHandler<T>
     void handleEventException(Throwable ex, long sequence, T event);
 
     /**
-     * Callback to notify of an exception during {@link LifecycleAware#onStart()}
+     * Callback to notify of an exception during {@link EventHandler#onStart()}
      *
      * @param ex throw during the starting process.
      */
     void handleOnStartException(Throwable ex);
 
     /**
-     * Callback to notify of an exception during {@link LifecycleAware#onShutdown()}
+     * Callback to notify of an exception during {@link EventHandler#onShutdown()}
      *
      * @param ex throw during the shutdown process.
      */
