@@ -158,7 +158,7 @@ public final class BatchEventProcessorTest
         final CountDownLatch eventLatch = new CountDownLatch(6);
 
         final class LoopbackEventHandler
-            implements EventHandler<StubEvent>, BatchStartAware
+            implements EventHandler<StubEvent>
         {
 
             @Override
@@ -242,7 +242,7 @@ public final class BatchEventProcessorTest
         }
     }
 
-    private static class LatchLifeCycleHandler implements EventHandler<Object>, LifecycleAware
+    private static class LatchLifeCycleHandler implements EventHandler<Object>
     {
         private final CountDownLatch startLatch = new CountDownLatch(1);
         private final CountDownLatch stopLatch = new CountDownLatch(1);
@@ -353,7 +353,7 @@ public final class BatchEventProcessorTest
         }
     }
 
-    private static class BatchAwareEventHandler extends LatchEventHandler implements BatchStartAware
+    private static class BatchAwareEventHandler extends LatchEventHandler
     {
         final Map<Long, Integer> batchSizeToCountMap = new HashMap<>();
 

@@ -3,12 +3,11 @@ package com.lmax.disruptor.immutable;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.DataProvider;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
 import com.lmax.disruptor.Sequencer;
 
 public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, EventAccessor<T>
 {
-    private static final class AccessorEventHandler<T> implements EventHandler<EventAccessor<T>>, LifecycleAware
+    private static final class AccessorEventHandler<T> implements EventHandler<EventAccessor<T>>
     {
         private final EventHandler<T> handler;
 

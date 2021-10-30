@@ -50,7 +50,7 @@ public final class LifecycleAwareTest
         assertThat(Integer.valueOf(handler.shutdownCounter), is(Integer.valueOf(1)));
     }
 
-    private final class LifecycleAwareEventHandler implements EventHandler<StubEvent>, LifecycleAware
+    private final class LifecycleAwareEventHandler implements EventHandler<StubEvent>
     {
         private int startCounter = 0;
         private int shutdownCounter = 0;

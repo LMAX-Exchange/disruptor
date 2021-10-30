@@ -15,13 +15,12 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.BatchStartAware;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 import java.util.concurrent.CountDownLatch;
 
-public final class LongArrayEventHandler implements EventHandler<long[]>, BatchStartAware
+public final class LongArrayEventHandler implements EventHandler<long[]>
 {
     private final PaddedLong value = new PaddedLong();
     private final PaddedLong batchesProcessed = new PaddedLong();

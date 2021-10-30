@@ -2,7 +2,6 @@ package com.lmax.disruptor.offheap;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BatchStartAware;
 import com.lmax.disruptor.DataProvider;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.PerfTestContext;
@@ -96,7 +95,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         new OneToOneOffHeapThroughputTest().testImplementations();
     }
 
-    public static class ByteBufferHandler implements EventHandler<ByteBuffer>, BatchStartAware
+    public static class ByteBufferHandler implements EventHandler<ByteBuffer>
     {
         private final PaddedLong total = new PaddedLong();
         private final PaddedLong batchesProcessed = new PaddedLong();

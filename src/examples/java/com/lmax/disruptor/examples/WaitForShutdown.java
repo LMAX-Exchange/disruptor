@@ -1,7 +1,6 @@
 package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.examples.support.LongEvent;
@@ -14,7 +13,7 @@ public class WaitForShutdown
 {
     private static volatile int value = 0;
 
-    private static class Handler implements EventHandler<LongEvent>, LifecycleAware
+    private static class Handler implements EventHandler<LongEvent>
     {
         private final CountDownLatch latch;
 

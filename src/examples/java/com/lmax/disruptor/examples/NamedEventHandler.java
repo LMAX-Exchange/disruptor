@@ -1,9 +1,8 @@
 package com.lmax.disruptor.examples;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
 
-public class NamedEventHandler<T> implements EventHandler<T>, LifecycleAware
+public class NamedEventHandler<T> implements EventHandler<T>
 {
     private String oldName;
     private final String name;
