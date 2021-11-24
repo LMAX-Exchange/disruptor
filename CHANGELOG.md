@@ -6,7 +6,7 @@
     - Minimum Java version now 11
     - Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
     - `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
-    - Rolled up event handling extnsion interfaces on to EventHandler:
+    - Rolled up event handling extension interfaces on to EventHandler:
       - `BatchStartAware`
       - `LifecycleAware`
       - `SequenceReportingEventHandler`
