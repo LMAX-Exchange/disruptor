@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.strategy.wait.BusySpinWaitStrategy;
 import com.lmax.disruptor.util.Constants;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.SimpleEvent;

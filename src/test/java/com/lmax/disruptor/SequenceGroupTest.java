@@ -15,6 +15,8 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.SequenceGroup;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.Test;
 

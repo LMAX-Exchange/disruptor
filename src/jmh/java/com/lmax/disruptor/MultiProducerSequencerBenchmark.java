@@ -2,6 +2,8 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.alternatives.MultiProducerSequencerUnsafe;
 import com.lmax.disruptor.alternatives.MultiProducerSequencerVarHandle;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
 import net.openhft.affinity.AffinityLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;

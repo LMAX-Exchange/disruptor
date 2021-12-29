@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandler;
 
 /**
  * A support class used as part of setting an exception handler for a specific event handler.

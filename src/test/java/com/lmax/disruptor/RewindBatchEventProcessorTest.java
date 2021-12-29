@@ -1,6 +1,13 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
+import com.lmax.disruptor.exception.RewindableException;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.strategy.RewindAction;
+import com.lmax.disruptor.strategy.rewind.BatchRewindStrategy;
+import com.lmax.disruptor.strategy.rewind.EventuallyGiveUpBatchRewindStrategy;
+import com.lmax.disruptor.strategy.rewind.NanosecondPauseBatchRewindStrategy;
 import com.lmax.disruptor.support.LongEvent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

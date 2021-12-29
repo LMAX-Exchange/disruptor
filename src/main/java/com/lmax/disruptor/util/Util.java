@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor.util;
 
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
 
 /**
  * Set of common functions used by the Disruptor.
@@ -39,7 +39,7 @@ public final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
+     * Get the minimum sequence from an array of {@link Sequence}s.
      *
      * @param sequences to compare.
      * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
@@ -50,7 +50,7 @@ public final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
+     * Get the minimum sequence from an array of {@link Sequence}s.
      *
      * @param sequences to compare.
      * @param minimum   an initial default minimum.  If the array is empty this value will be

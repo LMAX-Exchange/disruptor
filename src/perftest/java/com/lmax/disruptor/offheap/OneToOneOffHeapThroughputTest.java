@@ -1,17 +1,17 @@
 package com.lmax.disruptor.offheap;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.processor.BatchEventProcessor;
 import com.lmax.disruptor.BatchStartAware;
-import com.lmax.disruptor.DataProvider;
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 import com.lmax.disruptor.PerfTestContext;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.Sequencer;
-import com.lmax.disruptor.SingleProducerSequencer;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.WaitStrategy;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import com.lmax.disruptor.util.PaddedLong;
 

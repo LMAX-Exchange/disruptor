@@ -1,7 +1,7 @@
 package com.lmax.disruptor.examples.objectevent;
 
 // tag::example[]
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 
 public class ClearingEventHandler<T> implements EventHandler<ObjectEvent<T>>
 {

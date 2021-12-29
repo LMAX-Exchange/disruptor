@@ -1,7 +1,7 @@
 package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceReportingEventHandler;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.handler.eventhandler.SequenceReportingEventHandler;
 import com.lmax.disruptor.examples.support.LongEvent;
 
 @SuppressWarnings("unused")

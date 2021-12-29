@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.util;
 
-import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.sequence.Sequence;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,12 +1,12 @@
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.AlertException;
-import com.lmax.disruptor.DataProvider;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.TimeoutException;
+import com.lmax.disruptor.exception.AlertException;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.exception.TimeoutException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

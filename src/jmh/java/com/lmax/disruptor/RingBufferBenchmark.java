@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.alternatives.RingBufferArray;
 import com.lmax.disruptor.alternatives.RingBufferUnsafe;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
 import com.lmax.disruptor.support.DummyWaitStrategy;
 import com.lmax.disruptor.support.StubEvent;
 import net.openhft.affinity.AffinityLock;

@@ -1,8 +1,8 @@
 package com.lmax.disruptor.immutable;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.SingleProducerSequencer;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 
 import java.util.concurrent.locks.LockSupport;
 

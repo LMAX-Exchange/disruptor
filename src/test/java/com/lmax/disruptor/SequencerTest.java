@@ -1,6 +1,15 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.barrier.SequenceBarrier;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.exception.InsufficientCapacityException;
+import com.lmax.disruptor.sequence.MultiProducerSequencer;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.Sequenced;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
+import com.lmax.disruptor.strategy.wait.WaitStrategy;
 import com.lmax.disruptor.support.DummyWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,7 +1,7 @@
 package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.eventtranslator.EventTranslator;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.examples.support.LongEvent;

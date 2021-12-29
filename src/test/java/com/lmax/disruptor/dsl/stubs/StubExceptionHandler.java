@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 

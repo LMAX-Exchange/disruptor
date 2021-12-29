@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.eventtranslator.EventTranslator;
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.jupiter.api.Test;
 

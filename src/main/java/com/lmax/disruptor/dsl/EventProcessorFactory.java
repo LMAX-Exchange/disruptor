@@ -1,8 +1,8 @@
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.EventProcessor;
+import com.lmax.disruptor.processor.EventProcessor;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.sequence.Sequence;
 
 /**
  * A factory interface to make it possible to include custom event processors in a chain:

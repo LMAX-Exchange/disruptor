@@ -21,7 +21,7 @@ import com.lmax.disruptor.EventPoller;
 import com.lmax.disruptor.EventPoller.PollState;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 import com.lmax.disruptor.support.PerfTestUtil;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;

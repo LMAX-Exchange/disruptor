@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 
 import java.util.concurrent.CountDownLatch;
 

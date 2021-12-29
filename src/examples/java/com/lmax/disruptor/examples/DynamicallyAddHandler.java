@@ -1,8 +1,8 @@
 package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.LifecycleAware;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.examples.support.StubEvent;

@@ -1,6 +1,11 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.EventPoller.PollState;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.BusySpinWaitStrategy;
+import com.lmax.disruptor.strategy.wait.SleepingWaitStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

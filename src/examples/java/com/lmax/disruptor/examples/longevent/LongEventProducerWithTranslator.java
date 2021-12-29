@@ -2,7 +2,7 @@ package com.lmax.disruptor.examples.longevent;
 
 // tag::example[]
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.eventtranslator.EventTranslatorOneArg;
 
 import java.nio.ByteBuffer;
 

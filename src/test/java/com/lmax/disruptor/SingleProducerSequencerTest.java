@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.BusySpinWaitStrategy;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,10 +17,10 @@ public class SingleProducerSequencerTest
         for (int i = 0; i < 32; i++)
         {
             long next = sequencer.next();
-            assertThat(sequencer.cursor.get(), not(next));
+            assertThat(sequencer.getCursor(), not(next));
 
             sequencer.hasAvailableCapacity(13);
-            assertThat(sequencer.cursor.get(), not(next));
+            assertThat(sequencer.getCursor(), not(next));
 
             sequencer.publish(next);
         }

@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
 
 import java.util.concurrent.CountDownLatch;

@@ -1,7 +1,7 @@
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 
 import java.util.concurrent.ThreadFactory;
 

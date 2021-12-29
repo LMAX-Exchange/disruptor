@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.BusySpinWaitStrategy;
 import com.lmax.disruptor.util.SimpleEvent;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -98,7 +100,7 @@ public class RingBufferFalseSharingBenchmark
      68     4                            int RingBufferFields.bufferSize                        N/A
      72     8                           long RingBufferFields.indexMask                         N/A
      80     4             java.lang.Object[] RingBufferFields.entries                           N/A
-     84     4   com.lmax.disruptor.Sequencer RingBufferFields.sequencer                         N/A
+     84     4   com.lmax.disruptor.sequence.Sequencer RingBufferFields.sequencer                         N/A
      88     4                            int HalfPaddedRingBufferWithNoisyNeighbour.writeOnly   N/A
      92     4                                (loss due to the next object alignment)
 Instance size: 96 bytes
@@ -215,7 +217,7 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
      68     4                            int RingBufferFields.bufferSize                    N/A
      72     8                           long RingBufferFields.indexMask                     N/A
      80     4             java.lang.Object[] RingBufferFields.entries                       N/A
-     84     4   com.lmax.disruptor.Sequencer RingBufferFields.sequencer                     N/A
+     84     4   com.lmax.disruptor.sequence.Sequencer RingBufferFields.sequencer                     N/A
      88     1                           byte PaddedRingBuffer.p77                           N/A
      89     1                           byte PaddedRingBuffer.p11                           N/A
      90     1                           byte PaddedRingBuffer.p12                           N/A

@@ -16,11 +16,11 @@
 package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.processor.BatchEventProcessor;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 import com.lmax.disruptor.support.PerfTestUtil;
 import com.lmax.disruptor.support.ValueAdditionEventHandler;
 import com.lmax.disruptor.support.ValueEvent;

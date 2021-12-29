@@ -16,8 +16,8 @@
 package com.lmax.disruptor.support;
 
 
-import com.lmax.disruptor.AlertException;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.exception.AlertException;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 
 public class DummySequenceBarrier implements SequenceBarrier
 {

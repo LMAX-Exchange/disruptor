@@ -2,6 +2,9 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandler;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
 import com.lmax.disruptor.util.UnsafeAccess;
 import org.openjdk.jcstress.annotations.Actor;
 import org.openjdk.jcstress.annotations.JCStressTest;

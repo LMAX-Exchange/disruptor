@@ -2,6 +2,9 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.eventtranslator.EventTranslator;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.strategy.wait.SleepingWaitStrategy;
 import com.lmax.disruptor.support.LongEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.hamcrest.CoreMatchers;

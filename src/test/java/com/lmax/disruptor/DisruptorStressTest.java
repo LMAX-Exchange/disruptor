@@ -2,6 +2,9 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.exceptionhandler.FatalExceptionHandler;
+import com.lmax.disruptor.strategy.wait.BusySpinWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.junit.jupiter.api.Test;
 

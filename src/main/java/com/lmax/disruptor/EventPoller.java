@@ -1,5 +1,11 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.sequence.FixedSequenceGroup;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.Sequencer;
+
 /**
  * Experimental poll-based interface for the Disruptor. Unlike a {@link BatchEventProcessor},
  * an event poller allows the user to control the flow of execution. This makes it ideal

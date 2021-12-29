@@ -1,6 +1,8 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.alternatives.MultiProducerSequencerUnsafe;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
 import org.openjdk.jcstress.annotations.Actor;
 import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Outcome;

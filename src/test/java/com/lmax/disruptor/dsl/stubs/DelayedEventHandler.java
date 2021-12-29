@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor.dsl.stubs;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.LifecycleAware;
 import com.lmax.disruptor.support.TestEvent;
 
 import java.util.concurrent.BrokenBarrierException;

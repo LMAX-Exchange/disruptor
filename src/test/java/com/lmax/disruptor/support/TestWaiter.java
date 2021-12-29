@@ -16,7 +16,7 @@
 package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 
 import java.util.ArrayList;
 import java.util.List;

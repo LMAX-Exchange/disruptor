@@ -1,9 +1,9 @@
 package com.lmax.disruptor.immutable;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventTranslatorOneArg;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.eventtranslator.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 
 import java.util.concurrent.locks.LockSupport;
 

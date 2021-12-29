@@ -15,6 +15,9 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.sequence.MultiProducerSequencer;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;

@@ -15,12 +15,12 @@
  */
 package com.lmax.disruptor.sequenced;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.LifecycleAware;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 import com.lmax.disruptor.support.ValueEvent;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 import org.HdrHistogram.Histogram;

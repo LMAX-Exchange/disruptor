@@ -15,6 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.handler.eventhandler.SequenceReportingEventHandler;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.jupiter.api.Test;
 

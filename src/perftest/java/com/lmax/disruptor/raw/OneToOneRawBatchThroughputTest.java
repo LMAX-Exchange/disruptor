@@ -17,12 +17,12 @@ package com.lmax.disruptor.raw;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.PerfTestContext;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.Sequenced;
-import com.lmax.disruptor.Sequencer;
-import com.lmax.disruptor.SingleProducerSequencer;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.sequence.Sequenced;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
+import com.lmax.disruptor.strategy.wait.YieldingWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.util.concurrent.CountDownLatch;

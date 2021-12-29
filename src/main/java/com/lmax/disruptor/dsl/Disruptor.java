@@ -15,20 +15,22 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.processor.BatchEventProcessor;
 import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.EventTranslatorOneArg;
-import com.lmax.disruptor.EventTranslatorThreeArg;
-import com.lmax.disruptor.EventTranslatorTwoArg;
-import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.eventtranslator.EventTranslator;
+import com.lmax.disruptor.eventtranslator.EventTranslatorOneArg;
+import com.lmax.disruptor.eventtranslator.EventTranslatorThreeArg;
+import com.lmax.disruptor.eventtranslator.EventTranslatorTwoArg;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.exception.TimeoutException;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.strategy.wait.BlockingWaitStrategy;
+import com.lmax.disruptor.strategy.wait.WaitStrategy;
 import com.lmax.disruptor.util.Util;
 
 import java.util.concurrent.ThreadFactory;
@@ -63,7 +65,7 @@ public class Disruptor<T>
     private ExceptionHandler<? super T> exceptionHandler = new ExceptionHandlerWrapper<>();
 
     /**
-     * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
+     * Create a new Disruptor. Will default to {@link BlockingWaitStrategy} and
      * {@link ProducerType}.MULTI
      *
      * @param eventFactory   the factory to create events in the ring buffer.
@@ -230,7 +232,7 @@ public class Disruptor<T>
      *
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
-     * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
+     * @param handlers the event handlers, previously set up with {@link #handleEventsWith(EventHandler[])},
      *                 that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over the specified event handlers.
      */
@@ -250,10 +252,10 @@ public class Disruptor<T>
     /**
      * Create a group of event processors to be used as a dependency.
      *
-     * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
+     * @param processors the event processors, previously set up with {@link #handleEventsWith(EventProcessor...)},
      *                   that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over the specified event processors.
-     * @see #after(com.lmax.disruptor.EventHandler[])
+     * @see #after(EventHandler[])
      */
     public EventHandlerGroup<T> after(final EventProcessor... processors)
     {
@@ -346,7 +348,7 @@ public class Disruptor<T>
     }
 
     /**
-     * Calls {@link com.lmax.disruptor.EventProcessor#halt()} on all of the event processors created via this disruptor.
+     * Calls {@link EventProcessor#halt()} on all of the event processors created via this disruptor.
      */
     public void halt()
     {
@@ -426,7 +428,7 @@ public class Disruptor<T>
      * The capacity of the data structure to hold entries.
      *
      * @return the size of the RingBuffer.
-     * @see com.lmax.disruptor.Sequencer#getBufferSize()
+     * @see Sequencer#getBufferSize()
      */
     public long getBufferSize()
     {

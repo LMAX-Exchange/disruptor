@@ -15,6 +15,10 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.exception.AlertException;
+import com.lmax.disruptor.processor.NoOpEventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.StubEvent;
 import com.lmax.disruptor.util.Util;

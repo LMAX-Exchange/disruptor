@@ -1,8 +1,8 @@
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SingleProducerSequencer;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.SingleProducerSequencer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

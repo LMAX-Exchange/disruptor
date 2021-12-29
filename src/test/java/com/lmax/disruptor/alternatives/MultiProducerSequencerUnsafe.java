@@ -15,11 +15,11 @@
  */
 package com.lmax.disruptor.alternatives;
 
-import com.lmax.disruptor.AbstractSequencer;
-import com.lmax.disruptor.InsufficientCapacityException;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.Sequencer;
-import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.sequence.AbstractSequencer;
+import com.lmax.disruptor.exception.InsufficientCapacityException;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.Sequencer;
+import com.lmax.disruptor.strategy.wait.WaitStrategy;
 import com.lmax.disruptor.util.UnsafeAccess;
 import com.lmax.disruptor.util.Util;
 import sun.misc.Unsafe;

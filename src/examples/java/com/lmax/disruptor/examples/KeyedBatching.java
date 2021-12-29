@@ -1,6 +1,6 @@
 package com.lmax.disruptor.examples;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,9 +15,9 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;

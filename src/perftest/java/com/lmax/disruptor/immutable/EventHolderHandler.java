@@ -1,6 +1,6 @@
 package com.lmax.disruptor.immutable;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
 
 public class EventHolderHandler implements EventHandler<EventHolder>
 {

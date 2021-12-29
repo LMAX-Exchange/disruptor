@@ -1,8 +1,8 @@
 package com.lmax.disruptor.primitive;
 
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.DataProvider;
-import com.lmax.disruptor.Sequencer;
+import com.lmax.disruptor.processor.BatchEventProcessor;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.sequence.Sequencer;
 
 public class LongRingBuffer
 {

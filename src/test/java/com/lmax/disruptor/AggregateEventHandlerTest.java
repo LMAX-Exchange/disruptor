@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.handler.eventhandler.AggregateEventHandler;
 import com.lmax.disruptor.support.DummyEventHandler;
 import org.junit.jupiter.api.Test;
 

@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.strategy.wait.WaitStrategy;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;

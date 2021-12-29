@@ -1,5 +1,10 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.barrier.SequenceBarrier;
+import com.lmax.disruptor.exception.InsufficientCapacityException;
+import com.lmax.disruptor.provider.DataProvider;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.sequence.Sequencer;
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,5 +1,7 @@
 package com.lmax.disruptor;
 
+import com.lmax.disruptor.processor.BatchEventProcessor;
+
 /**
  * Called by {@link BatchEventProcessor} prior to processing a batch of events.
  */

@@ -141,7 +141,7 @@ public class SequenceBenchmark
     }
 
     /*
-     * APPROACH 2: com.lmax.disruptor.Sequence (as of disruptor v3.4.2)
+     * APPROACH 2: com.lmax.disruptor.sequence.Sequence (as of disruptor v3.4.2)
      *
      * A lot like AtomicLong, but with some padding to avoid false sharing.
      * This uses UNSAFE to give us more control over the memory model of the field, we don't always need full volatile
@@ -248,7 +248,7 @@ public class SequenceBenchmark
     /*
      * APPROACH 3: com.lmax.disruptor.alternatives.SequenceVarHandle
      *
-     * An updated version of com.lmax.disruptor.Sequence but using VarHandle instead of UNSAFE to get memory ordering.
+     * An updated version of com.lmax.disruptor.sequence.Sequence but using VarHandle instead of UNSAFE to get memory ordering.
      * This is probably the way we should go for version Disruptor 4.0
      */
     @State(Scope.Group)

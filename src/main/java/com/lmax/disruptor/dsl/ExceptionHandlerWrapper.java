@@ -1,7 +1,7 @@
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.ExceptionHandlers;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandler;
+import com.lmax.disruptor.handler.exceptionhandler.ExceptionHandlers;
 
 /**
  * A mutable exception handler wrapper

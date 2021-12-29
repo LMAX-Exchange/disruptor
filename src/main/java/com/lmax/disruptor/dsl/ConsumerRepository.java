@@ -15,10 +15,10 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.processor.EventProcessor;
+import com.lmax.disruptor.sequence.Sequence;
+import com.lmax.disruptor.barrier.SequenceBarrier;
 
 import java.util.ArrayList;
 import java.util.Collection;

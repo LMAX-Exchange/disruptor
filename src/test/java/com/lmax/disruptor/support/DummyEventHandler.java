@@ -1,7 +1,7 @@
 package com.lmax.disruptor.support;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
+import com.lmax.disruptor.handler.eventhandler.EventHandler;
+import com.lmax.disruptor.handler.eventhandler.LifecycleAware;
 
 public class DummyEventHandler<T> implements EventHandler<T>, LifecycleAware
 {
