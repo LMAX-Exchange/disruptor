@@ -3,20 +3,17 @@ package com.lmax.disruptor.immutable;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.DataProvider;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.LifecycleAware;
 import com.lmax.disruptor.Sequencer;
 
 public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, EventAccessor<T>
 {
-    private static final class AccessorEventHandler<T> implements EventHandler<EventAccessor<T>>, LifecycleAware
+    private static final class AccessorEventHandler<T> implements EventHandler<EventAccessor<T>>
     {
         private final EventHandler<T> handler;
-        private final LifecycleAware lifecycle;
 
         private AccessorEventHandler(final EventHandler<T> handler)
         {
             this.handler = handler;
-            lifecycle = handler instanceof LifecycleAware ? (LifecycleAware) handler : null;
         }
 
         @Override
@@ -28,19 +25,13 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
         @Override
         public void onShutdown()
         {
-            if (null != lifecycle)
-            {
-                lifecycle.onShutdown();
-            }
+            handler.onShutdown();
         }
 
         @Override
         public void onStart()
         {
-            if (null != lifecycle)
-            {
-                lifecycle.onStart();
-            }
+            handler.onStart();
         }
     }
 

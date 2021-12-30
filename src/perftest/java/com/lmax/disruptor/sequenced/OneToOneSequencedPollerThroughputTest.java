@@ -16,7 +16,6 @@
 package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
-import com.lmax.disruptor.BatchStartAware;
 import com.lmax.disruptor.EventPoller;
 import com.lmax.disruptor.EventPoller.PollState;
 import com.lmax.disruptor.PerfTestContext;
@@ -90,7 +89,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
         return 2;
     }
 
-    private static class PollRunnable implements Runnable, EventPoller.Handler<ValueEvent>, BatchStartAware
+    private static class PollRunnable implements Runnable, EventPoller.Handler<ValueEvent>
     {
         private final EventPoller<ValueEvent> poller;
         private volatile boolean running = true;
@@ -160,7 +159,6 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
             return batchesProcessed.get();
         }
 
-        @Override
         public void onBatchStart(final long batchSize)
         {
             batchesProcessed.increment();
