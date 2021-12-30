@@ -280,9 +280,7 @@ public final class BatchEventProcessorTest
     @Test
     public void shouldNotPassZeroSizeToBatchStartAware() throws Exception
     {
-        final CountDownLatch latch = new CountDownLatch(3);
-
-        BatchAwareEventHandler eventHandler = new BatchAwareEventHandler(latch);
+        BatchAwareEventHandler eventHandler = new BatchAwareEventHandler();
 
         final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessor<>(
                 ringBuffer, new DelegatingSequenceBarrier(this.sequenceBarrier), eventHandler);
@@ -291,11 +289,14 @@ public final class BatchEventProcessorTest
 
         Thread thread = new Thread(batchEventProcessor);
         thread.start();
-        latch.await(2, TimeUnit.SECONDS);
 
-        ringBuffer.publish(ringBuffer.next());
-        ringBuffer.publish(ringBuffer.next());
-        ringBuffer.publish(ringBuffer.next());
+        for (int i = 0; i < 3; i++)
+        {
+            final long sequence = ringBuffer.next();
+            Thread.sleep(100);
+
+            ringBuffer.publish(sequence);
+        }
 
         batchEventProcessor.halt();
         thread.join();
@@ -353,13 +354,13 @@ public final class BatchEventProcessorTest
         }
     }
 
-    private static class BatchAwareEventHandler extends LatchEventHandler
+    private static class BatchAwareEventHandler implements EventHandler<StubEvent>
     {
         final Map<Long, Integer> batchSizeToCountMap = new HashMap<>();
 
-        BatchAwareEventHandler(final CountDownLatch latch)
+        @Override
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
-            super(latch);
         }
 
         @Override
@@ -370,5 +371,4 @@ public final class BatchEventProcessorTest
             batchSizeToCountMap.put(batchSize, nextCount);
         }
     }
-
 }
