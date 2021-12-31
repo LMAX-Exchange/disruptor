@@ -19,21 +19,19 @@ To sign the artifact, a requirement for public release, you must have a signing 
 
 If you already have a GPG signing key, you can skip to the next section.
 
-- If you are on version 2.1.17 or greater, paste the text below to generate a GPG key pair:
+- If you are on version 2.1.17 or greater, run the command below to generate a GPG key pair:
 +
 --
 [source,shell script]
 ----
 $ gpg --full-generate-key
 ----
-  - At the prompt, specify the kind of key you want, or press Enter to accept the default RSA and RSA.
+  - At the prompt, specify the kind of key you want, or press Enter to accept the default `RSA and RSA`.
   - Enter the desired key size. Your key must be at least 4096 bits.
   - Enter the length of time the key should be valid. Press Enter to specify the default selection, indicating that the key doesn't expire.
-  - At the prompt, specify the kind of key you want, or press Enter to accept the default RSA and RSA
-  - At the prompt, specify the kind of key you want, or press Enter to accept the default RSA and RSA
 --
 
- - If you are not on version 2.1.17 or greater, the `gpg --full-generate-key` command doesn't work:
+ - If you are not on version 2.1.17 or greater, the `gpg --full-generate-key` command doesn't work. Use the following command instead:
 +
 --
 [source,shell script]
@@ -65,13 +63,14 @@ gpg --keyring secring.gpg --export-secret-keys > ~/.gnupg/secring.gpg
 $ gpg --list-secret-keys --keyid-format SHORT
 /home/dev/.gnupg/pubring.kbx
 -----------------------------
-sec   rsa4096/9F712BEC 2021-04-13 [SC]
-      6B76BC6777E78FB33B2C2D0A3A7EE8C49F712BEC
-uid         [ultimate] LMAX Coder (LMAX Developer) <coders@lmax.com>
-ssb   rsa4096/A97D3F8A 2021-04-13 [E]
+sec   rsa4096/2657EDD1 2021-12-31 [SC]
+      EA38CE5CFD74BBB831611491F9CE691A2657EDD1
+uid         [ultimate] LMAX Coders (LMAX Dev Team) <coders@lmax.com>
+ssb   rsa4096/F4831415 2021-12-31 [E]
+
 
 $ cat gradle.properties
-signing.keyId=9F712BEC
+signing.keyId=2657EDD1
 signing.password=<passphrase used to protect your private key>
 signing.secretKeyRingFile=/home/dev/.gnupg/secring.gpg
 ----
@@ -83,7 +82,7 @@ See: https://docs.gradle.org/current/userguide/signing_plugin.html
 You need to publish your public key so that sonatype can verify who signed the release artifacts.
 
 ----
-gpg --keyserver https://keyserver.ubuntu.com/ --send-keys 9F712BEC
+gpg --keyserver https://keyserver.ubuntu.com/ --send-keys 2657EDD1
 ----
 
 Note: Other `keyservers` are available
