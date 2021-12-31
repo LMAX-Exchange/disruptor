@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0 - Not yet released
+## 4.0.0 - Release Candidate
 
  - Breaking Changes
     - Minimum Java version now 11
