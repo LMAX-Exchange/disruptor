@@ -451,6 +451,7 @@ public class RewindBatchEventProcessorTest
             this.processor = processor;
         }
 
+        @Override
         public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
         {
 

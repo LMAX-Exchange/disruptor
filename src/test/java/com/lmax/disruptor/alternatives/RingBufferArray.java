@@ -459,6 +459,7 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
      *
      * @return size of buffer
      */
+    @Override
     public int getBufferSize()
     {
         return bufferSize;
@@ -474,6 +475,7 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
      * @return <code>true</code> If the specified <code>requiredCapacity</code> is available
      * <code>false</code> if not.
      */
+    @Override
     public boolean hasAvailableCapacity(final int requiredCapacity)
     {
         return sequencer.hasAvailableCapacity(requiredCapacity);
@@ -917,6 +919,7 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
      *
      * @return The number of slots remaining.
      */
+    @Override
     public long remainingCapacity()
     {
         return sequencer.remainingCapacity();

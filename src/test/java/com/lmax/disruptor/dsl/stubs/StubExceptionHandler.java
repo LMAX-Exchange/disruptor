@@ -28,6 +28,7 @@ public class StubExceptionHandler implements ExceptionHandler<Object>
         this.exceptionHandled = exceptionHandled;
     }
 
+    @Override
     public void handleEventException(final Throwable ex, final long sequence, final Object event)
     {
         exceptionHandled.set(ex);
