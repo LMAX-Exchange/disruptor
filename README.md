@@ -3,6 +3,7 @@
 [![Java CI with Gradle](https://github.com/LMAX-Exchange/disruptor/workflows/Java%20CI%20with%20Gradle/badge.svg)](https://github.com/LMAX-Exchange/disruptor/actions/workflows/gradle-build.yml)
 [![CodeQL](https://github.com/LMAX-Exchange/disruptor/workflows/CodeQL/badge.svg)](https://github.com/LMAX-Exchange/disruptor/actions/workflows/codeql-analysis.yml)
 [![License](https://img.shields.io/github/license/LMAX-Exchange/disruptor)](https://github.com/LMAX-Exchange/disruptor/blob/master/LICENCE.txt)
+[![Maintainability](https://cloud.quality-gate.com/dashboard/api/badge?projectName=LMAX-Exchange_disruptor&branchName=master)](https://cloud.quality-gate.com/dashboard//(branches/34729)#overview)
 
 A High Performance Inter-Thread Messaging Library
 
