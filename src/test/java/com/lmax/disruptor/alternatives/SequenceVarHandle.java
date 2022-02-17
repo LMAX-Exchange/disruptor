@@ -84,7 +84,7 @@ public class SequenceVarHandle extends RhsPaddingVarHandle
      */
     public long get()
     {
-        return (long) (Long) VALUE_FIELD.getAcquire(this);
+        return (long) VALUE_FIELD.getAcquire(this);
     }
 
     /**

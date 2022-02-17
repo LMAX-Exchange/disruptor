@@ -46,7 +46,7 @@ public class SequenceVarHandleArray
      */
     public long get()
     {
-        return (long) (Long) VALUE_FIELD.getAcquire(this.paddedValue, VALUE_INDEX);
+        return (long) VALUE_FIELD.getAcquire(this.paddedValue, VALUE_INDEX);
     }
 
     /**
