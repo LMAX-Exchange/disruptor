@@ -71,6 +71,14 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         p70, p71, p72, p73, p74, p75, p76, p77;
 
     /**
+     * <p>Only used when assertions are enabled.
+     * <p>Used for asserting that only one thread publishes to this Sequencer.
+     * I.e. helps developers detect early if they use the wrong
+     * {@link com.lmax.disruptor.dsl.ProducerType}.
+     */
+    private Thread producerThread;
+
+    /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
      *
      * @param bufferSize   the size of the buffer that this will sequence over.
@@ -131,6 +139,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     @Override
     public long next(final int n)
     {
+        assert sameThread() : "Accessed by two threads - use ProducerType.MULTI!";
+
         if (n < 1 || n > bufferSize)
         {
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
@@ -256,5 +266,15 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
                 ", cursor=" + cursor +
                 ", gatingSequences=" + Arrays.toString(gatingSequences) +
                 '}';
+    }
+
+    private synchronized boolean sameThread()
+    {
+        final Thread currentThread = Thread.currentThread();
+        if (producerThread == null)
+        {
+            producerThread = currentThread;
+        }
+        return producerThread.equals(currentThread);
     }
 }
