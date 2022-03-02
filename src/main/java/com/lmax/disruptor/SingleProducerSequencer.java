@@ -71,7 +71,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         p70, p71, p72, p73, p74, p75, p76, p77;
 
     /**
-     * <p>Only used when assertions are enabled.
+     * Only used when assertions are enabled.
+     *
      * <p>Used for asserting that only one thread publishes to this Sequencer.
      * I.e. helps developers detect early if they use the wrong
      * {@link com.lmax.disruptor.dsl.ProducerType}.
