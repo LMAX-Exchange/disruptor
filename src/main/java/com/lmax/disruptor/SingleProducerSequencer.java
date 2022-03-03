@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.util.Util;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
@@ -69,15 +71,6 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         p50, p51, p52, p53, p54, p55, p56, p57,
         p60, p61, p62, p63, p64, p65, p66, p67,
         p70, p71, p72, p73, p74, p75, p76, p77;
-
-    /**
-     * Only used when assertions are enabled.
-     *
-     * <p>Used for asserting that only one thread publishes to this Sequencer.
-     * I.e. helps developers detect early if they use the wrong
-     * {@link com.lmax.disruptor.dsl.ProducerType}.
-     */
-    private Thread producerThread;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -269,13 +262,34 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
                 '}';
     }
 
-    private synchronized boolean sameThread()
+    private boolean sameThread()
     {
-        final Thread currentThread = Thread.currentThread();
-        if (producerThread == null)
-        {
-            producerThread = currentThread;
+        return ProducerThreadAssertion.isSameThreadProducingTo(this);
+    }
+
+    /**
+     * Only used when assertions are enabled.
+     */
+    private static class ProducerThreadAssertion
+    {
+        /**
+         * Tracks the threads publishing to {@code SingleProducerSequencer}s to identify if more than one
+         * thread accesses any {@code SingleProducerSequencer}.
+         * I.e. it helps developers detect early if they use the wrong
+         * {@link com.lmax.disruptor.dsl.ProducerType}.
+         */
+        private static final Map<SingleProducerSequencer, Thread> producers = new HashMap<>();
+
+        public static boolean isSameThreadProducingTo(final SingleProducerSequencer singleProducerSequencer) {
+            synchronized (producers)
+            {
+                final Thread currentThread = Thread.currentThread();
+                if (!producers.containsKey(singleProducerSequencer))
+                {
+                    producers.put(singleProducerSequencer, currentThread);
+                }
+                return producers.get(singleProducerSequencer).equals(currentThread);
+            }
         }
-        return producerThread.equals(currentThread);
     }
 }
