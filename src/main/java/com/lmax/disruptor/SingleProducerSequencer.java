@@ -278,17 +278,18 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
          * I.e. it helps developers detect early if they use the wrong
          * {@link com.lmax.disruptor.dsl.ProducerType}.
          */
-        private static final Map<SingleProducerSequencer, Thread> producers = new HashMap<>();
+        private static final Map<SingleProducerSequencer, Thread> PRODUCERS = new HashMap<>();
 
-        public static boolean isSameThreadProducingTo(final SingleProducerSequencer singleProducerSequencer) {
-            synchronized (producers)
+        public static boolean isSameThreadProducingTo(final SingleProducerSequencer singleProducerSequencer)
+        {
+            synchronized (PRODUCERS)
             {
                 final Thread currentThread = Thread.currentThread();
-                if (!producers.containsKey(singleProducerSequencer))
+                if (!PRODUCERS.containsKey(singleProducerSequencer))
                 {
-                    producers.put(singleProducerSequencer, currentThread);
+                    PRODUCERS.put(singleProducerSequencer, currentThread);
                 }
-                return producers.get(singleProducerSequencer).equals(currentThread);
+                return PRODUCERS.get(singleProducerSequencer).equals(currentThread);
             }
         }
     }
