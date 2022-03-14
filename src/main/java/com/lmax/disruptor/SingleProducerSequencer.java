@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.util.Util;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
@@ -131,6 +133,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     @Override
     public long next(final int n)
     {
+        assert sameThread() : "Accessed by two threads - use ProducerType.MULTI!";
+
         if (n < 1 || n > bufferSize)
         {
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
@@ -256,5 +260,37 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
                 ", cursor=" + cursor +
                 ", gatingSequences=" + Arrays.toString(gatingSequences) +
                 '}';
+    }
+
+    private boolean sameThread()
+    {
+        return ProducerThreadAssertion.isSameThreadProducingTo(this);
+    }
+
+    /**
+     * Only used when assertions are enabled.
+     */
+    private static class ProducerThreadAssertion
+    {
+        /**
+         * Tracks the threads publishing to {@code SingleProducerSequencer}s to identify if more than one
+         * thread accesses any {@code SingleProducerSequencer}.
+         * I.e. it helps developers detect early if they use the wrong
+         * {@link com.lmax.disruptor.dsl.ProducerType}.
+         */
+        private static final Map<SingleProducerSequencer, Thread> PRODUCERS = new HashMap<>();
+
+        public static boolean isSameThreadProducingTo(final SingleProducerSequencer singleProducerSequencer)
+        {
+            synchronized (PRODUCERS)
+            {
+                final Thread currentThread = Thread.currentThread();
+                if (!PRODUCERS.containsKey(singleProducerSequencer))
+                {
+                    PRODUCERS.put(singleProducerSequencer, currentThread);
+                }
+                return PRODUCERS.get(singleProducerSequencer).equals(currentThread);
+            }
+        }
     }
 }

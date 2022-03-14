@@ -3,6 +3,7 @@ package com.lmax.disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.support.DummyWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -52,6 +53,17 @@ public class SequencerTest
         }
     }
 
+    @Test
+    public void shouldThrowAssertionErrorIfTwoThreadsPublishToSingleProducer() throws InterruptedException
+    {
+        Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new BlockingWaitStrategy());
+        Thread otherThread  = new Thread(sequencer::next);
+        otherThread.start();
+        otherThread.join();
+
+        assertThrows(AssertionError.class, sequencer::next);
+    }
+
     @ParameterizedTest
     @MethodSource("sequencerGenerator")
     public void shouldStartWithInitialValue(final Sequencer sequencer)
@@ -99,20 +111,22 @@ public class SequencerTest
         throws InterruptedException
     {
         sequencer.addGatingSequences(gatingSequence);
-        long sequence = sequencer.next(BUFFER_SIZE);
-        sequencer.publish(sequence - (BUFFER_SIZE - 1), sequence);
 
         final CountDownLatch waitingLatch = new CountDownLatch(1);
         final CountDownLatch doneLatch = new CountDownLatch(1);
 
         final long expectedFullSequence = Sequencer.INITIAL_CURSOR_VALUE + sequencer.getBufferSize();
-        assertThat(
-            sequencer.getHighestPublishedSequence(Sequencer.INITIAL_CURSOR_VALUE + 1, sequencer.getCursor()),
-            is(expectedFullSequence));
 
         executor.submit(
                 () ->
                 {
+                    long sequence = sequencer.next(BUFFER_SIZE);
+                    sequencer.publish(sequence - (BUFFER_SIZE - 1), sequence);
+
+                    assertThat(
+                            sequencer.getHighestPublishedSequence(Sequencer.INITIAL_CURSOR_VALUE + 1, sequencer.getCursor()),
+                            is(expectedFullSequence));
+
                     waitingLatch.countDown();
 
                     long next = sequencer.next();
