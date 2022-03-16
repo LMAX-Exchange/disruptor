@@ -61,7 +61,7 @@ public final class AggregateEventHandlerTest
 
         aggregateEventHandler.onShutdown();
 
-        assertShutoownCalls(1, eh1, eh2, eh3);
+        assertShutdownCalls(1, eh1, eh2, eh3);
     }
 
     @Test
@@ -91,7 +91,7 @@ public final class AggregateEventHandlerTest
         }
     }
 
-    private static void assertShutoownCalls(final int startCalls, final DummyEventHandler<int[]>... handlers)
+    private static void assertShutdownCalls(final int startCalls, final DummyEventHandler<int[]>... handlers)
     {
         for (DummyEventHandler<int[]> handler : handlers)
         {
