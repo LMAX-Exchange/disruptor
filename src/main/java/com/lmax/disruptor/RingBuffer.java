@@ -58,7 +58,6 @@ abstract class RingBufferFields<E> extends RingBufferPad
 
         this.indexMask = bufferSize - 1;
         this.entries = (E[]) new Object[bufferSize + 2 * BUFFER_PAD];
-//        this.entries = (E[]) new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
         fill(eventFactory);
     }
 
@@ -88,14 +87,14 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * The initial cursor value
      */
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
-//    protected byte
-//        p10, p11, p12, p13, p14, p15, p16, p17,
-//        p20, p21, p22, p23, p24, p25, p26, p27,
-//        p30, p31, p32, p33, p34, p35, p36, p37,
-//        p40, p41, p42, p43, p44, p45, p46, p47,
-//        p50, p51, p52, p53, p54, p55, p56, p57,
-//        p60, p61, p62, p63, p64, p65, p66, p67,
-//        p70, p71, p72, p73, p74, p75, p76, p77;
+    protected byte
+        p10, p11, p12, p13, p14, p15, p16, p17,
+        p20, p21, p22, p23, p24, p25, p26, p27,
+        p30, p31, p32, p33, p34, p35, p36, p37,
+        p40, p41, p42, p43, p44, p45, p46, p47,
+        p50, p51, p52, p53, p54, p55, p56, p57,
+        p60, p61, p62, p63, p64, p65, p66, p67,
+        p70, p71, p72, p73, p74, p75, p76, p77;
 
     /**
      * Construct a RingBuffer with the full option set.
