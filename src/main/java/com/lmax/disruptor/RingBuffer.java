@@ -57,7 +57,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         }
 
         this.indexMask = bufferSize - 1;
-        this.entries = (E[]) new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
+        this.entries = (E[]) new Object[bufferSize + 2 * BUFFER_PAD];
         fill(eventFactory);
     }
 
