@@ -1,0 +1,5 @@
+:Author: LMAX Development Team
+:Email:
+:Date: {docdata}
+
+include::./src/docs/asciidoc/en/changelog.adoc[]
