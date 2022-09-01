@@ -13,6 +13,7 @@ v1.0, May 2011
 :xrefstyle: short
 :icons: font
 :gradle-rootdir: ../../../../
+:imagesdir: ../../
 
 https://github.com/LMAX-Exchange/disruptor
 

@@ -9,6 +9,7 @@ High Performance Inter-Thread Messaging Library
 :xrefstyle: short
 :icons: font
 :gradle-rootdir: ../../../../
+:imagesdir: ../../
 
 == Read This First
 
@@ -52,7 +53,7 @@ It's fast.
 Very fast.
 
 .Latency histogram comparing Disruptor to ArrayBlockingQueue
-image::./resources/images/latency-histogram.png[]
+image::resources/images/latency-histogram.png[]
 
 Note that this is a log-log scale, not linear.
 If we tried to plot the comparisons on a linear scale, we'd run out of space very quickly.

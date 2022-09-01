@@ -8,6 +8,7 @@
 :xrefstyle: short
 :icons: font
 :gradle-rootdir: ../../../../../
+:imagesdir: ../../
 
 == Introduction
 
