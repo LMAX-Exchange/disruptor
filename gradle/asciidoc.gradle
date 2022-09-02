@@ -31,7 +31,8 @@ asciidoctor {
     attributes 'source-highlighter': 'pygments',
             'toc': 'left',
             'icons': 'font',
-            'xrefstyle': 'short'
+            'xrefstyle': 'short',
+            'imagesdir': '.'
     copyResourcesOnlyIf 'html5'
     baseDirFollowsSourceFile()
 

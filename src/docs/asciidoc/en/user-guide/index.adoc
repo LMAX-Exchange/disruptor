@@ -8,6 +8,7 @@
 :xrefstyle: short
 :icons: font
 :gradle-rootdir: ../../../../../
+:imagesdir: ../../
 
 The LMAX Disruptor is a high performance inter-thread messaging library. It grew out of LMAX's research into concurrency, performance and non-blocking algorithms and today forms a core part of their Exchange's infrastructure.
 
