@@ -2,6 +2,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.alternatives.MultiProducerSequencerUnsafe;
 import com.lmax.disruptor.alternatives.MultiProducerSequencerVarHandle;
+import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
 
+@SuppressWarnings("unused")
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 5, time = 1)
@@ -74,6 +76,13 @@ public class MultiProducerSequencerBenchmark
                         cpuId,
                         affinityLock.isAllocated()
                 );
+            }
+            else
+            {
+                System.err.printf("ISOLATED_CPUS environment variable not defined, running thread %s (id=%d) on scheduler-defined CPU:%d%n ",
+                        Thread.currentThread().getName(),
+                        threadId,
+                        Affinity.getCpu());
             }
         }
 
