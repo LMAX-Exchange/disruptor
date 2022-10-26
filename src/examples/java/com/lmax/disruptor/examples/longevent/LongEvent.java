@@ -9,9 +9,10 @@ public class LongEvent
     {
         this.value = value;
     }
-    
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "LongEvent{" + "value=" + value + '}';
     }
 }
