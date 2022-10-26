@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 LMAX Ltd.
+ * Copyright 2022 LMAX Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import static java.lang.Math.min;
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class BatchEventProcessor<T>
-    implements EventProcessor
+        implements EventProcessor
 {
     private static final int IDLE = 0;
     private static final int HALTED = IDLE + 1;
@@ -38,15 +38,39 @@ public final class BatchEventProcessor<T>
     private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final EventHandler<? super T> eventHandler;
+    private final BaseEventHandler<? super T> eventHandler;
     private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
     private int retriesAttempted = 0;
+    private final boolean rewindable;
+
+    private BatchEventProcessor(
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final BaseEventHandler<? super T> eventHandler,
+            final int maxBatchSize,
+            final boolean rewindable
+    )
+    {
+        this.dataProvider = dataProvider;
+        this.sequenceBarrier = sequenceBarrier;
+        this.eventHandler = eventHandler;
+
+        if (maxBatchSize < 1)
+        {
+            throw new IllegalArgumentException("maxBatchSize must be greater than 0");
+        }
+        this.batchLimitOffset = maxBatchSize - 1;
+
+        this.rewindable = rewindable;
+    }
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
+     *
+     * <p>This constructor will not support rewinding batches.
      *
      * @param dataProvider    to which events are published.
      * @param sequenceBarrier on which it is waiting.
@@ -54,22 +78,36 @@ public final class BatchEventProcessor<T>
      * @param maxBatchSize    limits number of events processed in a batch before updating the sequence.
      */
     public BatchEventProcessor(
-        final DataProvider<T> dataProvider,
-        final SequenceBarrier sequenceBarrier,
-        final EventHandler<? super T> eventHandler,
-        final int maxBatchSize
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final EventHandler<? super T> eventHandler,
+            final int maxBatchSize
     )
     {
-        this.dataProvider = dataProvider;
-        this.sequenceBarrier = sequenceBarrier;
-        this.eventHandler = eventHandler;
-        if (maxBatchSize < 1)
-        {
-            throw new IllegalArgumentException("maxBatchSize must be greater than 0");
-        }
-        this.batchLimitOffset = maxBatchSize - 1;
+        this(dataProvider, sequenceBarrier, eventHandler, maxBatchSize, false);
 
         eventHandler.setSequenceCallback(sequence);
+    }
+
+    /**
+     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
+     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
+     *
+     * <p>This constructor will support rewinding batches.
+     *
+     * @param dataProvider            to which events are published.
+     * @param sequenceBarrier         on which it is waiting.
+     * @param rewindableEventHandler  is the delegate to which events are dispatched.
+     * @param maxBatchSize            limits number of events processed in a batch before updating the sequence.
+     */
+    public BatchEventProcessor(
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final RewindableEventHandler<? super T> rewindableEventHandler,
+            final int maxBatchSize
+    )
+    {
+        this(dataProvider, sequenceBarrier, rewindableEventHandler, maxBatchSize, true);
     }
 
     /**
@@ -87,6 +125,23 @@ public final class BatchEventProcessor<T>
     )
     {
         this(dataProvider, sequenceBarrier, eventHandler, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
+     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
+     *
+     * @param dataProvider              to which events are published.
+     * @param sequenceBarrier           on which it is waiting.
+     * @param rewindableEventHandler    is the delegate to which events are dispatched.
+     */
+    public BatchEventProcessor(
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final RewindableEventHandler<? super T> rewindableEventHandler
+    )
+    {
+        this(dataProvider, sequenceBarrier, rewindableEventHandler, Integer.MAX_VALUE);
     }
 
     @Override
@@ -128,6 +183,7 @@ public final class BatchEventProcessor<T>
      * Which can include whether the batch should be rewound and reattempted,
      * or simply thrown and move on to the next sequence
      * the default is a {@link SimpleBatchRewindStrategy} which always rewinds
+     *
      * @param batchRewindStrategy to replace the existing rewindStrategy.
      */
     public void setRewindStrategy(final BatchRewindStrategy batchRewindStrategy)
@@ -213,14 +269,21 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final RewindableException e)
                 {
-                    if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
+                    if (this.rewindable)
                     {
-                        nextSequence = startOfBatchSequence;
+                        if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
+                        {
+                            nextSequence = startOfBatchSequence;
+                        }
+                        else
+                        {
+                            retriesAttempted = 0;
+                            throw e;
+                        }
                     }
                     else
                     {
-                        retriesAttempted = 0;
-                        throw e;
+                        throw new RuntimeException("Rewindable Exception thrown from a non-rewindable event handler", e);
                     }
                 }
             }

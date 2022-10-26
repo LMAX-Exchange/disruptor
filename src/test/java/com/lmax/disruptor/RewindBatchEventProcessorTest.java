@@ -425,7 +425,7 @@ public class RewindBatchEventProcessorTest
                 eventHandler);
     }
 
-    private final class TestEventHandler implements EventHandler<LongEvent>
+    private final class TestEventHandler implements RewindableEventHandler<LongEvent>
     {
         private final List<EventResult> values;
         private BatchEventProcessor<LongEvent> processor;
@@ -452,7 +452,7 @@ public class RewindBatchEventProcessorTest
         }
 
         @Override
-        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws RewindableException, Exception
         {
 
             if (sequence == nonRewindableErrorSequence)
