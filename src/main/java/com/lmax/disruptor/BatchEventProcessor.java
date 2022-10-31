@@ -38,7 +38,7 @@ public final class BatchEventProcessor<T>
     private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final BaseEventHandler<? super T> eventHandler;
+    private final EventHandlerBase<? super T> eventHandler;
     private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
@@ -48,7 +48,7 @@ public final class BatchEventProcessor<T>
     private BatchEventProcessor(
             final DataProvider<T> dataProvider,
             final SequenceBarrier sequenceBarrier,
-            final BaseEventHandler<? super T> eventHandler,
+            final EventHandlerBase<? super T> eventHandler,
             final int maxBatchSize,
             final boolean rewindable
     )

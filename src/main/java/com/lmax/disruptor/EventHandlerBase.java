@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-interface BaseEventHandler<T>
+interface EventHandlerBase<T>
 {
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will
