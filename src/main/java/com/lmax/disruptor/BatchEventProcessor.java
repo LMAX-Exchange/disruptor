@@ -70,7 +70,7 @@ public final class BatchEventProcessor<T>
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
-     * <p>This constructor will not support rewinding batches.
+     * <p>The created {@link BatchEventProcessor} will not support batch rewind.
      *
      * @param dataProvider    to which events are published.
      * @param sequenceBarrier on which it is waiting.
@@ -93,7 +93,7 @@ public final class BatchEventProcessor<T>
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
-     * <p>This constructor will support rewinding batches.
+     * <p>The created {@link BatchEventProcessor} will support batch rewind.
      *
      * @param dataProvider            to which events are published.
      * @param sequenceBarrier         on which it is waiting.
