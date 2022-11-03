@@ -24,6 +24,7 @@ package com.lmax.disruptor;
  * @param <C> type third user specified argument to the translator.
  * @see EventTranslator
  */
+@FunctionalInterface
 public interface EventTranslatorThreeArg<T, A, B, C>
 {
     /**

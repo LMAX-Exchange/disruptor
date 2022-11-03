@@ -22,6 +22,7 @@ package com.lmax.disruptor;
  * @param <A> type first user specified argument to the translator.
  * @see EventTranslator
  */
+@FunctionalInterface
 public interface EventTranslatorOneArg<T, A>
 {
     /**

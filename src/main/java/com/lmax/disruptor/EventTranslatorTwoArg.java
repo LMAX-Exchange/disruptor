@@ -23,6 +23,7 @@ package com.lmax.disruptor;
  * @param <B> type second user specified argument to the translator.
  * @see EventTranslator
  */
+@FunctionalInterface
 public interface EventTranslatorTwoArg<T, A, B>
 {
     /**

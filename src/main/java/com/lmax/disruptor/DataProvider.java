@@ -20,6 +20,7 @@ package com.lmax.disruptor;
  *
  * @param <T> The type provided by the implementation
  */
+@FunctionalInterface
 public interface DataProvider<T>
 {
     /**
