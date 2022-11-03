@@ -3,7 +3,7 @@ package com.lmax.disruptor;
 /**
  * Strategy for handling a rewindableException when processing an event.
  */
-
+@FunctionalInterface
 public interface BatchRewindStrategy
 {
 
