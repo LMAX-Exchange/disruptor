@@ -18,4 +18,3 @@ pom.xml
 *.ipr
 *.iws
 *-gc.log
-gradle.properties
