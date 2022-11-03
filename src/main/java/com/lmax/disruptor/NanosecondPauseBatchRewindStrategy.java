@@ -22,7 +22,7 @@ public class NanosecondPauseBatchRewindStrategy implements BatchRewindStrategy
      * @param  nanoSecondPauseTime Amount of nanos to pause for when a rewindable exception is thrown.
      * @param rewind Whether to return {@link RewindAction#REWIND} or {@link RewindAction#RETRY}.
      */
-    public NanosecondPauseBatchRewindStrategy(final long nanoSecondPauseTime, boolean rewind)
+    public NanosecondPauseBatchRewindStrategy(final long nanoSecondPauseTime, final boolean rewind)
     {
         this.nanoSecondPauseTime = nanoSecondPauseTime;
         this.rewind = rewind;

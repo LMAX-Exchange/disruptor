@@ -187,16 +187,23 @@ public final class BatchEventProcessor<T>
                 catch (final RewindableException e)
                 {
                     final var action = batchRewindStrategy.handleRewindException(e, ++retriesAttempted);
-                    if (action == REWIND) {
+                    if (action == REWIND)
+                    {
                         nextSequence = startOfBatchSequence;
-                    } else if (action == RETRY) {
+                    }
+                    else if (action == RETRY)
+                    {
                         // continue from current value of nextSequence
                         // effectively a no-op
                         continue;
-                    } else if (action == THROW) {
+                    }
+                    else if (action == THROW)
+                    {
                         retriesAttempted = 0;
                         throw e;
-                    } else {
+                    }
+                    else
+                    {
                         throw new IllegalStateException("Unhandled RewindAction: " + action);
                     }
                 }

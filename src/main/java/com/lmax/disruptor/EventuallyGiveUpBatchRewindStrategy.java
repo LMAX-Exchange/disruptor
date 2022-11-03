@@ -19,7 +19,7 @@ public class EventuallyGiveUpBatchRewindStrategy implements BatchRewindStrategy
      * @param maxAttempts numbers of Rewindable exceptions that can be thrown until exception is delegated
      * @param rewind Whether to return {@link RewindAction#REWIND} or {@link RewindAction#RETRY}.
      */
-    public EventuallyGiveUpBatchRewindStrategy(final long maxAttempts, boolean rewind)
+    public EventuallyGiveUpBatchRewindStrategy(final long maxAttempts, final boolean rewind)
     {
         this.maxAttempts = maxAttempts;
         this.rewind = rewind;
