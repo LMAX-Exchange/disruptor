@@ -17,7 +17,9 @@ package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.lmax.disruptor.RewindAction.RETRY;
 import static com.lmax.disruptor.RewindAction.REWIND;
+import static com.lmax.disruptor.RewindAction.THROW;
 
 
 /**
@@ -184,14 +186,18 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final RewindableException e)
                 {
-                    if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
-                    {
+                    final var action = batchRewindStrategy.handleRewindException(e, ++retriesAttempted);
+                    if (action == REWIND) {
                         nextSequence = startOfBatchSequence;
-                    }
-                    else
-                    {
+                    } else if (action == RETRY) {
+                        // continue from current value of nextSequence
+                        // effectively a no-op
+                        continue;
+                    } else if (action == THROW) {
                         retriesAttempted = 0;
                         throw e;
+                    } else {
+                        throw new IllegalStateException("Unhandled RewindAction: " + action);
                     }
                 }
             }
