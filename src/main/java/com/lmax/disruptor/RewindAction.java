@@ -10,7 +10,7 @@ public enum RewindAction
      */
     REWIND,
     /**
-     * Retry the batch from the latest sequence value.
+     * Retry the batch from the current sequence value.
      */
     RETRY,
     /**
