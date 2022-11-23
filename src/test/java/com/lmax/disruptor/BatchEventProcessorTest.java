@@ -162,7 +162,7 @@ public final class BatchEventProcessorTest
         {
 
             @Override
-            public void onBatchStart(final long batchSize)
+            public void onBatchStart(final long batchSize, final long queueDepth)
             {
                 batchSizes.add(batchSize);
             }
@@ -364,7 +364,7 @@ public final class BatchEventProcessorTest
         }
 
         @Override
-        public void onBatchStart(final long batchSize)
+        public void onBatchStart(final long batchSize, final long queueDepth)
         {
             final Integer currentCount = batchSizeToCountMap.get(batchSize);
             final int nextCount = null == currentCount ? 1 : currentCount + 1;

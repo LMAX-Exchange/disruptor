@@ -196,9 +196,9 @@ public final class BatchEventProcessor<T>
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                     final long endOfBatchSequence = min(nextSequence + batchLimitOffset, availableSequence);
 
-                    if (endOfBatchSequence >= nextSequence)
+                    if (nextSequence <= endOfBatchSequence)
                     {
-                        eventHandler.onBatchStart(endOfBatchSequence - nextSequence + 1);
+                        eventHandler.onBatchStart(endOfBatchSequence - nextSequence + 1, availableSequence - nextSequence + 1);
                     }
 
                     while (nextSequence <= endOfBatchSequence)

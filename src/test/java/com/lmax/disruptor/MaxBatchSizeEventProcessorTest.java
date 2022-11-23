@@ -71,7 +71,7 @@ public final class MaxBatchSizeEventProcessorTest
     }
 
     @Test
-    public void shouldAnnounceBatchSizeAtTheStartOfBatch() throws Exception
+    public void shouldAnnounceBatchSizeAndQueueDepthAtTheStartOfBatch() throws Exception
     {
         long sequence = 0;
         for (int i = 0; i < PUBLISH_COUNT; i++)
@@ -84,6 +84,7 @@ public final class MaxBatchSizeEventProcessorTest
         countDownLatch.await();
 
         assertEquals(eventHandler.announcedBatchSizes, Arrays.asList(3L, 2L));
+        assertEquals(eventHandler.announcedQueueDepths, Arrays.asList(5L, 2L));
     }
 
     @AfterEach
@@ -99,6 +100,7 @@ public final class MaxBatchSizeEventProcessorTest
         private List<Long> currentSequences;
         private final CountDownLatch countDownLatch;
         private final List<Long> announcedBatchSizes = new ArrayList<>();
+        private final List<Long> announcedQueueDepths = new ArrayList<>();
 
         BatchLimitRecordingHandler(final CountDownLatch countDownLatch)
         {
@@ -119,10 +121,11 @@ public final class MaxBatchSizeEventProcessorTest
         }
 
         @Override
-        public void onBatchStart(final long batchSize)
+        public void onBatchStart(final long batchSize, final long queueDepth)
         {
             currentSequences = new ArrayList<>();
             announcedBatchSizes.add(batchSize);
+            announcedQueueDepths.add(queueDepth);
         }
     }
 }
