@@ -33,6 +33,7 @@ public final class BatchEventProcessor<T>
     private static final int IDLE = 0;
     private static final int HALTED = IDLE + 1;
     private static final int RUNNING = HALTED + 1;
+    private static final int DEFAULT_MAX_BATCH_SIZE = Integer.MAX_VALUE;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
     private ExceptionHandler<? super T> exceptionHandler;
@@ -86,7 +87,7 @@ public final class BatchEventProcessor<T>
             final EventHandler<? super T> eventHandler
     )
     {
-        this(dataProvider, sequenceBarrier, eventHandler, Integer.MAX_VALUE);
+        this(dataProvider, sequenceBarrier, eventHandler, DEFAULT_MAX_BATCH_SIZE);
     }
 
     @Override
