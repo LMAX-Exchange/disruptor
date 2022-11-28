@@ -19,11 +19,11 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-    id "io.github.reyerizo.gradle.jcstress" version "0.8.11"
+    id "io.github.reyerizo.gradle.jcstress" version "0.8.14"
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.asciidoctor.jvm.gems' version '3.3.2'
-    id "me.champeau.jmh" version "0.6.5"
-    id "biz.aQute.bnd.builder" version "5.3.0"
+    id "me.champeau.jmh" version "0.6.8"
+    id "biz.aQute.bnd.builder" version "6.3.1"
 }
 
 group = 'com.lmax'
@@ -46,7 +46,7 @@ apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
 apply from: 'gradle/jcstress.gradle'
 
-wrapper.gradleVersion = '7.2'
+wrapper.gradleVersion = '7.6'
 
 repositories {
     mavenCentral()
@@ -56,8 +56,8 @@ repositories {
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
-    checkstyle 'com.puppycrawl.tools:checkstyle:9.0.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    checkstyle 'com.puppycrawl.tools:checkstyle:10.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
