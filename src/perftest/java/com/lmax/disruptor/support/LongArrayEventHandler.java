@@ -60,7 +60,7 @@ public final class LongArrayEventHandler implements EventHandler<long[]>
     }
 
     @Override
-    public void onBatchStart(final long batchSize)
+    public void onBatchStart(final long batchSize, final long queueDepth)
     {
         batchesProcessed.increment();
     }

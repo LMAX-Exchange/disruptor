@@ -42,8 +42,9 @@ public interface EventHandler<T>
      * Invoked by {@link BatchEventProcessor} prior to processing a batch of events
      *
      * @param batchSize the size of the batch that is starting
+     * @param queueDepth the total number of queued up events including the batch about to be processed
      */
-    default void onBatchStart(long batchSize)
+    default void onBatchStart(long batchSize, long queueDepth)
     {
     }
 

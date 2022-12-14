@@ -57,7 +57,7 @@ public final class ValueAdditionEventHandler implements EventHandler<ValueEvent>
     }
 
     @Override
-    public void onBatchStart(final long batchSize)
+    public void onBatchStart(final long batchSize, final long queueDepth)
     {
         batchesProcessed.increment();
     }

@@ -18,6 +18,7 @@ package com.lmax.disruptor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.lmax.disruptor.RewindAction.REWIND;
+import static java.lang.Math.min;
 
 
 /**
@@ -32,12 +33,14 @@ public final class BatchEventProcessor<T>
     private static final int IDLE = 0;
     private static final int HALTED = IDLE + 1;
     private static final int RUNNING = HALTED + 1;
+    private static final int DEFAULT_MAX_BATCH_SIZE = Integer.MAX_VALUE;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
     private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<? super T> eventHandler;
+    private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
     private int retriesAttempted = 0;
@@ -49,17 +52,42 @@ public final class BatchEventProcessor<T>
      * @param dataProvider    to which events are published.
      * @param sequenceBarrier on which it is waiting.
      * @param eventHandler    is the delegate to which events are dispatched.
+     * @param maxBatchSize    limits number of events processed in a batch before updating the sequence.
      */
     public BatchEventProcessor(
         final DataProvider<T> dataProvider,
         final SequenceBarrier sequenceBarrier,
-        final EventHandler<? super T> eventHandler)
+        final EventHandler<? super T> eventHandler,
+        final int maxBatchSize
+    )
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
+        if (maxBatchSize < 1)
+        {
+            throw new IllegalArgumentException("maxBatchSize must be greater than 0");
+        }
+        this.batchLimitOffset = maxBatchSize - 1;
 
         eventHandler.setSequenceCallback(sequence);
+    }
+
+    /**
+     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
+     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
+     *
+     * @param dataProvider    to which events are published.
+     * @param sequenceBarrier on which it is waiting.
+     * @param eventHandler    is the delegate to which events are dispatched.
+     */
+    public BatchEventProcessor(
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final EventHandler<? super T> eventHandler
+    )
+    {
+        this(dataProvider, sequenceBarrier, eventHandler, DEFAULT_MAX_BATCH_SIZE);
     }
 
     @Override
@@ -165,22 +193,24 @@ public final class BatchEventProcessor<T>
             {
                 try
                 {
-
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
-                    if (availableSequence >= nextSequence)
+                    final long endOfBatchSequence = min(nextSequence + batchLimitOffset, availableSequence);
+
+                    if (nextSequence <= endOfBatchSequence)
                     {
-                        eventHandler.onBatchStart(availableSequence - nextSequence + 1);
+                        eventHandler.onBatchStart(endOfBatchSequence - nextSequence + 1, availableSequence - nextSequence + 1);
                     }
 
-                    while (nextSequence <= availableSequence)
+                    while (nextSequence <= endOfBatchSequence)
                     {
                         event = dataProvider.get(nextSequence);
-                        eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
+                        eventHandler.onEvent(event, nextSequence, nextSequence == endOfBatchSequence);
                         nextSequence++;
                     }
 
                     retriesAttempted = 0;
-                    sequence.set(availableSequence);
+
+                    sequence.set(endOfBatchSequence);
                 }
                 catch (final RewindableException e)
                 {
