@@ -1,9 +1,0 @@
-//
-// Configure JCStress
-//
-
-jcstress {
-    jcstressDependency 'org.openjdk.jcstress:jcstress-core:0.11'
-    includeTests = true
-    mode = project.getProperties().getOrDefault("mode", "quick")
-}
