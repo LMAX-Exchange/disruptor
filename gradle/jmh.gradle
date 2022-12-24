@@ -9,7 +9,7 @@ sourceSets {
     }
 }
 
-def jmhLibVersion = '1.32'
+def jmhLibVersion = '1.36'
 
 dependencies {
     jmhImplementation "org.openjdk.jmh:jmh-core:${jmhLibVersion}"
