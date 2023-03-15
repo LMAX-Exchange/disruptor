@@ -19,6 +19,7 @@ import com.lmax.disruptor.Sequence;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public final class UtilTest
 {
@@ -51,5 +52,23 @@ public final class UtilTest
         final Sequence[] sequences = new Sequence[0];
 
         assertEquals(Long.MAX_VALUE, Util.getMinimumSequence(sequences));
+    }
+
+    @Test
+    void shouldThrowErrorIfValuePassedToLog2FunctionIsNotPositive()
+    {
+        assertThrows(IllegalArgumentException.class, () -> Util.log2(0));
+        assertThrows(IllegalArgumentException.class, () -> Util.log2(-1));
+        assertThrows(IllegalArgumentException.class, () -> Util.log2(Integer.MIN_VALUE));
+    }
+
+    @Test
+    void shouldCalculateCorrectlyIntegerFlooredLog2()
+    {
+        assertEquals(0, Util.log2(1));
+        assertEquals(1, Util.log2(2));
+        assertEquals(1, Util.log2(3));
+        assertEquals(10, Util.log2(1024));
+        assertEquals(30, Util.log2(Integer.MAX_VALUE));
     }
 }
