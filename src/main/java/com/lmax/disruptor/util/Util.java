@@ -91,18 +91,16 @@ public final class Util
      * Calculate the log base 2 of the supplied integer, essentially reports the location
      * of the highest bit.
      *
-     * @param i Value to calculate log2 for.
+     * @param value Positive value to calculate log2 for.
      * @return The log2 value
      */
-    public static int log2(final int i)
+    public static int log2(final int value)
     {
-        long value = i;
-        int r = 0;
-        while ((value >>= 1) != 0)
+        if (value < 1)
         {
-            ++r;
+            throw new IllegalArgumentException("value must be a positive number");
         }
-        return r;
+        return Integer.SIZE - Integer.numberOfLeadingZeros(value) - 1;
     }
 
     /**

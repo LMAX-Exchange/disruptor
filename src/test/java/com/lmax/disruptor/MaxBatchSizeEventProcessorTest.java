@@ -58,21 +58,28 @@ public final class MaxBatchSizeEventProcessorTest
     @Test
     public void shouldLimitTheBatchToConfiguredMaxBatchSize() throws Exception
     {
-        long sequence = 0;
-        for (int i = 0; i < PUBLISH_COUNT; i++)
-        {
-            sequence = ringBuffer.next();
-        }
-        ringBuffer.publish(sequence);
-
-         //Wait for consumer to process all events
-        countDownLatch.await();
+        publishEvents();
 
         assertEquals(eventHandler.batchedSequences, Arrays.asList(Arrays.asList(0L, 1L, 2L), Arrays.asList(3L, 4L)));
     }
 
     @Test
-    public void shouldAnnounceBatchSizeAtTheStartOfBatch() throws Exception
+    public void shouldAnnounceBatchSizeAndQueueDepthAtTheStartOfBatch() throws Exception
+    {
+        publishEvents();
+
+        assertEquals(eventHandler.announcedBatchSizes, Arrays.asList(3L, 2L));
+        assertEquals(eventHandler.announcedQueueDepths, Arrays.asList(5L, 2L));
+    }
+
+    @AfterEach
+    void tearDown() throws InterruptedException
+    {
+        batchEventProcessor.halt();
+        thread.join();
+    }
+
+    private void publishEvents() throws InterruptedException
     {
         long sequence = 0;
         for (int i = 0; i < PUBLISH_COUNT; i++)
@@ -83,15 +90,6 @@ public final class MaxBatchSizeEventProcessorTest
 
         //Wait for consumer to process all events
         countDownLatch.await();
-
-        assertEquals(eventHandler.announcedBatchSizes, Arrays.asList(3L, 2L));
-    }
-
-    @AfterEach
-    void tearDown() throws InterruptedException
-    {
-        batchEventProcessor.halt();
-        thread.join();
     }
 
     private static class BatchLimitRecordingHandler implements EventHandler<StubEvent>
@@ -100,6 +98,7 @@ public final class MaxBatchSizeEventProcessorTest
         private List<Long> currentSequences;
         private final CountDownLatch countDownLatch;
         private final List<Long> announcedBatchSizes = new ArrayList<>();
+        private final List<Long> announcedQueueDepths = new ArrayList<>();
 
         BatchLimitRecordingHandler(final CountDownLatch countDownLatch)
         {
@@ -120,10 +119,11 @@ public final class MaxBatchSizeEventProcessorTest
         }
 
         @Override
-        public void onBatchStart(final long batchSize)
+        public void onBatchStart(final long batchSize, final long queueDepth)
         {
             currentSequences = new ArrayList<>();
             announcedBatchSizes.add(batchSize);
+            announcedQueueDepths.add(queueDepth);
         }
     }
 }

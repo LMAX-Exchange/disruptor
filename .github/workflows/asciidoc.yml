@@ -4,6 +4,9 @@ on:
   push:
     branches: [ master ]
 
+permissions:
+  contents: write
+
 jobs:
   checkout-and-deploy:
     runs-on: ubuntu-latest
@@ -21,6 +24,6 @@ jobs:
       - name: Build ASCIIDoc with Gradle
         run: ./gradlew clean asciidoctor
       - name: Simple deploy with git
-        uses: rdarida/simple-github-pages-deploy-action@v1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          git-base-folder: build/docs/asciidoc/en/
+          folder: build/docs/asciidoc/en/
