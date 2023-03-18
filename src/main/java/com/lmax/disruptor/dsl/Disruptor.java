@@ -502,8 +502,8 @@ public class Disruptor<T>
         {
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
-            final BatchEventProcessor<T> batchEventProcessor = new BatchEventProcessorBuilder()
-                    .build(ringBuffer, barrier, eventHandler);
+            final BatchEventProcessor<T> batchEventProcessor =
+                    new BatchEventProcessorBuilder().build(ringBuffer, barrier, eventHandler);
 
             if (exceptionHandler != null)
             {

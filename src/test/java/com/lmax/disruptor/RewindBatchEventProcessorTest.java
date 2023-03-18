@@ -39,7 +39,7 @@ public class RewindBatchEventProcessorTest
         fill(ringBuffer, 1);
 
         final TestEventHandler eventHandler = new TestEventHandler(values, asList(rewind(0, 1)), 0, -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -60,7 +60,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(0, 1)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -81,7 +81,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(8, 1)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -105,7 +105,7 @@ public class RewindBatchEventProcessorTest
                 -1
         );
 
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -126,7 +126,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(4, 1)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -142,7 +142,7 @@ public class RewindBatchEventProcessorTest
         fill(ringBuffer, 1);
 
         final TestEventHandler eventHandler = new TestEventHandler(values, singletonList(rewind(0, 1)), 0, -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -162,7 +162,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(8, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -185,7 +185,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(lastSequenceNumber, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -208,7 +208,7 @@ public class RewindBatchEventProcessorTest
                 asList(rewind(5, 3), rewind(7, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -229,7 +229,7 @@ public class RewindBatchEventProcessorTest
         fill(ringBuffer, 1);
 
         final TestEventHandler eventHandler = new TestEventHandler(values, singletonList(rewind(0, 3)), 0, -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -247,7 +247,7 @@ public class RewindBatchEventProcessorTest
         fill(ringBuffer, ringBufferEntries);
 
         final TestEventHandler eventHandler = new TestEventHandler(values, emptyList(), lastSequenceNumber, 8);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         AtomicReference<Throwable> exceptionHandled = new AtomicReference<>();
@@ -264,7 +264,7 @@ public class RewindBatchEventProcessorTest
         fill(ringBuffer, ringBufferEntries);
 
         final TestEventHandler eventHandler = new TestEventHandler(values, emptyList(), lastSequenceNumber, -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -286,7 +286,7 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(15, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new SimpleBatchRewindStrategy());
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
         eventProcessor.run();
@@ -427,10 +427,18 @@ public class RewindBatchEventProcessorTest
         return new EventRangeExpectation(sequenceStart, sequenceEnd, false);
     }
 
+    private BatchEventProcessor<LongEvent> create(final TestEventHandler eventHandler)
+    {
+        return create(eventHandler, new SimpleBatchRewindStrategy());
+    }
+
     private BatchEventProcessor<LongEvent> create(final TestEventHandler eventHandler, final BatchRewindStrategy batchRewindStrategy)
     {
-        return new BatchEventProcessorBuilder()
-                .build(ringBuffer, ringBuffer.newBarrier(), eventHandler, batchRewindStrategy);
+        return new BatchEventProcessorBuilder().build(
+                ringBuffer,
+                ringBuffer.newBarrier(),
+                eventHandler,
+                batchRewindStrategy);
     }
 
     private final class TestEventHandler implements RewindableEventHandler<LongEvent>
