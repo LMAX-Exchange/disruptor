@@ -42,14 +42,14 @@ public final class BatchEventProcessor<T>
     private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RewindHandler rewindHandler;
-    private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
     private int retriesAttempted = 0;
 
     BatchEventProcessor(
             final DataProvider<T> dataProvider,
             final SequenceBarrier sequenceBarrier,
             final EventHandlerBase<? super T> eventHandler,
-            final int maxBatchSize
+            final int maxBatchSize,
+            final BatchRewindStrategy batchRewindStrategy
     )
     {
         this.dataProvider = dataProvider;
@@ -63,7 +63,7 @@ public final class BatchEventProcessor<T>
         this.batchLimitOffset = maxBatchSize - 1;
 
         this.rewindHandler = eventHandler instanceof RewindableEventHandler
-                ? new TryRewindHandler()
+                ? new TryRewindHandler(batchRewindStrategy)
                 : new NoRewindHandler();
     }
 
@@ -99,24 +99,6 @@ public final class BatchEventProcessor<T>
         }
 
         this.exceptionHandler = exceptionHandler;
-    }
-
-    /**
-     * Set a new {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}
-     * Which can include whether the batch should be rewound and reattempted,
-     * or simply thrown and move on to the next sequence
-     * the default is a {@link SimpleBatchRewindStrategy} which always rewinds
-     *
-     * @param batchRewindStrategy to replace the existing rewindStrategy.
-     */
-    public void setRewindStrategy(final BatchRewindStrategy batchRewindStrategy)
-    {
-        if (null == batchRewindStrategy)
-        {
-            throw new NullPointerException();
-        }
-
-        this.batchRewindStrategy = batchRewindStrategy;
     }
 
     /**
@@ -298,6 +280,13 @@ public final class BatchEventProcessor<T>
 
     private class TryRewindHandler implements RewindHandler
     {
+        private final BatchRewindStrategy batchRewindStrategy;
+
+        TryRewindHandler(final BatchRewindStrategy batchRewindStrategy)
+        {
+            this.batchRewindStrategy = batchRewindStrategy;
+        }
+
         @Override
         public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence) throws RewindableException
         {
