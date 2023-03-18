@@ -419,10 +419,8 @@ public class RewindBatchEventProcessorTest
 
     private BatchEventProcessor<LongEvent> create(final TestEventHandler eventHandler)
     {
-        return new BatchEventProcessor<>(
-                ringBuffer,
-                ringBuffer.newBarrier(),
-                eventHandler);
+        return new BatchEventProcessorBuilder()
+                .build(ringBuffer, ringBuffer.newBarrier(), eventHandler);
     }
 
     private final class TestEventHandler implements RewindableEventHandler<LongEvent>

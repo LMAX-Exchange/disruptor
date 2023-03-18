@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -109,9 +110,9 @@ public final class OneToThreeSequencedThroughputTest extends AbstractPerfTestDis
     private final BatchEventProcessor<?>[] batchEventProcessors = new BatchEventProcessor[NUM_EVENT_PROCESSORS];
 
     {
-        batchEventProcessors[0] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[0]);
-        batchEventProcessors[1] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[1]);
-        batchEventProcessors[2] = new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlers[2]);
+        batchEventProcessors[0] = new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handlers[0]);
+        batchEventProcessors[1] = new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handlers[1]);
+        batchEventProcessors[2] = new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handlers[2]);
 
         ringBuffer.addGatingSequences(
             batchEventProcessors[0].getSequence(),

@@ -16,6 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
@@ -123,7 +124,7 @@ public class DisruptorTest
 
         disruptor.start();
 
-        disruptor.publishEvents((event, sequence, arg) -> lastPublishedEvent = event, new Object[] { "a", "b" });
+        disruptor.publishEvents((event, sequence, arg) -> lastPublishedEvent = event, new Object[]{"a", "b"});
 
         if (!eventCounter.await(5, TimeUnit.SECONDS))
         {
@@ -135,12 +136,12 @@ public class DisruptorTest
     public void shouldAddEventProcessorsAfterPublishing() throws Exception
     {
         RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
-        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessor<>(
-                rb, rb.newBarrier(), new SleepingEventHandler());
-        BatchEventProcessor<TestEvent> b2 = new BatchEventProcessor<>(
-                rb, rb.newBarrier(b1.getSequence()), new SleepingEventHandler());
-        BatchEventProcessor<TestEvent> b3 = new BatchEventProcessor<>(
-                rb, rb.newBarrier(b2.getSequence()), new SleepingEventHandler());
+        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessorBuilder()
+                .build(rb, rb.newBarrier(), new SleepingEventHandler());
+        BatchEventProcessor<TestEvent> b2 = new BatchEventProcessorBuilder()
+                .build(rb, rb.newBarrier(b1.getSequence()), new SleepingEventHandler());
+        BatchEventProcessor<TestEvent> b3 = new BatchEventProcessorBuilder()
+                .build(rb, rb.newBarrier(b2.getSequence()), new SleepingEventHandler());
 
         assertThat(b1.getSequence().get(), is(-1L));
         assertThat(b2.getSequence().get(), is(-1L));
@@ -184,14 +185,14 @@ public class DisruptorTest
 
     @Test
     public void shouldCreateEventProcessorGroupForFirstEventProcessors()
-        throws Exception
+            throws Exception
     {
         executor.ignoreExecutions();
         final EventHandler<TestEvent> eventHandler1 = new SleepingEventHandler();
         EventHandler<TestEvent> eventHandler2 = new SleepingEventHandler();
 
         final EventHandlerGroup<TestEvent> eventHandlerGroup =
-            disruptor.handleEventsWith(eventHandler1, eventHandler2);
+                disruptor.handleEventsWith(eventHandler1, eventHandler2);
         disruptor.start();
 
         assertNotNull(eventHandlerGroup);
@@ -211,7 +212,7 @@ public class DisruptorTest
 
     @Test
     public void shouldWaitUntilAllFirstEventProcessorsProcessEventBeforeMakingItAvailableToDependentEventProcessors()
-        throws Exception
+            throws Exception
     {
         DelayedEventHandler eventHandler1 = createDelayedEventHandler();
 
@@ -225,13 +226,15 @@ public class DisruptorTest
 
     @Test
     public void shouldSupportAddingCustomEventProcessorWithFactory()
-        throws Exception
+            throws Exception
     {
         RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
-        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessor<>(
-                rb, rb.newBarrier(), new SleepingEventHandler());
-        EventProcessorFactory<TestEvent> b2 = (ringBuffer, barrierSequences) -> new BatchEventProcessor<>(
-                ringBuffer, ringBuffer.newBarrier(barrierSequences), new SleepingEventHandler());
+        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessorBuilder()
+                .build(
+                        rb, rb.newBarrier(), new SleepingEventHandler());
+        EventProcessorFactory<TestEvent> b2 = (ringBuffer, barrierSequences) -> new BatchEventProcessorBuilder()
+                .build(
+                        ringBuffer, ringBuffer.newBarrier(barrierSequences), new SleepingEventHandler());
 
         disruptor.handleEventsWith(b1).then(b2);
 
@@ -242,7 +245,7 @@ public class DisruptorTest
 
     @Test
     public void shouldAllowSpecifyingSpecificEventProcessorsToWaitFor()
-        throws Exception
+            throws Exception
     {
         DelayedEventHandler handler1 = createDelayedEventHandler();
         DelayedEventHandler handler2 = createDelayedEventHandler();
@@ -260,7 +263,7 @@ public class DisruptorTest
 
     @Test
     public void shouldWaitOnAllProducersJoinedByAnd()
-        throws Exception
+            throws Exception
     {
         DelayedEventHandler handler1 = createDelayedEventHandler();
         DelayedEventHandler handler2 = createDelayedEventHandler();
@@ -279,7 +282,7 @@ public class DisruptorTest
 
     @Test
     public void shouldThrowExceptionIfHandlerIsNotAlreadyConsuming()
-        throws Exception
+            throws Exception
     {
         assertThrows(IllegalArgumentException.class, () ->
                 disruptor.after(createDelayedEventHandler()).handleEventsWith(createDelayedEventHandler()));
@@ -287,7 +290,7 @@ public class DisruptorTest
 
     @Test
     public void shouldTrackEventHandlersByIdentityNotEquality()
-        throws Exception
+            throws Exception
     {
         assertThrows(IllegalArgumentException.class, () ->
         {
@@ -304,7 +307,7 @@ public class DisruptorTest
     @SuppressWarnings("deprecation")
     @Test
     public void shouldSupportSpecifyingAExceptionHandlerForEventProcessors()
-        throws Exception
+            throws Exception
     {
         AtomicReference<Throwable> eventHandled = new AtomicReference<>();
         ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
@@ -323,7 +326,7 @@ public class DisruptorTest
     @SuppressWarnings("deprecation")
     @Test
     public void shouldOnlyApplyExceptionsHandlersSpecifiedViaHandleExceptionsWithOnNewEventProcessors()
-        throws Exception
+            throws Exception
     {
         AtomicReference<Throwable> eventHandled = new AtomicReference<>();
         ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
@@ -342,7 +345,7 @@ public class DisruptorTest
 
     @Test
     public void shouldSupportSpecifyingADefaultExceptionHandlerForEventProcessors()
-        throws Exception
+            throws Exception
     {
         AtomicReference<Throwable> eventHandled = new AtomicReference<>();
         ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
@@ -360,7 +363,7 @@ public class DisruptorTest
 
     @Test
     public void shouldApplyDefaultExceptionHandlerToExistingEventProcessors()
-        throws Exception
+            throws Exception
     {
         AtomicReference<Throwable> eventHandled = new AtomicReference<>();
         ExceptionHandler exceptionHandler = new StubExceptionHandler(eventHandled);
@@ -378,7 +381,7 @@ public class DisruptorTest
 
     @Test
     public void shouldBlockProducerUntilAllEventProcessorsHaveAdvanced()
-        throws Exception
+            throws Exception
     {
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
         disruptor.handleEventsWith(delayedEventHandler);
@@ -409,7 +412,7 @@ public class DisruptorTest
 
     @Test
     public void shouldBeAbleToOverrideTheExceptionHandlerForAEventProcessor()
-        throws Exception
+            throws Exception
     {
         final RuntimeException testException = new RuntimeException();
         final ExceptionThrowingEventHandler eventHandler = new ExceptionThrowingEventHandler(testException);
@@ -426,7 +429,7 @@ public class DisruptorTest
 
     @Test
     public void shouldThrowExceptionWhenAddingEventProcessorsAfterTheProducerBarrierHasBeenCreated()
-        throws Exception
+            throws Exception
     {
         assertThrows(IllegalStateException.class, () ->
         {
@@ -439,7 +442,7 @@ public class DisruptorTest
 
     @Test
     public void shouldThrowExceptionIfStartIsCalledTwice()
-        throws Exception
+            throws Exception
     {
         assertThrows(IllegalStateException.class, () ->
         {
@@ -452,7 +455,7 @@ public class DisruptorTest
 
     @Test
     public void shouldSupportCustomProcessorsAsDependencies()
-        throws Exception
+            throws Exception
     {
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
 
@@ -462,7 +465,8 @@ public class DisruptorTest
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub<>(countDownLatch);
 
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler);
+                new BatchEventProcessorBuilder()
+                        .build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler);
 
         disruptor.handleEventsWith(processor).then(handlerWithBarrier);
 
@@ -473,7 +477,7 @@ public class DisruptorTest
 
     @Test
     public void shouldSupportHandlersAsDependenciesToCustomProcessors()
-        throws Exception
+            throws Exception
     {
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
         disruptor.handleEventsWith(delayedEventHandler);
@@ -485,7 +489,8 @@ public class DisruptorTest
 
         final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlerWithBarrier);
+                new BatchEventProcessorBuilder()
+                        .build(ringBuffer, sequenceBarrier, handlerWithBarrier);
         disruptor.handleEventsWith(processor);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
@@ -507,7 +512,8 @@ public class DisruptorTest
 
         final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler1).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, sequenceBarrier, delayedEventHandler2);
+                new BatchEventProcessorBuilder()
+                        .build(ringBuffer, sequenceBarrier, delayedEventHandler2);
 
         disruptor.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
@@ -525,11 +531,13 @@ public class DisruptorTest
 
         final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
         final BatchEventProcessor<TestEvent> processor1 =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler1);
+                new BatchEventProcessorBuilder()
+                        .build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler1);
 
         final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
         final BatchEventProcessor<TestEvent> processor2 =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler2);
+                new BatchEventProcessorBuilder()
+                        .build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler2);
 
         disruptor.handleEventsWith(processor1, processor2);
         disruptor.after(processor1, processor2).handleEventsWith(handlerWithBarrier);
@@ -610,9 +618,10 @@ public class DisruptorTest
                 {
                     assertEquals(0, barrierSequences.length,
                             "Should not have had any barrier sequences");
-                    return new BatchEventProcessor<>(
-                            disruptor.getRingBuffer(), ringBuffer.newBarrier(
-                            barrierSequences), eventHandler);
+                    return new BatchEventProcessorBuilder()
+                            .build(
+                                    disruptor.getRingBuffer(), ringBuffer.newBarrier(
+                                            barrierSequences), eventHandler);
                 });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch);
@@ -629,18 +638,19 @@ public class DisruptorTest
                 (ringBuffer, barrierSequences) ->
                 {
                     assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
-                    return new BatchEventProcessor<>(
-                            disruptor.getRingBuffer(), ringBuffer.newBarrier(
-                            barrierSequences), eventHandler);
+                    return new BatchEventProcessorBuilder()
+                            .build(
+                                    disruptor.getRingBuffer(), ringBuffer.newBarrier(
+                                            barrierSequences), eventHandler);
                 });
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
     }
 
     private void ensureTwoEventsProcessedAccordingToDependencies(
-        final CountDownLatch countDownLatch,
-        final DelayedEventHandler... dependencies)
-        throws InterruptedException, BrokenBarrierException
+            final CountDownLatch countDownLatch,
+            final DelayedEventHandler... dependencies)
+            throws InterruptedException, BrokenBarrierException
     {
         publishEvent();
         publishEvent();
@@ -656,13 +666,13 @@ public class DisruptorTest
     }
 
     private void assertProducerReaches(
-        final StubPublisher stubPublisher,
-        final int expectedPublicationCount,
-        final boolean strict)
+            final StubPublisher stubPublisher,
+            final int expectedPublicationCount,
+            final boolean strict)
     {
         long loopStart = System.currentTimeMillis();
         while (stubPublisher.getPublicationCount() < expectedPublicationCount && System
-            .currentTimeMillis() - loopStart < 5000)
+                .currentTimeMillis() - loopStart < 5000)
         {
             Thread.yield();
         }
@@ -725,14 +735,14 @@ public class DisruptorTest
     }
 
     private void assertThatCountDownLatchEquals(
-        final CountDownLatch countDownLatch,
-        final long expectedCountDownValue)
+            final CountDownLatch countDownLatch,
+            final long expectedCountDownValue)
     {
         assertThat(Long.valueOf(countDownLatch.getCount()), equalTo(Long.valueOf(expectedCountDownValue)));
     }
 
     private void assertThatCountDownLatchIsZero(final CountDownLatch countDownLatch)
-        throws InterruptedException
+            throws InterruptedException
     {
         boolean released = countDownLatch.await(TIMEOUT_IN_SECONDS, SECONDS);
         assertTrue(released, "Batch handler did not receive entries: " + countDownLatch.getCount());

@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -101,17 +102,17 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);
     private final BatchEventProcessor<FunctionEvent> stepOneBatchProcessor =
-            new BatchEventProcessor<>(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, stepOneSequenceBarrier, stepOneFunctionHandler);
 
     private final SequenceBarrier stepTwoSequenceBarrier = ringBuffer.newBarrier(stepOneBatchProcessor.getSequence());
     private final FunctionEventHandler stepTwoFunctionHandler = new FunctionEventHandler(FunctionStep.TWO);
     private final BatchEventProcessor<FunctionEvent> stepTwoBatchProcessor =
-            new BatchEventProcessor<>(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, stepTwoSequenceBarrier, stepTwoFunctionHandler);
 
     private final SequenceBarrier stepThreeSequenceBarrier = ringBuffer.newBarrier(stepTwoBatchProcessor.getSequence());
     private final FunctionEventHandler stepThreeFunctionHandler = new FunctionEventHandler(FunctionStep.THREE);
     private final BatchEventProcessor<FunctionEvent> stepThreeBatchProcessor =
-            new BatchEventProcessor<>(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, stepThreeSequenceBarrier, stepThreeFunctionHandler);
 
     {
         ringBuffer.addGatingSequences(stepThreeBatchProcessor.getSequence());

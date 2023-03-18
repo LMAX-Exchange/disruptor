@@ -1,6 +1,7 @@
 package com.lmax.disruptor.immutable;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.DataProvider;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.Sequencer;
@@ -79,10 +80,8 @@ public class CustomRingBuffer<T> implements DataProvider<EventAccessor<T>>, Even
     public BatchEventProcessor<EventAccessor<T>> createHandler(final EventHandler<T> handler)
     {
         BatchEventProcessor<EventAccessor<T>> processor =
-                new BatchEventProcessor<>(
-                        this,
-                        sequencer.newBarrier(),
-                        new AccessorEventHandler<>(handler));
+                new BatchEventProcessorBuilder()
+                        .build(this, sequencer.newBarrier(), new AccessorEventHandler<>(handler));
         sequencer.addGatingSequences(processor.getSequence());
 
         return processor;

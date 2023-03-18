@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
@@ -76,7 +77,7 @@ public final class OneToOneSequencedLongArrayThroughputTest extends AbstractPerf
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final LongArrayEventHandler handler = new LongArrayEventHandler();
     private final BatchEventProcessor<long[]> batchEventProcessor =
-            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handler);
 
     {
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());

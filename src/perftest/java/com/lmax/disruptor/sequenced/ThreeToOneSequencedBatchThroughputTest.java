@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
@@ -96,7 +97,7 @@ public final class ThreeToOneSequencedBatchThroughputTest extends AbstractPerfTe
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor =
-            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handler);
+            new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handler);
     private final ValueBatchPublisher[] valuePublishers = new ValueBatchPublisher[NUM_PUBLISHERS];
 
     {

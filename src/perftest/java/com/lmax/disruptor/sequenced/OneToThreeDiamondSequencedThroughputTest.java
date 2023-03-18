@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -113,18 +114,18 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
 
     private final FizzBuzzEventHandler fizzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizz =
-            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, fizzHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, fizzHandler);
 
     private final FizzBuzzEventHandler buzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorBuzz =
-            new BatchEventProcessor<>(ringBuffer, sequenceBarrier, buzzHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, buzzHandler);
 
     private final SequenceBarrier sequenceBarrierFizzBuzz =
         ringBuffer.newBarrier(batchProcessorFizz.getSequence(), batchProcessorBuzz.getSequence());
 
     private final FizzBuzzEventHandler fizzBuzzHandler = new FizzBuzzEventHandler(FizzBuzzStep.FIZZ_BUZZ);
     private final BatchEventProcessor<FizzBuzzEvent> batchProcessorFizzBuzz =
-            new BatchEventProcessor<>(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
+            new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrierFizzBuzz, fizzBuzzHandler);
 
     {
         ringBuffer.addGatingSequences(batchProcessorFizzBuzz.getSequence());

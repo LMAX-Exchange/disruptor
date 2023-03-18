@@ -1,6 +1,7 @@
 package com.lmax.disruptor.immutable;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
@@ -33,7 +34,7 @@ public class SimplePerformanceTest
     private void doRun() throws InterruptedException
     {
         BatchEventProcessor<EventHolder> batchEventProcessor =
-                new BatchEventProcessor<>(
+                new BatchEventProcessorBuilder().build(
                         ringBuffer,
                         ringBuffer.newBarrier(),
                         eventHolderHandler);
