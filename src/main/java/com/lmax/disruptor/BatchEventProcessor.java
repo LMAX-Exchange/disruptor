@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 LMAX Ltd.
+ * Copyright 2022 LMAX Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,66 +28,43 @@ import static java.lang.Math.min;
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class BatchEventProcessor<T>
-    implements EventProcessor
+        implements EventProcessor
 {
     private static final int IDLE = 0;
     private static final int HALTED = IDLE + 1;
     private static final int RUNNING = HALTED + 1;
-    private static final int DEFAULT_MAX_BATCH_SIZE = Integer.MAX_VALUE;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
     private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final EventHandler<? super T> eventHandler;
+    private final EventHandlerBase<? super T> eventHandler;
     private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    private BatchRewindStrategy batchRewindStrategy = new SimpleBatchRewindStrategy();
+    private final RewindHandler rewindHandler;
     private int retriesAttempted = 0;
 
-    /**
-     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
-     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
-     *
-     * @param dataProvider    to which events are published.
-     * @param sequenceBarrier on which it is waiting.
-     * @param eventHandler    is the delegate to which events are dispatched.
-     * @param maxBatchSize    limits number of events processed in a batch before updating the sequence.
-     */
-    public BatchEventProcessor(
-        final DataProvider<T> dataProvider,
-        final SequenceBarrier sequenceBarrier,
-        final EventHandler<? super T> eventHandler,
-        final int maxBatchSize
+    BatchEventProcessor(
+            final DataProvider<T> dataProvider,
+            final SequenceBarrier sequenceBarrier,
+            final EventHandlerBase<? super T> eventHandler,
+            final int maxBatchSize,
+            final BatchRewindStrategy batchRewindStrategy
     )
     {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
+
         if (maxBatchSize < 1)
         {
             throw new IllegalArgumentException("maxBatchSize must be greater than 0");
         }
         this.batchLimitOffset = maxBatchSize - 1;
 
-        eventHandler.setSequenceCallback(sequence);
-    }
-
-    /**
-     * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
-     * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
-     *
-     * @param dataProvider    to which events are published.
-     * @param sequenceBarrier on which it is waiting.
-     * @param eventHandler    is the delegate to which events are dispatched.
-     */
-    public BatchEventProcessor(
-            final DataProvider<T> dataProvider,
-            final SequenceBarrier sequenceBarrier,
-            final EventHandler<? super T> eventHandler
-    )
-    {
-        this(dataProvider, sequenceBarrier, eventHandler, DEFAULT_MAX_BATCH_SIZE);
+        this.rewindHandler = eventHandler instanceof RewindableEventHandler
+                ? new TryRewindHandler(batchRewindStrategy)
+                : new NoRewindHandler();
     }
 
     @Override
@@ -122,23 +99,6 @@ public final class BatchEventProcessor<T>
         }
 
         this.exceptionHandler = exceptionHandler;
-    }
-
-    /**
-     * Set a new {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}
-     * Which can include whether the batch should be rewound and reattempted,
-     * or simply thrown and move on to the next sequence
-     * the default is a {@link SimpleBatchRewindStrategy} which always rewinds
-     * @param batchRewindStrategy to replace the existing rewindStrategy.
-     */
-    public void setRewindStrategy(final BatchRewindStrategy batchRewindStrategy)
-    {
-        if (null == batchRewindStrategy)
-        {
-            throw new NullPointerException();
-        }
-
-        this.batchRewindStrategy = batchRewindStrategy;
     }
 
     /**
@@ -214,15 +174,7 @@ public final class BatchEventProcessor<T>
                 }
                 catch (final RewindableException e)
                 {
-                    if (this.batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
-                    {
-                        nextSequence = startOfBatchSequence;
-                    }
-                    else
-                    {
-                        retriesAttempted = 0;
-                        throw e;
-                    }
+                    nextSequence = rewindHandler.attemptRewindGetNextSequence(e, startOfBatchSequence);
                 }
             }
             catch (final TimeoutException e)
@@ -324,5 +276,38 @@ public final class BatchEventProcessor<T>
     {
         ExceptionHandler<? super T> handler = exceptionHandler;
         return handler == null ? ExceptionHandlers.defaultHandler() : handler;
+    }
+
+    private class TryRewindHandler implements RewindHandler
+    {
+        private final BatchRewindStrategy batchRewindStrategy;
+
+        TryRewindHandler(final BatchRewindStrategy batchRewindStrategy)
+        {
+            this.batchRewindStrategy = batchRewindStrategy;
+        }
+
+        @Override
+        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence) throws RewindableException
+        {
+            if (batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
+            {
+                return startOfBatchSequence;
+            }
+            else
+            {
+                retriesAttempted = 0;
+                throw e;
+            }
+        }
+    }
+
+    private static class NoRewindHandler implements RewindHandler
+    {
+        @Override
+        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence)
+        {
+            throw new UnsupportedOperationException("Rewindable Exception thrown from a non-rewindable event handler", e);
+        }
     }
 }

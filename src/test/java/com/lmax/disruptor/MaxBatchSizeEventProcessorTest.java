@@ -45,8 +45,9 @@ public final class MaxBatchSizeEventProcessorTest
         countDownLatch = new CountDownLatch(PUBLISH_COUNT);
         eventHandler = new BatchLimitRecordingHandler(countDownLatch);
 
-        batchEventProcessor = new BatchEventProcessor<>(
-                ringBuffer, this.sequenceBarrier, eventHandler, MAX_BATCH_SIZE);
+        batchEventProcessor = new BatchEventProcessorBuilder()
+                .setMaxBatchSize(MAX_BATCH_SIZE)
+                .build(ringBuffer, this.sequenceBarrier, eventHandler);
 
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
 

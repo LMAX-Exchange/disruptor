@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RewindBatchEventProcessorTest
 {
@@ -308,11 +309,11 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(15, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
+        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, rewindPauseStrategy);
+
         eventHandler.setRewindable(eventProcessor);
 
-        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
-        eventProcessor.setRewindStrategy(rewindPauseStrategy);
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -335,11 +336,11 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(-1, -1)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
+        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, rewindPauseStrategy);
+
         eventHandler.setRewindable(eventProcessor);
 
-        CountingBatchRewindStrategy rewindPauseStrategy = new CountingBatchRewindStrategy();
-        eventProcessor.setRewindStrategy(rewindPauseStrategy);
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -359,10 +360,10 @@ public class RewindBatchEventProcessorTest
                 singletonList(rewind(15, 3)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, new NanosecondPauseBatchRewindStrategy(1000));
+
         eventHandler.setRewindable(eventProcessor);
 
-        eventProcessor.setRewindStrategy(new NanosecondPauseBatchRewindStrategy(1000));
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -381,19 +382,18 @@ public class RewindBatchEventProcessorTest
         int lastSequenceNumber = ringBufferEntries - 1;
         fill(ringBuffer, ringBufferEntries);
 
-        EventuallyGiveUpBatchRewindStrategy batchRewindStrategy = new EventuallyGiveUpBatchRewindStrategy(3);
-
         final TestEventHandler eventHandler = new TestEventHandler(values,
                 asList(rewind(15, 99), rewind(25, 99)),
                 lastSequenceNumber,
                 -1);
-        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
+        EventuallyGiveUpBatchRewindStrategy batchRewindStrategy = new EventuallyGiveUpBatchRewindStrategy(3);
+        final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler, batchRewindStrategy);
+
         eventHandler.setRewindable(eventProcessor);
 
         AtomicReference<Throwable> exceptionHandled = new AtomicReference<>();
         eventProcessor.setExceptionHandler(new StubExceptionHandler(exceptionHandled));
 
-        eventProcessor.setRewindStrategy(batchRewindStrategy);
         eventProcessor.run();
 
         assertThat(values, containsExactSequence(
@@ -406,6 +406,16 @@ public class RewindBatchEventProcessorTest
                 event(26, lastSequenceNumber))); // unable to process 25 so it ends up skipping it
     }
 
+    @Test
+    void shouldNotAllowNullBatchRewindStrategy()
+    {
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                asList(rewind(15, 99), rewind(25, 99)),
+                -1,
+                -1);
+        final BatchEventProcessorBuilder batchEventProcessorBuilder = new BatchEventProcessorBuilder();
+        assertThrows(NullPointerException.class, () -> batchEventProcessorBuilder.build(ringBuffer, ringBuffer.newBarrier(), eventHandler, null));
+    }
 
     private static ForceRewindSequence rewind(final long sequenceNumberToFailOn, final long timesToFail)
     {
@@ -419,13 +429,19 @@ public class RewindBatchEventProcessorTest
 
     private BatchEventProcessor<LongEvent> create(final TestEventHandler eventHandler)
     {
-        return new BatchEventProcessor<>(
-                ringBuffer,
-                ringBuffer.newBarrier(),
-                eventHandler);
+        return create(eventHandler, new SimpleBatchRewindStrategy());
     }
 
-    private final class TestEventHandler implements EventHandler<LongEvent>
+    private BatchEventProcessor<LongEvent> create(final TestEventHandler eventHandler, final BatchRewindStrategy batchRewindStrategy)
+    {
+        return new BatchEventProcessorBuilder().build(
+                ringBuffer,
+                ringBuffer.newBarrier(),
+                eventHandler,
+                batchRewindStrategy);
+    }
+
+    private final class TestEventHandler implements RewindableEventHandler<LongEvent>
     {
         private final List<EventResult> values;
         private BatchEventProcessor<LongEvent> processor;
@@ -452,7 +468,7 @@ public class RewindBatchEventProcessorTest
         }
 
         @Override
-        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws Exception
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws RewindableException, Exception
         {
 
             if (sequence == nonRewindableErrorSequence)

@@ -17,11 +17,12 @@ package com.lmax.disruptor;
 
 /**
  * Callback interface to be implemented for processing events as they become available in the {@link RingBuffer}
+ * with support for throwing a {@link RewindableException} when an even cannot be processed currently but may succeed on retry.
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propagated out of the handler.
  */
-public interface EventHandler<T> extends EventHandlerBase<T>
+public interface RewindableEventHandler<T> extends EventHandlerBase<T>
 {
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will
@@ -34,22 +35,9 @@ public interface EventHandler<T> extends EventHandlerBase<T>
      * @param event      published to the {@link RingBuffer}
      * @param sequence   of the event being processed
      * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
+     * @throws RewindableException if the EventHandler would like the batch event processor to process the entire batch again.
      * @throws Exception if the EventHandler would like the exception handled further up the chain.
      */
     @Override
-    void onEvent(T event, long sequence, boolean endOfBatch) throws Exception;
-
-    /**
-     *  Used by the {@link BatchEventProcessor} to set a callback allowing the {@link EventHandler} to notify
-     *  when it has finished consuming an event if this happens after the {@link EventHandler#onEvent(Object, long, boolean)} call.
-     *
-     *  <p>Typically this would be used when the handler is performing some sort of batching operation such as writing to an IO
-     *  device; after the operation has completed, the implementation should call {@link Sequence#set} to update the
-     *  sequence and allow other processes that are dependent on this handler to progress.
-     *
-     * @param sequenceCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
-     */
-    default void setSequenceCallback(Sequence sequenceCallback)
-    {
-    }
+    void onEvent(T event, long sequence, boolean endOfBatch) throws RewindableException, Exception;
 }

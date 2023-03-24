@@ -2,6 +2,7 @@ package com.lmax.disruptor.offheap;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.DataProvider;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.PerfTestContext;
@@ -34,7 +35,7 @@ public class OneToOneOffHeapThroughputTest extends AbstractPerfTestDisruptor
         new OffHeapRingBuffer(new SingleProducerSequencer(BUFFER_SIZE, waitStrategy), BLOCK_SIZE);
     private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
-            new BatchEventProcessor<>(buffer, buffer.newBarrier(), handler);
+            new BatchEventProcessorBuilder().build(buffer, buffer.newBarrier(), handler);
 
     {
         buffer.addGatingSequences(processor.getSequence());

@@ -16,6 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
@@ -135,11 +136,11 @@ public class DisruptorTest
     public void shouldAddEventProcessorsAfterPublishing() throws Exception
     {
         RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
-        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessor<>(
+        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessorBuilder().build(
                 rb, rb.newBarrier(), new SleepingEventHandler());
-        BatchEventProcessor<TestEvent> b2 = new BatchEventProcessor<>(
+        BatchEventProcessor<TestEvent> b2 = new BatchEventProcessorBuilder().build(
                 rb, rb.newBarrier(b1.getSequence()), new SleepingEventHandler());
-        BatchEventProcessor<TestEvent> b3 = new BatchEventProcessor<>(
+        BatchEventProcessor<TestEvent> b3 = new BatchEventProcessorBuilder().build(
                 rb, rb.newBarrier(b2.getSequence()), new SleepingEventHandler());
 
         assertThat(b1.getSequence().get(), is(-1L));
@@ -228,9 +229,9 @@ public class DisruptorTest
         throws Exception
     {
         RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
-        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessor<>(
+        BatchEventProcessor<TestEvent> b1 = new BatchEventProcessorBuilder().build(
                 rb, rb.newBarrier(), new SleepingEventHandler());
-        EventProcessorFactory<TestEvent> b2 = (ringBuffer, barrierSequences) -> new BatchEventProcessor<>(
+        EventProcessorFactory<TestEvent> b2 = (ringBuffer, barrierSequences) -> new BatchEventProcessorBuilder().build(
                 ringBuffer, ringBuffer.newBarrier(barrierSequences), new SleepingEventHandler());
 
         disruptor.handleEventsWith(b1).then(b2);
@@ -462,7 +463,7 @@ public class DisruptorTest
         EventHandler<TestEvent> handlerWithBarrier = new EventHandlerStub<>(countDownLatch);
 
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler);
+                new BatchEventProcessorBuilder().build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler);
 
         disruptor.handleEventsWith(processor).then(handlerWithBarrier);
 
@@ -485,7 +486,7 @@ public class DisruptorTest
 
         final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, sequenceBarrier, handlerWithBarrier);
+                new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handlerWithBarrier);
         disruptor.handleEventsWith(processor);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
@@ -507,7 +508,7 @@ public class DisruptorTest
 
         final SequenceBarrier sequenceBarrier = disruptor.after(delayedEventHandler1).asSequenceBarrier();
         final BatchEventProcessor<TestEvent> processor =
-                new BatchEventProcessor<>(ringBuffer, sequenceBarrier, delayedEventHandler2);
+                new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, delayedEventHandler2);
 
         disruptor.after(delayedEventHandler1).and(processor).handleEventsWith(handlerWithBarrier);
 
@@ -525,11 +526,11 @@ public class DisruptorTest
 
         final DelayedEventHandler delayedEventHandler1 = createDelayedEventHandler();
         final BatchEventProcessor<TestEvent> processor1 =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler1);
+                new BatchEventProcessorBuilder().build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler1);
 
         final DelayedEventHandler delayedEventHandler2 = createDelayedEventHandler();
         final BatchEventProcessor<TestEvent> processor2 =
-                new BatchEventProcessor<>(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler2);
+                new BatchEventProcessorBuilder().build(ringBuffer, ringBuffer.newBarrier(), delayedEventHandler2);
 
         disruptor.handleEventsWith(processor1, processor2);
         disruptor.after(processor1, processor2).handleEventsWith(handlerWithBarrier);
@@ -610,7 +611,7 @@ public class DisruptorTest
                 {
                     assertEquals(0, barrierSequences.length,
                             "Should not have had any barrier sequences");
-                    return new BatchEventProcessor<>(
+                    return new BatchEventProcessorBuilder().build(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
                             barrierSequences), eventHandler);
                 });
@@ -629,7 +630,7 @@ public class DisruptorTest
                 (ringBuffer, barrierSequences) ->
                 {
                     assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
-                    return new BatchEventProcessor<>(
+                    return new BatchEventProcessorBuilder().build(
                             disruptor.getRingBuffer(), ringBuffer.newBarrier(
                             barrierSequences), eventHandler);
                 });

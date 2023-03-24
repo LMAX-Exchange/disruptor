@@ -16,6 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BatchEventProcessorBuilder;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
@@ -230,7 +231,7 @@ public class Disruptor<T>
      *
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
-     * @param handlers the event handlers, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventHandler[])},
+     * @param handlers the event handlers, previously set up with {@link #handleEventsWith(EventHandler[])},
      *                 that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over the specified event handlers.
      */
@@ -253,7 +254,7 @@ public class Disruptor<T>
      * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
      *                   that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over the specified event processors.
-     * @see #after(com.lmax.disruptor.EventHandler[])
+     * @see #after(EventHandler[])
      */
     public EventHandlerGroup<T> after(final EventProcessor... processors)
     {
@@ -502,7 +503,7 @@ public class Disruptor<T>
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
             final BatchEventProcessor<T> batchEventProcessor =
-                new BatchEventProcessor<>(ringBuffer, barrier, eventHandler);
+                    new BatchEventProcessorBuilder().build(ringBuffer, barrier, eventHandler);
 
             if (exceptionHandler != null)
             {
