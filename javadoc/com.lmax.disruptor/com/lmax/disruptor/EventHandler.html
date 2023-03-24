@@ -250,6 +250,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
+<a id="setSequenceCallback(com.lmax.disruptor.Sequence)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSequenceCallback</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;setSequenceCallback&#8203;(<a href="Sequence.html" title="class in com.lmax.disruptor">Sequence</a>&nbsp;sequenceCallback)</pre>
+<div class="block">Used by the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> to set a callback allowing the <a href="EventHandler.html" title="interface in com.lmax.disruptor"><code>EventHandler</code></a> to notify
+  when it has finished consuming an event if this happens after the <a href="#onEvent(T,long,boolean)"><code>onEvent(Object, long, boolean)</code></a> call.
+
+  <p>Typically this would be used when the handler is performing some sort of batching operation such as writing to an IO
+  device; after the operation has completed, the implementation should call <a href="Sequence.html#set(long)"><code>Sequence.set(long)</code></a> to update the
+  sequence and allow other processes that are dependent on this handler to progress.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sequenceCallback</code> - callback on which to notify the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> that the sequence has progressed.</dd>
+</dl>
+</li>
+</ul>
 <a id="onBatchStart(long,long)">
 <!--   -->
 </a>
@@ -287,25 +306,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 
  <p>Sequence event processing will already have stopped before this method is called. No events will
  be processed after this message.</div>
-</li>
-</ul>
-<a id="setSequenceCallback(com.lmax.disruptor.Sequence)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setSequenceCallback</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;setSequenceCallback&#8203;(<a href="Sequence.html" title="class in com.lmax.disruptor">Sequence</a>&nbsp;sequenceCallback)</pre>
-<div class="block">Used by the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> to set a callback allowing the <a href="EventHandler.html" title="interface in com.lmax.disruptor"><code>EventHandler</code></a> to notify
-  when it has finished consuming an event if this happens after the <a href="#onEvent(T,long,boolean)"><code>onEvent(Object, long, boolean)</code></a> call.
-
-  <p>Typically this would be used when the handler is performing some sort of batching operation such as writing to an IO
-  device; after the operation has completed, the implementation should call <a href="Sequence.html#set(long)"><code>Sequence.set(long)</code></a> to update the
-  sequence and allow other processes that are dependent on this handler to progress.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sequenceCallback</code> - callback on which to notify the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> that the sequence has progressed.</dd>
-</dl>
 </li>
 </ul>
 <a id="onTimeout(long)">

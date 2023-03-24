@@ -610,7 +610,7 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
  <pre><code>dw.after(A).handleEventsWith(B);</code></pre></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>handlers</code> - the event handlers, previously set up with <a href="#handleEventsWith(com.lmax.disruptor.EventHandler...)"><code>handleEventsWith(com.lmax.disruptor.EventHandler[])</code></a>,
+<dd><code>handlers</code> - the event handlers, previously set up with <a href="#handleEventsWith(com.lmax.disruptor.EventHandler...)"><code>handleEventsWith(EventHandler[])</code></a>,
                  that will form the barrier for subsequent handlers or processors.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an <a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl"><code>EventHandlerGroup</code></a> that can be used to setup a dependency barrier over the specified event handlers.</dd>
@@ -632,7 +632,7 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an <a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl"><code>EventHandlerGroup</code></a> that can be used to setup a <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a> over the specified event processors.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="#after(com.lmax.disruptor.EventHandler...)"><code>after(com.lmax.disruptor.EventHandler[])</code></a></dd>
+<dd><a href="#after(com.lmax.disruptor.EventHandler...)"><code>after(EventHandler[])</code></a></dd>
 </dl>
 </li>
 </ul>

@@ -143,7 +143,7 @@ implements <a href="WaitStrategy.html" title="interface in com.lmax.disruptor">W
 <div class="block">Blocking strategy that uses a lock and condition variable for <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier.
  However it will periodically wake up if it has been idle for specified period by throwing a
  <a href="TimeoutException.html" title="class in com.lmax.disruptor"><code>TimeoutException</code></a>.  To make use of this, the event handler class should override
- <a href="EventHandler.html#onTimeout(long)"><code>EventHandler.onTimeout(long)</code></a>, which the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> will call if the timeout occurs.
+ <code>EventHandlerBase.onTimeout(long)</code>, which the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> will call if the timeout occurs.
 
  <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.</div>
 </li>

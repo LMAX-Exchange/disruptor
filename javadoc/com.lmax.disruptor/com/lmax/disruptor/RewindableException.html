@@ -122,17 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Throwable</li>
 <li>
 <ul class="inheritance">
-<li>java.lang.Exception</li>
-<li>
-<ul class="inheritance">
-<li>java.lang.RuntimeException</li>
-<li>
-<ul class="inheritance">
 <li>com.lmax.disruptor.RewindableException</li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -147,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">RewindableException</span>
-extends java.lang.RuntimeException</pre>
+extends java.lang.Throwable</pre>
 <div class="block">A special exception that can be thrown while using the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.
  On throwing this exception the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> can choose to rewind and replay the batch or throw
  depending on the <a href="BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a></div>

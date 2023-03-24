@@ -361,6 +361,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">Callback interface to be implemented for processing events as they become available in the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
+ with support for throwing a <a href="RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a> when an even cannot be processed currently but may succeed on retry.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="RewindHandler.html" title="interface in com.lmax.disruptor">RewindHandler</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a></th>
 <td class="colLast">
 <div class="block">Coordination barrier for tracking the cursor for publishers and sequence of
@@ -416,37 +427,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor">BatchEventProcessorBuilder</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="BlockingWaitStrategy.html" title="class in com.lmax.disruptor">BlockingWaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Blocking strategy that uses a lock and condition variable for <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="BusySpinWaitStrategy.html" title="class in com.lmax.disruptor">BusySpinWaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Busy Spin strategy that uses a busy spin loop for <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventPoller.html" title="class in com.lmax.disruptor">EventPoller</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Experimental poll-based interface for the Disruptor.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="EventuallyGiveUpBatchRewindStrategy.html" title="class in com.lmax.disruptor">EventuallyGiveUpBatchRewindStrategy</a></th>
 <td class="colLast">
 <div class="block">Strategy for handling a rewindableException that will eventually delegate the exception to the
  <a href="ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> after a specified number of attempts have been made.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ExceptionHandlers.html" title="class in com.lmax.disruptor">ExceptionHandlers</a></th>
 <td class="colLast">
 <div class="block">Provides static methods for accessing a default <a href="ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FatalExceptionHandler.html" title="class in com.lmax.disruptor">FatalExceptionHandler</a></th>
 <td class="colLast">
 <div class="block">Convenience implementation of an exception handler that uses the standard JDK logging
@@ -454,55 +469,61 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  it wrapped in a <code>RuntimeException</code></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FixedSequenceGroup.html" title="class in com.lmax.disruptor">FixedSequenceGroup</a></th>
 <td class="colLast">
 <div class="block">Hides a group of Sequences behind a single Sequence</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="IgnoreExceptionHandler.html" title="class in com.lmax.disruptor">IgnoreExceptionHandler</a></th>
 <td class="colLast">
 <div class="block">Convenience implementation of an exception handler that uses the standard JDK logging
  of <code>System.Logger</code> to log the exception as <code>System.Logger.Level</code>.INFO</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="LiteBlockingWaitStrategy.html" title="class in com.lmax.disruptor">LiteBlockingWaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Variation of the <a href="BlockingWaitStrategy.html" title="class in com.lmax.disruptor"><code>BlockingWaitStrategy</code></a> that attempts to elide conditional wake-ups when
  the lock is uncontended.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="LiteTimeoutBlockingWaitStrategy.html" title="class in com.lmax.disruptor">LiteTimeoutBlockingWaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Variation of the <a href="TimeoutBlockingWaitStrategy.html" title="class in com.lmax.disruptor"><code>TimeoutBlockingWaitStrategy</code></a> that attempts to elide conditional wake-ups
  when the lock is uncontended.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="MultiProducerSequencer.html" title="class in com.lmax.disruptor">MultiProducerSequencer</a></th>
 <td class="colLast">
 <div class="block">Coordinator for claiming sequences for access to a data structure while tracking dependent <a href="Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="NanosecondPauseBatchRewindStrategy.html" title="class in com.lmax.disruptor">NanosecondPauseBatchRewindStrategy</a></th>
 <td class="colLast">
 <div class="block">Strategy for handling a rewindableException that will pause for a specified amount of nanos.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="NoOpEventProcessor.html" title="class in com.lmax.disruptor">NoOpEventProcessor</a></th>
 <td class="colLast">
 <div class="block">No operation version of a <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that simply tracks a <a href="Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PhasedBackoffWaitStrategy.html" title="class in com.lmax.disruptor">PhasedBackoffWaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Phased wait strategy for waiting <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s on a barrier.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></th>
+<td class="colLast">
+<div class="block">A special exception that can be thrown while using the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -608,12 +629,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></th>
-<td class="colLast">
-<div class="block">A special exception that can be thrown while using the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="TimeoutException.html" title="class in com.lmax.disruptor">TimeoutException</a></th>
 <td class="colLast">
 <div class="block">Wait strategies may throw this Exception to inform callers that a

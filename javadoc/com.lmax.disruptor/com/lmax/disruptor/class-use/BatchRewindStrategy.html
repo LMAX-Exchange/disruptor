@@ -163,13 +163,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">BatchEventProcessor.</span><code><span class="memberNameLink"><a href="../BatchEventProcessor.html#setRewindStrategy(com.lmax.disruptor.BatchRewindStrategy)">setRewindStrategy</a></span>&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="../BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">BatchEventProcessorBuilder.</span><code><span class="memberNameLink"><a href="../BatchEventProcessorBuilder.html#build(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.RewindableEventHandler,com.lmax.disruptor.BatchRewindStrategy)">build</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;T&gt;&nbsp;dataProvider,
+     <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
+     <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super T&gt;&nbsp;rewindableEventHandler,
+     <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy)</code></th>
 <td class="colLast">
-<div class="block">Set a new <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> for customizing how to handle a <a href="../RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a>
- Which can include whether the batch should be rewound and reattempted,
- or simply thrown and move on to the next sequence
- the default is a <a href="../SimpleBatchRewindStrategy.html" title="class in com.lmax.disruptor"><code>SimpleBatchRewindStrategy</code></a> which always rewinds</div>
+<div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
+ the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
 </td>
 </tr>
 </tbody>

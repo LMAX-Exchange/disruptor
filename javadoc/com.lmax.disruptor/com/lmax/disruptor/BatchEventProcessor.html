@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,13 +91,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -152,42 +152,6 @@ implements <a href="EventProcessor.html" title="interface in com.lmax.disruptor"
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">BatchEventProcessor</a></span>&#8203;(<a href="DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                   <a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                   <a href="EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler)</code></th>
-<td class="colLast">
-<div class="block">Construct a <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler,int)">BatchEventProcessor</a></span>&#8203;(<a href="DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                   <a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                   <a href="EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler,
-                   int&nbsp;maxBatchSize)</code></th>
-<td class="colLast">
-<div class="block">Construct a <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section>
 <ul class="blockList">
@@ -235,16 +199,6 @@ implements <a href="EventProcessor.html" title="interface in com.lmax.disruptor"
 <div class="block">Set a new <a href="ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> for handling exceptions propagated out of the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindStrategy(com.lmax.disruptor.BatchRewindStrategy)">setRewindStrategy</a></span>&#8203;(<a href="BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy)</code></th>
-<td class="colLast">
-<div class="block">Set a new <a href="BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> for customizing how to handle a <a href="RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a>
- Which can include whether the batch should be rewound and reattempted,
- or simply thrown and move on to the next sequence
- the default is a <a href="SimpleBatchRewindStrategy.html" title="class in com.lmax.disruptor"><code>SimpleBatchRewindStrategy</code></a> which always rewinds</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -262,56 +216,6 @@ implements <a href="EventProcessor.html" title="interface in com.lmax.disruptor"
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>BatchEventProcessor</h4>
-<pre>public&nbsp;BatchEventProcessor&#8203;(<a href="DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                           <a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                           <a href="EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler,
-                           int&nbsp;maxBatchSize)</pre>
-<div class="block">Construct a <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataProvider</code> - to which events are published.</dd>
-<dd><code>sequenceBarrier</code> - on which it is waiting.</dd>
-<dd><code>eventHandler</code> - is the delegate to which events are dispatched.</dd>
-<dd><code>maxBatchSize</code> - limits number of events processed in a batch before updating the sequence.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>BatchEventProcessor</h4>
-<pre>public&nbsp;BatchEventProcessor&#8203;(<a href="DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                           <a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                           <a href="EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler)</pre>
-<div class="block">Construct a <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataProvider</code> - to which events are published.</dd>
-<dd><code>sequenceBarrier</code> - on which it is waiting.</dd>
-<dd><code>eventHandler</code> - is the delegate to which events are dispatched.</dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section>
 <ul class="blockList">
@@ -379,23 +283,6 @@ implements <a href="EventProcessor.html" title="interface in com.lmax.disruptor"
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exceptionHandler</code> - to replace the existing exceptionHandler.</dd>
-</dl>
-</li>
-</ul>
-<a id="setRewindStrategy(com.lmax.disruptor.BatchRewindStrategy)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setRewindStrategy</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setRewindStrategy&#8203;(<a href="BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy)</pre>
-<div class="block">Set a new <a href="BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> for customizing how to handle a <a href="RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a>
- Which can include whether the batch should be rewound and reattempted,
- or simply thrown and move on to the next sequence
- the default is a <a href="SimpleBatchRewindStrategy.html" title="class in com.lmax.disruptor"><code>SimpleBatchRewindStrategy</code></a> which always rewinds</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>batchRewindStrategy</code> - to replace the existing rewindStrategy.</dd>
 </dl>
 </li>
 </ul>
@@ -469,13 +356,13 @@ implements <a href="EventProcessor.html" title="interface in com.lmax.disruptor"
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

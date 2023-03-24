@@ -166,6 +166,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="../BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">BatchEventProcessorBuilder.</span><code><span class="memberNameLink"><a href="../BatchEventProcessorBuilder.html#build(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">build</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;T&gt;&nbsp;dataProvider,
+     <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
+     <a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super T&gt;&nbsp;eventHandler)</code></th>
+<td class="colLast">
+<div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
+ the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="../BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">BatchEventProcessorBuilder.</span><code><span class="memberNameLink"><a href="../BatchEventProcessorBuilder.html#build(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.RewindableEventHandler,com.lmax.disruptor.BatchRewindStrategy)">build</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;T&gt;&nbsp;dataProvider,
+     <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
+     <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super T&gt;&nbsp;rewindableEventHandler,
+     <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy)</code></th>
+<td class="colLast">
+<div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
+ the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;<a href="../EventPoller.html" title="class in com.lmax.disruptor">EventPoller</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">EventPoller.</span><code><span class="memberNameLink"><a href="../EventPoller.html#newInstance(com.lmax.disruptor.DataProvider,com.lmax.disruptor.Sequencer,com.lmax.disruptor.Sequence,com.lmax.disruptor.Sequence,com.lmax.disruptor.Sequence...)">newInstance</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;T&gt;&nbsp;dataProvider,
            <a href="../Sequencer.html" title="interface in com.lmax.disruptor">Sequencer</a>&nbsp;sequencer,
@@ -202,25 +223,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
-<tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../BatchEventProcessor.html#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">BatchEventProcessor</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="../BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                   <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                   <a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="../BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler)</code></th>
-<td class="colLast">
-<div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../BatchEventProcessor.html#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler,int)">BatchEventProcessor</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="../BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;dataProvider,
-                   <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;sequenceBarrier,
-                   <a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="../BatchEventProcessor.html" title="type parameter in BatchEventProcessor">T</a>&gt;&nbsp;eventHandler,
-                   int&nbsp;maxBatchSize)</code></th>
-<td class="colLast">
-<div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</td>
-</tr>
 <tr class="altColor">
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../EventPoller.html#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.Sequencer,com.lmax.disruptor.Sequence,com.lmax.disruptor.Sequence)">EventPoller</a></span>&#8203;(<a href="../DataProvider.html" title="interface in com.lmax.disruptor">DataProvider</a>&lt;<a href="../EventPoller.html" title="type parameter in EventPoller">T</a>&gt;&nbsp;dataProvider,
            <a href="../Sequencer.html" title="interface in com.lmax.disruptor">Sequencer</a>&nbsp;sequencer,

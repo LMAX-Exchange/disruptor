@@ -169,6 +169,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a dependency barrier for the processors in this group.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindHandler.html#attemptRewindGetNextSequence(com.lmax.disruptor.RewindableException,long)">attemptRewindGetNextSequence(RewindableException, long)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RewindHandler.html" title="interface in com.lmax.disruptor">RewindHandler</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/util/Util.html#awaitNanos(java.lang.Object,long)">awaitNanos(Object, long)</a></span> - Static method in class com.lmax.disruptor.util.<a href="com.lmax.disruptor/com/lmax/disruptor/util/Util.html" title="class in com.lmax.disruptor.util">Util</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -182,16 +184,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Convenience class for handling the batching semantics of consuming entries from a <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
  and delegating the available events to an <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor"><code>EventHandler</code></a>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">BatchEventProcessor(DataProvider&lt;T&gt;, SequenceBarrier, EventHandler&lt;? super T&gt;)</a></span> - Constructor for class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a></dt>
-<dd>
-<div class="block">Construct a <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html#%3Cinit%3E(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler,int)">BatchEventProcessor(DataProvider&lt;T&gt;, SequenceBarrier, EventHandler&lt;? super T&gt;, int)</a></span> - Constructor for class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a></dt>
-<dd>
-<div class="block">Construct a <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
- the <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
-</dd>
+<dt><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor"><span class="typeNameLink">BatchEventProcessorBuilder</span></a> - Class in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html#%3Cinit%3E()">BatchEventProcessorBuilder()</a></span> - Constructor for class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor">BatchEventProcessorBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com.lmax.disruptor/com/lmax/disruptor/BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><span class="typeNameLink">BatchRewindStrategy</span></a> - Interface in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">Strategy for handling a rewindableException when processing an event.</div>
@@ -202,6 +198,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BlockingWaitStrategy.html#%3Cinit%3E()">BlockingWaitStrategy()</a></span> - Constructor for class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BlockingWaitStrategy.html" title="class in com.lmax.disruptor">BlockingWaitStrategy</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html#build(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.EventHandler)">build(DataProvider&lt;T&gt;, SequenceBarrier, EventHandler&lt;? super T&gt;)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor">BatchEventProcessorBuilder</a></dt>
+<dd>
+<div class="block">Construct a <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
+ the <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html#build(com.lmax.disruptor.DataProvider,com.lmax.disruptor.SequenceBarrier,com.lmax.disruptor.RewindableEventHandler,com.lmax.disruptor.BatchRewindStrategy)">build(DataProvider&lt;T&gt;, SequenceBarrier, RewindableEventHandler&lt;? super T&gt;, BatchRewindStrategy)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor">BatchEventProcessorBuilder</a></dt>
+<dd>
+<div class="block">Construct a <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
+ the <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
+</dd>
 <dt><a href="com.lmax.disruptor/com/lmax/disruptor/BusySpinWaitStrategy.html" title="class in com.lmax.disruptor"><span class="typeNameLink">BusySpinWaitStrategy</span></a> - Class in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">Busy Spin strategy that uses a busy spin loop for <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier.</div>
@@ -632,7 +638,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html#handleOnShutdownException(java.lang.Throwable)">handleOnShutdownException(Throwable)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a></dt>
 <dd>
-<div class="block">Callback to notify of an exception during <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onShutdown()"><code>EventHandler.onShutdown()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onShutdown()</code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/FatalExceptionHandler.html#handleOnShutdownException(java.lang.Throwable)">handleOnShutdownException(Throwable)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/FatalExceptionHandler.html" title="class in com.lmax.disruptor">FatalExceptionHandler</a></dt>
 <dd>&nbsp;</dd>
@@ -642,7 +648,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html#handleOnStartException(java.lang.Throwable)">handleOnStartException(Throwable)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a></dt>
 <dd>
-<div class="block">Callback to notify of an exception during <a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onStart()"><code>EventHandler.onStart()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onStart()</code></div>
 </dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/FatalExceptionHandler.html#handleOnStartException(java.lang.Throwable)">handleOnStartException(Throwable)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/FatalExceptionHandler.html" title="class in com.lmax.disruptor">FatalExceptionHandler</a></dt>
 <dd>&nbsp;</dd>
@@ -882,10 +888,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">O</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onBatchStart(long,long)">onBatchStart(long, long)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
-<dd>
-<div class="block">Invoked by <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a> prior to processing a batch of events</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html#onEvent(T,long,boolean)">onEvent(T, long, boolean)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html" title="class in com.lmax.disruptor">AggregateEventHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onEvent(T,long,boolean)">onEvent(T, long, boolean)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
@@ -896,12 +898,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Called for each event to consume it</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html#onEvent(T,long,boolean)">onEvent(T, long, boolean)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a></dt>
+<dd>
+<div class="block">Called when a publisher has published an event to the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html#onShutdown()">onShutdown()</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html" title="class in com.lmax.disruptor">AggregateEventHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onShutdown()">onShutdown()</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
-<dd>
-<div class="block">Called once just before the event processing thread is shutdown.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/util/ThreadHints.html#onSpinWait()">onSpinWait()</a></span> - Static method in class com.lmax.disruptor.util.<a href="com.lmax.disruptor/com/lmax/disruptor/util/ThreadHints.html" title="class in com.lmax.disruptor.util">ThreadHints</a></dt>
 <dd>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -911,14 +913,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html#onStart()">onStart()</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/AggregateEventHandler.html" title="class in com.lmax.disruptor">AggregateEventHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onStart()">onStart()</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
-<dd>
-<div class="block">Called once on thread start before first event is available.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#onTimeout(long)">onTimeout(long)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
-<dd>
-<div class="block">Invoked when a <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>'s <a href="com.lmax.disruptor/com/lmax/disruptor/WaitStrategy.html" title="interface in com.lmax.disruptor"><code>WaitStrategy</code></a> throws a <a href="com.lmax.disruptor/com/lmax/disruptor/TimeoutException.html" title="class in com.lmax.disruptor"><code>TimeoutException</code></a>.</div>
-</dd>
 </dl>
 <a id="I:P">
 <!--   -->
@@ -1117,16 +1111,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Rewind and replay the whole batch from  he beginning</div>
 </dd>
-<dt><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor"><span class="typeNameLink">RewindableException</span></a> - Exception in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
+<dt><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html" title="interface in com.lmax.disruptor"><span class="typeNameLink">RewindableEventHandler</span></a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html" title="type parameter in RewindableEventHandler">T</a>&gt; - Interface in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
+<dd>
+<div class="block">Callback interface to be implemented for processing events as they become available in the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
+ with support for throwing a <a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a> when an even cannot be processed currently but may succeed on retry.</div>
+</dd>
+<dt><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor"><span class="typeNameLink">RewindableException</span></a> - Class in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">A special exception that can be thrown while using the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html#%3Cinit%3E(java.lang.Throwable)">RewindableException(Throwable)</a></span> - Constructor for exception com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html#%3Cinit%3E(java.lang.Throwable)">RewindableException(Throwable)</a></span> - Constructor for class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com.lmax.disruptor/com/lmax/disruptor/RewindAction.html" title="enum in com.lmax.disruptor"><span class="typeNameLink">RewindAction</span></a> - Enum in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">The result returned from the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> that decides whether to rewind or throw the exception</div>
 </dd>
+<dt><a href="com.lmax.disruptor/com/lmax/disruptor/RewindHandler.html" title="interface in com.lmax.disruptor"><span class="typeNameLink">RewindHandler</span></a> - Interface in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><span class="typeNameLink">RingBuffer</span></a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt; - Class in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">Ring based store of reusable entries containing the data representing
@@ -1199,12 +1200,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Set a new <a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> for handling exceptions propagated out of the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html#setRewindStrategy(com.lmax.disruptor.BatchRewindStrategy)">setRewindStrategy(BatchRewindStrategy)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor">BatchEventProcessor</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html#setMaxBatchSize(int)">setMaxBatchSize(int)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessorBuilder.html" title="class in com.lmax.disruptor">BatchEventProcessorBuilder</a></dt>
 <dd>
-<div class="block">Set a new <a href="com.lmax.disruptor/com/lmax/disruptor/BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> for customizing how to handle a <a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a>
- Which can include whether the batch should be rewound and reattempted,
- or simply thrown and move on to the next sequence
- the default is a <a href="com.lmax.disruptor/com/lmax/disruptor/SimpleBatchRewindStrategy.html" title="class in com.lmax.disruptor"><code>SimpleBatchRewindStrategy</code></a> which always rewinds</div>
+<div class="block">Set the maximum number of events that will be processed in a batch before updating the sequence.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html#setSequenceCallback(com.lmax.disruptor.Sequence)">setSequenceCallback(Sequence)</a></span> - Method in interface com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a></dt>
 <dd>

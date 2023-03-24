@@ -199,14 +199,14 @@ implements <a href="../ExceptionHandler.html" title="interface in com.lmax.disru
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleOnShutdownException(java.lang.Throwable)">handleOnShutdownException</a></span>&#8203;(java.lang.Throwable&nbsp;ex)</code></th>
 <td class="colLast">
-<div class="block">Callback to notify of an exception during <a href="../EventHandler.html#onShutdown()"><code>EventHandler.onShutdown()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onShutdown()</code></div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleOnStartException(java.lang.Throwable)">handleOnStartException</a></span>&#8203;(java.lang.Throwable&nbsp;ex)</code></th>
 <td class="colLast">
-<div class="block">Callback to notify of an exception during <a href="../EventHandler.html#onStart()"><code>EventHandler.onStart()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onStart()</code></div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -307,7 +307,7 @@ implements <a href="../ExceptionHandler.html" title="interface in com.lmax.disru
 <h4>handleOnStartException</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;handleOnStartException&#8203;(java.lang.Throwable&nbsp;ex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../ExceptionHandler.html#handleOnStartException(java.lang.Throwable)">ExceptionHandler</a></code></span></div>
-<div class="block">Callback to notify of an exception during <a href="../EventHandler.html#onStart()"><code>EventHandler.onStart()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onStart()</code></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../ExceptionHandler.html#handleOnStartException(java.lang.Throwable)">handleOnStartException</a></code>&nbsp;in interface&nbsp;<code><a href="../ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;<a href="ExceptionHandlerWrapper.html" title="type parameter in ExceptionHandlerWrapper">T</a>&gt;</code></dd>
@@ -324,7 +324,7 @@ implements <a href="../ExceptionHandler.html" title="interface in com.lmax.disru
 <h4>handleOnShutdownException</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;handleOnShutdownException&#8203;(java.lang.Throwable&nbsp;ex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../ExceptionHandler.html#handleOnShutdownException(java.lang.Throwable)">ExceptionHandler</a></code></span></div>
-<div class="block">Callback to notify of an exception during <a href="../EventHandler.html#onShutdown()"><code>EventHandler.onShutdown()</code></a></div>
+<div class="block">Callback to notify of an exception during <code>EventHandlerBase.onShutdown()</code></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../ExceptionHandler.html#handleOnShutdownException(java.lang.Throwable)">handleOnShutdownException</a></code>&nbsp;in interface&nbsp;<code><a href="../ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;<a href="ExceptionHandlerWrapper.html" title="type parameter in ExceptionHandlerWrapper">T</a>&gt;</code></dd>

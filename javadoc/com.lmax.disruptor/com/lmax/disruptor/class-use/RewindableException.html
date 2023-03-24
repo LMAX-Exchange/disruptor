@@ -131,6 +131,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">RewindHandler.</span><code><span class="memberNameLink"><a href="../RewindHandler.html#attemptRewindGetNextSequence(com.lmax.disruptor.RewindableException,long)">attemptRewindGetNextSequence</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
+                            long&nbsp;startOfBatchSequence)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">BatchRewindStrategy.</span><code><span class="memberNameLink"><a href="../BatchRewindStrategy.html#handleRewindException(com.lmax.disruptor.RewindableException,int)">handleRewindException</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
                      int&nbsp;attempts)</code></th>
@@ -138,23 +144,48 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">When a <a href="../RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a> is thrown, this will be called.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">EventuallyGiveUpBatchRewindStrategy.</span><code><span class="memberNameLink"><a href="../EventuallyGiveUpBatchRewindStrategy.html#handleRewindException(com.lmax.disruptor.RewindableException,int)">handleRewindException</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
                      int&nbsp;retriesAttempted)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">NanosecondPauseBatchRewindStrategy.</span><code><span class="memberNameLink"><a href="../NanosecondPauseBatchRewindStrategy.html#handleRewindException(com.lmax.disruptor.RewindableException,int)">handleRewindException</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
                      int&nbsp;retriesAttempted)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">SimpleBatchRewindStrategy.</span><code><span class="memberNameLink"><a href="../SimpleBatchRewindStrategy.html#handleRewindException(com.lmax.disruptor.RewindableException,int)">handleRewindException</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
                      int&nbsp;retriesAttempted)</code></th>
 <td class="colLast">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary">
+<caption><span>Methods in <a href="../package-summary.html">com.lmax.disruptor</a> that throw <a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">RewindHandler.</span><code><span class="memberNameLink"><a href="../RewindHandler.html#attemptRewindGetNextSequence(com.lmax.disruptor.RewindableException,long)">attemptRewindGetNextSequence</a></span>&#8203;(<a href="../RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a>&nbsp;e,
+                            long&nbsp;startOfBatchSequence)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">RewindableEventHandler.</span><code><span class="memberNameLink"><a href="../RewindableEventHandler.html#onEvent(T,long,boolean)">onEvent</a></span>&#8203;(<a href="../RewindableEventHandler.html" title="type parameter in RewindableEventHandler">T</a>&nbsp;event,
+       long&nbsp;sequence,
+       boolean&nbsp;endOfBatch)</code></th>
+<td class="colLast">
+<div class="block">Called when a publisher has published an event to the <a href="../RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
+</td>
 </tr>
 </tbody>
 </table>
