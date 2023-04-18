@@ -21,8 +21,10 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
+import com.lmax.disruptor.RewindableEventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
+import com.lmax.disruptor.SimpleBatchRewindStrategy;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.stubs.DelayedEventHandler;
 import com.lmax.disruptor.dsl.stubs.EventHandlerStub;
@@ -32,6 +34,7 @@ import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.StubThreadFactory;
+import com.lmax.disruptor.support.DummyEventHandler;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,12 +122,30 @@ public class DisruptorTest
         }
     }
 
-
     @Test
     public void shouldBatchOfEvents() throws Exception
     {
         final CountDownLatch eventCounter = new CountDownLatch(2);
         disruptor.handleEventsWith((event, sequence, endOfBatch) -> eventCounter.countDown());
+
+        disruptor.start();
+
+        disruptor.publishEvents((event, sequence, arg) ->
+        {
+        }, new Object[] { "a", "b" });
+
+        if (!eventCounter.await(5, TimeUnit.SECONDS))
+        {
+            fail("Did not process event published before start was called. Missed events: " + eventCounter.getCount());
+        }
+    }
+
+    @Test
+    public void shouldHandleEventsWithRewindableEventHandlers() throws Exception
+    {
+        final CountDownLatch eventCounter = new CountDownLatch(2);
+        final RewindableEventHandler<TestEvent> testEventRewindableEventHandler = (event, sequence, endOfBatch) -> eventCounter.countDown();
+        disruptor.handleEventsWith(new SimpleBatchRewindStrategy(), testEventRewindableEventHandler);
 
         disruptor.start();
 
@@ -187,6 +208,44 @@ public class DisruptorTest
         assertThat(disruptor.getSequenceValueFor(b1), is(5L));
         assertThat(disruptor.getSequenceValueFor(b2), is(5L));
         assertThat(disruptor.getSequenceValueFor(b3), is(5L));
+    }
+
+    @Test
+    public void shouldGetSequenceBarrierForHandler()
+    {
+        RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
+        EventHandler<TestEvent> handler = new DummyEventHandler<>();
+
+        disruptor.handleEventsWith(handler);
+        disruptor.start();
+
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+
+        assertThat(disruptor.getBarrierFor(handler).getCursor(), is(5L));
+    }
+
+    @Test
+    public void shouldGetSequenceBarrierForHandlerIfAddedAfterPublish()
+    {
+        RingBuffer<TestEvent> rb = disruptor.getRingBuffer();
+        EventHandler<TestEvent> handler = new DummyEventHandler<>();
+
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+        rb.publish(rb.next());
+
+        disruptor.handleEventsWith(handler);
+        disruptor.start();
+
+        assertThat(disruptor.getBarrierFor(handler).getCursor(), is(5L));
     }
 
     @Test
