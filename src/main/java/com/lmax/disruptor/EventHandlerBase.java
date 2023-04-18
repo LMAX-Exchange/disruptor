@@ -15,7 +15,7 @@
  */
 package com.lmax.disruptor;
 
-interface EventHandlerBase<T> extends EventHandlerIdentity<T>
+interface EventHandlerBase<T> extends EventHandlerIdentity
 {
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will

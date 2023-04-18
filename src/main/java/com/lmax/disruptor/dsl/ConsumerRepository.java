@@ -36,7 +36,7 @@ import java.util.concurrent.ThreadFactory;
  */
 class ConsumerRepository<T>
 {
-    private final Map<EventHandlerIdentity<? super T>, EventProcessorInfo> eventProcessorInfoByEventHandler =
+    private final Map<EventHandlerIdentity, EventProcessorInfo> eventProcessorInfoByEventHandler =
         new IdentityHashMap<>();
     private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence =
         new IdentityHashMap<>();
@@ -44,11 +44,11 @@ class ConsumerRepository<T>
 
     public void add(
         final EventProcessor eventprocessor,
-        final EventHandlerIdentity<? super T> handler,
+        final EventHandlerIdentity handlerIdentity,
         final SequenceBarrier barrier)
     {
         final EventProcessorInfo consumerInfo = new EventProcessorInfo(eventprocessor, barrier);
-        eventProcessorInfoByEventHandler.put(handler, consumerInfo);
+        eventProcessorInfoByEventHandler.put(handlerIdentity, consumerInfo);
         eventProcessorInfoBySequence.put(eventprocessor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
     }
@@ -110,20 +110,20 @@ class ConsumerRepository<T>
         return lastSequence.toArray(new Sequence[lastSequence.size()]);
     }
 
-    public EventProcessor getEventProcessorFor(final EventHandlerIdentity<T> handler)
+    public EventProcessor getEventProcessorFor(final EventHandlerIdentity handlerIdentity)
     {
-        final EventProcessorInfo eventprocessorInfo = getEventProcessorInfo(handler);
+        final EventProcessorInfo eventprocessorInfo = getEventProcessorInfo(handlerIdentity);
         if (eventprocessorInfo == null)
         {
-            throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
+            throw new IllegalArgumentException("The event handler " + handlerIdentity + " is not processing events.");
         }
 
         return eventprocessorInfo.getEventProcessor();
     }
 
-    public Sequence getSequenceFor(final EventHandlerIdentity<T> handler)
+    public Sequence getSequenceFor(final EventHandlerIdentity handlerIdentity)
     {
-        return getEventProcessorFor(handler).getSequence();
+        return getEventProcessorFor(handlerIdentity).getSequence();
     }
 
     public void unMarkEventProcessorsAsEndOfChain(final Sequence... barrierEventProcessors)
@@ -134,15 +134,15 @@ class ConsumerRepository<T>
         }
     }
 
-    public SequenceBarrier getBarrierFor(final EventHandlerIdentity<T> handler)
+    public SequenceBarrier getBarrierFor(final EventHandlerIdentity handlerIdentity)
     {
-        final ConsumerInfo consumerInfo = getEventProcessorInfo(handler);
+        final ConsumerInfo consumerInfo = getEventProcessorInfo(handlerIdentity);
         return consumerInfo != null ? consumerInfo.getBarrier() : null;
     }
 
-    private EventProcessorInfo getEventProcessorInfo(final EventHandlerIdentity<T> handler)
+    private EventProcessorInfo getEventProcessorInfo(final EventHandlerIdentity handlerIdentity)
     {
-        return eventProcessorInfoByEventHandler.get(handler);
+        return eventProcessorInfoByEventHandler.get(handlerIdentity);
     }
 
     private ConsumerInfo getEventProcessorInfo(final Sequence barrierEventProcessor)

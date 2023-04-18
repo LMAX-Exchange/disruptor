@@ -246,7 +246,7 @@ public class Disruptor<T>
      * @param eventHandler the event handler to set a different exception handler for.
      * @return an ExceptionHandlerSetting dsl object - intended to be used by chaining the with method call.
      */
-    public ExceptionHandlerSetting<T> handleExceptionsFor(final EventHandlerIdentity<T> eventHandler)
+    public ExceptionHandlerSetting<T> handleExceptionsFor(final EventHandlerIdentity eventHandler)
     {
         return new ExceptionHandlerSetting<>(eventHandler, consumerRepository);
     }
@@ -261,9 +261,7 @@ public class Disruptor<T>
      *                 that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over the specified event handlers.
      */
-    @SafeVarargs
-    @SuppressWarnings("varargs")
-    public final EventHandlerGroup<T> after(final EventHandlerIdentity<T>... handlers)
+    public final EventHandlerGroup<T> after(final EventHandlerIdentity... handlers)
     {
         final Sequence[] sequences = new Sequence[handlers.length];
         for (int i = 0, handlersLength = handlers.length; i < handlersLength; i++)
@@ -473,7 +471,7 @@ public class Disruptor<T>
      * @param handler the handler to get the barrier for.
      * @return the SequenceBarrier used by <i>handler</i>.
      */
-    public SequenceBarrier getBarrierFor(final EventHandlerIdentity<T> handler)
+    public SequenceBarrier getBarrierFor(final EventHandlerIdentity handler)
     {
         return consumerRepository.getBarrierFor(handler);
     }
@@ -481,12 +479,12 @@ public class Disruptor<T>
     /**
      * Gets the sequence value for the specified event handlers.
      *
-     * @param b1 eventHandler to get the sequence for.
+     * @param handler eventHandler to get the sequence for.
      * @return eventHandler's sequence
      */
-    public long getSequenceValueFor(final EventHandlerIdentity<T> b1)
+    public long getSequenceValueFor(final EventHandlerIdentity handler)
     {
-        return consumerRepository.getSequenceFor(b1).get();
+        return consumerRepository.getSequenceFor(handler).get();
     }
 
     /**

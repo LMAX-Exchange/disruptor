@@ -29,14 +29,14 @@ import com.lmax.disruptor.ExceptionHandler;
  */
 public class ExceptionHandlerSetting<T>
 {
-    private final EventHandlerIdentity<T> eventHandler;
+    private final EventHandlerIdentity handlerIdentity;
     private final ConsumerRepository<T> consumerRepository;
 
     ExceptionHandlerSetting(
-        final EventHandlerIdentity<T> eventHandler,
+        final EventHandlerIdentity handlerIdentity,
         final ConsumerRepository<T> consumerRepository)
     {
-        this.eventHandler = eventHandler;
+        this.handlerIdentity = handlerIdentity;
         this.consumerRepository = consumerRepository;
     }
 
@@ -48,11 +48,11 @@ public class ExceptionHandlerSetting<T>
     @SuppressWarnings("unchecked")
     public void with(final ExceptionHandler<? super T> exceptionHandler)
     {
-        final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(eventHandler);
+        final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(handlerIdentity);
         if (eventProcessor instanceof BatchEventProcessor)
         {
             ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
-            consumerRepository.getBarrierFor(eventHandler).alert();
+            consumerRepository.getBarrierFor(handlerIdentity).alert();
         }
         else
         {

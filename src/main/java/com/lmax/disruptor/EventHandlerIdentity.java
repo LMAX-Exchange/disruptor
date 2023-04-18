@@ -1,5 +1,5 @@
 package com.lmax.disruptor;
 
-public interface EventHandlerIdentity<T>
+public interface EventHandlerIdentity
 {
 }
