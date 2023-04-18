@@ -33,12 +33,12 @@ import java.util.Arrays;
 public class EventHandlerGroup<T>
 {
     private final Disruptor<T> disruptor;
-    private final ConsumerRepository<T> consumerRepository;
+    private final ConsumerRepository consumerRepository;
     private final Sequence[] sequences;
 
     EventHandlerGroup(
         final Disruptor<T> disruptor,
-        final ConsumerRepository<T> consumerRepository,
+        final ConsumerRepository consumerRepository,
         final Sequence[] sequences)
     {
         this.disruptor = disruptor;

@@ -21,7 +21,6 @@ import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.dsl.stubs.SleepingEventHandler;
 import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;
-import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ConsumerRepositoryTest
 {
-    private ConsumerRepository<TestEvent> consumerRepository;
+    private ConsumerRepository consumerRepository;
     private EventProcessor eventProcessor1;
     private EventProcessor eventProcessor2;
     private SleepingEventHandler handler1;
@@ -45,7 +44,7 @@ public class ConsumerRepositoryTest
     @BeforeEach
     public void setUp()
     {
-        consumerRepository = new ConsumerRepository<>();
+        consumerRepository = new ConsumerRepository();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
         eventProcessor2 = new DummyEventProcessor(new Sequence());
 

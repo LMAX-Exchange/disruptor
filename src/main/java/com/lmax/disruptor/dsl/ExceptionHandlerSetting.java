@@ -30,11 +30,11 @@ import com.lmax.disruptor.ExceptionHandler;
 public class ExceptionHandlerSetting<T>
 {
     private final EventHandlerIdentity handlerIdentity;
-    private final ConsumerRepository<T> consumerRepository;
+    private final ConsumerRepository consumerRepository;
 
     ExceptionHandlerSetting(
         final EventHandlerIdentity handlerIdentity,
-        final ConsumerRepository<T> consumerRepository)
+        final ConsumerRepository consumerRepository)
     {
         this.handlerIdentity = handlerIdentity;
         this.consumerRepository = consumerRepository;

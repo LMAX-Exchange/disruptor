@@ -31,10 +31,8 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Provides a repository mechanism to associate {@link EventHandler}s with {@link EventProcessor}s
- *
- * @param <T> the type of the {@link EventHandler}
  */
-class ConsumerRepository<T>
+class ConsumerRepository
 {
     private final Map<EventHandlerIdentity, EventProcessorInfo> eventProcessorInfoByEventHandler =
         new IdentityHashMap<>();

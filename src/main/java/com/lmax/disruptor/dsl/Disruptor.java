@@ -63,7 +63,7 @@ public class Disruptor<T>
 {
     private final RingBuffer<T> ringBuffer;
     private final ThreadFactory threadFactory;
-    private final ConsumerRepository<T> consumerRepository = new ConsumerRepository<>();
+    private final ConsumerRepository consumerRepository = new ConsumerRepository();
     private final AtomicBoolean started = new AtomicBoolean(false);
     private ExceptionHandler<? super T> exceptionHandler = new ExceptionHandlerWrapper<>();
 
