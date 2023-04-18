@@ -38,7 +38,7 @@ public class RewindBatchEventProcessorTest
     {
         fill(ringBuffer, 1);
 
-        final TestEventHandler eventHandler = new TestEventHandler(values, asList(rewind(0, 1)), 0, -1);
+        final TestEventHandler eventHandler = new TestEventHandler(values, List.of(rewind(0, 1)), 0, -1);
         final BatchEventProcessor<LongEvent> eventProcessor = create(eventHandler);
         eventHandler.setRewindable(eventProcessor);
 
@@ -441,7 +441,7 @@ public class RewindBatchEventProcessorTest
                 batchRewindStrategy);
     }
 
-    private final class TestEventHandler implements RewindableEventHandler<LongEvent>
+    private static final class TestEventHandler implements RewindableEventHandler<LongEvent>
     {
         private final List<EventResult> values;
         private BatchEventProcessor<LongEvent> processor;
@@ -468,7 +468,7 @@ public class RewindBatchEventProcessorTest
         }
 
         @Override
-        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws RewindableException, Exception
+        public void onEvent(final LongEvent event, final long sequence, final boolean endOfBatch) throws RewindableException
         {
 
             if (sequence == nonRewindableErrorSequence)
@@ -512,7 +512,7 @@ public class RewindBatchEventProcessorTest
 
     private static Matcher<List<EventResult>> containsExactSequence(final EventRangeExpectation... ranges)
     {
-        return new TypeSafeMatcher<List<EventResult>>()
+        return new TypeSafeMatcher<>()
         {
             @Override
             public void describeTo(final Description description)
@@ -524,9 +524,8 @@ public class RewindBatchEventProcessorTest
             public boolean matchesSafely(final List<EventResult> item)
             {
                 int index = 0;
-                for (int i = 0; i < ranges.length; i++)
+                for (final EventRangeExpectation range : ranges)
                 {
-                    final EventRangeExpectation range = ranges[i];
                     for (long v = range.sequenceStart, end = range.sequenceEnd; v <= end; v++)
                     {
                         final EventResult eventResult = item.get(index++);
