@@ -15,7 +15,6 @@
  */
 package com.lmax.disruptor.dsl;
 
-import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -27,20 +26,16 @@ import java.util.concurrent.ThreadFactory;
  *
  * <p><p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
  *
- * @param <T> the type of the configured {@link EventHandler}
  */
-class EventProcessorInfo<T> implements ConsumerInfo
+class EventProcessorInfo implements ConsumerInfo
 {
     private final EventProcessor eventprocessor;
-    private final EventHandler<? super T> handler;
     private final SequenceBarrier barrier;
     private boolean endOfChain = true;
 
-    EventProcessorInfo(
-            final EventProcessor eventprocessor, final EventHandler<? super T> handler, final SequenceBarrier barrier)
+    EventProcessorInfo(final EventProcessor eventprocessor, final SequenceBarrier barrier)
     {
         this.eventprocessor = eventprocessor;
-        this.handler = handler;
         this.barrier = barrier;
     }
 
@@ -53,11 +48,6 @@ class EventProcessorInfo<T> implements ConsumerInfo
     public Sequence[] getSequences()
     {
         return new Sequence[]{eventprocessor.getSequence()};
-    }
-
-    public EventHandler<? super T> getHandler()
-    {
-        return handler;
     }
 
     @Override

@@ -607,7 +607,7 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub<>(countDownLatch);
 
         disruptor.handleEventsWith(
-                (ringBuffer, barrierSequences) ->
+                (EventProcessorFactory<TestEvent>) (ringBuffer, barrierSequences) ->
                 {
                     assertEquals(0, barrierSequences.length,
                             "Should not have had any barrier sequences");
@@ -626,14 +626,15 @@ public class DisruptorTest
         final EventHandler<TestEvent> eventHandler = new EventHandlerStub<>(countDownLatch);
         final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
 
-        disruptor.handleEventsWith(delayedEventHandler).then(
-                (ringBuffer, barrierSequences) ->
-                {
-                    assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
-                    return new BatchEventProcessorBuilder().build(
-                            disruptor.getRingBuffer(), ringBuffer.newBarrier(
+        final EventProcessorFactory<TestEvent> eventProcessorFactory = (ringBuffer, barrierSequences) ->
+        {
+            assertSame(1, barrierSequences.length, "Should have had a barrier sequence");
+            return new BatchEventProcessorBuilder().build(
+                    disruptor.getRingBuffer(), ringBuffer.newBarrier(
                             barrierSequences), eventHandler);
-                });
+        };
+        disruptor.handleEventsWith(delayedEventHandler)
+                .then(eventProcessorFactory);
 
         ensureTwoEventsProcessedAccordingToDependencies(countDownLatch, delayedEventHandler);
     }

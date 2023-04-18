@@ -16,7 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventHandlerIdentity;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.ExceptionHandler;
 
@@ -29,11 +29,11 @@ import com.lmax.disruptor.ExceptionHandler;
  */
 public class ExceptionHandlerSetting<T>
 {
-    private final EventHandler<T> eventHandler;
+    private final EventHandlerIdentity<T> eventHandler;
     private final ConsumerRepository<T> consumerRepository;
 
     ExceptionHandlerSetting(
-        final EventHandler<T> eventHandler,
+        final EventHandlerIdentity<T> eventHandler,
         final ConsumerRepository<T> consumerRepository)
     {
         this.eventHandler = eventHandler;

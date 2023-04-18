@@ -16,6 +16,7 @@
 package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventHandlerIdentity;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -24,18 +25,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Provides a repository mechanism to associate {@link EventHandler}s with {@link EventProcessor}s
  *
  * @param <T> the type of the {@link EventHandler}
  */
-class ConsumerRepository<T> implements Iterable<ConsumerInfo>
+class ConsumerRepository<T>
 {
-    private final Map<EventHandler<?>, EventProcessorInfo<T>> eventProcessorInfoByEventHandler =
+    private final Map<EventHandlerIdentity<? super T>, EventProcessorInfo> eventProcessorInfoByEventHandler =
         new IdentityHashMap<>();
     private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence =
         new IdentityHashMap<>();
@@ -43,10 +44,10 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public void add(
         final EventProcessor eventprocessor,
-        final EventHandler<? super T> handler,
+        final EventHandlerIdentity<? super T> handler,
         final SequenceBarrier barrier)
     {
-        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<>(eventprocessor, handler, barrier);
+        final EventProcessorInfo consumerInfo = new EventProcessorInfo(eventprocessor, barrier);
         eventProcessorInfoByEventHandler.put(handler, consumerInfo);
         eventProcessorInfoBySequence.put(eventprocessor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
@@ -54,9 +55,19 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
 
     public void add(final EventProcessor processor)
     {
-        final EventProcessorInfo<T> consumerInfo = new EventProcessorInfo<>(processor, null, null);
+        final EventProcessorInfo consumerInfo = new EventProcessorInfo(processor, null);
         eventProcessorInfoBySequence.put(processor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
+    }
+
+    public void startAll(final ThreadFactory threadFactory)
+    {
+        consumerInfos.forEach(c -> c.start(threadFactory));
+    }
+
+    public void haltAll()
+    {
+        consumerInfos.forEach(ConsumerInfo::halt);
     }
 
     public boolean hasBacklog(final long cursor, final boolean includeStopped)
@@ -99,9 +110,9 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         return lastSequence.toArray(new Sequence[lastSequence.size()]);
     }
 
-    public EventProcessor getEventProcessorFor(final EventHandler<T> handler)
+    public EventProcessor getEventProcessorFor(final EventHandlerIdentity<T> handler)
     {
-        final EventProcessorInfo<T> eventprocessorInfo = getEventProcessorInfo(handler);
+        final EventProcessorInfo eventprocessorInfo = getEventProcessorInfo(handler);
         if (eventprocessorInfo == null)
         {
             throw new IllegalArgumentException("The event handler " + handler + " is not processing events.");
@@ -110,7 +121,7 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         return eventprocessorInfo.getEventProcessor();
     }
 
-    public Sequence getSequenceFor(final EventHandler<T> handler)
+    public Sequence getSequenceFor(final EventHandlerIdentity<T> handler)
     {
         return getEventProcessorFor(handler).getSequence();
     }
@@ -123,19 +134,13 @@ class ConsumerRepository<T> implements Iterable<ConsumerInfo>
         }
     }
 
-    @Override
-    public Iterator<ConsumerInfo> iterator()
-    {
-        return consumerInfos.iterator();
-    }
-
-    public SequenceBarrier getBarrierFor(final EventHandler<T> handler)
+    public SequenceBarrier getBarrierFor(final EventHandlerIdentity<T> handler)
     {
         final ConsumerInfo consumerInfo = getEventProcessorInfo(handler);
         return consumerInfo != null ? consumerInfo.getBarrier() : null;
     }
 
-    private EventProcessorInfo<T> getEventProcessorInfo(final EventHandler<T> handler)
+    private EventProcessorInfo getEventProcessorInfo(final EventHandlerIdentity<T> handler)
     {
         return eventProcessorInfoByEventHandler.get(handler);
     }
