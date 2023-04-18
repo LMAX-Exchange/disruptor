@@ -6,18 +6,25 @@
 
 ## 4.0.0 - Release Candidate
 
-- Breaking Changes
-- Minimum Java version now 11
-- Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
-- `Disruptor` constructors using Executor have been removed. Use ThreadFactory instead.
-- Rolled up event handling extension interfaces on to EventHandler:
-- `BatchStartAware`
-- `LifecycleAware`
-- `SequenceReportingEventHandler`
-- Deprecated ThreadHints.onSpinWait()
-- FatalExceptionHandler and IgnoreExceptionHandler now use the JDK 9 Platform Logging API, i.e. System.Logger
-- Add rewind batch feature to the BatchEventProcessor
-- Added documentation to EventPoller
+* Minimum Java version now 11
+* Issue #323 - `WorkerPool` and `WorkProcessor` have been removed, no more `Disruptor::handleEventsWithWorkerPool`
+* `Disruptor` constructors using `Executor` have been removed. Use `ThreadFactory` instead.
+* Rolled up event handling extension interfaces on to `EventHandler`:
+**`BatchStartAware`
+** `LifecycleAware`
+** `SequenceReportingEventHandler`
+* Deprecations
+** Deprecated `ThreadHints.onSpinWait()`
+** Deprecated `Disruptor.handleExceptionsWith()` - this had been javadoc deprecated since 2015 but not in the code
+** Removed previously deprecated methods
+*** `Ringbuffer.resetTo()`
+*** `ConsumerRepository.getLastSequenceInChain()`
+* `FatalExceptionHandler` and `IgnoreExceptionHandler` now use the JDK 9 Platform Logging API, i.e. `System.Logger`
+* Add rewind batch feature to the `BatchEventProcessor`
+* Add a maximum batch size argument to `BatchEventProcessor`
+** `EventHandler::onBatchStart` now gets both the `batchSize` as well as `queueDepth` (previously it had `batchSize` which reported queue depth)
+* Added documentation to `EventPoller`
+* `Util::log2` throws if passed a non-positive argument
 
 ## 3.4.3
 
