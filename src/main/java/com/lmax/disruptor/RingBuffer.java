@@ -309,21 +309,6 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     }
 
     /**
-     * Resets the cursor to a specific value.  This can be applied at any time, but it is worth noting
-     * that it can cause a data race and should only be used in controlled circumstances.  E.g. during
-     * initialisation.
-     *
-     * @param sequence The sequence to reset too.
-     * @throws IllegalStateException If any gating sequences have already been specified.
-     */
-    @Deprecated
-    public void resetTo(final long sequence)
-    {
-        sequencer.claim(sequence);
-        sequencer.publish(sequence);
-    }
-
-    /**
      * Sets the cursor to a specific sequence and returns the preallocated entry that is stored there.  This
      * can cause a data race and should only be done in controlled circumstances, e.g. during initialisation.
      *

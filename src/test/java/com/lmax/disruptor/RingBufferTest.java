@@ -1431,43 +1431,6 @@ public class RingBufferTest
         assertThat(ringBuffer.getMinimumGatingSequence(), is(7L));
     }
 
-    @Test
-    public void shouldHandleResetToAndNotWrapUnnecessarilySingleProducer() throws Exception
-    {
-        assertHandleResetAndNotWrap(RingBuffer.createSingleProducer(StubEvent.EVENT_FACTORY, 4));
-    }
-
-    @Test
-    public void shouldHandleResetToAndNotWrapUnnecessarilyMultiProducer() throws Exception
-    {
-        assertHandleResetAndNotWrap(RingBuffer.createMultiProducer(StubEvent.EVENT_FACTORY, 4));
-    }
-
-    @SuppressWarnings("deprecation")
-    private void assertHandleResetAndNotWrap(final RingBuffer<StubEvent> rb)
-    {
-        Sequence sequence = new Sequence();
-        rb.addGatingSequences(sequence);
-
-        for (int i = 0; i < 128; i++)
-        {
-            rb.publish(rb.next());
-            sequence.incrementAndGet();
-        }
-
-        assertThat(rb.getCursor(), is(127L));
-
-        rb.resetTo(31);
-        sequence.set(31);
-
-        for (int i = 0; i < 4; i++)
-        {
-            rb.publish(rb.next());
-        }
-
-        assertThat(rb.hasAvailableCapacity(1), is(false));
-    }
-
     private Future<List<StubEvent>> getMessages(final long initial, final long toWaitFor) throws InterruptedException,
         BrokenBarrierException
     {
