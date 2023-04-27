@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":42,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -211,7 +211,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#after(com.lmax.disruptor.EventHandler...)">after</a></span>&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#after(com.lmax.disruptor.EventHandlerIdentity...)">after</a></span>&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>...&nbsp;handlers)</code></th>
 <td class="colLast">
 <div class="block">Create a group of event handlers to be used as a dependency.</div>
 </td>
@@ -232,7 +232,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBarrierFor(com.lmax.disruptor.EventHandler)">getBarrierFor</a></span>&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;handler)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBarrierFor(com.lmax.disruptor.EventHandlerIdentity)">getBarrierFor</a></span>&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;handler)</code></th>
 <td class="colLast">
 <div class="block">Get the <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a> used by a specific handler.</div>
 </td>
@@ -260,7 +260,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSequenceValueFor(com.lmax.disruptor.EventHandler)">getSequenceValueFor</a></span>&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;b1)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSequenceValueFor(com.lmax.disruptor.EventHandlerIdentity)">getSequenceValueFor</a></span>&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;handler)</code></th>
 <td class="colLast">
 <div class="block">Gets the sequence value for the specified event handlers.</div>
 </td>
@@ -274,33 +274,41 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">handleEventsWith</a></span>&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy,
+                <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super <a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</code></th>
+<td class="colLast">
+<div class="block">Set up event handlers to handle events from the ring buffer.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleEventsWith(com.lmax.disruptor.dsl.EventProcessorFactory...)">handleEventsWith</a></span>&#8203;(<a href="EventProcessorFactory.html" title="interface in com.lmax.disruptor.dsl">EventProcessorFactory</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;eventProcessorFactories)</code></th>
 <td class="colLast">
 <div class="block">Set up custom event processors to handle events from the ring buffer.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleEventsWith(com.lmax.disruptor.EventHandler...)">handleEventsWith</a></span>&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;? super <a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</code></th>
 <td class="colLast">
 <div class="block">Set up event handlers to handle events from the ring buffer.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleEventsWith(com.lmax.disruptor.EventProcessor...)">handleEventsWith</a></span>&#8203;(<a href="../EventProcessor.html" title="interface in com.lmax.disruptor">EventProcessor</a>...&nbsp;processors)</code></th>
 <td class="colLast">
 <div class="block">Set up custom event processors to handle events from the ring buffer.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="ExceptionHandlerSetting.html" title="class in com.lmax.disruptor.dsl">ExceptionHandlerSetting</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleExceptionsFor(com.lmax.disruptor.EventHandler)">handleExceptionsFor</a></span>&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;eventHandler)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleExceptionsFor(com.lmax.disruptor.EventHandlerIdentity)">handleExceptionsFor</a></span>&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;eventHandler)</code></th>
 <td class="colLast">
 <div class="block">Override the default exception handler for a specific handler.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleExceptionsWith(com.lmax.disruptor.ExceptionHandler)">handleExceptionsWith</a></span>&#8203;(<a href="../ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;? super <a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;exceptionHandler)</code></th>
 <td class="colLast">
@@ -309,21 +317,21 @@ extends java.lang.Object</pre>
 </div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasStarted()">hasStarted</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Checks if disruptor has been started</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishEvent(com.lmax.disruptor.EventTranslator)">publishEvent</a></span>&#8203;(<a href="../EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;eventTranslator)</code></th>
 <td class="colLast">
 <div class="block">Publish an event to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>&lt;A&gt;&nbsp;void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishEvent(com.lmax.disruptor.EventTranslatorOneArg,A)">publishEvent</a></span>&#8203;(<a href="../EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>,&#8203;A&gt;&nbsp;eventTranslator,
             A&nbsp;arg)</code></th>
@@ -331,7 +339,7 @@ extends java.lang.Object</pre>
 <div class="block">Publish an event to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>&lt;A,&#8203;B,&#8203;C&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishEvent(com.lmax.disruptor.EventTranslatorThreeArg,A,B,C)">publishEvent</a></span>&#8203;(<a href="../EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>,&#8203;A,&#8203;B,&#8203;C&gt;&nbsp;eventTranslator,
             A&nbsp;arg0,
@@ -341,7 +349,7 @@ extends java.lang.Object</pre>
 <div class="block">Publish an event to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>&lt;A,&#8203;B&gt;<br>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishEvent(com.lmax.disruptor.EventTranslatorTwoArg,A,B)">publishEvent</a></span>&#8203;(<a href="../EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>,&#8203;A,&#8203;B&gt;&nbsp;eventTranslator,
             A&nbsp;arg0,
@@ -350,7 +358,7 @@ extends java.lang.Object</pre>
 <div class="block">Publish an event to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>&lt;A&gt;&nbsp;void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishEvents(com.lmax.disruptor.EventTranslatorOneArg,A%5B%5D)">publishEvents</a></span>&#8203;(<a href="../EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>,&#8203;A&gt;&nbsp;eventTranslator,
              A[]&nbsp;arg)</code></th>
@@ -358,14 +366,14 @@ extends java.lang.Object</pre>
 <div class="block">Publish a batch of events to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultExceptionHandler(com.lmax.disruptor.ExceptionHandler)">setDefaultExceptionHandler</a></span>&#8203;(<a href="../ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;? super <a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;exceptionHandler)</code></th>
 <td class="colLast">
 <div class="block">Specify an exception handler to be used for event handlers and worker pools created by this Disruptor.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shutdown()">shutdown</a></span>()</code></th>
 <td class="colLast">
@@ -373,7 +381,7 @@ extends java.lang.Object</pre>
  and then halts the processors.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shutdown(long,java.util.concurrent.TimeUnit)">shutdown</a></span>&#8203;(long&nbsp;timeout,
         java.util.concurrent.TimeUnit&nbsp;timeUnit)</code></th>
@@ -382,14 +390,14 @@ extends java.lang.Object</pre>
  and then halts the processors.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="../RingBuffer.html" title="class in com.lmax.disruptor">RingBuffer</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Starts the event processors and returns the fully configured ring buffer.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -493,6 +501,32 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
 </dl>
 </li>
 </ul>
+<a id="handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>handleEventsWith</h4>
+<pre class="methodSignature">@SafeVarargs
+public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;handleEventsWith&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy,
+                                                   <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super <a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</pre>
+<div class="block"><p>Set up event handlers to handle events from the ring buffer. These handlers will process events
+ as soon as they become available, in parallel.</p>
+
+ <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
+ process events before handler <code>B</code>:</p>
+ <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
+
+ <p>This call is additive, but generally should only be called once when setting up the Disruptor instance</p></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>batchRewindStrategy</code> - a <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> for customizing how to handle a <a href="../RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a>.</dd>
+<dd><code>handlers</code> - the rewindable event handlers that will process events.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a <a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl"><code>EventHandlerGroup</code></a> that can be used to chain dependencies.</dd>
+</dl>
+</li>
+</ul>
 <a id="handleEventsWith(com.lmax.disruptor.dsl.EventProcessorFactory...)">
 <!--   -->
 </a>
@@ -579,13 +613,13 @@ public&nbsp;void&nbsp;handleExceptionsWith&#8203;(<a href="../ExceptionHandler.h
 </dl>
 </li>
 </ul>
-<a id="handleExceptionsFor(com.lmax.disruptor.EventHandler)">
+<a id="handleExceptionsFor(com.lmax.disruptor.EventHandlerIdentity)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handleExceptionsFor</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExceptionHandlerSetting.html" title="class in com.lmax.disruptor.dsl">ExceptionHandlerSetting</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;handleExceptionsFor&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;eventHandler)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ExceptionHandlerSetting.html" title="class in com.lmax.disruptor.dsl">ExceptionHandlerSetting</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;handleExceptionsFor&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;eventHandler)</pre>
 <div class="block">Override the default exception handler for a specific handler.
  <pre>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</pre></div>
 <dl>
@@ -596,14 +630,13 @@ public&nbsp;void&nbsp;handleExceptionsWith&#8203;(<a href="../ExceptionHandler.h
 </dl>
 </li>
 </ul>
-<a id="after(com.lmax.disruptor.EventHandler...)">
+<a id="after(com.lmax.disruptor.EventHandlerIdentity...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>after</h4>
-<pre class="methodSignature">@SafeVarargs
-public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;after&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</pre>
+<pre class="methodSignature">public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;after&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>...&nbsp;handlers)</pre>
 <div class="block"><p>Create a group of event handlers to be used as a dependency.
  For example if the handler <code>A</code> must process events before handler <code>B</code>:</p>
 
@@ -632,7 +665,7 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an <a href="EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl"><code>EventHandlerGroup</code></a> that can be used to setup a <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a> over the specified event processors.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="#after(com.lmax.disruptor.EventHandler...)"><code>after(EventHandler[])</code></a></dd>
+<dd><a href="#after(com.lmax.disruptor.EventHandlerIdentity...)"><code>after(EventHandlerIdentity[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -869,13 +902,13 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
 </dl>
 </li>
 </ul>
-<a id="getBarrierFor(com.lmax.disruptor.EventHandler)">
+<a id="getBarrierFor(com.lmax.disruptor.EventHandlerIdentity)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getBarrierFor</h4>
-<pre class="methodSignature">public&nbsp;<a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;getBarrierFor&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;handler)</pre>
+<pre class="methodSignature">public&nbsp;<a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a>&nbsp;getBarrierFor&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;handler)</pre>
 <div class="block">Get the <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a> used by a specific handler. Note that the <a href="../SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a>
  may be shared by multiple event handlers.</div>
 <dl>
@@ -886,17 +919,17 @@ public final&nbsp;<a href="EventHandlerGroup.html" title="class in com.lmax.disr
 </dl>
 </li>
 </ul>
-<a id="getSequenceValueFor(com.lmax.disruptor.EventHandler)">
+<a id="getSequenceValueFor(com.lmax.disruptor.EventHandlerIdentity)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSequenceValueFor</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getSequenceValueFor&#8203;(<a href="../EventHandler.html" title="interface in com.lmax.disruptor">EventHandler</a>&lt;<a href="Disruptor.html" title="type parameter in Disruptor">T</a>&gt;&nbsp;b1)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;getSequenceValueFor&#8203;(<a href="../EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a>&nbsp;handler)</pre>
 <div class="block">Gets the sequence value for the specified event handlers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>b1</code> - eventHandler to get the sequence for.</dd>
+<dd><code>handler</code> - eventHandler to get the sequence for.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>eventHandler's sequence</dd>
 </dl>

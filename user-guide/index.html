@@ -446,22 +446,22 @@ td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5
 span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
 pre.pygments .hll { background-color: #ffffcc }
 pre.pygments { background: #f8f8f8; }
-pre.pygments .tok-c { color: #408080; font-style: italic } /* Comment */
+pre.pygments .tok-c { color: #3D7B7B; font-style: italic } /* Comment */
 pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
 pre.pygments .tok-k { color: #008000; font-weight: bold } /* Keyword */
 pre.pygments .tok-o { color: #666666 } /* Operator */
-pre.pygments .tok-ch { color: #408080; font-style: italic } /* Comment.Hashbang */
-pre.pygments .tok-cm { color: #408080; font-style: italic } /* Comment.Multiline */
-pre.pygments .tok-cp { color: #BC7A00 } /* Comment.Preproc */
-pre.pygments .tok-cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
-pre.pygments .tok-c1 { color: #408080; font-style: italic } /* Comment.Single */
-pre.pygments .tok-cs { color: #408080; font-style: italic } /* Comment.Special */
+pre.pygments .tok-ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #9C6500 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
 pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
-pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+pre.pygments .tok-gr { color: #E40000 } /* Generic.Error */
 pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
-pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
-pre.pygments .tok-go { color: #888888 } /* Generic.Output */
+pre.pygments .tok-gi { color: #008400 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #717171 } /* Generic.Output */
 pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
 pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
 pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
@@ -474,15 +474,15 @@ pre.pygments .tok-kr { color: #008000; font-weight: bold } /* Keyword.Reserved *
 pre.pygments .tok-kt { color: #B00040 } /* Keyword.Type */
 pre.pygments .tok-m { color: #666666 } /* Literal.Number */
 pre.pygments .tok-s { color: #BA2121 } /* Literal.String */
-pre.pygments .tok-na { color: #7D9029 } /* Name.Attribute */
+pre.pygments .tok-na { color: #687822 } /* Name.Attribute */
 pre.pygments .tok-nb { color: #008000 } /* Name.Builtin */
 pre.pygments .tok-nc { color: #0000FF; font-weight: bold } /* Name.Class */
 pre.pygments .tok-no { color: #880000 } /* Name.Constant */
 pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
-pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
-pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-ni { color: #717171; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
 pre.pygments .tok-nf { color: #0000FF } /* Name.Function */
-pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
+pre.pygments .tok-nl { color: #767600 } /* Name.Label */
 pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
 pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
 pre.pygments .tok-nv { color: #19177C } /* Name.Variable */
@@ -499,11 +499,11 @@ pre.pygments .tok-sc { color: #BA2121 } /* Literal.String.Char */
 pre.pygments .tok-dl { color: #BA2121 } /* Literal.String.Delimiter */
 pre.pygments .tok-sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 pre.pygments .tok-s2 { color: #BA2121 } /* Literal.String.Double */
-pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
 pre.pygments .tok-sh { color: #BA2121 } /* Literal.String.Heredoc */
-pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
 pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
-pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
+pre.pygments .tok-sr { color: #A45A77 } /* Literal.String.Regex */
 pre.pygments .tok-s1 { color: #BA2121 } /* Literal.String.Single */
 pre.pygments .tok-ss { color: #19177C } /* Literal.String.Symbol */
 pre.pygments .tok-bp { color: #008000 } /* Name.Builtin.Pseudo */
@@ -769,20 +769,20 @@ Whilst they are all fundamentally similar, there may be slight nuances in each a
 <div class="listingblock">
 <div class="title">Example <code>LongEvent</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEvent</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEvent</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">private</span> <span class="tok-kt">long</span> <span class="tok-n">value</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">value</span><span class="tok-p">;</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">set</span><span class="tok-p">(</span><span class="tok-kt">long</span> <span class="tok-n">value</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">value</span> <span class="tok-o">=</span> <span class="tok-n">value</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">set</span><span class="tok-p">(</span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">value</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">value</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">value</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-n">String</span> <span class="tok-nf">toString</span><span class="tok-p">()</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">return</span> <span class="tok-s">&quot;LongEvent{&quot;</span> <span class="tok-o">+</span> <span class="tok-s">&quot;value=&quot;</span> <span class="tok-o">+</span> <span class="tok-n">value</span> <span class="tok-o">+</span> <span class="tok-sc">&#39;}&#39;</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-n">String</span><span class="tok-w"> </span><span class="tok-nf">toString</span><span class="tok-p">()</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-s">&quot;LongEvent{&quot;</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-s">&quot;value=&quot;</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">value</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-sc">&#39;}&#39;</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -793,13 +793,13 @@ This could be a method reference, such as <code>LongEvent::new</code> or an expl
 <div class="listingblock">
 <div class="title">Example <code>LongEventFactory</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventFactory</span> <span class="tok-kd">implements</span> <span class="tok-n">EventFactory</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventFactory</span><span class="tok-w"> </span><span class="tok-kd">implements</span><span class="tok-w"> </span><span class="tok-n">EventFactory</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
 <span class="tok-p">{</span>
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-n">LongEvent</span> <span class="tok-nf">newInstance</span><span class="tok-p">()</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">return</span> <span class="tok-k">new</span> <span class="tok-n">LongEvent</span><span class="tok-p">();</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-nf">newInstance</span><span class="tok-p">()</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">LongEvent</span><span class="tok-p">();</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -810,13 +810,13 @@ As an example, we will create an <code>EventHandler</code> that will print the v
 <div class="listingblock">
 <div class="title">Example <code>LongEventHandler</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventHandler</span> <span class="tok-kd">implements</span> <span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventHandler</span><span class="tok-w"> </span><span class="tok-kd">implements</span><span class="tok-w"> </span><span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
 <span class="tok-p">{</span>
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-kt">boolean</span> <span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-s">&quot;Event: &quot;</span> <span class="tok-o">+</span> <span class="tok-n">event</span><span class="tok-p">);</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-s">&quot;Event: &quot;</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -835,35 +835,35 @@ This is the preferred approach, as it encapsulates much of the complexity of the
 <div class="listingblock">
 <div class="title">Publishing events using lambdas</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span> <span class="tok-n">args</span><span class="tok-p">)</span> <span class="tok-kd">throws</span> <span class="tok-n">Exception</span>
-    <span class="tok-p">{</span>
-        <span class="tok-kt">int</span> <span class="tok-n">bufferSize</span> <span class="tok-o">=</span> <span class="tok-mi">1024</span><span class="tok-p">;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span><span class="tok-w"> </span><span class="tok-n">args</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kd">throws</span><span class="tok-w"> </span><span class="tok-n">Exception</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1024</span><span class="tok-p">;</span><span class="tok-w"> </span><i class="conum" data-value="1"></i><b>(1)</b>
 
-        <span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">disruptor</span> <span class="tok-o">=</span> <i class="conum" data-value="2"></i><b>(2)</b>
-                <span class="tok-k">new</span> <span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-p">::</span><span class="tok-k">new</span><span class="tok-p">,</span> <span class="tok-n">bufferSize</span><span class="tok-p">,</span> <span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="tok-w">                </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-p">::</span><span class="tok-k">new</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
 
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-n">endOfBatch</span><span class="tok-p">)</span> <span class="tok-o">-&gt;</span>
-                <span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-s">&quot;Event: &quot;</span> <span class="tok-o">+</span> <span class="tok-n">event</span><span class="tok-p">));</span> <i class="conum" data-value="3"></i><b>(3)</b>
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span> <i class="conum" data-value="4"></i><b>(4)</b>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">                </span><span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-s">&quot;Event: &quot;</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">));</span><span class="tok-w"> </span><i class="conum" data-value="3"></i><b>(3)</b>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span><span class="tok-w"> </span><i class="conum" data-value="4"></i><b>(4)</b>
 
 
-        <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span> <span class="tok-o">=</span> <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span> <i class="conum" data-value="5"></i><b>(5)</b>
-        <span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span> <span class="tok-o">=</span> <span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
-        <span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-kt">long</span> <span class="tok-n">l</span> <span class="tok-o">=</span> <span class="tok-mi">0</span><span class="tok-p">;</span> <span class="tok-kc">true</span><span class="tok-p">;</span> <span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-n">l</span><span class="tok-p">);</span>
-            <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-n">buffer</span><span class="tok-p">)</span> <span class="tok-o">-&gt;</span> <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">buffer</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">)),</span> <span class="tok-n">bb</span><span class="tok-p">);</span>
-            <span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
-        <span class="tok-p">}</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span><span class="tok-w"> </span><i class="conum" data-value="5"></i><b>(5)</b>
+<span class="tok-w">        </span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-kc">true</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">buffer</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">buffer</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">)),</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -907,12 +907,12 @@ This is the preferred approach, as it encapsulates much of the complexity of the
 <div class="listingblock">
 <div class="title">Example of a capturing lambda</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span> <span class="tok-o">=</span> <span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
-<span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-kt">long</span> <span class="tok-n">l</span> <span class="tok-o">=</span> <span class="tok-mi">0</span><span class="tok-p">;</span> <span class="tok-kc">true</span><span class="tok-p">;</span> <span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
+<span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-kc">true</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
 <span class="tok-p">{</span>
-    <span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-n">l</span><span class="tok-p">);</span>
-    <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-n">sequence</span><span class="tok-p">)</span> <span class="tok-o">-&gt;</span> <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">)));</span>
-    <span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">((</span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">)));</span>
+<span class="tok-w">    </span><span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -931,43 +931,43 @@ This will create additional (unnecessary) garbage, so the call that passes the a
 <div class="title">Example using method references</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="java"><span></span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
 
-<span class="tok-kn">import</span> <span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">handleEvent</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-kt">boolean</span> <span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-n">event</span><span class="tok-p">);</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">handleEvent</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">System</span><span class="tok-p">.</span><span class="tok-na">out</span><span class="tok-p">.</span><span class="tok-na">println</span><span class="tok-p">(</span><span class="tok-n">event</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">translate</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-n">ByteBuffer</span> <span class="tok-n">buffer</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">buffer</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">translate</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">buffer</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">buffer</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span> <span class="tok-n">args</span><span class="tok-p">)</span> <span class="tok-kd">throws</span> <span class="tok-n">Exception</span>
-    <span class="tok-p">{</span>
-        <span class="tok-kt">int</span> <span class="tok-n">bufferSize</span> <span class="tok-o">=</span> <span class="tok-mi">1024</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span><span class="tok-w"> </span><span class="tok-n">args</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kd">throws</span><span class="tok-w"> </span><span class="tok-n">Exception</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1024</span><span class="tok-p">;</span>
 
-        <span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">disruptor</span> <span class="tok-o">=</span>
-                <span class="tok-k">new</span> <span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-p">::</span><span class="tok-k">new</span><span class="tok-p">,</span> <span class="tok-n">bufferSize</span><span class="tok-p">,</span> <span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-n">LongEventMain</span><span class="tok-p">::</span><span class="tok-n">handleEvent</span><span class="tok-p">);</span>
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span>
+<span class="tok-w">        </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">                </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-p">::</span><span class="tok-k">new</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-n">LongEventMain</span><span class="tok-p">::</span><span class="tok-n">handleEvent</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span>
 
-        <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span> <span class="tok-o">=</span> <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span>
-        <span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span> <span class="tok-o">=</span> <span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
-        <span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-kt">long</span> <span class="tok-n">l</span> <span class="tok-o">=</span> <span class="tok-mi">0</span><span class="tok-p">;</span> <span class="tok-kc">true</span><span class="tok-p">;</span> <span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-n">l</span><span class="tok-p">);</span>
-            <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">(</span><span class="tok-n">LongEventMain</span><span class="tok-p">::</span><span class="tok-n">translate</span><span class="tok-p">,</span> <span class="tok-n">bb</span><span class="tok-p">);</span>
-            <span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
-        <span class="tok-p">}</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span>
+<span class="tok-w">        </span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-kc">true</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">(</span><span class="tok-n">LongEventMain</span><span class="tok-p">::</span><span class="tok-n">translate</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -981,34 +981,34 @@ This will create additional (unnecessary) garbage, so the call that passes the a
 <div class="title">Example <code>LongEventProducer</code></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="java"><span></span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.EventTranslatorOneArg</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.EventTranslatorOneArg</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kn">import</span> <span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventProducer</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventProducer</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">private</span> <span class="tok-kd">final</span> <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
 
-    <span class="tok-kd">public</span> <span class="tok-nf">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">ringBuffer</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-nf">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">private</span> <span class="tok-kd">static</span> <span class="tok-kd">final</span> <span class="tok-n">EventTranslatorOneArg</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-p">,</span> <span class="tok-n">ByteBuffer</span><span class="tok-o">&gt;</span> <span class="tok-n">TRANSLATOR</span> <span class="tok-o">=</span>
-        <span class="tok-k">new</span> <span class="tok-n">EventTranslatorOneArg</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-p">,</span> <span class="tok-n">ByteBuffer</span><span class="tok-o">&gt;</span><span class="tok-p">()</span>
-        <span class="tok-p">{</span>
-            <span class="tok-nd">@Override</span>
-            <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">translateTo</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span><span class="tok-p">)</span>
-            <span class="tok-p">{</span>
-                <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span>
-            <span class="tok-p">}</span>
-        <span class="tok-p">};</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">EventTranslatorOneArg</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">TRANSLATOR</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">        </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">EventTranslatorOneArg</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-o">&gt;</span><span class="tok-p">()</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-nd">@Override</span>
+<span class="tok-w">            </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">translateTo</span><span class="tok-p">(</span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">)</span>
+<span class="tok-w">            </span><span class="tok-p">{</span>
+<span class="tok-w">                </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span>
+<span class="tok-w">            </span><span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-p">};</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onData</span><span class="tok-p">(</span><span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">(</span><span class="tok-n">TRANSLATOR</span><span class="tok-p">,</span> <span class="tok-n">bb</span><span class="tok-p">);</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onData</span><span class="tok-p">(</span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publishEvent</span><span class="tok-p">(</span><span class="tok-n">TRANSLATOR</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1031,33 +1031,33 @@ The arguments to the translation method are passed through the call on the Ring 
 <div class="listingblock">
 <div class="title">Example Legacy <code>LongEventProducer</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
 
-<span class="tok-kn">import</span> <span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventProducer</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventProducer</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">private</span> <span class="tok-kd">final</span> <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
 
-    <span class="tok-kd">public</span> <span class="tok-nf">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">ringBuffer</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-nf">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onData</span><span class="tok-p">(</span><span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-kt">long</span> <span class="tok-n">sequence</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">next</span><span class="tok-p">();</span> <i class="conum" data-value="1"></i><b>(1)</b>
-        <span class="tok-k">try</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">LongEvent</span> <span class="tok-n">event</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">get</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span> <i class="conum" data-value="2"></i><b>(2)</b>
-            <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span>  <i class="conum" data-value="3"></i><b>(3)</b>
-        <span class="tok-p">}</span>
-        <span class="tok-k">finally</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publish</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span>
-        <span class="tok-p">}</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onData</span><span class="tok-p">(</span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">next</span><span class="tok-p">();</span><span class="tok-w"> </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tok-w">        </span><span class="tok-k">try</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">get</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span><span class="tok-w"> </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="tok-w">            </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">getLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">));</span><span class="tok-w">  </span><i class="conum" data-value="3"></i><b>(3)</b>
+<span class="tok-w">        </span><span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-k">finally</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">publish</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1123,37 +1123,37 @@ Some of the more complicated options are not available via the DSL; however, it 
 <div class="listingblock">
 <div class="title">Example using the legacy <code>LongEventProducer</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEventFactory</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEventHandler</span><span class="tok-p">;</span>
-<span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.RingBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.dsl.Disruptor</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEvent</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEventFactory</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.examples.longevent.LongEventHandler</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.util.DaemonThreadFactory</span><span class="tok-p">;</span>
 
-<span class="tok-kn">import</span> <span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
+<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">java.nio.ByteBuffer</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span> <span class="tok-n">args</span><span class="tok-p">)</span> <span class="tok-kd">throws</span> <span class="tok-n">Exception</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">LongEventFactory</span> <span class="tok-n">factory</span> <span class="tok-o">=</span> <span class="tok-k">new</span> <span class="tok-n">LongEventFactory</span><span class="tok-p">();</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span><span class="tok-w"> </span><span class="tok-n">args</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kd">throws</span><span class="tok-w"> </span><span class="tok-n">Exception</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">LongEventFactory</span><span class="tok-w"> </span><span class="tok-n">factory</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">LongEventFactory</span><span class="tok-p">();</span>
 
-        <span class="tok-kt">int</span> <span class="tok-n">bufferSize</span> <span class="tok-o">=</span> <span class="tok-mi">1024</span><span class="tok-p">;</span>
-        <span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">disruptor</span> <span class="tok-o">=</span>
-                <span class="tok-k">new</span> <span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">factory</span><span class="tok-p">,</span> <span class="tok-n">bufferSize</span><span class="tok-p">,</span> <span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">LongEventHandler</span><span class="tok-p">());</span>
-        <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span>
+<span class="tok-w">        </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1024</span><span class="tok-p">;</span>
+<span class="tok-w">        </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">                </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span><span class="tok-n">factory</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bufferSize</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">LongEventHandler</span><span class="tok-p">());</span>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">start</span><span class="tok-p">();</span>
 
-        <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span> <span class="tok-o">=</span> <span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span>
-        <span class="tok-n">LongEventProducer</span> <span class="tok-n">producer</span> <span class="tok-o">=</span> <span class="tok-k">new</span> <span class="tok-n">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">ringBuffer</span><span class="tok-p">);</span>
-        <span class="tok-n">ByteBuffer</span> <span class="tok-n">bb</span> <span class="tok-o">=</span> <span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
-        <span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-kt">long</span> <span class="tok-n">l</span> <span class="tok-o">=</span> <span class="tok-mi">0</span><span class="tok-p">;</span> <span class="tok-kc">true</span><span class="tok-p">;</span> <span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-n">l</span><span class="tok-p">);</span>
-            <span class="tok-n">producer</span><span class="tok-p">.</span><span class="tok-na">onData</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">);</span>
-            <span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
-        <span class="tok-p">}</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-p">.</span><span class="tok-na">getRingBuffer</span><span class="tok-p">();</span>
+<span class="tok-w">        </span><span class="tok-n">LongEventProducer</span><span class="tok-w"> </span><span class="tok-n">producer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">LongEventProducer</span><span class="tok-p">(</span><span class="tok-n">ringBuffer</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-n">ByteBuffer</span><span class="tok-w"> </span><span class="tok-n">bb</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ByteBuffer</span><span class="tok-p">.</span><span class="tok-na">allocate</span><span class="tok-p">(</span><span class="tok-mi">8</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-kc">true</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-o">++</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">bb</span><span class="tok-p">.</span><span class="tok-na">putLong</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">producer</span><span class="tok-p">.</span><span class="tok-na">onData</span><span class="tok-p">(</span><span class="tok-n">bb</span><span class="tok-p">);</span>
+<span class="tok-w">            </span><span class="tok-n">Thread</span><span class="tok-p">.</span><span class="tok-na">sleep</span><span class="tok-p">(</span><span class="tok-mi">1000</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1184,20 +1184,20 @@ However, there are a number of tuning options that can be used to improve perfor
 <div class="listingblock">
 <div class="title">Tuning the Disruptor</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">LongEventMain</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-kd">final</span> <span class="tok-n">String</span><span class="tok-o">[]</span> <span class="tok-n">args</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-c1">//.....</span>
-        <span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span> <span class="tok-n">disruptor</span> <span class="tok-o">=</span> <span class="tok-k">new</span> <span class="tok-n">Disruptor</span><span class="tok-p">(</span>
-            <span class="tok-n">factory</span><span class="tok-p">,</span>
-            <span class="tok-n">bufferSize</span><span class="tok-p">,</span>
-            <span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">,</span>
-            <span class="tok-n">ProducerType</span><span class="tok-p">.</span><span class="tok-na">SINGLE</span><span class="tok-p">,</span> <i class="conum" data-value="1"></i><b>(1)</b>
-            <span class="tok-k">new</span> <span class="tok-n">BlockingWaitStrategy</span><span class="tok-p">()</span> <i class="conum" data-value="2"></i><b>(2)</b>
-        <span class="tok-p">);</span>
-        <span class="tok-c1">//.....</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">String</span><span class="tok-o">[]</span><span class="tok-w"> </span><span class="tok-n">args</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-c1">//.....</span>
+<span class="tok-w">        </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">Disruptor</span><span class="tok-p">(</span>
+<span class="tok-w">            </span><span class="tok-n">factory</span><span class="tok-p">,</span>
+<span class="tok-w">            </span><span class="tok-n">bufferSize</span><span class="tok-p">,</span>
+<span class="tok-w">            </span><span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">,</span>
+<span class="tok-w">            </span><span class="tok-n">ProducerType</span><span class="tok-p">.</span><span class="tok-na">SINGLE</span><span class="tok-p">,</span><span class="tok-w"> </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tok-w">            </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">BlockingWaitStrategy</span><span class="tok-p">()</span><span class="tok-w"> </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="tok-w">        </span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-c1">//.....</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1389,27 +1389,27 @@ If you have a chain of event handlers, then you may need a specific handler plac
 <div class="content">
 <pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">class</span> <span class="tok-nc">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span>
 <span class="tok-p">{</span>
-    <span class="tok-n">T</span> <span class="tok-n">val</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-n">val</span><span class="tok-p">;</span>
 
-    <span class="tok-kt">void</span> <span class="tok-nf">clear</span><span class="tok-p">()</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">val</span> <span class="tok-o">=</span> <span class="tok-kc">null</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">clear</span><span class="tok-p">()</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kc">null</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example <code>ClearingEventHandler</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span> <span class="tok-nn">com.lmax.disruptor.EventHandler</span><span class="tok-p">;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">com.lmax.disruptor.EventHandler</span><span class="tok-p">;</span>
 
-<span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">ClearingEventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span> <span class="tok-kd">implements</span> <span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;&gt;</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">ClearingEventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-kd">implements</span><span class="tok-w"> </span><span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;&gt;</span>
 <span class="tok-p">{</span>
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-kt">boolean</span> <span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">clear</span><span class="tok-p">();</span> <i class="conum" data-value="1"></i><b>(1)</b>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">event</span><span class="tok-p">.</span><span class="tok-na">clear</span><span class="tok-p">();</span><span class="tok-w"> </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1425,15 +1425,15 @@ This will only happen once the ring buffer has wrapped around to the beginning.<
 <div class="listingblock">
 <div class="title">Example using the <code>ClearingEventHandler</code></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span>    <span class="tok-kd">public</span> <span class="tok-kd">static</span> <span class="tok-kt">void</span> <span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span> <span class="tok-n">args</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">String</span><span class="tok-o">&gt;&gt;</span> <span class="tok-n">disruptor</span> <span class="tok-o">=</span> <span class="tok-k">new</span> <span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span>
-                <span class="tok-p">()</span> <span class="tok-o">-&gt;</span> <span class="tok-k">new</span> <span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(),</span> <span class="tok-n">BUFFER_SIZE</span><span class="tok-p">,</span> <span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">static</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">main</span><span class="tok-p">(</span><span class="tok-n">String</span><span class="tok-o">[]</span><span class="tok-w"> </span><span class="tok-n">args</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;</span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;</span><span class="tok-n">String</span><span class="tok-o">&gt;&gt;</span><span class="tok-w"> </span><span class="tok-n">disruptor</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">Disruptor</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(</span>
+<span class="tok-w">                </span><span class="tok-p">()</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">ObjectEvent</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">(),</span><span class="tok-w"> </span><span class="tok-n">BUFFER_SIZE</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">DaemonThreadFactory</span><span class="tok-p">.</span><span class="tok-na">INSTANCE</span><span class="tok-p">);</span>
 
-        <span class="tok-n">disruptor</span>
-                <span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">ProcessingEventHandler</span><span class="tok-p">())</span>
-                <span class="tok-p">.</span><span class="tok-na">then</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">ClearingEventHandler</span><span class="tok-p">());</span>
-    <span class="tok-p">}</span></code></pre>
+<span class="tok-w">        </span><span class="tok-n">disruptor</span>
+<span class="tok-w">                </span><span class="tok-p">.</span><span class="tok-na">handleEventsWith</span><span class="tok-p">(</span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">ProcessingEventHandler</span><span class="tok-p">())</span>
+<span class="tok-w">                </span><span class="tok-p">.</span><span class="tok-na">then</span><span class="tok-p">(</span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">ClearingEventHandler</span><span class="tok-p">());</span>
+<span class="tok-w">    </span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 </div>
@@ -1445,45 +1445,45 @@ This will only happen once the ring buffer has wrapped around to the beginning.<
 <div class="listingblock">
 <div class="title">Example of "Early Release"</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span> <span class="tok-kd">class</span> <span class="tok-nc">EarlyReleaseHandler</span> <span class="tok-kd">implements</span> <span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kd">class</span> <span class="tok-nc">EarlyReleaseHandler</span><span class="tok-w"> </span><span class="tok-kd">implements</span><span class="tok-w"> </span><span class="tok-n">EventHandler</span><span class="tok-o">&lt;</span><span class="tok-n">LongEvent</span><span class="tok-o">&gt;</span>
 <span class="tok-p">{</span>
-    <span class="tok-kd">private</span> <span class="tok-n">Sequence</span> <span class="tok-n">sequenceCallback</span><span class="tok-p">;</span>
-    <span class="tok-kd">private</span> <span class="tok-kt">int</span> <span class="tok-n">batchRemaining</span> <span class="tok-o">=</span> <span class="tok-mi">20</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-n">Sequence</span><span class="tok-w"> </span><span class="tok-n">sequenceCallback</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">batchRemaining</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">;</span>
 
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">setSequenceCallback</span><span class="tok-p">(</span><span class="tok-kd">final</span> <span class="tok-n">Sequence</span> <span class="tok-n">sequenceCallback</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">sequenceCallback</span> <span class="tok-o">=</span> <span class="tok-n">sequenceCallback</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">setSequenceCallback</span><span class="tok-p">(</span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">Sequence</span><span class="tok-w"> </span><span class="tok-n">sequenceCallback</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-k">this</span><span class="tok-p">.</span><span class="tok-na">sequenceCallback</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sequenceCallback</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-nd">@Override</span>
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-kd">final</span> <span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">,</span> <span class="tok-kd">final</span> <span class="tok-kt">long</span> <span class="tok-n">sequence</span><span class="tok-p">,</span> <span class="tok-kd">final</span> <span class="tok-kt">boolean</span> <span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-n">processEvent</span><span class="tok-p">(</span><span class="tok-n">event</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-nd">@Override</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onEvent</span><span class="tok-p">(</span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">sequence</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">processEvent</span><span class="tok-p">(</span><span class="tok-n">event</span><span class="tok-p">);</span>
 
-        <span class="tok-kt">boolean</span> <span class="tok-n">logicalChunkOfWorkComplete</span> <span class="tok-o">=</span> <span class="tok-n">isLogicalChunkOfWorkComplete</span><span class="tok-p">();</span>
-        <span class="tok-k">if</span> <span class="tok-p">(</span><span class="tok-n">logicalChunkOfWorkComplete</span><span class="tok-p">)</span>
-        <span class="tok-p">{</span>
-            <span class="tok-n">sequenceCallback</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span>
-        <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-n">logicalChunkOfWorkComplete</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">isLogicalChunkOfWorkComplete</span><span class="tok-p">();</span>
+<span class="tok-w">        </span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">logicalChunkOfWorkComplete</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-p">{</span>
+<span class="tok-w">            </span><span class="tok-n">sequenceCallback</span><span class="tok-p">.</span><span class="tok-na">set</span><span class="tok-p">(</span><span class="tok-n">sequence</span><span class="tok-p">);</span>
+<span class="tok-w">        </span><span class="tok-p">}</span>
 
-        <span class="tok-n">batchRemaining</span> <span class="tok-o">=</span> <span class="tok-n">logicalChunkOfWorkComplete</span> <span class="tok-o">||</span> <span class="tok-n">endOfBatch</span> <span class="tok-o">?</span> <span class="tok-mi">20</span> <span class="tok-p">:</span> <span class="tok-n">batchRemaining</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-n">batchRemaining</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">logicalChunkOfWorkComplete</span><span class="tok-w"> </span><span class="tok-o">||</span><span class="tok-w"> </span><span class="tok-n">endOfBatch</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-w"> </span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-n">batchRemaining</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">private</span> <span class="tok-kt">boolean</span> <span class="tok-nf">isLogicalChunkOfWorkComplete</span><span class="tok-p">()</span>
-    <span class="tok-p">{</span>
-        <span class="tok-c1">// Ret true or false based on whatever criteria is required for the smaller</span>
-        <span class="tok-c1">// chunk.  If this is doing I/O, it may be after flushing/syncing to disk</span>
-        <span class="tok-c1">// or at the end of DB batch+commit.</span>
-        <span class="tok-c1">// Or it could simply be working off a smaller batch size.</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kt">boolean</span><span class="tok-w"> </span><span class="tok-nf">isLogicalChunkOfWorkComplete</span><span class="tok-p">()</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-c1">// Ret true or false based on whatever criteria is required for the smaller</span>
+<span class="tok-w">        </span><span class="tok-c1">// chunk.  If this is doing I/O, it may be after flushing/syncing to disk</span>
+<span class="tok-w">        </span><span class="tok-c1">// or at the end of DB batch+commit.</span>
+<span class="tok-w">        </span><span class="tok-c1">// Or it could simply be working off a smaller batch size.</span>
 
-        <span class="tok-k">return</span> <span class="tok-o">--</span><span class="tok-n">batchRemaining</span> <span class="tok-o">==</span> <span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">;</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">        </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-o">--</span><span class="tok-n">batchRemaining</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">private</span> <span class="tok-kt">void</span> <span class="tok-nf">processEvent</span><span class="tok-p">(</span><span class="tok-kd">final</span> <span class="tok-n">LongEvent</span> <span class="tok-n">event</span><span class="tok-p">)</span>
-    <span class="tok-p">{</span>
-        <span class="tok-c1">// Do processing</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">private</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">processEvent</span><span class="tok-p">(</span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">LongEvent</span><span class="tok-w"> </span><span class="tok-n">event</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-c1">// Do processing</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1607,7 +1607,7 @@ Batch end -&gt;                 COMMIT;</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 4.0.0.RC2-SNAPSHOT<br>
-Last updated 2023-03-24 17:36:19 UTC
+Last updated 2023-04-27 14:59:47 UTC
 </div>
 </div>
 </body>

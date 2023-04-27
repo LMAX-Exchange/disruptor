@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -112,6 +112,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">The Disruptor is a concurrent programming framework for exchanging and coordinating work as a continuous series of events.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="#com.lmax.disruptor.dsl">com.lmax.disruptor.dsl</a></th>
+<td class="colLast">
+<div class="block">A DSL-style API for setting up the disruptor pattern around a ring buffer.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -171,6 +177,47 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">
 <div class="block">Construct a <a href="../EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that will automatically track the progress by updating its sequence when
  the <a href="../EventHandler.html#onEvent(T,long,boolean)"><code>EventHandler.onEvent(Object, long, boolean)</code></a> method returns.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</li>
+<li class="blockList">
+<section><a id="com.lmax.disruptor.dsl">
+<!--   -->
+</a>
+<h3>Uses of <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a> in <a href="../dsl/package-summary.html">com.lmax.disruptor.dsl</a></h3>
+<table class="useSummary">
+<caption><span>Methods in <a href="../dsl/package-summary.html">com.lmax.disruptor.dsl</a> with parameters of type <a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="../dsl/Disruptor.html" title="type parameter in Disruptor">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">Disruptor.</span><code><span class="memberNameLink"><a href="../dsl/Disruptor.html#handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">handleEventsWith</a></span>&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy,
+                <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super <a href="../dsl/Disruptor.html" title="type parameter in Disruptor">T</a>&gt;...&nbsp;handlers)</code></th>
+<td class="colLast">
+<div class="block">Set up event handlers to handle events from the ring buffer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="../dsl/EventHandlerGroup.html" title="type parameter in EventHandlerGroup">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">EventHandlerGroup.</span><code><span class="memberNameLink"><a href="../dsl/EventHandlerGroup.html#handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">handleEventsWith</a></span>&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy,
+                <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super <a href="../dsl/EventHandlerGroup.html" title="type parameter in EventHandlerGroup">T</a>&gt;...&nbsp;handlers)</code></th>
+<td class="colLast">
+<div class="block">Set up batch handlers to handle events from the ring buffer.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a>&lt;<a href="../dsl/EventHandlerGroup.html" title="type parameter in EventHandlerGroup">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">EventHandlerGroup.</span><code><span class="memberNameLink"><a href="../dsl/EventHandlerGroup.html#then(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">then</a></span>&#8203;(<a href="../BatchRewindStrategy.html" title="interface in com.lmax.disruptor">BatchRewindStrategy</a>&nbsp;batchRewindStrategy,
+    <a href="../RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;? super <a href="../dsl/EventHandlerGroup.html" title="type parameter in EventHandlerGroup">T</a>&gt;...&nbsp;handlers)</code></th>
+<td class="colLast">
+<div class="block">Set up batch handlers to consume events from the ring buffer.</div>
 </td>
 </tr>
 </tbody>

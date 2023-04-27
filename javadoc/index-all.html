@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Adds a sequence to the sequence group after threads have started to publish to
  the Disruptor.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#after(com.lmax.disruptor.EventHandler...)">after(EventHandler&lt;T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#after(com.lmax.disruptor.EventHandlerIdentity...)">after(EventHandlerIdentity...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
 <dd>
 <div class="block">Create a group of event handlers to be used as a dependency.</div>
 </dd>
@@ -344,6 +344,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">A group of <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s used as part of the <a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl"><code>Disruptor</code></a>.</div>
 </dd>
+<dt><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandlerIdentity.html" title="interface in com.lmax.disruptor"><span class="typeNameLink">EventHandlerIdentity</span></a> - Interface in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.html" title="class in com.lmax.disruptor"><span class="typeNameLink">EventPoller</span></a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.html" title="type parameter in EventPoller">T</a>&gt; - Class in <a href="com.lmax.disruptor/com/lmax/disruptor/package-summary.html">com.lmax.disruptor</a></dt>
 <dd>
 <div class="block">Experimental poll-based interface for the Disruptor.</div>
@@ -488,7 +490,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Perform an atomic getAndAdd operation on the sequence.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#getBarrierFor(com.lmax.disruptor.EventHandler)">getBarrierFor(EventHandler&lt;T&gt;)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#getBarrierFor(com.lmax.disruptor.EventHandlerIdentity)">getBarrierFor(EventHandlerIdentity)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
 <dd>
 <div class="block">Get the <a href="com.lmax.disruptor/com/lmax/disruptor/SequenceBarrier.html" title="interface in com.lmax.disruptor"><code>SequenceBarrier</code></a> used by a specific handler.</div>
 </dd>
@@ -572,7 +574,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Get an array of <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s for the passed <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#getSequenceValueFor(com.lmax.disruptor.EventHandler)">getSequenceValueFor(EventHandler&lt;T&gt;)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#getSequenceValueFor(com.lmax.disruptor.EventHandlerIdentity)">getSequenceValueFor(EventHandlerIdentity)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
 <dd>
 <div class="block">Gets the sequence value for the specified event handlers.</div>
 </dd>
@@ -604,6 +606,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Strategy for handling uncaught exceptions when processing an event.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">handleEventsWith(BatchRewindStrategy, RewindableEventHandler&lt;? super T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
+<dd>
+<div class="block">Set up event handlers to handle events from the ring buffer.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html#handleEventsWith(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">handleEventsWith(BatchRewindStrategy, RewindableEventHandler&lt;? super T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a></dt>
+<dd>
+<div class="block">Set up batch handlers to handle events from the ring buffer.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#handleEventsWith(com.lmax.disruptor.dsl.EventProcessorFactory...)">handleEventsWith(EventProcessorFactory&lt;T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
 <dd>
 <div class="block">Set up custom event processors to handle events from the ring buffer.</div>
@@ -624,7 +634,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Set up custom event processors to handle events from the ring buffer.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#handleExceptionsFor(com.lmax.disruptor.EventHandler)">handleExceptionsFor(EventHandler&lt;T&gt;)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html#handleExceptionsFor(com.lmax.disruptor.EventHandlerIdentity)">handleExceptionsFor(EventHandlerIdentity)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/Disruptor.html" title="class in com.lmax.disruptor.dsl">Disruptor</a></dt>
 <dd>
 <div class="block">Override the default exception handler for a specific handler.</div>
 </dd>
@@ -1103,10 +1113,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Remove the specified sequence from this sequencer.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html#resetTo(long)">resetTo(long)</a></span> - Method in class com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor">RingBuffer</a></dt>
-<dd>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindAction.html#REWIND">REWIND</a></span> - com.lmax.disruptor.<a href="com.lmax.disruptor/com/lmax/disruptor/RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></dt>
 <dd>
 <div class="block">Rewind and replay the whole batch from  he beginning</div>
@@ -1294,6 +1300,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">T</h2>
 <dl>
+<dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html#then(com.lmax.disruptor.BatchRewindStrategy,com.lmax.disruptor.RewindableEventHandler...)">then(BatchRewindStrategy, RewindableEventHandler&lt;? super T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a></dt>
+<dd>
+<div class="block">Set up batch handlers to consume events from the ring buffer.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html#then(com.lmax.disruptor.dsl.EventProcessorFactory...)">then(EventProcessorFactory&lt;T&gt;...)</a></span> - Method in class com.lmax.disruptor.dsl.<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventHandlerGroup.html" title="class in com.lmax.disruptor.dsl">EventHandlerGroup</a></dt>
 <dd>
 <div class="block">Set up custom event processors to handle events from the ring buffer.</div>

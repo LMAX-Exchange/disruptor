@@ -509,40 +509,75 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>Breaking Changes</p>
-</li>
-<li>
 <p>Minimum Java version now 11</p>
 </li>
 <li>
 <p>Issue #323 - <code>WorkerPool</code> and <code>WorkProcessor</code> have been removed, no more <code>Disruptor::handleEventsWithWorkerPool</code></p>
 </li>
 <li>
-<p><code>Disruptor</code> constructors using Executor have been removed. Use ThreadFactory instead.</p>
+<p><code>Disruptor</code> constructors using <code>Executor</code> have been removed. Use <code>ThreadFactory</code> instead.</p>
 </li>
 <li>
-<p>Rolled up event handling extension interfaces on to EventHandler:</p>
-</li>
-<li>
-<p><code>BatchStartAware</code></p>
-</li>
+<p>Rolled up event handling extension interfaces on to <code>EventHandler</code>:
+**<code>BatchStartAware</code></p>
+<div class="ulist">
+<ul>
 <li>
 <p><code>LifecycleAware</code></p>
 </li>
 <li>
 <p><code>SequenceReportingEventHandler</code></p>
 </li>
-<li>
-<p>Deprecated ThreadHints.onSpinWait()</p>
+</ul>
+</div>
 </li>
 <li>
-<p>FatalExceptionHandler and IgnoreExceptionHandler now use the JDK 9 Platform Logging API, i.e. System.Logger</p>
+<p>Deprecations</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Deprecated <code>ThreadHints.onSpinWait()</code></p>
 </li>
 <li>
-<p>Add rewind batch feature to the BatchEventProcessor</p>
+<p>Deprecated <code>Disruptor.handleExceptionsWith()</code> - this had been javadoc deprecated since 2015 but not in the code</p>
 </li>
 <li>
-<p>Added documentation to EventPoller</p>
+<p>Removed previously deprecated methods</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Ringbuffer.resetTo()</code></p>
+</li>
+<li>
+<p><code>ConsumerRepository.getLastSequenceInChain()</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>FatalExceptionHandler</code> and <code>IgnoreExceptionHandler</code> now use the JDK 9 Platform Logging API, i.e. <code>System.Logger</code></p>
+</li>
+<li>
+<p>Add rewind batch feature to the <code>BatchEventProcessor</code></p>
+</li>
+<li>
+<p>Add a maximum batch size argument to <code>BatchEventProcessor</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>EventHandler::onBatchStart</code> now gets both the <code>batchSize</code> as well as <code>queueDepth</code> (previously it had <code>batchSize</code> which reported queue depth)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Added documentation to <code>EventPoller</code></p>
+</li>
+<li>
+<p><code>Util::log2</code> throws if passed a non-positive argument</p>
 </li>
 </ul>
 </div>
@@ -1416,7 +1451,7 @@ RingBuffer.getPublished for consumers.</p>
 <div id="footer">
 <div id="footer-text">
 Version 4.0.0.RC2-SNAPSHOT<br>
-Last updated 2023-03-24 17:36:19 UTC
+Last updated 2023-04-27 14:59:47 UTC
 </div>
 </div>
 </body>

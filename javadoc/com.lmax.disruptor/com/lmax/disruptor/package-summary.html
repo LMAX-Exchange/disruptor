@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -300,97 +300,101 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventPoller.Handler.html" title="interface in com.lmax.disruptor">EventPoller.Handler</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">A callback used to process events</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="EventProcessor.html" title="interface in com.lmax.disruptor">EventProcessor</a></th>
 <td class="colLast">
 <div class="block">An EventProcessor needs to be an implementation of a runnable that will poll for events from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
  using the appropriate wait strategy.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventSequencer.html" title="interface in com.lmax.disruptor">EventSequencer</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Pulls together the low-level data access and sequencing operations of <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="EventSink.html" title="interface in com.lmax.disruptor">EventSink</a>&lt;E&gt;</th>
 <td class="colLast">
 <div class="block">Write interface for <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Implementations translate (write) data representations into events claimed from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;T,&#8203;A&gt;</th>
 <td class="colLast">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;T,&#8203;A,&#8203;B,&#8203;C&gt;</th>
 <td class="colLast">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;T,&#8203;A,&#8203;B&gt;</th>
 <td class="colLast">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EventTranslatorVararg.html" title="interface in com.lmax.disruptor">EventTranslatorVararg</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Callback handler for uncaught exceptions in the event processing cycle of the <a href="BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">Callback interface to be implemented for processing events as they become available in the <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
  with support for throwing a <a href="RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a> when an even cannot be processed currently but may succeed on retry.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="RewindHandler.html" title="interface in com.lmax.disruptor">RewindHandler</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a></th>
 <td class="colLast">
 <div class="block">Coordination barrier for tracking the cursor for publishers and sequence of
  dependent <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s for processing a data structure</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Sequenced.html" title="interface in com.lmax.disruptor">Sequenced</a></th>
 <td class="colLast">
 <div class="block">Operations related to the sequencing of items in a <a href="RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="Sequencer.html" title="interface in com.lmax.disruptor">Sequencer</a></th>
 <td class="colLast">
 <div class="block">Coordinates claiming sequences for access to a data structure while tracking dependent <a href="Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="WaitStrategy.html" title="interface in com.lmax.disruptor">WaitStrategy</a></th>
 <td class="colLast">
 <div class="block">Strategy employed for making <a href="EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s wait on a cursor <a href="Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>.</div>

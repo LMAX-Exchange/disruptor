@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":42,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -185,7 +185,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -489,25 +489,18 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 </td>
 </tr>
 <tr id="i36" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetTo(long)">resetTo</a></span>&#8203;(long&nbsp;sequence)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-</td>
-</tr>
-<tr id="i37" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryNext()">tryNext</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Increment and return the next sequence for the ring buffer.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryNext(int)">tryNext</a></span>&#8203;(int&nbsp;n)</code></th>
 <td class="colLast">
@@ -515,14 +508,14 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
  to claim the next n sequences.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvent(com.lmax.disruptor.EventTranslator)">tryPublishEvent</a></span>&#8203;(<a href="EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;&nbsp;translator)</code></th>
 <td class="colLast">
 <div class="block">Attempts to publish an event to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>&lt;A&gt;&nbsp;boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvent(com.lmax.disruptor.EventTranslatorOneArg,A)">tryPublishEvent</a></span>&#8203;(<a href="EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A&gt;&nbsp;translator,
                A&nbsp;arg0)</code></th>
@@ -530,7 +523,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows one user supplied argument.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>&lt;A,&#8203;B,&#8203;C&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvent(com.lmax.disruptor.EventTranslatorThreeArg,A,B,C)">tryPublishEvent</a></span>&#8203;(<a href="EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B,&#8203;C&gt;&nbsp;translator,
                A&nbsp;arg0,
@@ -540,7 +533,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows three user supplied arguments</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>&lt;A,&#8203;B&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvent(com.lmax.disruptor.EventTranslatorTwoArg,A,B)">tryPublishEvent</a></span>&#8203;(<a href="EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B&gt;&nbsp;translator,
                A&nbsp;arg0,
@@ -549,7 +542,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows two user supplied arguments.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvent(com.lmax.disruptor.EventTranslatorVararg,java.lang.Object...)">tryPublishEvent</a></span>&#8203;(<a href="EventTranslatorVararg.html" title="interface in com.lmax.disruptor">EventTranslatorVararg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;&nbsp;translator,
                java.lang.Object...&nbsp;args)</code></th>
@@ -557,14 +550,14 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows a variable number of user supplied arguments</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslator%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;[]&nbsp;translators)</code></th>
 <td class="colLast">
 <div class="block">Attempts to publish multiple events to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslator%5B%5D,int,int)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;[]&nbsp;translators,
                 int&nbsp;batchStartsAt,
@@ -573,7 +566,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Attempts to publish multiple events to the ring buffer.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>&lt;A&gt;&nbsp;boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorOneArg,int,int,A%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A&gt;&nbsp;translator,
                 int&nbsp;batchStartsAt,
@@ -583,7 +576,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows one user supplied argument.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>&lt;A&gt;&nbsp;boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorOneArg,A%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A&gt;&nbsp;translator,
                 A[]&nbsp;arg0)</code></th>
@@ -591,7 +584,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows one user supplied argument.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>&lt;A,&#8203;B,&#8203;C&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorThreeArg,int,int,A%5B%5D,B%5B%5D,C%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B,&#8203;C&gt;&nbsp;translator,
                 int&nbsp;batchStartsAt,
@@ -603,7 +596,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows three user supplied arguments per event.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>&lt;A,&#8203;B,&#8203;C&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorThreeArg,A%5B%5D,B%5B%5D,C%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B,&#8203;C&gt;&nbsp;translator,
                 A[]&nbsp;arg0,
@@ -613,7 +606,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows three user supplied arguments per event.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>&lt;A,&#8203;B&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorTwoArg,int,int,A%5B%5D,B%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B&gt;&nbsp;translator,
                 int&nbsp;batchStartsAt,
@@ -624,7 +617,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows two user supplied arguments per event.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>&lt;A,&#8203;B&gt;<br>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorTwoArg,A%5B%5D,B%5B%5D)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>,&#8203;A,&#8203;B&gt;&nbsp;translator,
                 A[]&nbsp;arg0,
@@ -633,7 +626,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows two user supplied arguments per event.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorVararg,int,int,java.lang.Object%5B%5D...)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorVararg.html" title="interface in com.lmax.disruptor">EventTranslatorVararg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;&nbsp;translator,
                 int&nbsp;batchStartsAt,
@@ -643,7 +636,7 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <div class="block">Allows a variable number of user supplied arguments per event.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tryPublishEvents(com.lmax.disruptor.EventTranslatorVararg,java.lang.Object%5B%5D...)">tryPublishEvents</a></span>&#8203;(<a href="EventTranslatorVararg.html" title="interface in com.lmax.disruptor">EventTranslatorVararg</a>&lt;<a href="RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;&nbsp;translator,
                 java.lang.Object[]...&nbsp;args)</code></th>
@@ -955,26 +948,6 @@ implements <a href="Cursored.html" title="interface in com.lmax.disruptor">Curso
 <dd>sequence number of the highest slot claimed</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="InsufficientCapacityException.html" title="class in com.lmax.disruptor">InsufficientCapacityException</a></code> - if the necessary space in the ring buffer is not available</dd>
-</dl>
-</li>
-</ul>
-<a id="resetTo(long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>resetTo</h4>
-<pre class="methodSignature">@Deprecated
-public&nbsp;void&nbsp;resetTo&#8203;(long&nbsp;sequence)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Resets the cursor to a specific value.  This can be applied at any time, but it is worth noting
- that it can cause a data race and should only be used in controlled circumstances.  E.g. during
- initialisation.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sequence</code> - The sequence to reset too.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalStateException</code> - If any gating sequences have already been specified.</dd>
 </dl>
 </li>
 </ul>

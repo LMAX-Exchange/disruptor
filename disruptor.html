@@ -447,22 +447,22 @@ td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5
 span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
 pre.pygments .hll { background-color: #ffffcc }
 pre.pygments { background: #f8f8f8; }
-pre.pygments .tok-c { color: #408080; font-style: italic } /* Comment */
+pre.pygments .tok-c { color: #3D7B7B; font-style: italic } /* Comment */
 pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
 pre.pygments .tok-k { color: #008000; font-weight: bold } /* Keyword */
 pre.pygments .tok-o { color: #666666 } /* Operator */
-pre.pygments .tok-ch { color: #408080; font-style: italic } /* Comment.Hashbang */
-pre.pygments .tok-cm { color: #408080; font-style: italic } /* Comment.Multiline */
-pre.pygments .tok-cp { color: #BC7A00 } /* Comment.Preproc */
-pre.pygments .tok-cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
-pre.pygments .tok-c1 { color: #408080; font-style: italic } /* Comment.Single */
-pre.pygments .tok-cs { color: #408080; font-style: italic } /* Comment.Special */
+pre.pygments .tok-ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #9C6500 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
 pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
-pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+pre.pygments .tok-gr { color: #E40000 } /* Generic.Error */
 pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
-pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
-pre.pygments .tok-go { color: #888888 } /* Generic.Output */
+pre.pygments .tok-gi { color: #008400 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #717171 } /* Generic.Output */
 pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
 pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
 pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
@@ -475,15 +475,15 @@ pre.pygments .tok-kr { color: #008000; font-weight: bold } /* Keyword.Reserved *
 pre.pygments .tok-kt { color: #B00040 } /* Keyword.Type */
 pre.pygments .tok-m { color: #666666 } /* Literal.Number */
 pre.pygments .tok-s { color: #BA2121 } /* Literal.String */
-pre.pygments .tok-na { color: #7D9029 } /* Name.Attribute */
+pre.pygments .tok-na { color: #687822 } /* Name.Attribute */
 pre.pygments .tok-nb { color: #008000 } /* Name.Builtin */
 pre.pygments .tok-nc { color: #0000FF; font-weight: bold } /* Name.Class */
 pre.pygments .tok-no { color: #880000 } /* Name.Constant */
 pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
-pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
-pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-ni { color: #717171; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
 pre.pygments .tok-nf { color: #0000FF } /* Name.Function */
-pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
+pre.pygments .tok-nl { color: #767600 } /* Name.Label */
 pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
 pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
 pre.pygments .tok-nv { color: #19177C } /* Name.Variable */
@@ -500,11 +500,11 @@ pre.pygments .tok-sc { color: #BA2121 } /* Literal.String.Char */
 pre.pygments .tok-dl { color: #BA2121 } /* Literal.String.Delimiter */
 pre.pygments .tok-sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 pre.pygments .tok-s2 { color: #BA2121 } /* Literal.String.Double */
-pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
 pre.pygments .tok-sh { color: #BA2121 } /* Literal.String.Heredoc */
-pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
 pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
-pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
+pre.pygments .tok-sr { color: #A45A77 } /* Literal.String.Regex */
 pre.pygments .tok-s1 { color: #BA2121 } /* Literal.String.Single */
 pre.pygments .tok-ss { color: #19177C } /* Literal.String.Symbol */
 pre.pygments .tok-bp { color: #008000 } /* Name.Builtin.Pseudo */
@@ -953,13 +953,13 @@ The ring buffer cursor can be read and written in a busy spin by the producers u
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kt">long</span> <span class="tok-n">expectedSequence</span> <span class="tok-o">=</span> <span class="tok-n">claimedSequence</span> <span class="tok-err">–</span> <span class="tok-mi">1</span><span class="tok-p">;</span>
-<span class="tok-k">while</span> <span class="tok-p">(</span><span class="tok-n">cursor</span> <span class="tok-o">!=</span> <span class="tok-n">expectedSequence</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-kt">long</span><span class="tok-w"> </span><span class="tok-n">expectedSequence</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">claimedSequence</span><span class="tok-w"> </span><span class="tok-err">–</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">;</span>
+<span class="tok-k">while</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cursor</span><span class="tok-w"> </span><span class="tok-o">!=</span><span class="tok-w"> </span><span class="tok-n">expectedSequence</span><span class="tok-p">)</span>
 <span class="tok-p">{</span>
-  <span class="tok-c1">// busy spin</span>
+<span class="tok-w">  </span><span class="tok-c1">// busy spin</span>
 <span class="tok-p">}</span>
 
-<span class="tok-n">cursor</span> <span class="tok-o">=</span> <span class="tok-n">claimedSequence</span><span class="tok-p">;</span></code></pre>
+<span class="tok-n">cursor</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">claimedSequence</span><span class="tok-p">;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1036,38 +1036,38 @@ The consumer runs on a separate thread receiving entries as they become availabl
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="java"><span></span><span class="tok-c1">// Callback handler which can be implemented by consumers</span>
-<span class="tok-kd">final</span> <span class="tok-n">BatchHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span> <span class="tok-n">batchHandler</span> <span class="tok-o">=</span> <span class="tok-k">new</span> <span class="tok-n">BatchHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">()</span>
+<span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">BatchHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">batchHandler</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">BatchHandler</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">()</span>
 <span class="tok-p">{</span>
-<span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onAvailable</span><span class="tok-p">(</span><span class="tok-kd">final</span> <span class="tok-n">ValueEntry</span> <span class="tok-n">entry</span><span class="tok-p">)</span> <span class="tok-kd">throws</span> <span class="tok-n">Exception</span>
+<span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onAvailable</span><span class="tok-p">(</span><span class="tok-kd">final</span><span class="tok-w"> </span><span class="tok-n">ValueEntry</span><span class="tok-w"> </span><span class="tok-n">entry</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kd">throws</span><span class="tok-w"> </span><span class="tok-n">Exception</span>
 <span class="tok-p">{</span>
 <span class="tok-c1">// process a new entry as it becomes available.</span>
 <span class="tok-p">}</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onEndOfBatch</span><span class="tok-p">()</span> <span class="tok-kd">throws</span> <span class="tok-n">Exception</span>
-    <span class="tok-p">{</span>
-        <span class="tok-c1">// useful for flushing results to an IO device if necessary.</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onEndOfBatch</span><span class="tok-p">()</span><span class="tok-w"> </span><span class="tok-kd">throws</span><span class="tok-w"> </span><span class="tok-n">Exception</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-c1">// useful for flushing results to an IO device if necessary.</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 
-    <span class="tok-kd">public</span> <span class="tok-kt">void</span> <span class="tok-nf">onCompletion</span><span class="tok-p">()</span>
-    <span class="tok-p">{</span>
-        <span class="tok-c1">// do any necessary clean up before shutdown</span>
-    <span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-kd">public</span><span class="tok-w"> </span><span class="tok-kt">void</span><span class="tok-w"> </span><span class="tok-nf">onCompletion</span><span class="tok-p">()</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-c1">// do any necessary clean up before shutdown</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-p">};</span>
 
-<span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span> <span class="tok-n">ringBuffer</span> <span class="tok-o">=</span>
-    <span class="tok-k">new</span> <span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">ValueEntry</span><span class="tok-p">.</span><span class="tok-na">ENTRY_FACTORY</span><span class="tok-p">,</span> <span class="tok-n">SIZE</span><span class="tok-p">,</span>
-                               <span class="tok-n">ClaimStrategy</span><span class="tok-p">.</span><span class="tok-na">Option</span><span class="tok-p">.</span><span class="tok-na">SINGLE_THREADED</span><span class="tok-p">,</span>
-                               <span class="tok-n">WaitStrategy</span><span class="tok-p">.</span><span class="tok-na">Option</span><span class="tok-p">.</span><span class="tok-na">YIELDING</span><span class="tok-p">);</span>
-<span class="tok-n">ConsumerBarrier</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span> <span class="tok-n">consumerBarrier</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">createConsumerBarrier</span><span class="tok-p">();</span>
-<span class="tok-n">BatchConsumer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span> <span class="tok-n">batchConsumer</span> <span class="tok-o">=</span>
-    <span class="tok-k">new</span> <span class="tok-n">BatchConsumer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">consumerBarrier</span><span class="tok-p">,</span> <span class="tok-n">batchHandler</span><span class="tok-p">);</span>
-<span class="tok-n">ProducerBarrier</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span> <span class="tok-n">producerBarrier</span> <span class="tok-o">=</span> <span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">createProducerBarrier</span><span class="tok-p">(</span><span class="tok-n">batchConsumer</span><span class="tok-p">);</span>
+<span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">    </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">RingBuffer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">ValueEntry</span><span class="tok-p">.</span><span class="tok-na">ENTRY_FACTORY</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">SIZE</span><span class="tok-p">,</span>
+<span class="tok-w">                               </span><span class="tok-n">ClaimStrategy</span><span class="tok-p">.</span><span class="tok-na">Option</span><span class="tok-p">.</span><span class="tok-na">SINGLE_THREADED</span><span class="tok-p">,</span>
+<span class="tok-w">                               </span><span class="tok-n">WaitStrategy</span><span class="tok-p">.</span><span class="tok-na">Option</span><span class="tok-p">.</span><span class="tok-na">YIELDING</span><span class="tok-p">);</span>
+<span class="tok-n">ConsumerBarrier</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">consumerBarrier</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">createConsumerBarrier</span><span class="tok-p">();</span>
+<span class="tok-n">BatchConsumer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">batchConsumer</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">    </span><span class="tok-k">new</span><span class="tok-w"> </span><span class="tok-n">BatchConsumer</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">consumerBarrier</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">batchHandler</span><span class="tok-p">);</span>
+<span class="tok-n">ProducerBarrier</span><span class="tok-o">&lt;</span><span class="tok-n">ValueEntry</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">producerBarrier</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ringBuffer</span><span class="tok-p">.</span><span class="tok-na">createProducerBarrier</span><span class="tok-p">(</span><span class="tok-n">batchConsumer</span><span class="tok-p">);</span>
 
 <span class="tok-c1">// Each consumer can run on a separate thread</span>
 <span class="tok-n">EXECUTOR</span><span class="tok-p">.</span><span class="tok-na">submit</span><span class="tok-p">(</span><span class="tok-n">batchConsumer</span><span class="tok-p">);</span>
 
 <span class="tok-c1">// Producers claim entries in sequence</span>
-<span class="tok-n">ValueEntry</span> <span class="tok-n">entry</span> <span class="tok-o">=</span> <span class="tok-n">producerBarrier</span><span class="tok-p">.</span><span class="tok-na">nextEntry</span><span class="tok-p">();</span>
+<span class="tok-n">ValueEntry</span><span class="tok-w"> </span><span class="tok-n">entry</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">producerBarrier</span><span class="tok-p">.</span><span class="tok-na">nextEntry</span><span class="tok-p">();</span>
 
 <span class="tok-c1">// copy data into the entry container</span>
 
@@ -1306,7 +1306,7 @@ As load increases on the Disruptor, latency remains almost flat until saturation
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2023-03-24 17:36:19 UTC
+Last updated 2023-04-27 14:59:47 UTC
 </div>
 </div>
 </body>

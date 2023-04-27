@@ -14,7 +14,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="jquery/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 </head>
 <body>
@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":2,"i1":2,"i2":8,"i3":2,"i4":2,"i5":1,"i6":2,"i7":2,"i8":1,"i9":4,"i10":1,"i11":2,"i12":1,"i13":1,"i14":2,"i15":2,"i16":1,"i17":4,"i18":1,"i19":1,"i20":1,"i21":1,"i22":1,"i23":1,"i24":1,"i25":1,"i26":1,"i27":2,"i28":1,"i29":2,"i30":2,"i31":2,"i32":2,"i33":2,"i34":2,"i35":8,"i36":2,"i37":2,"i38":2,"i39":2,"i40":2,"i41":2,"i42":4,"i43":1,"i44":2,"i45":4,"i46":1,"i47":2,"i48":2,"i49":1,"i50":1,"i51":2,"i52":1,"i53":2,"i54":2,"i55":2,"i56":2,"i57":2,"i58":8,"i59":2,"i60":1,"i61":2};
+var data = {"i0":2,"i1":2,"i2":8,"i3":2,"i4":2,"i5":1,"i6":2,"i7":2,"i8":1,"i9":4,"i10":1,"i11":2,"i12":1,"i13":1,"i14":2,"i15":1,"i16":2,"i17":1,"i18":4,"i19":1,"i20":1,"i21":1,"i22":1,"i23":1,"i24":1,"i25":1,"i26":1,"i27":1,"i28":2,"i29":1,"i30":2,"i31":2,"i32":2,"i33":2,"i34":2,"i35":2,"i36":8,"i37":2,"i38":2,"i39":2,"i40":2,"i41":2,"i42":2,"i43":4,"i44":1,"i45":2,"i46":4,"i47":1,"i48":2,"i49":2,"i50":1,"i51":1,"i52":2,"i53":1,"i54":2,"i55":2,"i56":2,"i57":2,"i58":2,"i59":8,"i60":2,"i61":1,"i62":2};
 var tabs = {65535:["t0","All Classes"],1:["t1","Interface Summary"],2:["t2","Class Summary"],4:["t3","Enum Summary"],8:["t4","Exception Summary"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -203,110 +203,114 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </th>
 </tr>
 <tr id="i15" class="rowColor">
+<td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventHandlerIdentity.html" title="interface in com.lmax.disruptor">EventHandlerIdentity</a></td>
+<th class="colLast" scope="row">&nbsp;</th>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.html" title="class in com.lmax.disruptor">EventPoller</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.html" title="type parameter in EventPoller">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Experimental poll-based interface for the Disruptor.</div>
 </th>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.Handler.html" title="interface in com.lmax.disruptor">EventPoller.Handler</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.Handler.html" title="type parameter in EventPoller.Handler">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A callback used to process events</div>
 </th>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.PollState.html" title="enum in com.lmax.disruptor">EventPoller.PollState</a></td>
 <th class="colLast" scope="row">
 <div class="block">Indicates the result of a call to <a href="com.lmax.disruptor/com/lmax/disruptor/EventPoller.html#poll(com.lmax.disruptor.EventPoller.Handler)"><code>EventPoller.poll(Handler)</code></a></div>
 </th>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor">EventProcessor</a></td>
 <th class="colLast" scope="row">
 <div class="block">An EventProcessor needs to be an implementation of a runnable that will poll for events from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
  using the appropriate wait strategy.</div>
 </th>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventProcessorFactory.html" title="interface in com.lmax.disruptor.dsl">EventProcessorFactory</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/EventProcessorFactory.html" title="type parameter in EventProcessorFactory">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A factory interface to make it possible to include custom event processors in a chain:</div>
 </th>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventSequencer.html" title="interface in com.lmax.disruptor">EventSequencer</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventSequencer.html" title="type parameter in EventSequencer">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Pulls together the low-level data access and sequencing operations of <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </th>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventSink.html" title="interface in com.lmax.disruptor">EventSink</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventSink.html" title="type parameter in EventSink">E</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Write interface for <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </th>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslator.html" title="interface in com.lmax.disruptor">EventTranslator</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslator.html" title="type parameter in EventTranslator">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Implementations translate (write) data representations into events claimed from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </th>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorOneArg.html" title="interface in com.lmax.disruptor">EventTranslatorOneArg</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorOneArg.html" title="type parameter in EventTranslatorOneArg">T</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorOneArg.html" title="type parameter in EventTranslatorOneArg">A</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </th>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorThreeArg.html" title="interface in com.lmax.disruptor">EventTranslatorThreeArg</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorThreeArg.html" title="type parameter in EventTranslatorThreeArg">T</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorThreeArg.html" title="type parameter in EventTranslatorThreeArg">A</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorThreeArg.html" title="type parameter in EventTranslatorThreeArg">B</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorThreeArg.html" title="type parameter in EventTranslatorThreeArg">C</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </th>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorTwoArg.html" title="interface in com.lmax.disruptor">EventTranslatorTwoArg</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorTwoArg.html" title="type parameter in EventTranslatorTwoArg">T</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorTwoArg.html" title="type parameter in EventTranslatorTwoArg">A</a>,&#8203;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorTwoArg.html" title="type parameter in EventTranslatorTwoArg">B</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </th>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorVararg.html" title="interface in com.lmax.disruptor">EventTranslatorVararg</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/EventTranslatorVararg.html" title="type parameter in EventTranslatorVararg">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Implementations translate another data representations into events claimed from the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a></div>
 </th>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/EventuallyGiveUpBatchRewindStrategy.html" title="class in com.lmax.disruptor">EventuallyGiveUpBatchRewindStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Strategy for handling a rewindableException that will eventually delegate the exception to the
  <a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> after a specified number of attempts have been made.</div>
 </th>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor">ExceptionHandler</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="type parameter in ExceptionHandler">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Callback handler for uncaught exceptions in the event processing cycle of the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a></div>
 </th>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandlers.html" title="class in com.lmax.disruptor">ExceptionHandlers</a></td>
 <th class="colLast" scope="row">
 <div class="block">Provides static methods for accessing a default <a href="com.lmax.disruptor/com/lmax/disruptor/ExceptionHandler.html" title="interface in com.lmax.disruptor"><code>ExceptionHandler</code></a> object.</div>
 </th>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/ExceptionHandlerSetting.html" title="class in com.lmax.disruptor.dsl">ExceptionHandlerSetting</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/ExceptionHandlerSetting.html" title="type parameter in ExceptionHandlerSetting">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A support class used as part of setting an exception handler for a specific event handler.</div>
 </th>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/ExceptionHandlerWrapper.html" title="class in com.lmax.disruptor.dsl">ExceptionHandlerWrapper</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/dsl/ExceptionHandlerWrapper.html" title="type parameter in ExceptionHandlerWrapper">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">A mutable exception handler wrapper</div>
 </th>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/FatalExceptionHandler.html" title="class in com.lmax.disruptor">FatalExceptionHandler</a></td>
 <th class="colLast" scope="row">
 <div class="block">Convenience implementation of an exception handler that uses the standard JDK logging
@@ -314,146 +318,146 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  it wrapped in a <code>RuntimeException</code></div>
 </th>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/FixedSequenceGroup.html" title="class in com.lmax.disruptor">FixedSequenceGroup</a></td>
 <th class="colLast" scope="row">
 <div class="block">Hides a group of Sequences behind a single Sequence</div>
 </th>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/IgnoreExceptionHandler.html" title="class in com.lmax.disruptor">IgnoreExceptionHandler</a></td>
 <th class="colLast" scope="row">
 <div class="block">Convenience implementation of an exception handler that uses the standard JDK logging
  of <code>System.Logger</code> to log the exception as <code>System.Logger.Level</code>.INFO</div>
 </th>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/InsufficientCapacityException.html" title="class in com.lmax.disruptor">InsufficientCapacityException</a></td>
 <th class="colLast" scope="row">
 <div class="block">Exception thrown when it is not possible to insert a value into
  the ring buffer without it wrapping the consuming sequences.</div>
 </th>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/LiteBlockingWaitStrategy.html" title="class in com.lmax.disruptor">LiteBlockingWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Variation of the <a href="com.lmax.disruptor/com/lmax/disruptor/BlockingWaitStrategy.html" title="class in com.lmax.disruptor"><code>BlockingWaitStrategy</code></a> that attempts to elide conditional wake-ups when
  the lock is uncontended.</div>
 </th>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/LiteTimeoutBlockingWaitStrategy.html" title="class in com.lmax.disruptor">LiteTimeoutBlockingWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Variation of the <a href="com.lmax.disruptor/com/lmax/disruptor/TimeoutBlockingWaitStrategy.html" title="class in com.lmax.disruptor"><code>TimeoutBlockingWaitStrategy</code></a> that attempts to elide conditional wake-ups
  when the lock is uncontended.</div>
 </th>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/MultiProducerSequencer.html" title="class in com.lmax.disruptor">MultiProducerSequencer</a></td>
 <th class="colLast" scope="row">
 <div class="block">Coordinator for claiming sequences for access to a data structure while tracking dependent <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s.</div>
 </th>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/NanosecondPauseBatchRewindStrategy.html" title="class in com.lmax.disruptor">NanosecondPauseBatchRewindStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Strategy for handling a rewindableException that will pause for a specified amount of nanos.</div>
 </th>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/NoOpEventProcessor.html" title="class in com.lmax.disruptor">NoOpEventProcessor</a></td>
 <th class="colLast" scope="row">
 <div class="block">No operation version of a <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a> that simply tracks a <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>.</div>
 </th>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/PhasedBackoffWaitStrategy.html" title="class in com.lmax.disruptor">PhasedBackoffWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Phased wait strategy for waiting <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s on a barrier.</div>
 </th>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/dsl/ProducerType.html" title="enum in com.lmax.disruptor.dsl">ProducerType</a></td>
 <th class="colLast" scope="row">
 <div class="block">Defines producer types to support creation of RingBuffer with correct sequencer and publisher.</div>
 </th>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html" title="interface in com.lmax.disruptor">RewindableEventHandler</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/RewindableEventHandler.html" title="type parameter in RewindableEventHandler">T</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Callback interface to be implemented for processing events as they become available in the <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>
  with support for throwing a <a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor"><code>RewindableException</code></a> when an even cannot be processed currently but may succeed on retry.</div>
 </th>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindableException.html" title="class in com.lmax.disruptor">RewindableException</a></td>
 <th class="colLast" scope="row">
 <div class="block">A special exception that can be thrown while using the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchEventProcessor.html" title="class in com.lmax.disruptor"><code>BatchEventProcessor</code></a>.</div>
 </th>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindAction.html" title="enum in com.lmax.disruptor">RewindAction</a></td>
 <th class="colLast" scope="row">
 <div class="block">The result returned from the <a href="com.lmax.disruptor/com/lmax/disruptor/BatchRewindStrategy.html" title="interface in com.lmax.disruptor"><code>BatchRewindStrategy</code></a> that decides whether to rewind or throw the exception</div>
 </th>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/RewindHandler.html" title="interface in com.lmax.disruptor">RewindHandler</a></td>
 <th class="colLast" scope="row">&nbsp;</th>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor">RingBuffer</a>&lt;<a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="type parameter in RingBuffer">E</a>&gt;</td>
 <th class="colLast" scope="row">
 <div class="block">Ring based store of reusable entries containing the data representing
  an event being exchanged between event producer and <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s.</div>
 </th>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor">Sequence</a></td>
 <th class="colLast" scope="row">
 <div class="block">Concurrent sequence class used for tracking the progress of
  the ring buffer and event processors.</div>
 </th>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/SequenceBarrier.html" title="interface in com.lmax.disruptor">SequenceBarrier</a></td>
 <th class="colLast" scope="row">
 <div class="block">Coordination barrier for tracking the cursor for publishers and sequence of
  dependent <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s for processing a data structure</div>
 </th>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/Sequenced.html" title="interface in com.lmax.disruptor">Sequenced</a></td>
 <th class="colLast" scope="row">
 <div class="block">Operations related to the sequencing of items in a <a href="com.lmax.disruptor/com/lmax/disruptor/RingBuffer.html" title="class in com.lmax.disruptor"><code>RingBuffer</code></a>.</div>
 </th>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/SequenceGroup.html" title="class in com.lmax.disruptor">SequenceGroup</a></td>
 <th class="colLast" scope="row">
 <div class="block">A <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a> group that can dynamically have <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s added and removed while being
  thread safe.</div>
 </th>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/Sequencer.html" title="interface in com.lmax.disruptor">Sequencer</a></td>
 <th class="colLast" scope="row">
 <div class="block">Coordinates claiming sequences for access to a data structure while tracking dependent <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s</div>
 </th>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/SimpleBatchRewindStrategy.html" title="class in com.lmax.disruptor">SimpleBatchRewindStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Batch rewind strategy that always rewinds</div>
 </th>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/SingleProducerSequencer.html" title="class in com.lmax.disruptor">SingleProducerSequencer</a></td>
 <th class="colLast" scope="row">
 <div class="block">Coordinator for claiming sequences for access to a data structure while tracking dependent <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>s.</div>
 </th>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/SleepingWaitStrategy.html" title="class in com.lmax.disruptor">SleepingWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Sleeping strategy that initially spins, then uses a Thread.yield(), and
@@ -462,38 +466,38 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s are waiting on a barrier.</div>
 </th>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/util/ThreadHints.html" title="class in com.lmax.disruptor.util">ThreadHints</a></td>
 <th class="colLast" scope="row">Deprecated.
 <div class="deprecationComment">Use Thread.onSpinWait() directly.</div>
 </th>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/TimeoutBlockingWaitStrategy.html" title="class in com.lmax.disruptor">TimeoutBlockingWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Blocking strategy that uses a lock and condition variable for <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier.</div>
 </th>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/TimeoutException.html" title="class in com.lmax.disruptor">TimeoutException</a></td>
 <th class="colLast" scope="row">
 <div class="block">Wait strategies may throw this Exception to inform callers that a
  message has not been detected within a specific time window.</div>
 </th>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/util/Util.html" title="class in com.lmax.disruptor.util">Util</a></td>
 <th class="colLast" scope="row">
 <div class="block">Set of common functions used by the Disruptor.</div>
 </th>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/WaitStrategy.html" title="interface in com.lmax.disruptor">WaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Strategy employed for making <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s wait on a cursor <a href="com.lmax.disruptor/com/lmax/disruptor/Sequence.html" title="class in com.lmax.disruptor"><code>Sequence</code></a>.</div>
 </th>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><a href="com.lmax.disruptor/com/lmax/disruptor/YieldingWaitStrategy.html" title="class in com.lmax.disruptor">YieldingWaitStrategy</a></td>
 <th class="colLast" scope="row">
 <div class="block">Yielding strategy that uses a Thread.yield() for <a href="com.lmax.disruptor/com/lmax/disruptor/EventProcessor.html" title="interface in com.lmax.disruptor"><code>EventProcessor</code></a>s waiting on a barrier
