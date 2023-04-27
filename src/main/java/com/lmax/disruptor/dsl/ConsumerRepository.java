@@ -23,9 +23,7 @@ import com.lmax.disruptor.SequenceBarrier;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadFactory;
 
@@ -86,26 +84,6 @@ class ConsumerRepository
         }
 
         return false;
-    }
-
-    /**
-     * @deprecated this function should no longer be used to determine the existence
-     * of a backlog, instead use hasBacklog
-     */
-    @Deprecated
-    public Sequence[] getLastSequenceInChain(final boolean includeStopped)
-    {
-        List<Sequence> lastSequence = new ArrayList<>();
-        for (ConsumerInfo consumerInfo : consumerInfos)
-        {
-            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
-            {
-                final Sequence[] sequences = consumerInfo.getSequences();
-                Collections.addAll(lastSequence, sequences);
-            }
-        }
-
-        return lastSequence.toArray(new Sequence[lastSequence.size()]);
     }
 
     public EventProcessor getEventProcessorFor(final EventHandlerIdentity handlerIdentity)

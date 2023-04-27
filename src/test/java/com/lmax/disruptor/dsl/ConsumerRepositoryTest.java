@@ -24,7 +24,6 @@ import com.lmax.disruptor.support.DummySequenceBarrier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -70,21 +69,6 @@ public class ConsumerRepositoryTest
     public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered()
     {
         assertThat(consumerRepository.getBarrierFor(handler1), is(nullValue()));
-    }
-
-    @Test
-    @Deprecated
-    public void shouldGetLastEventProcessorsInChain()
-    {
-        consumerRepository.add(eventProcessor1, handler1, barrier1);
-        consumerRepository.add(eventProcessor2, handler2, barrier2);
-
-        consumerRepository.unMarkEventProcessorsAsEndOfChain(eventProcessor2.getSequence());
-
-
-        final Sequence[] lastEventProcessorsInChain = consumerRepository.getLastSequenceInChain(true);
-        assertThat(lastEventProcessorsInChain.length, equalTo(1));
-        assertThat(lastEventProcessorsInChain[0], sameInstance(eventProcessor1.getSequence()));
     }
 
     @Test
