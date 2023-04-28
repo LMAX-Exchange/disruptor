@@ -19,3 +19,5 @@ pom.xml
 *.iws
 *-gc.log
 gradle.properties
+src/jmh/generated_tests
+src/jcstress/generated_tests
