@@ -18,8 +18,8 @@ package com.lmax.disruptor;
 /**
  * Coordinates claiming sequences for access to a data structure while tracking dependent {@link Sequence}s
  */
-public interface Sequencer extends Cursored, Sequenced
-{
+public interface Sequencer extends Cursored, Sequenced {
+
     /**
      * Set to -1 as sequence starting point
      */

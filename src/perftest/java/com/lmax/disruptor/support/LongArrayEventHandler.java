@@ -17,28 +17,27 @@ package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.util.PaddedLong;
-
 import java.util.concurrent.CountDownLatch;
 
-public final class LongArrayEventHandler implements EventHandler<long[]>
-{
+public final class LongArrayEventHandler implements EventHandler<long[]> {
+
     private final PaddedLong value = new PaddedLong();
+
     private final PaddedLong batchesProcessed = new PaddedLong();
+
     private long count;
+
     private CountDownLatch latch;
 
-    public long getValue()
-    {
+    public long getValue() {
         return value.get();
     }
 
-    public long getBatchesProcessed()
-    {
+    public long getBatchesProcessed() {
         return batchesProcessed.get();
     }
 
-    public void reset(final CountDownLatch latch, final long expectedCount)
-    {
+    public void reset(final CountDownLatch latch, final long expectedCount) {
         value.set(0L);
         this.latch = latch;
         count = expectedCount;
@@ -46,22 +45,17 @@ public final class LongArrayEventHandler implements EventHandler<long[]>
     }
 
     @Override
-    public void onEvent(final long[] event, final long sequence, final boolean endOfBatch) throws Exception
-    {
-        for (int i = 0; i < event.length; i++)
-        {
+    public void onEvent(final long[] event, final long sequence, final boolean endOfBatch) throws Exception {
+        for (int i = 0; i < event.length; i++) {
             value.set(value.get() + event[i]);
         }
-
-        if (--count == 0)
-        {
+        if (--count == 0) {
             latch.countDown();
         }
     }
 
     @Override
-    public void onBatchStart(final long batchSize, final long queueDepth)
-    {
+    public void onBatchStart(final long batchSize, final long queueDepth) {
         batchesProcessed.increment();
     }
 }

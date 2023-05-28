@@ -6,36 +6,32 @@ import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.annotations.State;
 import org.openjdk.jcstress.infra.results.ZZ_Result;
-
 import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE;
 import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 
-public final class MultiProducerSequencerUnsafeStress
-{
-    private static Sequencer createSequencer()
-    {
+public final class MultiProducerSequencerUnsafeStress {
+
+    private static Sequencer createSequencer() {
         return new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy());
     }
 
     @JCStressTest
-    @Outcome(id = {"false, false", "true, false", "true, true"}, expect = ACCEPTABLE, desc = "Assuming ordered updates")
+    @Outcome(id = { "false, false", "true, false", "true, true" }, expect = ACCEPTABLE, desc = "Assuming ordered updates")
     @Outcome(id = "false, true", expect = FORBIDDEN, desc = "publish(2) should not be available before publish(1)")
     @State
-    public static class PublishUpdatesIsAvailableLazily
-    {
+    public static class PublishUpdatesIsAvailableLazily {
+
         Sequencer sequencer = createSequencer();
 
         @Actor
-        public void actor1()
-        {
+        public void actor1() {
             // The store to the underlying availableBuffer is lazily done and stores can be visible out of order
             sequencer.publish(1);
             sequencer.publish(2);
         }
 
         @Actor
-        public void actor2(final ZZ_Result r)
-        {
+        public void actor2(final ZZ_Result r) {
             // The load in isAvailable is a full store/load barrier, so any stores from actor1 should get flushed
             r.r2 = sequencer.isAvailable(2);
             r.r1 = sequencer.isAvailable(1);
@@ -55,21 +51,20 @@ public final class MultiProducerSequencerUnsafeStress
     @Outcome(id = "false, true", expect = ACCEPTABLE, desc = "Caught in the middle: $x is visible, $y is not.")
     @Outcome(id = "true, false", expect = FORBIDDEN, desc = "Seeing $y, but not $x!")
     @State
-    public static class GetVolatile
-    {
+    public static class GetVolatile {
+
         boolean x = false;
+
         Sequencer y = createSequencer();
 
         @Actor
-        public void actor1()
-        {
+        public void actor1() {
             x = true;
             y.publish(1);
         }
 
         @Actor
-        public void actor2(final ZZ_Result r)
-        {
+        public void actor2(final ZZ_Result r) {
             r.r1 = y.isAvailable(1);
             r.r2 = x;
         }
@@ -86,28 +81,26 @@ public final class MultiProducerSequencerUnsafeStress
     @Outcome(id = "false, true", expect = ACCEPTABLE, desc = "Doing first read early, not surprising.")
     @Outcome(id = "true, false", expect = FORBIDDEN, desc = "Violates coherence.")
     @State
-    public static class SameVolatileRead
-    {
+    public static class SameVolatileRead {
+
         private final SameVolatileRead.Holder h1 = new SameVolatileRead.Holder();
+
         private final SameVolatileRead.Holder h2 = h1;
 
-        private static class Holder
-        {
+        private static class Holder {
+
             Sequencer sequence = createSequencer();
         }
 
         @Actor
-        public void actor1()
-        {
+        public void actor1() {
             h1.sequence.publish(1);
         }
 
         @Actor
-        public void actor2(final ZZ_Result r)
-        {
+        public void actor2(final ZZ_Result r) {
             SameVolatileRead.Holder h1 = this.h1;
             SameVolatileRead.Holder h2 = this.h2;
-
             r.r1 = h1.sequence.isAvailable(1);
             r.r2 = h2.sequence.isAvailable(1);
         }

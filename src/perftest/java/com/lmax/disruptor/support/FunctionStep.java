@@ -15,9 +15,7 @@
  */
 package com.lmax.disruptor.support;
 
-public enum FunctionStep
-{
-    ONE,
-    TWO,
-    THREE
+public enum FunctionStep {
+
+    ONE, TWO, THREE
 }

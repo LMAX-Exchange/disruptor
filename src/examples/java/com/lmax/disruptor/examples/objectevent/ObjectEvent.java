@@ -1,12 +1,11 @@
 package com.lmax.disruptor.examples.objectevent;
 
 // tag::example[]
-class ObjectEvent<T>
-{
+class ObjectEvent<T> {
+
     T val;
 
-    void clear()
-    {
+    void clear() {
         val = null;
     }
 }

@@ -23,8 +23,8 @@ package com.lmax.disruptor;
  *
  * <p>An EventProcessor will generally be associated with a Thread for execution.
  */
-public interface EventProcessor extends Runnable
-{
+public interface EventProcessor extends Runnable {
+
     /**
      * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
      *

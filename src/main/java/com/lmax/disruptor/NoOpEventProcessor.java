@@ -22,9 +22,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>This is useful in tests or for pre-filling a {@link RingBuffer} from a publisher.
  */
-public final class NoOpEventProcessor implements EventProcessor
-{
+public final class NoOpEventProcessor implements EventProcessor {
+
     private final SequencerFollowingSequence sequence;
+
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
@@ -32,34 +33,28 @@ public final class NoOpEventProcessor implements EventProcessor
      *
      * @param sequencer to track.
      */
-    public NoOpEventProcessor(final RingBuffer<?> sequencer)
-    {
+    public NoOpEventProcessor(final RingBuffer<?> sequencer) {
         sequence = new SequencerFollowingSequence(sequencer);
     }
 
     @Override
-    public Sequence getSequence()
-    {
+    public Sequence getSequence() {
         return sequence;
     }
 
     @Override
-    public void halt()
-    {
+    public void halt() {
         running.set(false);
     }
 
     @Override
-    public boolean isRunning()
-    {
+    public boolean isRunning() {
         return running.get();
     }
 
     @Override
-    public void run()
-    {
-        if (!running.compareAndSet(false, true))
-        {
+    public void run() {
+        if (!running.compareAndSet(false, true)) {
             throw new IllegalStateException("Thread is already running");
         }
     }
@@ -67,19 +62,17 @@ public final class NoOpEventProcessor implements EventProcessor
     /**
      * Sequence that follows (by wrapping) another sequence
      */
-    private static final class SequencerFollowingSequence extends Sequence
-    {
+    private static final class SequencerFollowingSequence extends Sequence {
+
         private final RingBuffer<?> sequencer;
 
-        private SequencerFollowingSequence(final RingBuffer<?> sequencer)
-        {
+        private SequencerFollowingSequence(final RingBuffer<?> sequencer) {
             super(Sequencer.INITIAL_CURSOR_VALUE);
             this.sequencer = sequencer;
         }
 
         @Override
-        public long get()
-        {
+        public long get() {
             return sequencer.getCursor();
         }
     }

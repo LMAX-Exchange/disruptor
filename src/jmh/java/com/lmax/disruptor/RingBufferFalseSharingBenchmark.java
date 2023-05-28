@@ -15,7 +15,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -23,14 +22,13 @@ import java.util.concurrent.TimeUnit;
  * @see https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_22_FalseSharing.java
  *
  */
-
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(5)
-public class RingBufferFalseSharingBenchmark
-{
+public class RingBufferFalseSharingBenchmark {
+
     /*
      * We take advantage of the inheritance trick used in RingBuffer
      * to create an object without the padding that occur after the fields.
@@ -106,48 +104,36 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
 
      */
     @State(Scope.Group)
-    public static class HalfPaddedRingBufferWithNoisyNeighbour extends RingBufferFields<SimpleEvent>
-    {
+    public static class HalfPaddedRingBufferWithNoisyNeighbour extends RingBufferFields<SimpleEvent> {
+
         int writeOnly;
 
-        public HalfPaddedRingBufferWithNoisyNeighbour()
-        {
+        public HalfPaddedRingBufferWithNoisyNeighbour() {
             super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy()));
         }
     }
 
     @Benchmark
     @Group("halfpadded")
-    public int reader(final HalfPaddedRingBufferWithNoisyNeighbour s)
-    {
+    public int reader(final HalfPaddedRingBufferWithNoisyNeighbour s) {
         return s.bufferSize;
     }
 
     @Benchmark
     @Group("halfpadded")
-    public void writer(final HalfPaddedRingBufferWithNoisyNeighbour s)
-    {
+    public void writer(final HalfPaddedRingBufferWithNoisyNeighbour s) {
         s.writeOnly++;
     }
 
     /*
      * A fully padded RingBuffer using longs
      */
-
     @State(Scope.Group)
-    public static class PaddedRingBuffer extends RingBufferFields<SimpleEvent>
-        {
-            protected byte
-                p10, p11, p12, p13, p14, p15, p16, p17,
-                p20, p21, p22, p23, p24, p25, p26, p27,
-                p30, p31, p32, p33, p34, p35, p36, p37,
-                p40, p41, p42, p43, p44, p45, p46, p47,
-                p50, p51, p52, p53, p54, p55, p56, p57,
-                p60, p61, p62, p63, p64, p65, p66, p67,
-                p70, p71, p72, p73, p74, p75, p76, p77;
+    public static class PaddedRingBuffer extends RingBufferFields<SimpleEvent> {
 
-        public PaddedRingBuffer()
-        {
+        protected byte p10, p11, p12, p13, p14, p15, p16, p17, p20, p21, p22, p23, p24, p25, p26, p27, p30, p31, p32, p33, p34, p35, p36, p37, p40, p41, p42, p43, p44, p45, p46, p47, p50, p51, p52, p53, p54, p55, p56, p57, p60, p61, p62, p63, p64, p65, p66, p67, p70, p71, p72, p73, p74, p75, p76, p77;
+
+        public PaddedRingBuffer() {
             super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy()));
         }
     }
@@ -278,33 +264,25 @@ Instance size: 152 bytes
 Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
      */
     @State(Scope.Group)
-    public static class PaddedRingBufferWithNoisyNeighbour extends PaddedRingBuffer
-    {
+    public static class PaddedRingBufferWithNoisyNeighbour extends PaddedRingBuffer {
+
         int writeOnly;
     }
 
     @Benchmark
     @Group("padded")
-    public int reader(final PaddedRingBufferWithNoisyNeighbour s)
-    {
+    public int reader(final PaddedRingBufferWithNoisyNeighbour s) {
         return s.bufferSize;
     }
 
     @Benchmark
     @Group("padded")
-    public void writer(final PaddedRingBufferWithNoisyNeighbour s)
-    {
+    public void writer(final PaddedRingBufferWithNoisyNeighbour s) {
         s.writeOnly++;
     }
 
-    public static void main(final String[] args) throws RunnerException
-    {
-        Options opt = new OptionsBuilder()
-            .include(RingBufferFalseSharingBenchmark.class.getSimpleName())
-            .threads(Runtime.getRuntime().availableProcessors())
-            .build();
-
+    public static void main(final String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder().include(RingBufferFalseSharingBenchmark.class.getSimpleName()).threads(Runtime.getRuntime().availableProcessors()).build();
         new Runner(opt).run();
     }
-
 }

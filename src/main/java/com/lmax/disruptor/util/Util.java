@@ -21,8 +21,8 @@ import com.lmax.disruptor.Sequence;
 /**
  * Set of common functions used by the Disruptor.
  */
-public final class Util
-{
+public final class Util {
+
     private static final int ONE_MILLISECOND_IN_NANOSECONDS = 1_000_000;
 
     /**
@@ -33,8 +33,7 @@ public final class Util
      * @param x Value to round up
      * @return The next power of 2 from x inclusive
      */
-    public static int ceilingNextPowerOfTwo(final int x)
-    {
+    public static int ceilingNextPowerOfTwo(final int x) {
         return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
     }
 
@@ -44,8 +43,7 @@ public final class Util
      * @param sequences to compare.
      * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
      */
-    public static long getMinimumSequence(final Sequence[] sequences)
-    {
+    public static long getMinimumSequence(final Sequence[] sequences) {
         return getMinimumSequence(sequences, Long.MAX_VALUE);
     }
 
@@ -58,15 +56,12 @@ public final class Util
      * @return the smaller of minimum sequence value found in {@code sequences} and {@code minimum};
      * {@code minimum} if {@code sequences} is empty
      */
-    public static long getMinimumSequence(final Sequence[] sequences, final long minimum)
-    {
+    public static long getMinimumSequence(final Sequence[] sequences, final long minimum) {
         long minimumSequence = minimum;
-        for (int i = 0, n = sequences.length; i < n; i++)
-        {
+        for (int i = 0, n = sequences.length; i < n; i++) {
             long value = sequences[i].get();
             minimumSequence = Math.min(minimumSequence, value);
         }
-
         return minimumSequence;
     }
 
@@ -76,14 +71,11 @@ public final class Util
      * @param processors for which to get the sequences
      * @return the array of {@link Sequence}s
      */
-    public static Sequence[] getSequencesFor(final EventProcessor... processors)
-    {
+    public static Sequence[] getSequencesFor(final EventProcessor... processors) {
         Sequence[] sequences = new Sequence[processors.length];
-        for (int i = 0; i < sequences.length; i++)
-        {
+        for (int i = 0; i < sequences.length; i++) {
             sequences[i] = processors[i].getSequence();
         }
-
         return sequences;
     }
 
@@ -94,10 +86,8 @@ public final class Util
      * @param value Positive value to calculate log2 for.
      * @return The log2 value
      */
-    public static int log2(final int value)
-    {
-        if (value < 1)
-        {
+    public static int log2(final int value) {
+        if (value < 1) {
             throw new IllegalArgumentException("value must be a positive number");
         }
         return Integer.SIZE - Integer.numberOfLeadingZeros(value) - 1;
@@ -109,15 +99,12 @@ public final class Util
      * @return the number of nanoseconds waited (approximately)
      * @throws InterruptedException if the underlying call to wait is interrupted
      */
-    public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException
-    {
+    public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException {
         long millis = timeoutNanos / ONE_MILLISECOND_IN_NANOSECONDS;
         long nanos = timeoutNanos % ONE_MILLISECOND_IN_NANOSECONDS;
-
         long t0 = System.nanoTime();
         mutex.wait(millis, (int) nanos);
         long t1 = System.nanoTime();
-
         return timeoutNanos - (t1 - t0);
     }
 }

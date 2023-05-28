@@ -18,72 +18,60 @@ package com.lmax.disruptor.examples.support;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventTranslatorTwoArg;
 
-public final class StubEvent
-{
-    private int value;
-    private String testString;
-    public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR = (event, sequence, arg0, arg1) ->
-            {
-                event.setValue(arg0);
-                event.setTestString(arg1);
-            };
+public final class StubEvent {
 
-    public StubEvent(final int i)
-    {
+    private int value;
+
+    private String testString;
+
+    public static final EventTranslatorTwoArg<StubEvent, Integer, String> TRANSLATOR = (event, sequence, arg0, arg1) -> {
+        event.setValue(arg0);
+        event.setTestString(arg1);
+    };
+
+    public StubEvent(final int i) {
         this.value = i;
     }
 
-    public void copy(final StubEvent event)
-    {
+    public void copy(final StubEvent event) {
         value = event.value;
     }
 
-    public int getValue()
-    {
+    public int getValue() {
         return value;
     }
 
-    public void setValue(final int value)
-    {
+    public void setValue(final int value) {
         this.value = value;
     }
 
-    public String getTestString()
-    {
+    public String getTestString() {
         return testString;
     }
 
-    public void setTestString(final String testString)
-    {
+    public void setTestString(final String testString) {
         this.testString = testString;
     }
 
     public static final EventFactory<StubEvent> EVENT_FACTORY = () -> new StubEvent(-1);
 
     @Override
-    public boolean equals(final Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(final Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final StubEvent stubEvent = (StubEvent) o;
-
-        if (value != stubEvent.value)
-        {
+        if (value != stubEvent.value) {
             return false;
         }
         return testString != null ? testString.equals(stubEvent.testString) : stubEvent.testString == null;
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = value;
         result = 31 * result + (testString != null ? testString.hashCode() : 0);
         return result;

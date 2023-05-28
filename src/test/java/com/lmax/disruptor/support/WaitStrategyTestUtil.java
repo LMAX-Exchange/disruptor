@@ -19,27 +19,22 @@ import com.lmax.disruptor.AlertException;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.WaitStrategy;
-
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class WaitStrategyTestUtil
-{
+public class WaitStrategyTestUtil {
+
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    public static void assertWaitForWithDelayOf(final long sleepTimeMillis, final WaitStrategy waitStrategy)
-        throws InterruptedException, BrokenBarrierException, AlertException, TimeoutException
-    {
+    public static void assertWaitForWithDelayOf(final long sleepTimeMillis, final WaitStrategy waitStrategy) throws InterruptedException, BrokenBarrierException, AlertException, TimeoutException {
         SequenceUpdater sequenceUpdater = new SequenceUpdater(sleepTimeMillis, waitStrategy);
         EXECUTOR.execute(sequenceUpdater);
         sequenceUpdater.waitForStartup();
         Sequence cursor = new Sequence(0);
         long sequence = waitStrategy.waitFor(0, cursor, sequenceUpdater.sequence, new DummySequenceBarrier());
-
         assertThat(sequence, is(0L));
     }
 }

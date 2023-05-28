@@ -15,8 +15,8 @@
  */
 package com.lmax.disruptor;
 
-interface EventHandlerBase<T> extends EventHandlerIdentity
-{
+interface EventHandlerBase<T> extends EventHandlerIdentity {
+
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will
      * read messages from the {@link RingBuffer} in batches, where a batch is all of the events available to be
@@ -39,15 +39,13 @@ interface EventHandlerBase<T> extends EventHandlerIdentity
      * @param batchSize the size of the batch that is starting
      * @param queueDepth the total number of queued up events including the batch about to be processed
      */
-    default void onBatchStart(long batchSize, long queueDepth)
-    {
+    default void onBatchStart(long batchSize, long queueDepth) {
     }
 
     /**
      * Called once on thread start before first event is available.
      */
-    default void onStart()
-    {
+    default void onStart() {
     }
 
     /**
@@ -56,8 +54,7 @@ interface EventHandlerBase<T> extends EventHandlerIdentity
      * <p>Sequence event processing will already have stopped before this method is called. No events will
      * be processed after this message.
      */
-    default void onShutdown()
-    {
+    default void onShutdown() {
     }
 
     /**
@@ -66,7 +63,6 @@ interface EventHandlerBase<T> extends EventHandlerIdentity
      * @param sequence - the last processed sequence.
      * @throws Exception if the implementation is unable to handle this timeout.
      */
-    default void onTimeout(long sequence) throws Exception
-    {
+    default void onTimeout(long sequence) throws Exception {
     }
 }

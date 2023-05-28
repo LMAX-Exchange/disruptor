@@ -27,15 +27,13 @@ import com.lmax.disruptor.ExceptionHandler;
  *
  * @param <T> the type of event being handled.
  */
-public class ExceptionHandlerSetting<T>
-{
+public class ExceptionHandlerSetting<T> {
+
     private final EventHandlerIdentity handlerIdentity;
+
     private final ConsumerRepository consumerRepository;
 
-    ExceptionHandlerSetting(
-        final EventHandlerIdentity handlerIdentity,
-        final ConsumerRepository consumerRepository)
-    {
+    ExceptionHandlerSetting(final EventHandlerIdentity handlerIdentity, final ConsumerRepository consumerRepository) {
         this.handlerIdentity = handlerIdentity;
         this.consumerRepository = consumerRepository;
     }
@@ -46,19 +44,13 @@ public class ExceptionHandlerSetting<T>
      * @param exceptionHandler the exception handler to use.
      */
     @SuppressWarnings("unchecked")
-    public void with(final ExceptionHandler<? super T> exceptionHandler)
-    {
+    public void with(final ExceptionHandler<? super T> exceptionHandler) {
         final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(handlerIdentity);
-        if (eventProcessor instanceof BatchEventProcessor)
-        {
+        if (eventProcessor instanceof BatchEventProcessor) {
             ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
             consumerRepository.getBarrierFor(handlerIdentity).alert();
-        }
-        else
-        {
-            throw new RuntimeException(
-                "EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " +
-                "and does not support exception handlers");
+        } else {
+            throw new RuntimeException("EventProcessor: " + eventProcessor + " is not a BatchEventProcessor " + "and does not support exception handlers");
         }
     }
 }

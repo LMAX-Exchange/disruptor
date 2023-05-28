@@ -17,50 +17,45 @@ package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventFactory;
 
-public final class FunctionEvent
-{
+public final class FunctionEvent {
+
     private long operandOne;
+
     private long operandTwo;
+
     private long stepOneResult;
+
     private long stepTwoResult;
 
-    public long getOperandOne()
-    {
+    public long getOperandOne() {
         return operandOne;
     }
 
-    public void setOperandOne(final long operandOne)
-    {
+    public void setOperandOne(final long operandOne) {
         this.operandOne = operandOne;
     }
 
-    public long getOperandTwo()
-    {
+    public long getOperandTwo() {
         return operandTwo;
     }
 
-    public void setOperandTwo(final long operandTwo)
-    {
+    public void setOperandTwo(final long operandTwo) {
         this.operandTwo = operandTwo;
     }
 
-    public long getStepOneResult()
-    {
+    public long getStepOneResult() {
         return stepOneResult;
     }
 
-    public void setStepOneResult(final long stepOneResult)
-    {
+    public void setStepOneResult(final long stepOneResult) {
         this.stepOneResult = stepOneResult;
     }
 
-    public long getStepTwoResult()
-    {
+    public long getStepTwoResult() {
         return stepTwoResult;
     }
 
-    public void setStepTwoResult(final long stepTwoResult)
-    {
+    public void setStepTwoResult(final long stepTwoResult) {
         this.stepTwoResult = stepTwoResult;
     }
 

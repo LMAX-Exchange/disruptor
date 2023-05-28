@@ -9,11 +9,9 @@ import org.openjdk.jcstress.annotations.Mode;
 import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.annotations.Signal;
 import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.logging.LogManager;
-
 import static org.openjdk.jcstress.annotations.Expect.ACCEPTABLE;
 import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 
@@ -25,30 +23,24 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
  */
 @JCStressTest(Mode.Termination)
 @Outcome(id = "TERMINATED", expect = ACCEPTABLE, desc = "Logger has not been initialized")
-@Outcome(
-        id = {"STALE", "ERROR"},
-        expect = FORBIDDEN,
-        desc = "Logger has been initialized. This has the potential to cause " +
-                "deadlocks when disruptor is used within logging frameworks")
-public class LoggerInitializationStress
-{
+@Outcome(id = { "STALE", "ERROR" }, expect = FORBIDDEN, desc = "Logger has been initialized. This has the potential to cause " + "deadlocks when disruptor is used within logging frameworks")
+public class LoggerInitializationStress {
+
     private static volatile boolean logManagerInitialized;
+
     private static volatile boolean disruptorInitialized;
-    static
-    {
+
+    static {
         System.setProperty("java.util.logging.manager", DisruptorLogManager.class.getCanonicalName());
     }
 
     @Actor
-    public void actor() throws Exception
-    {
+    public void actor() throws Exception {
         // Wait for a the Disruptor instance to be initialized
-        while (!disruptorInitialized)
-        {
+        while (!disruptorInitialized) {
         }
         // Validate state
-        if (logManagerInitialized)
-        {
+        if (logManagerInitialized) {
             throw new RuntimeException("Expected the LogManager to be uninitialized");
         }
         // Use Unsafe to determine if the LogManager has been initialized.
@@ -60,21 +52,14 @@ public class LoggerInitializationStress
         Object managerBase = unsafe.staticFieldBase(managerField);
         long managerOffset = unsafe.staticFieldOffset(managerField);
         Object logManager = unsafe.getObject(managerBase, managerOffset);
-        if (logManager != null)
-        {
+        if (logManager != null) {
             throw new RuntimeException("Unexpected LogManager: " + logManager);
         }
     }
 
     @Signal
-    public void signal()
-    {
-        final Disruptor disruptor = new Disruptor<>(
-                SimpleEvent::new,
-                128,
-                Executors.defaultThreadFactory(),
-                ProducerType.MULTI,
-                new BlockingWaitStrategy());
+    public void signal() {
+        final Disruptor disruptor = new Disruptor<>(SimpleEvent::new, 128, Executors.defaultThreadFactory(), ProducerType.MULTI, new BlockingWaitStrategy());
         disruptor.setDefaultExceptionHandler(SimpleEventExceptionHandler.INSTANCE);
         disruptor.handleEventsWith(SimpleEventHandler.INSTANCE);
         disruptor.start();
@@ -82,69 +67,58 @@ public class LoggerInitializationStress
         disruptorInitialized = true;
     }
 
-    public static final class DisruptorLogManager extends LogManager
-    {
-        static
-        {
+    public static final class DisruptorLogManager extends LogManager {
+
+        static {
             logManagerInitialized = true;
         }
     }
 
-    public static final class SimpleEvent
-    {
+    public static final class SimpleEvent {
+
         private long value = Long.MIN_VALUE;
 
-        public long getValue()
-        {
+        public long getValue() {
             return value;
         }
 
-        public void setValue(final long value)
-        {
+        public void setValue(final long value) {
             this.value = value;
         }
 
         @Override
-        public String toString()
-        {
-            return "SimpleEvent{" +
-                    "value=" + value +
-                    '}';
+        public String toString() {
+            return "SimpleEvent{" + "value=" + value + '}';
         }
     }
 
-    public enum SimpleEventHandler implements EventHandler<SimpleEvent>
-    {
+    public enum SimpleEventHandler implements EventHandler<SimpleEvent> {
+
         INSTANCE;
 
         @Override
-        public void onEvent(final SimpleEvent event, final long sequence, final boolean endOfBatch)
-        {
+        public void onEvent(final SimpleEvent event, final long sequence, final boolean endOfBatch) {
             // nop
         }
     }
 
-    public enum SimpleEventExceptionHandler implements ExceptionHandler<SimpleEvent>
-    {
+    public enum SimpleEventExceptionHandler implements ExceptionHandler<SimpleEvent> {
+
         INSTANCE;
 
         @Override
-        public void handleEventException(final Throwable ex, final long sequence, final SimpleEvent event)
-        {
+        public void handleEventException(final Throwable ex, final long sequence, final SimpleEvent event) {
             // nop
         }
 
         @Override
-        public void handleOnStartException(final Throwable ex)
-        {
+        public void handleOnStartException(final Throwable ex) {
             // nop
         }
 
         @Override
-        public void handleOnShutdownException(final Throwable ex)
-        {
+        public void handleOnShutdownException(final Throwable ex) {
             // nop
         }
     }
-
 }

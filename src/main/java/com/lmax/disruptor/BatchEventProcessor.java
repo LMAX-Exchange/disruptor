@@ -16,10 +16,8 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import static com.lmax.disruptor.RewindAction.REWIND;
 import static java.lang.Math.min;
-
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
@@ -27,62 +25,56 @@ import static java.lang.Math.min;
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class BatchEventProcessor<T>
-        implements EventProcessor
-{
+public final class BatchEventProcessor<T> implements EventProcessor {
+
     private static final int IDLE = 0;
+
     private static final int HALTED = IDLE + 1;
+
     private static final int RUNNING = HALTED + 1;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
+
     private ExceptionHandler<? super T> exceptionHandler;
+
     private final DataProvider<T> dataProvider;
+
     private final SequenceBarrier sequenceBarrier;
+
     private final EventHandlerBase<? super T> eventHandler;
+
     private final int batchLimitOffset;
+
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+
     private final RewindHandler rewindHandler;
+
     private int retriesAttempted = 0;
 
-    BatchEventProcessor(
-            final DataProvider<T> dataProvider,
-            final SequenceBarrier sequenceBarrier,
-            final EventHandlerBase<? super T> eventHandler,
-            final int maxBatchSize,
-            final BatchRewindStrategy batchRewindStrategy
-    )
-    {
+    BatchEventProcessor(final DataProvider<T> dataProvider, final SequenceBarrier sequenceBarrier, final EventHandlerBase<? super T> eventHandler, final int maxBatchSize, final BatchRewindStrategy batchRewindStrategy) {
         this.dataProvider = dataProvider;
         this.sequenceBarrier = sequenceBarrier;
         this.eventHandler = eventHandler;
-
-        if (maxBatchSize < 1)
-        {
+        if (maxBatchSize < 1) {
             throw new IllegalArgumentException("maxBatchSize must be greater than 0");
         }
         this.batchLimitOffset = maxBatchSize - 1;
-
-        this.rewindHandler = eventHandler instanceof RewindableEventHandler
-                ? new TryRewindHandler(batchRewindStrategy)
-                : new NoRewindHandler();
+        this.rewindHandler = eventHandler instanceof RewindableEventHandler ? new TryRewindHandler(batchRewindStrategy) : new NoRewindHandler();
     }
 
     @Override
-    public Sequence getSequence()
-    {
+    public Sequence getSequence() {
         return sequence;
     }
 
     @Override
-    public void halt()
-    {
+    public void halt() {
         running.set(HALTED);
         sequenceBarrier.alert();
     }
 
     @Override
-    public boolean isRunning()
-    {
+    public boolean isRunning() {
         return running.get() != IDLE;
     }
 
@@ -91,13 +83,10 @@ public final class BatchEventProcessor<T>
      *
      * @param exceptionHandler to replace the existing exceptionHandler.
      */
-    public void setExceptionHandler(final ExceptionHandler<? super T> exceptionHandler)
-    {
-        if (null == exceptionHandler)
-        {
+    public void setExceptionHandler(final ExceptionHandler<? super T> exceptionHandler) {
+        if (null == exceptionHandler) {
             throw new NullPointerException();
         }
-
         this.exceptionHandler = exceptionHandler;
     }
 
@@ -107,89 +96,58 @@ public final class BatchEventProcessor<T>
      * @throws IllegalStateException if this object instance is already running in a thread
      */
     @Override
-    public void run()
-    {
+    public void run() {
         int witnessValue = running.compareAndExchange(IDLE, RUNNING);
-        if (witnessValue == IDLE) // Successful CAS
-        {
+        if (// Successful CAS
+        witnessValue == IDLE) {
             sequenceBarrier.clearAlert();
-
             notifyStart();
-            try
-            {
-                if (running.get() == RUNNING)
-                {
+            try {
+                if (running.get() == RUNNING) {
                     processEvents();
                 }
-            }
-            finally
-            {
+            } finally {
                 notifyShutdown();
                 running.set(IDLE);
             }
-        }
-        else
-        {
-            if (witnessValue == RUNNING)
-            {
+        } else {
+            if (witnessValue == RUNNING) {
                 throw new IllegalStateException("Thread is already running");
-            }
-            else
-            {
+            } else {
                 earlyExit();
             }
         }
     }
 
-    private void processEvents()
-    {
+    private void processEvents() {
         T event = null;
         long nextSequence = sequence.get() + 1L;
-
-        while (true)
-        {
+        while (true) {
             final long startOfBatchSequence = nextSequence;
-            try
-            {
-                try
-                {
+            try {
+                try {
                     final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                     final long endOfBatchSequence = min(nextSequence + batchLimitOffset, availableSequence);
-
-                    if (nextSequence <= endOfBatchSequence)
-                    {
+                    if (nextSequence <= endOfBatchSequence) {
                         eventHandler.onBatchStart(endOfBatchSequence - nextSequence + 1, availableSequence - nextSequence + 1);
                     }
-
-                    while (nextSequence <= endOfBatchSequence)
-                    {
+                    while (nextSequence <= endOfBatchSequence) {
                         event = dataProvider.get(nextSequence);
                         eventHandler.onEvent(event, nextSequence, nextSequence == endOfBatchSequence);
                         nextSequence++;
                     }
-
                     retriesAttempted = 0;
-
                     sequence.set(endOfBatchSequence);
-                }
-                catch (final RewindableException e)
-                {
+                } catch (final RewindableException e) {
                     nextSequence = rewindHandler.attemptRewindGetNextSequence(e, startOfBatchSequence);
                 }
-            }
-            catch (final TimeoutException e)
-            {
+            } catch (final TimeoutException e) {
                 notifyTimeout(sequence.get());
-            }
-            catch (final AlertException ex)
-            {
-                if (running.get() != RUNNING)
-                {
+            } catch (final AlertException ex) {
+                if (running.get() != RUNNING) {
                     break;
                 }
-            }
-            catch (final Throwable ex)
-            {
+            } catch (final Throwable ex) {
                 handleEventException(ex, nextSequence, event);
                 sequence.set(nextSequence);
                 nextSequence++;
@@ -197,20 +155,15 @@ public final class BatchEventProcessor<T>
         }
     }
 
-    private void earlyExit()
-    {
+    private void earlyExit() {
         notifyStart();
         notifyShutdown();
     }
 
-    private void notifyTimeout(final long availableSequence)
-    {
-        try
-        {
+    private void notifyTimeout(final long availableSequence) {
+        try {
             eventHandler.onTimeout(availableSequence);
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             handleEventException(e, availableSequence, null);
         }
     }
@@ -218,14 +171,10 @@ public final class BatchEventProcessor<T>
     /**
      * Notifies the EventHandler when this processor is starting up.
      */
-    private void notifyStart()
-    {
-        try
-        {
+    private void notifyStart() {
+        try {
             eventHandler.onStart();
-        }
-        catch (final Throwable ex)
-        {
+        } catch (final Throwable ex) {
             handleOnStartException(ex);
         }
     }
@@ -233,14 +182,10 @@ public final class BatchEventProcessor<T>
     /**
      * Notifies the EventHandler immediately prior to this processor shutting down.
      */
-    private void notifyShutdown()
-    {
-        try
-        {
+    private void notifyShutdown() {
+        try {
             eventHandler.onShutdown();
-        }
-        catch (final Throwable ex)
-        {
+        } catch (final Throwable ex) {
             handleOnShutdownException(ex);
         }
     }
@@ -249,8 +194,7 @@ public final class BatchEventProcessor<T>
      * Delegate to {@link ExceptionHandler#handleEventException(Throwable, long, Object)} on the delegate or
      * the default {@link ExceptionHandler} if one has not been configured.
      */
-    private void handleEventException(final Throwable ex, final long sequence, final T event)
-    {
+    private void handleEventException(final Throwable ex, final long sequence, final T event) {
         getExceptionHandler().handleEventException(ex, sequence, event);
     }
 
@@ -258,8 +202,7 @@ public final class BatchEventProcessor<T>
      * Delegate to {@link ExceptionHandler#handleOnStartException(Throwable)} on the delegate or
      * the default {@link ExceptionHandler} if one has not been configured.
      */
-    private void handleOnStartException(final Throwable ex)
-    {
+    private void handleOnStartException(final Throwable ex) {
         getExceptionHandler().handleOnStartException(ex);
     }
 
@@ -267,46 +210,38 @@ public final class BatchEventProcessor<T>
      * Delegate to {@link ExceptionHandler#handleOnShutdownException(Throwable)} on the delegate or
      * the default {@link ExceptionHandler} if one has not been configured.
      */
-    private void handleOnShutdownException(final Throwable ex)
-    {
+    private void handleOnShutdownException(final Throwable ex) {
         getExceptionHandler().handleOnShutdownException(ex);
     }
 
-    private ExceptionHandler<? super T> getExceptionHandler()
-    {
+    private ExceptionHandler<? super T> getExceptionHandler() {
         ExceptionHandler<? super T> handler = exceptionHandler;
         return handler == null ? ExceptionHandlers.defaultHandler() : handler;
     }
 
-    private class TryRewindHandler implements RewindHandler
-    {
+    private class TryRewindHandler implements RewindHandler {
+
         private final BatchRewindStrategy batchRewindStrategy;
 
-        TryRewindHandler(final BatchRewindStrategy batchRewindStrategy)
-        {
+        TryRewindHandler(final BatchRewindStrategy batchRewindStrategy) {
             this.batchRewindStrategy = batchRewindStrategy;
         }
 
         @Override
-        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence) throws RewindableException
-        {
-            if (batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND)
-            {
+        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence) throws RewindableException {
+            if (batchRewindStrategy.handleRewindException(e, ++retriesAttempted) == REWIND) {
                 return startOfBatchSequence;
-            }
-            else
-            {
+            } else {
                 retriesAttempted = 0;
                 throw e;
             }
         }
     }
 
-    private static class NoRewindHandler implements RewindHandler
-    {
+    private static class NoRewindHandler implements RewindHandler {
+
         @Override
-        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence)
-        {
+        public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence) {
             throw new UnsupportedOperationException("Rewindable Exception thrown from a non-rewindable event handler", e);
         }
     }

@@ -8,11 +8,14 @@ package com.lmax.disruptor;
  *
  * @param <T> the type of event used.
  */
-public class EventPoller<T>
-{
+public class EventPoller<T> {
+
     private final DataProvider<T> dataProvider;
+
     private final Sequencer sequencer;
+
     private final Sequence sequence;
+
     private final Sequence gatingSequence;
 
     /**
@@ -20,8 +23,8 @@ public class EventPoller<T>
      *
      * @param <T> the type of the event
      */
-    public interface Handler<T>
-    {
+    public interface Handler<T> {
+
         /**
          * Called for each event to consume it
          *
@@ -38,8 +41,8 @@ public class EventPoller<T>
     /**
      * Indicates the result of a call to {@link #poll(Handler)}
      */
-    public enum PollState
-    {
+    public enum PollState {
+
         /**
          * The poller processed one or more events
          */
@@ -63,12 +66,7 @@ public class EventPoller<T>
      * @param sequence the sequence which will be used by this event poller
      * @param gatingSequence the sequences to gate on
      */
-    public EventPoller(
-        final DataProvider<T> dataProvider,
-        final Sequencer sequencer,
-        final Sequence sequence,
-        final Sequence gatingSequence)
-    {
+    public EventPoller(final DataProvider<T> dataProvider, final Sequencer sequencer, final Sequence sequence, final Sequence gatingSequence) {
         this.dataProvider = dataProvider;
         this.sequencer = sequencer;
         this.sequence = sequence;
@@ -88,42 +86,27 @@ public class EventPoller<T>
      * @return the state of the event poller after the poll is attempted
      * @throws Exception exceptions thrown from the event handler are propagated to the caller
      */
-    public PollState poll(final Handler<T> eventHandler) throws Exception
-    {
+    public PollState poll(final Handler<T> eventHandler) throws Exception {
         final long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
         final long availableSequence = sequencer.getHighestPublishedSequence(nextSequence, gatingSequence.get());
-
-        if (nextSequence <= availableSequence)
-        {
+        if (nextSequence <= availableSequence) {
             boolean processNextEvent;
             long processedSequence = currentSequence;
-
-            try
-            {
-                do
-                {
+            try {
+                do {
                     final T event = dataProvider.get(nextSequence);
                     processNextEvent = eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     processedSequence = nextSequence;
                     nextSequence++;
-
-                }
-                while (nextSequence <= availableSequence && processNextEvent);
-            }
-            finally
-            {
+                } while (nextSequence <= availableSequence && processNextEvent);
+            } finally {
                 sequence.set(processedSequence);
             }
-
             return PollState.PROCESSING;
-        }
-        else if (sequencer.getCursor() >= nextSequence)
-        {
+        } else if (sequencer.getCursor() >= nextSequence) {
             return PollState.GATING;
-        }
-        else
-        {
+        } else {
             return PollState.IDLE;
         }
     }
@@ -140,27 +123,15 @@ public class EventPoller<T>
      * @param <T> the type of the event
      * @return the event poller
      */
-    public static <T> EventPoller<T> newInstance(
-        final DataProvider<T> dataProvider,
-        final Sequencer sequencer,
-        final Sequence sequence,
-        final Sequence cursorSequence,
-        final Sequence... gatingSequences)
-    {
+    public static <T> EventPoller<T> newInstance(final DataProvider<T> dataProvider, final Sequencer sequencer, final Sequence sequence, final Sequence cursorSequence, final Sequence... gatingSequences) {
         Sequence gatingSequence;
-        if (gatingSequences.length == 0)
-        {
+        if (gatingSequences.length == 0) {
             gatingSequence = cursorSequence;
-        }
-        else if (gatingSequences.length == 1)
-        {
+        } else if (gatingSequences.length == 1) {
             gatingSequence = gatingSequences[0];
-        }
-        else
-        {
+        } else {
             gatingSequence = new FixedSequenceGroup(gatingSequences);
         }
-
         return new EventPoller<>(dataProvider, sequencer, sequence, gatingSequence);
     }
 
@@ -169,8 +140,7 @@ public class EventPoller<T>
      *
      * @return the sequence used by the event poller
      */
-    public Sequence getSequence()
-    {
+    public Sequence getSequence() {
         return sequence;
     }
 }

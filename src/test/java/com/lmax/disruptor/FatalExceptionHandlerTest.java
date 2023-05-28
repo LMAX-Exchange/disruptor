@@ -17,22 +17,17 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public final class FatalExceptionHandlerTest
-{
+public final class FatalExceptionHandlerTest {
+
     @Test
-    public void shouldHandleFatalException()
-    {
+    public void shouldHandleFatalException() {
         final Exception causeException = new Exception();
         final TestEvent event = new TestEvent();
-
         ExceptionHandler<Object> exceptionHandler = new FatalExceptionHandler();
-
-        Throwable ex =  assertThrows(RuntimeException.class, () -> exceptionHandler.handleEventException(causeException, 0L, event));
-
+        Throwable ex = assertThrows(RuntimeException.class, () -> exceptionHandler.handleEventException(causeException, 0L, event));
         assertEquals(causeException, ex.getCause());
     }
 }

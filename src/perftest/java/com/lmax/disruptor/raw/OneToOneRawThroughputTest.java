@@ -24,7 +24,6 @@ import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +36,6 @@ import java.util.concurrent.Executors;
  * | P1 |--->| EP1 |
  * +----+    +-----+
  *
- *
  * Queue Based:
  * ============
  *
@@ -49,7 +47,6 @@ import java.util.concurrent.Executors;
  * P1  - Publisher 1
  * Q1  - Queue 1
  * EP1 - EventProcessor 1
- *
  *
  * Disruptor:
  * ==========
@@ -72,15 +69,17 @@ import java.util.concurrent.Executors;
  *
  * </pre>
  */
-public final class OneToOneRawThroughputTest extends AbstractPerfTestDisruptor
-{
+public final class OneToOneRawThroughputTest extends AbstractPerfTestDisruptor {
+
     private static final int BUFFER_SIZE = 1024 * 64;
+
     private static final long ITERATIONS = 1000L * 1000L * 200L;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor(DaemonThreadFactory.INSTANCE);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
+
     private final MyRunnable myRunnable = new MyRunnable(sequencer);
 
     {
@@ -88,91 +87,73 @@ public final class OneToOneRawThroughputTest extends AbstractPerfTestDisruptor
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
-    protected int getRequiredProcessorCount()
-    {
+    protected int getRequiredProcessorCount() {
         return 2;
     }
 
     @Override
-    protected PerfTestContext runDisruptorPass() throws InterruptedException
-    {
+    protected PerfTestContext runDisruptorPass() throws InterruptedException {
         PerfTestContext perfTestContext = new PerfTestContext();
         final CountDownLatch latch = new CountDownLatch(1);
         long expectedCount = myRunnable.sequence.get() + ITERATIONS;
         myRunnable.reset(latch, expectedCount);
         executor.submit(myRunnable);
         long start = System.currentTimeMillis();
-
         final Sequenced sequencer = this.sequencer;
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
+        for (long i = 0; i < ITERATIONS; i++) {
             long next = sequencer.next();
             sequencer.publish(next);
         }
-
         latch.await();
         perfTestContext.setDisruptorOps((ITERATIONS * 1000L) / (System.currentTimeMillis() - start));
         waitForEventProcessorSequence(expectedCount);
-
         return perfTestContext;
     }
 
-    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException
-    {
-        while (myRunnable.sequence.get() != expectedCount)
-        {
+    private void waitForEventProcessorSequence(final long expectedCount) throws InterruptedException {
+        while (myRunnable.sequence.get() != expectedCount) {
             Thread.sleep(1);
         }
     }
 
-    private static class MyRunnable implements Runnable
-    {
+    private static class MyRunnable implements Runnable {
+
         private CountDownLatch latch;
+
         private long expectedCount;
+
         Sequence sequence = new Sequence(-1);
+
         private final SequenceBarrier barrier;
 
-        MyRunnable(final Sequencer sequencer)
-        {
+        MyRunnable(final Sequencer sequencer) {
             this.barrier = sequencer.newBarrier();
         }
 
-        public void reset(final CountDownLatch latch, final long expectedCount)
-        {
+        public void reset(final CountDownLatch latch, final long expectedCount) {
             this.latch = latch;
             this.expectedCount = expectedCount;
         }
 
         @Override
-        public void run()
-        {
+        public void run() {
             long expected = expectedCount;
             long processed = -1;
-
-            try
-            {
-                do
-                {
+            try {
+                do {
                     processed = barrier.waitFor(sequence.get() + 1);
                     sequence.set(processed);
-                }
-                while (processed < expected);
-
+                } while (processed < expected);
                 latch.countDown();
                 sequence.setVolatile(processed);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void main(final String[] args) throws Exception
-    {
+    public static void main(final String[] args) throws Exception {
         OneToOneRawThroughputTest test = new OneToOneRawThroughputTest();
         test.testImplementations();
     }

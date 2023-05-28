@@ -28,28 +28,29 @@ import java.util.concurrent.locks.LockSupport;
  * on the producing thread as it will not need signal any conditional variables
  * to wake up the event handling thread.
  */
-public final class SleepingWaitStrategy implements WaitStrategy
-{
+public final class SleepingWaitStrategy implements WaitStrategy {
+
     private static final int SPIN_THRESHOLD = 100;
+
     private static final int DEFAULT_RETRIES = 200;
+
     private static final long DEFAULT_SLEEP = 100;
 
     private final int retries;
+
     private final long sleepTimeNs;
 
     /**
      * Provides a sleeping wait strategy with the default retry and sleep settings
      */
-    public SleepingWaitStrategy()
-    {
+    public SleepingWaitStrategy() {
         this(DEFAULT_RETRIES, DEFAULT_SLEEP);
     }
 
     /**
      * @param retries How many times the strategy should retry before sleeping
      */
-    public SleepingWaitStrategy(final int retries)
-    {
+    public SleepingWaitStrategy(final int retries) {
         this(retries, DEFAULT_SLEEP);
     }
 
@@ -57,52 +58,35 @@ public final class SleepingWaitStrategy implements WaitStrategy
      * @param retries How many times the strategy should retry before sleeping
      * @param sleepTimeNs How long the strategy should sleep, in nanoseconds
      */
-    public SleepingWaitStrategy(final int retries, final long sleepTimeNs)
-    {
+    public SleepingWaitStrategy(final int retries, final long sleepTimeNs) {
         this.retries = retries;
         this.sleepTimeNs = sleepTimeNs;
     }
 
     @Override
-    public long waitFor(
-        final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
-        throws AlertException
-    {
+    public long waitFor(final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier) throws AlertException {
         long availableSequence;
         int counter = retries;
-
-        while ((availableSequence = dependentSequence.get()) < sequence)
-        {
+        while ((availableSequence = dependentSequence.get()) < sequence) {
             counter = applyWaitMethod(barrier, counter);
         }
-
         return availableSequence;
     }
 
     @Override
-    public void signalAllWhenBlocking()
-    {
+    public void signalAllWhenBlocking() {
     }
 
-    private int applyWaitMethod(final SequenceBarrier barrier, final int counter)
-        throws AlertException
-    {
+    private int applyWaitMethod(final SequenceBarrier barrier, final int counter) throws AlertException {
         barrier.checkAlert();
-
-        if (counter > SPIN_THRESHOLD)
-        {
+        if (counter > SPIN_THRESHOLD) {
             return counter - 1;
-        }
-        else if (counter > 0)
-        {
+        } else if (counter > 0) {
             Thread.yield();
             return counter - 1;
-        }
-        else
-        {
+        } else {
             LockSupport.parkNanos(sleepTimeNs);
         }
-
         return counter;
     }
 }

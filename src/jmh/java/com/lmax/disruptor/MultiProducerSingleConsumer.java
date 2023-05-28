@@ -20,37 +20,30 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(1)
-public class MultiProducerSingleConsumer
-{
+public class MultiProducerSingleConsumer {
+
     private RingBuffer<SimpleEvent> ringBuffer;
+
     private Disruptor<SimpleEvent> disruptor;
+
     private static final int BIG_BUFFER = 1 << 22;
 
     @Setup
-    public void setup(final Blackhole bh)
-    {
-        disruptor = new Disruptor<>(SimpleEvent::new,
-                BIG_BUFFER,
-                DaemonThreadFactory.INSTANCE,
-                ProducerType.MULTI,
-                new BusySpinWaitStrategy());
-
+    public void setup(final Blackhole bh) {
+        disruptor = new Disruptor<>(SimpleEvent::new, BIG_BUFFER, DaemonThreadFactory.INSTANCE, ProducerType.MULTI, new BusySpinWaitStrategy());
         disruptor.handleEventsWith(new SimpleEventHandler(bh));
-
         ringBuffer = disruptor.start();
     }
 
     @Benchmark
     @Threads(4)
-    public void producing()
-    {
+    public void producing() {
         long sequence = ringBuffer.next();
         SimpleEvent simpleEvent = ringBuffer.get(sequence);
         simpleEvent.setValue(0);
@@ -58,16 +51,12 @@ public class MultiProducerSingleConsumer
     }
 
     @TearDown
-    public void tearDown()
-    {
+    public void tearDown() {
         disruptor.shutdown();
     }
 
-    public static void main(final String[] args) throws RunnerException
-    {
-        Options opt = new OptionsBuilder()
-                .include(MultiProducerSingleConsumer.class.getSimpleName())
-                .build();
+    public static void main(final String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder().include(MultiProducerSingleConsumer.class.getSimpleName()).build();
         new Runner(opt).run();
     }
 }

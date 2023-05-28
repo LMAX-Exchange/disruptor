@@ -22,22 +22,20 @@ package com.lmax.disruptor;
  *
  * <p>For efficiency this exception will not have a stack trace.
  */
-@SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
-public final class InsufficientCapacityException extends Exception
-{
+@SuppressWarnings({ "serial", "lgtm[java/non-sync-override]" })
+public final class InsufficientCapacityException extends Exception {
+
     /**
      * The efficiency saving singleton instance
      */
     public static final InsufficientCapacityException INSTANCE = new InsufficientCapacityException();
 
-    private InsufficientCapacityException()
-    {
+    private InsufficientCapacityException() {
         // Singleton
     }
 
     @Override
-    public Throwable fillInStackTrace()
-    {
+    public Throwable fillInStackTrace() {
         return this;
     }
 }

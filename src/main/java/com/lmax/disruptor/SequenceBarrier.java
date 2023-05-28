@@ -15,13 +15,12 @@
  */
 package com.lmax.disruptor;
 
-
 /**
  * Coordination barrier for tracking the cursor for publishers and sequence of
  * dependent {@link EventProcessor}s for processing a data structure
  */
-public interface SequenceBarrier
-{
+public interface SequenceBarrier {
+
     /**
      * Wait for the given sequence to be available for consumption.
      *

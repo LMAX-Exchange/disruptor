@@ -16,14 +16,13 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Util;
-
 import java.util.Arrays;
 
 /**
  * Hides a group of Sequences behind a single Sequence
  */
-public final class FixedSequenceGroup extends Sequence
-{
+public final class FixedSequenceGroup extends Sequence {
+
     private final Sequence[] sequences;
 
     /**
@@ -31,8 +30,7 @@ public final class FixedSequenceGroup extends Sequence
      *
      * @param sequences the list of sequences to be tracked under this sequence group
      */
-    public FixedSequenceGroup(final Sequence[] sequences)
-    {
+    public FixedSequenceGroup(final Sequence[] sequences) {
         this.sequences = Arrays.copyOf(sequences, sequences.length);
     }
 
@@ -42,14 +40,12 @@ public final class FixedSequenceGroup extends Sequence
      * @return the minimum sequence value for the group.
      */
     @Override
-    public long get()
-    {
+    public long get() {
         return Util.getMinimumSequence(sequences);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return Arrays.toString(sequences);
     }
 
@@ -57,8 +53,7 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
-    public void set(final long value)
-    {
+    public void set(final long value) {
         throw new UnsupportedOperationException();
     }
 
@@ -66,8 +61,7 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
-    public boolean compareAndSet(final long expectedValue, final long newValue)
-    {
+    public boolean compareAndSet(final long expectedValue, final long newValue) {
         throw new UnsupportedOperationException();
     }
 
@@ -75,8 +69,7 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
-    public long incrementAndGet()
-    {
+    public long incrementAndGet() {
         throw new UnsupportedOperationException();
     }
 
@@ -84,8 +77,7 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
-    public long addAndGet(final long increment)
-    {
+    public long addAndGet(final long increment) {
         throw new UnsupportedOperationException();
     }
 }

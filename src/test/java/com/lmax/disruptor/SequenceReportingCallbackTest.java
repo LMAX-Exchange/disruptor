@@ -17,63 +17,50 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.support.StubEvent;
 import org.junit.jupiter.api.Test;
-
 import java.util.concurrent.CountDownLatch;
-
 import static com.lmax.disruptor.RingBuffer.createMultiProducer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SequenceReportingCallbackTest
-{
+public class SequenceReportingCallbackTest {
+
     private final CountDownLatch callbackLatch = new CountDownLatch(1);
+
     private final CountDownLatch onEndOfBatchLatch = new CountDownLatch(1);
 
     @Test
-    public void shouldReportProgressByUpdatingSequenceViaCallback()
-        throws Exception
-    {
+    public void shouldReportProgressByUpdatingSequenceViaCallback() throws Exception {
         final RingBuffer<StubEvent> ringBuffer = createMultiProducer(StubEvent.EVENT_FACTORY, 16);
         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
         final EventHandler<StubEvent> handler = new TestSequenceReportingEventHandler();
-        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessorBuilder().build(
-                ringBuffer, sequenceBarrier, handler);
+        final BatchEventProcessor<StubEvent> batchEventProcessor = new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, handler);
         ringBuffer.addGatingSequences(batchEventProcessor.getSequence());
-
         Thread thread = new Thread(batchEventProcessor);
         thread.setDaemon(true);
         thread.start();
-
         assertEquals(-1L, batchEventProcessor.getSequence().get());
         ringBuffer.publish(ringBuffer.next());
-
         callbackLatch.await();
         assertEquals(0L, batchEventProcessor.getSequence().get());
-
         onEndOfBatchLatch.countDown();
         assertEquals(0L, batchEventProcessor.getSequence().get());
-
         batchEventProcessor.halt();
         thread.join();
     }
 
-    private class TestSequenceReportingEventHandler implements EventHandler<StubEvent>
-    {
+    private class TestSequenceReportingEventHandler implements EventHandler<StubEvent> {
+
         private Sequence sequenceCallback;
 
         @Override
-        public void setSequenceCallback(final Sequence sequenceTrackerCallback)
-        {
+        public void setSequenceCallback(final Sequence sequenceTrackerCallback) {
             this.sequenceCallback = sequenceTrackerCallback;
         }
 
         @Override
-        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception
-        {
+        public void onEvent(final StubEvent event, final long sequence, final boolean endOfBatch) throws Exception {
             sequenceCallback.set(sequence);
             callbackLatch.countDown();
-
-            if (endOfBatch)
-            {
+            if (endOfBatch) {
                 onEndOfBatchLatch.await();
             }
         }

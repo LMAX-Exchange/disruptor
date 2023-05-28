@@ -20,8 +20,8 @@ package com.lmax.disruptor;
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface ExceptionHandler<T>
-{
+public interface ExceptionHandler<T> {
+
     /**
      * <p>Strategy for handling uncaught exceptions when processing an event.</p>
      *

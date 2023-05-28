@@ -19,14 +19,12 @@ import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.FizzBuzzQueueProcessor;
 import com.lmax.disruptor.support.FizzBuzzStep;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import static com.lmax.disruptor.support.PerfTestUtil.failIf;
 
 /**
@@ -44,7 +42,6 @@ import static com.lmax.disruptor.support.PerfTestUtil.failIf;
  *    |      +-----+      |
  *    +----->| EP2 |------+
  *           +-----+
- *
  *
  * Queue Based:
  * ============
@@ -65,7 +62,6 @@ import static com.lmax.disruptor.support.PerfTestUtil.failIf;
  * EP1 - EventProcessor 1
  * EP2 - EventProcessor 2
  * EP3 - EventProcessor 3
- *
  *
  * Disruptor:
  * ==========
@@ -96,95 +92,78 @@ import static com.lmax.disruptor.support.PerfTestUtil.failIf;
  *
  * </pre>
  */
-public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTestQueue
-{
+public final class OneToThreeDiamondQueueThroughputTest extends AbstractPerfTestQueue {
+
     private static final int NUM_EVENT_PROCESSORS = 3;
+
     private static final int BUFFER_SIZE = 1024 * 8;
+
     private static final long ITERATIONS = 1000L * 1000L * 100L;
+
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_EVENT_PROCESSORS, DaemonThreadFactory.INSTANCE);
 
     private final long expectedResult;
 
     {
         long temp = 0L;
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
+        for (long i = 0; i < ITERATIONS; i++) {
             boolean fizz = 0 == (i % 3L);
             boolean buzz = 0 == (i % 5L);
-
-            if (fizz && buzz)
-            {
+            if (fizz && buzz) {
                 ++temp;
             }
         }
-
         expectedResult = temp;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     private final BlockingQueue<Long> fizzInputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+
     private final BlockingQueue<Long> buzzInputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+
     private final BlockingQueue<Boolean> fizzOutputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
+
     private final BlockingQueue<Boolean> buzzOutputQueue = new LinkedBlockingQueue<>(BUFFER_SIZE);
 
-    private final FizzBuzzQueueProcessor fizzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+    private final FizzBuzzQueueProcessor fizzQueueProcessor = new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
-    private final FizzBuzzQueueProcessor buzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+    private final FizzBuzzQueueProcessor buzzQueueProcessor = new FizzBuzzQueueProcessor(FizzBuzzStep.BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
-    private final FizzBuzzQueueProcessor fizzBuzzQueueProcessor =
-        new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
+    private final FizzBuzzQueueProcessor fizzBuzzQueueProcessor = new FizzBuzzQueueProcessor(FizzBuzzStep.FIZZ_BUZZ, fizzInputQueue, buzzInputQueue, fizzOutputQueue, buzzOutputQueue, ITERATIONS - 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
-    protected int getRequiredProcessorCount()
-    {
+    protected int getRequiredProcessorCount() {
         return 4;
     }
 
     @Override
-    protected long runQueuePass() throws Exception
-    {
+    protected long runQueuePass() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         fizzBuzzQueueProcessor.reset(latch);
-
         Future<?>[] futures = new Future[NUM_EVENT_PROCESSORS];
         futures[0] = executor.submit(fizzQueueProcessor);
         futures[1] = executor.submit(buzzQueueProcessor);
         futures[2] = executor.submit(fizzBuzzQueueProcessor);
-
         long start = System.currentTimeMillis();
-
-        for (long i = 0; i < ITERATIONS; i++)
-        {
+        for (long i = 0; i < ITERATIONS; i++) {
             Long value = Long.valueOf(i);
             fizzInputQueue.put(value);
             buzzInputQueue.put(value);
         }
-
         latch.await();
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
-
         fizzQueueProcessor.halt();
         buzzQueueProcessor.halt();
         fizzBuzzQueueProcessor.halt();
-
-        for (Future<?> future : futures)
-        {
+        for (Future<?> future : futures) {
             future.cancel(true);
         }
-
         failIf(expectedResult, 0);
-
         return opsPerSecond;
     }
 
-    public static void main(final String[] args) throws Exception
-    {
+    public static void main(final String[] args) throws Exception {
         new OneToThreeDiamondQueueThroughputTest().testImplementations();
     }
 }
