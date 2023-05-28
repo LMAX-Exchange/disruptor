@@ -86,13 +86,13 @@ public class MultiProducerSequencerBenchmark {
     @Benchmark
     @Group("SequenceUnsafe")
     public boolean read1(final StateMultiProducerSequencerUnsafe s, final ThreadPinningState t) {
-        return s.value1.isAvailable(1);
+        return checkAvailabilityOfProduct(s, t);
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
     public boolean read2(final StateMultiProducerSequencerUnsafe s, final ThreadPinningState t) {
-        return s.value1.isAvailable(1);
+        return checkAvailabilityOfProduct(s, t);
     }
 
     @Benchmark
@@ -133,13 +133,13 @@ public class MultiProducerSequencerBenchmark {
     @Benchmark
     @Group("StateMultiProducerSequencerVarHandle")
     public boolean read1(final StateMultiProducerSequencerVarHandle s, final ThreadPinningState t) {
-        return s.value1.isAvailable(1);
+        return checkValueAvailability(s, t);
     }
 
     @Benchmark
     @Group("StateMultiProducerSequencerVarHandle")
     public boolean read2(final StateMultiProducerSequencerVarHandle s, final ThreadPinningState t) {
-        return s.value1.isAvailable(1);
+        return checkValueAvailability(s, t);
     }
 
     @Benchmark
@@ -169,5 +169,13 @@ public class MultiProducerSequencerBenchmark {
     public static void main(final String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(MultiProducerSequencerBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();
+    }
+
+    private boolean checkAvailabilityOfProduct(final StateMultiProducerSequencerUnsafe s, final ThreadPinningState t) {
+        return s.value1.isAvailable(1);
+    }
+
+    private boolean checkValueAvailability(final StateMultiProducerSequencerVarHandle s, final ThreadPinningState t) {
+        return s.value1.isAvailable(1);
     }
 }

@@ -54,7 +54,7 @@ public final class FixedSequenceGroup extends Sequence {
      */
     @Override
     public void set(final long value) {
-        throw new UnsupportedOperationException();
+        notImplementedException(value);
     }
 
     /**
@@ -78,6 +78,10 @@ public final class FixedSequenceGroup extends Sequence {
      */
     @Override
     public long addAndGet(final long increment) {
+        return notImplementedException(increment);
+    }
+
+    private void notImplementedException(final long value) {
         throw new UnsupportedOperationException();
     }
 }

@@ -29,17 +29,21 @@ public class SequenceStressVarHandle {
 
         @Actor
         public void actor1() {
-            sequence.incrementAndGet();
+            incrementAndGetSequence();
         }
 
         @Actor
         public void actor2() {
-            sequence.incrementAndGet();
+            incrementAndGetSequence();
         }
 
         @Arbiter
         public void arbiter(final J_Result r) {
             r.r1 = sequence.get();
+        }
+
+        private void incrementAndGetSequence() {
+            sequence.incrementAndGet();
         }
     }
 

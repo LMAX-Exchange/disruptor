@@ -55,7 +55,7 @@ public class RingBufferWithAssertingStubTest {
 
         @Override
         public int getBufferSize() {
-            return size;
+            return getSize();
         }
 
         @Override
@@ -65,7 +65,7 @@ public class RingBufferWithAssertingStubTest {
 
         @Override
         public long remainingCapacity() {
-            return size;
+            return getSize();
         }
 
         @Override
@@ -145,6 +145,10 @@ public class RingBufferWithAssertingStubTest {
         @Override
         public <T> EventPoller<T> newPoller(final DataProvider<T> provider, final Sequence... gatingSequences) {
             return null;
+        }
+
+        private int getSize() {
+            return size;
         }
     }
 }

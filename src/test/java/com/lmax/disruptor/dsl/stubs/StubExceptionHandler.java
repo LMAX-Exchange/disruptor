@@ -33,11 +33,15 @@ public class StubExceptionHandler implements ExceptionHandler<Object> {
 
     @Override
     public void handleOnStartException(final Throwable ex) {
-        exceptionHandled.set(ex);
+        setHandledException(ex);
     }
 
     @Override
     public void handleOnShutdownException(final Throwable ex) {
+        setHandledException(ex);
+    }
+
+    private void setHandledException(final Throwable ex) {
         exceptionHandled.set(ex);
     }
 }

@@ -29,17 +29,21 @@ public class SequenceStressUnsafe {
 
         @Actor
         public void actor1() {
-            sequence.incrementAndGet();
+            incrementAndReturn();
         }
 
         @Actor
         public void actor2() {
-            sequence.incrementAndGet();
+            incrementAndReturn();
         }
 
         @Arbiter
         public void arbiter(final J_Result r) {
             r.r1 = sequence.get();
+        }
+
+        private void incrementAndReturn() {
+            sequence.incrementAndGet();
         }
     }
 
