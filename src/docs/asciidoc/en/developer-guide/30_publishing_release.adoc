@@ -54,7 +54,7 @@ gpg --keyring secring.gpg --export-secret-keys > ~/.gnupg/secring.gpg
 
 === Adding signing options for gradle
 
- - `signing.keyId` is the last 8 characters of the public key id for the signing key, in this example, `9F712BEC`.
+ - `signing.keyId` is the last 8 characters of the public key id for the signing key, in this example, `2657EDD1`.
  - `signing.password` is the passphrase for your keyring
  - `signing.secretKeyRingFile` is the absolute path to the secret key ring file containing your private key
 
