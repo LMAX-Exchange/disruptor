@@ -24,14 +24,12 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
 import static java.util.function.Predicate.not;
 
 @SuppressWarnings("ALL")
@@ -41,60 +39,38 @@ import static java.util.function.Predicate.not;
 @Measurement(iterations = 5, time = 1)
 @Fork(2)
 @Threads(1)
-public class SequenceBenchmark
-{
+public class SequenceBenchmark {
+
     // To run this on a tuned system with benchmark threads pinned to isolated cpus:
     // Run the JMH process with an env var defining the isolated cpu list, e.g. ISOLATED_CPUS=38,40,42,44,46,48 java -jar disruptor-jmh.jar
-    private static final List<Integer> ISOLATED_CPUS = Arrays.stream(System.getenv().getOrDefault("ISOLATED_CPUS", "").split(","))
-            .map(String::trim)
-            .filter(not(String::isBlank))
-            .map(Integer::valueOf)
-            .collect(Collectors.toList());
+    private static final List<Integer> ISOLATED_CPUS = Arrays.stream(System.getenv().getOrDefault("ISOLATED_CPUS", "").split(",")).map(String::trim).filter(not(String::isBlank)).map(Integer::valueOf).collect(Collectors.toList());
 
     private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
     @State(Scope.Thread)
-    public static class ThreadPinningState
-    {
+    public static class ThreadPinningState {
+
         int threadId = THREAD_COUNTER.getAndIncrement();
+
         private AffinityLock affinityLock;
 
         @Setup
-        public void setup()
-        {
-            if (ISOLATED_CPUS.size() > 0)
-            {
-                if (threadId > ISOLATED_CPUS.size())
-                {
-                    throw new IllegalArgumentException(
-                            String.format("Benchmark uses at least %d threads, only defined %d isolated cpus",
-                                    threadId,
-                                    ISOLATED_CPUS.size()
-                            ));
+        public void setup() {
+            if (ISOLATED_CPUS.size() > 0) {
+                if (threadId > ISOLATED_CPUS.size()) {
+                    throw new IllegalArgumentException(String.format("Benchmark uses at least %d threads, only defined %d isolated cpus", threadId, ISOLATED_CPUS.size()));
                 }
-
                 final Integer cpuId = ISOLATED_CPUS.get(threadId);
                 affinityLock = AffinityLock.acquireLock(cpuId);
-                System.out.printf("Attempted to set thread affinity for %s to %d, success = %b%n",
-                        Thread.currentThread().getName(),
-                        cpuId,
-                        affinityLock.isAllocated()
-                );
-            }
-            else
-            {
-                System.err.printf("ISOLATED_CPUS environment variable not defined, running thread %s (id=%d) on scheduler-defined CPU:%d%n ",
-                        Thread.currentThread().getName(),
-                        threadId,
-                        Affinity.getCpu());
+                System.out.printf("Attempted to set thread affinity for %s to %d, success = %b%n", Thread.currentThread().getName(), cpuId, affinityLock.isAllocated());
+            } else {
+                System.err.printf("ISOLATED_CPUS environment variable not defined, running thread %s (id=%d) on scheduler-defined CPU:%d%n ", Thread.currentThread().getName(), threadId, Affinity.getCpu());
             }
         }
 
         @TearDown
-        public void teardown()
-        {
-            if (ISOLATED_CPUS.size() > 0)
-            {
+        public void teardown() {
+            if (ISOLATED_CPUS.size() > 0) {
                 affinityLock.release();
             }
         }
@@ -106,46 +82,42 @@ public class SequenceBenchmark
      * Thread safe? Check. Atomic updates? Check.
      */
     @State(Scope.Group)
-    public static class StateAtomic
-    {
+    public static class StateAtomic {
+
         AtomicLong value1 = new AtomicLong(0);
+
         AtomicLong value2 = new AtomicLong(0);
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public long read1(final StateAtomic s, final ThreadPinningState t)
-    {
+    public long read1(final StateAtomic s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public long read2(final StateAtomic s, final ThreadPinningState t)
-    {
+    public long read2(final StateAtomic s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public void setValue1Opaque(final StateAtomic s, final ThreadPinningState t)
-    {
+    public void setValue1Opaque(final StateAtomic s, final ThreadPinningState t) {
         // Put Long Opaque
         s.value1.setOpaque(1234L);
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public void setValue1Volatile(final StateAtomic s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateAtomic s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.set(5678L);
     }
 
     @Benchmark
     @Group("AtomicLong")
-    public long incrementValue2(final StateAtomic s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateAtomic s, final ThreadPinningState t) {
         return s.value2.getAndIncrement();
     }
 
@@ -157,46 +129,42 @@ public class SequenceBenchmark
      * guarantees and we need to use compareAndSwap to be atomic.
      */
     @State(Scope.Group)
-    public static class StateSequenceUnsafe
-    {
+    public static class StateSequenceUnsafe {
+
         SequenceUnsafe value1 = new SequenceUnsafe(0);
+
         SequenceUnsafe value2 = new SequenceUnsafe(0);
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long read1(final StateSequenceUnsafe s, final ThreadPinningState t)
-    {
+    public long read1(final StateSequenceUnsafe s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long read2(final StateSequenceUnsafe s, final ThreadPinningState t)
-    {
+    public long read2(final StateSequenceUnsafe s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public void setValue1(final StateSequenceUnsafe s, final ThreadPinningState t)
-    {
+    public void setValue1(final StateSequenceUnsafe s, final ThreadPinningState t) {
         // Put Ordered Long
         s.value1.set(1234L);
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public void setValue1Volatile(final StateSequenceUnsafe s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateSequenceUnsafe s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
     }
 
     @Benchmark
     @Group("SequenceUnsafe")
-    public long incrementValue2(final StateSequenceUnsafe s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateSequenceUnsafe s, final ThreadPinningState t) {
         return s.value2.incrementAndGet();
     }
 
@@ -211,46 +179,42 @@ public class SequenceBenchmark
      * regular Sequence benchmark.
      */
     @State(Scope.Group)
-    public static class StateSequenceDoublePadded
-    {
+    public static class StateSequenceDoublePadded {
+
         SequenceDoublePadded value1 = new SequenceDoublePadded(0);
+
         SequenceDoublePadded value2 = new SequenceDoublePadded(0);
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long read1(final StateSequenceDoublePadded s, final ThreadPinningState t)
-    {
+    public long read1(final StateSequenceDoublePadded s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long read2(final StateSequenceDoublePadded s, final ThreadPinningState t)
-    {
+    public long read2(final StateSequenceDoublePadded s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public void setValue1(final StateSequenceDoublePadded s, final ThreadPinningState t)
-    {
+    public void setValue1(final StateSequenceDoublePadded s, final ThreadPinningState t) {
         // Put Ordered Long
         s.value1.set(1234L);
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public void setValue1Volatile(final StateSequenceDoublePadded s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateSequenceDoublePadded s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
     }
 
     @Benchmark
     @Group("SequenceDoublePadded")
-    public long incrementValue2(final StateSequenceDoublePadded s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateSequenceDoublePadded s, final ThreadPinningState t) {
         return s.value2.incrementAndGet();
     }
 
@@ -261,46 +225,42 @@ public class SequenceBenchmark
      * This is probably the way we should go for version Disruptor 4.0
      */
     @State(Scope.Group)
-    public static class StateSequenceVarHandle
-    {
+    public static class StateSequenceVarHandle {
+
         SequenceVarHandle value1 = new SequenceVarHandle(0);
+
         SequenceVarHandle value2 = new SequenceVarHandle(0);
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long read1(final StateSequenceVarHandle s, final ThreadPinningState t)
-    {
+    public long read1(final StateSequenceVarHandle s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long read2(final StateSequenceVarHandle s, final ThreadPinningState t)
-    {
+    public long read2(final StateSequenceVarHandle s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public void setValue1(final StateSequenceVarHandle s, final ThreadPinningState t)
-    {
+    public void setValue1(final StateSequenceVarHandle s, final ThreadPinningState t) {
         // Put Ordered Long
         s.value1.set(1234L);
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public void setValue1Volatile(final StateSequenceVarHandle s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateSequenceVarHandle s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
     }
 
     @Benchmark
     @Group("SequenceVarHandle")
-    public long incrementValue2(final StateSequenceVarHandle s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateSequenceVarHandle s, final ThreadPinningState t) {
         return s.value2.incrementAndGet();
     }
 
@@ -311,46 +271,42 @@ public class SequenceBenchmark
      * We think this might cut down on some boxing and maybe gives a little more flexibility.
      */
     @State(Scope.Group)
-    public static class StateSequenceVarHandleBarrier
-    {
+    public static class StateSequenceVarHandleBarrier {
+
         SequenceVarHandleBarrier value1 = new SequenceVarHandleBarrier(0);
+
         SequenceVarHandleBarrier value2 = new SequenceVarHandleBarrier(0);
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long read1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
-    {
+    public long read1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long read2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
-    {
+    public long read2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public void setValue1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
-    {
+    public void setValue1(final StateSequenceVarHandleBarrier s, final ThreadPinningState t) {
         // Put Ordered Long
         s.value1.set(1234L);
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public void setValue1Volatile(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateSequenceVarHandleBarrier s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
     }
 
     @Benchmark
     @Group("SequenceVarHandleBarrier")
-    public long incrementValue2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateSequenceVarHandleBarrier s, final ThreadPinningState t) {
         return s.value2.incrementAndGet();
     }
 
@@ -363,54 +319,47 @@ public class SequenceBenchmark
      * do cache-line padding.
      */
     @State(Scope.Group)
-    public static class StateSequenceVarHandleArray
-    {
+    public static class StateSequenceVarHandleArray {
+
         SequenceVarHandleArray value1 = new SequenceVarHandleArray(0);
+
         SequenceVarHandleArray value2 = new SequenceVarHandleArray(0);
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long read1(final StateSequenceVarHandleArray s, final ThreadPinningState t)
-    {
+    public long read1(final StateSequenceVarHandleArray s, final ThreadPinningState t) {
         return s.value1.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long read2(final StateSequenceVarHandleArray s, final ThreadPinningState t)
-    {
+    public long read2(final StateSequenceVarHandleArray s, final ThreadPinningState t) {
         return s.value2.get();
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public void setValue1(final StateSequenceVarHandleArray s, final ThreadPinningState t)
-    {
+    public void setValue1(final StateSequenceVarHandleArray s, final ThreadPinningState t) {
         // Put Ordered Long
         s.value1.set(1234L);
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public void setValue1Volatile(final StateSequenceVarHandleArray s, final ThreadPinningState t)
-    {
+    public void setValue1Volatile(final StateSequenceVarHandleArray s, final ThreadPinningState t) {
         // Put Long Volatile
         s.value1.setVolatile(5678L);
     }
 
     @Benchmark
     @Group("SequenceVarHandleArray")
-    public long incrementValue2(final StateSequenceVarHandleArray s, final ThreadPinningState t)
-    {
+    public long incrementValue2(final StateSequenceVarHandleArray s, final ThreadPinningState t) {
         return s.value2.incrementAndGet();
     }
 
-    public static void main(final String[] args) throws RunnerException
-    {
-        Options opt = new OptionsBuilder()
-                .include(SequenceBenchmark.class.getSimpleName())
-                .build();
+    public static void main(final String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder().include(SequenceBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();
     }
 }

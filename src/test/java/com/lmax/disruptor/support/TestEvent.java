@@ -17,11 +17,10 @@ package com.lmax.disruptor.support;
 
 import com.lmax.disruptor.EventFactory;
 
-public final class TestEvent
-{
+public final class TestEvent {
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Test Event";
     }
 

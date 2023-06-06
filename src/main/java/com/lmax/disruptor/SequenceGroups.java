@@ -16,90 +16,60 @@
 package com.lmax.disruptor;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
 import static java.util.Arrays.copyOf;
 
 /**
  * Provides static methods for managing a {@link SequenceGroup} object.
  */
-class SequenceGroups
-{
-    static <T> void addSequences(
-        final T holder,
-        final AtomicReferenceFieldUpdater<T, Sequence[]> updater,
-        final Cursored cursor,
-        final Sequence... sequencesToAdd)
-    {
+class SequenceGroups {
+
+    static <T> void addSequences(final T holder, final AtomicReferenceFieldUpdater<T, Sequence[]> updater, final Cursored cursor, final Sequence... sequencesToAdd) {
         long cursorSequence;
         Sequence[] updatedSequences;
         Sequence[] currentSequences;
-
-        do
-        {
+        do {
             currentSequences = updater.get(holder);
             updatedSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
             cursorSequence = cursor.getCursor();
-
             int index = currentSequences.length;
-            for (Sequence sequence : sequencesToAdd)
-            {
+            for (Sequence sequence : sequencesToAdd) {
                 sequence.set(cursorSequence);
                 updatedSequences[index++] = sequence;
             }
-        }
-        while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
-
+        } while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
         cursorSequence = cursor.getCursor();
-        for (Sequence sequence : sequencesToAdd)
-        {
+        for (Sequence sequence : sequencesToAdd) {
             sequence.set(cursorSequence);
         }
     }
 
-    static <T> boolean removeSequence(
-        final T holder,
-        final AtomicReferenceFieldUpdater<T, Sequence[]> sequenceUpdater,
-        final Sequence sequence)
-    {
+    static <T> boolean removeSequence(final T holder, final AtomicReferenceFieldUpdater<T, Sequence[]> sequenceUpdater, final Sequence sequence) {
         int numToRemove;
         Sequence[] oldSequences;
         Sequence[] newSequences;
-
-        do
-        {
+        do {
             oldSequences = sequenceUpdater.get(holder);
-
             numToRemove = countMatching(oldSequences, sequence);
-
-            if (0 == numToRemove)
-            {
+            if (0 == numToRemove) {
                 break;
             }
-
             final int oldSize = oldSequences.length;
             newSequences = new Sequence[oldSize - numToRemove];
-
-            for (int i = 0, pos = 0; i < oldSize; i++)
-            {
+            for (int i = 0, pos = 0; i < oldSize; i++) {
                 final Sequence testSequence = oldSequences[i];
-                if (sequence != testSequence)
-                {
+                if (sequence != testSequence) {
                     newSequences[pos++] = testSequence;
                 }
             }
-        }
-        while (!sequenceUpdater.compareAndSet(holder, oldSequences, newSequences));
-
+        } while (!sequenceUpdater.compareAndSet(holder, oldSequences, newSequences));
         return numToRemove != 0;
     }
 
-    private static <T> int countMatching(final T[] values, final T toMatch)
-    {
+    private static <T> int countMatching(final T[] values, final T toMatch) {
         int numToRemove = 0;
-        for (T value : values)
-        {
-            if (value == toMatch) // Specifically uses identity
-            {
+        for (T value : values) {
+            if (// Specifically uses identity
+            value == toMatch) {
                 numToRemove++;
             }
         }

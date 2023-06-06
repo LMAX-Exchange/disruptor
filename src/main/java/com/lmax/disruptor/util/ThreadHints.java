@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.lmax.disruptor.util;
 
 /**
@@ -25,11 +24,9 @@ package com.lmax.disruptor.util;
  * Java versions which do not have Thread.onSpinWait().
  */
 @Deprecated
-public final class ThreadHints
-{
+public final class ThreadHints {
 
-    private ThreadHints()
-    {
+    private ThreadHints() {
     }
 
     /**
@@ -43,8 +40,7 @@ public final class ThreadHints
      * Java versions which do not have Thread.onSpinWait().
      */
     @Deprecated
-    public static void onSpinWait()
-    {
+    public static void onSpinWait() {
         Thread.onSpinWait();
     }
 }

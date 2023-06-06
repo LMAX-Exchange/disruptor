@@ -3,7 +3,6 @@ package com.lmax.disruptor.alternatives;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
-
 /**
  * Concurrent sequence class used for tracking the progress of
  * the ring buffer and event processors.  Support a number
@@ -12,9 +11,10 @@ import java.lang.invoke.VarHandle;
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
  */
-public class SequenceVarHandleArray
-{
+public class SequenceVarHandleArray {
+
     private static final int VALUE_INDEX = 8;
+
     private static final VarHandle VALUE_FIELD = MethodHandles.arrayElementVarHandle(long[].class);
 
     private final long[] paddedValue = new long[16];
@@ -24,8 +24,7 @@ public class SequenceVarHandleArray
     /**
      * Create a sequence initialised to -1.
      */
-    public SequenceVarHandleArray()
-    {
+    public SequenceVarHandleArray() {
         this(INITIAL_VALUE);
     }
 
@@ -34,8 +33,7 @@ public class SequenceVarHandleArray
      *
      * @param initialValue The initial value for this sequence.
      */
-    public SequenceVarHandleArray(final long initialValue)
-    {
+    public SequenceVarHandleArray(final long initialValue) {
         this.set(initialValue);
     }
 
@@ -44,8 +42,7 @@ public class SequenceVarHandleArray
      *
      * @return The current value of the sequence.
      */
-    public long get()
-    {
+    public long get() {
         return (long) VALUE_FIELD.getAcquire(this.paddedValue, VALUE_INDEX);
     }
 
@@ -56,8 +53,7 @@ public class SequenceVarHandleArray
      *
      * @param value The new value for the sequence.
      */
-    public void set(final long value)
-    {
+    public void set(final long value) {
         VALUE_FIELD.setRelease(this.paddedValue, VALUE_INDEX, value);
     }
 
@@ -69,8 +65,7 @@ public class SequenceVarHandleArray
      *
      * @param value The new value for the sequence.
      */
-    public void setVolatile(final long value)
-    {
+    public void setVolatile(final long value) {
         VALUE_FIELD.setVolatile(this.paddedValue, VALUE_INDEX, value);
     }
 
@@ -81,8 +76,7 @@ public class SequenceVarHandleArray
      * @param newValue The value to update to.
      * @return true if the operation succeeds, false otherwise.
      */
-    public boolean compareAndSet(final long expectedValue, final long newValue)
-    {
+    public boolean compareAndSet(final long expectedValue, final long newValue) {
         return VALUE_FIELD.compareAndSet(this.paddedValue, VALUE_INDEX, expectedValue, newValue);
     }
 
@@ -91,8 +85,7 @@ public class SequenceVarHandleArray
      *
      * @return The value after the increment
      */
-    public long incrementAndGet()
-    {
+    public long incrementAndGet() {
         return addAndGet(1L);
     }
 
@@ -102,15 +95,12 @@ public class SequenceVarHandleArray
      * @param increment The value to add to the sequence.
      * @return The value after the increment.
      */
-    public long addAndGet(final long increment)
-    {
+    public long addAndGet(final long increment) {
         return (long) VALUE_FIELD.getAndAdd(this.paddedValue, VALUE_INDEX, increment) + increment;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return Long.toString(get());
     }
 }
-

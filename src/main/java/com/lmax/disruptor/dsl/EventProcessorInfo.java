@@ -18,80 +18,68 @@ package com.lmax.disruptor.dsl;
 import com.lmax.disruptor.EventProcessor;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
-
 import java.util.concurrent.ThreadFactory;
 
 /**
  * Wrapper class to tie together a particular event processing stage</p>
  *
  * <p><p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
- *
  */
-class EventProcessorInfo implements ConsumerInfo
-{
+class EventProcessorInfo implements ConsumerInfo {
+
     private final EventProcessor eventprocessor;
+
     private final SequenceBarrier barrier;
+
     private boolean endOfChain = true;
 
-    EventProcessorInfo(final EventProcessor eventprocessor, final SequenceBarrier barrier)
-    {
+    EventProcessorInfo(final EventProcessor eventprocessor, final SequenceBarrier barrier) {
         this.eventprocessor = eventprocessor;
         this.barrier = barrier;
     }
 
-    public EventProcessor getEventProcessor()
-    {
+    public EventProcessor getEventProcessor() {
         return eventprocessor;
     }
 
     @Override
-    public Sequence[] getSequences()
-    {
-        return new Sequence[]{eventprocessor.getSequence()};
+    public Sequence[] getSequences() {
+        return new Sequence[] { eventprocessor.getSequence() };
     }
 
     @Override
-    public SequenceBarrier getBarrier()
-    {
+    public SequenceBarrier getBarrier() {
         return barrier;
     }
 
     @Override
-    public boolean isEndOfChain()
-    {
+    public boolean isEndOfChain() {
         return endOfChain;
     }
 
     @Override
-    public void start(final ThreadFactory threadFactory)
-    {
+    public void start(final ThreadFactory threadFactory) {
         final Thread thread = threadFactory.newThread(eventprocessor);
-        if (null == thread)
-        {
+        if (null == thread) {
             throw new RuntimeException("Failed to create thread to run: " + eventprocessor);
         }
-
         thread.start();
     }
 
     @Override
-    public void halt()
-    {
+    public void halt() {
         eventprocessor.halt();
     }
 
     /**
-     *
      */
     @Override
-    public void markAsUsedInBarrier()
-    {
+    public void markAsUsedInBarrier() {
         endOfChain = false;
     }
 
     @Override
-    public boolean isRunning()
-    {
+    public boolean isRunning() {
         return eventprocessor.isRunning();
     }
 }

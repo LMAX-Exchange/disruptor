@@ -21,8 +21,8 @@ package com.lmax.disruptor;
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propagated out of the handler.
  */
-public interface EventHandler<T> extends EventHandlerBase<T>
-{
+public interface EventHandler<T> extends EventHandlerBase<T> {
+
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will
      * read messages from the {@link RingBuffer} in batches, where a batch is all of the events available to be
@@ -49,7 +49,6 @@ public interface EventHandler<T> extends EventHandlerBase<T>
      *
      * @param sequenceCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
      */
-    default void setSequenceCallback(Sequence sequenceCallback)
-    {
+    default void setSequenceCallback(Sequence sequenceCallback) {
     }
 }

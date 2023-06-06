@@ -4,8 +4,8 @@ package com.lmax.disruptor;
  * Write interface for {@link RingBuffer}.
  * @param <E> The event type
  */
-public interface EventSink<E>
-{
+public interface EventSink<E> {
+
     /**
      * Publishes an event to the ring buffer.  It handles
      * claiming the next sequence, getting the current (uninitialised)
@@ -259,9 +259,7 @@ public interface EventSink<E>
      * @param arg1          An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
-    <A, B> void publishEvents(
-        EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0,
-        B[] arg1);
+    <A, B> void publishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1);
 
     /**
      * Allows two user supplied arguments per event.
@@ -291,9 +289,7 @@ public interface EventSink<E>
      * capacity.
      * @see #tryPublishEvents(EventTranslator[])
      */
-    <A, B> boolean tryPublishEvents(
-        EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize,
-        A[] arg0, B[] arg1);
+    <A, B> boolean tryPublishEvents(EventTranslatorTwoArg<E, A, B> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1);
 
     /**
      * Allows three user supplied arguments per event.
@@ -323,9 +319,7 @@ public interface EventSink<E>
      * @param arg2          An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
-    <A, B, C> void publishEvents(
-        EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize,
-        A[] arg0, B[] arg1, C[] arg2);
+    <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2);
 
     /**
      * Allows three user supplied arguments per event.
@@ -359,9 +353,7 @@ public interface EventSink<E>
      * capacity.
      * @see #publishEvents(EventTranslator[])
      */
-    <A, B, C> boolean tryPublishEvents(
-        EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt,
-        int batchSize, A[] arg0, B[] arg1, C[] arg2);
+    <A, B, C> boolean tryPublishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt, int batchSize, A[] arg0, B[] arg1, C[] arg2);
 
     /**
      * Allows a variable number of user supplied arguments per event.
@@ -406,5 +398,4 @@ public interface EventSink<E>
      * @see #publishEvents(EventTranslator[])
      */
     boolean tryPublishEvents(EventTranslatorVararg<E> translator, int batchStartsAt, int batchSize, Object[]... args);
-
 }

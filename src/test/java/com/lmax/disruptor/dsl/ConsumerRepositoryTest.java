@@ -23,67 +23,60 @@ import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.DummySequenceBarrier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ConsumerRepositoryTest
-{
+public class ConsumerRepositoryTest {
+
     private ConsumerRepository consumerRepository;
+
     private EventProcessor eventProcessor1;
+
     private EventProcessor eventProcessor2;
+
     private SleepingEventHandler handler1;
+
     private SleepingEventHandler handler2;
+
     private SequenceBarrier barrier1;
+
     private SequenceBarrier barrier2;
 
     @BeforeEach
-    public void setUp()
-    {
+    public void setUp() {
         consumerRepository = new ConsumerRepository();
         eventProcessor1 = new DummyEventProcessor(new Sequence());
         eventProcessor2 = new DummyEventProcessor(new Sequence());
-
         eventProcessor1.run();
         eventProcessor2.run();
-
         handler1 = new SleepingEventHandler();
         handler2 = new SleepingEventHandler();
-
         barrier1 = new DummySequenceBarrier();
         barrier2 = new DummySequenceBarrier();
     }
 
     @Test
-    public void shouldGetBarrierByHandler()
-    {
+    public void shouldGetBarrierByHandler() {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
-
         assertThat(consumerRepository.getBarrierFor(handler1), sameInstance(barrier1));
     }
 
     @Test
-    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered()
-    {
+    public void shouldReturnNullForBarrierWhenHandlerIsNotRegistered() {
         assertThat(consumerRepository.getBarrierFor(handler1), is(nullValue()));
     }
 
     @Test
-    public void shouldRetrieveEventProcessorForHandler()
-    {
+    public void shouldRetrieveEventProcessorForHandler() {
         consumerRepository.add(eventProcessor1, handler1, barrier1);
-
         assertThat(consumerRepository.getEventProcessorFor(handler1), sameInstance(eventProcessor1));
     }
 
     @Test
-    public void shouldThrowExceptionWhenHandlerIsNotRegistered()
-    {
-        assertThrows(IllegalArgumentException.class, () ->
-                consumerRepository.getEventProcessorFor(new SleepingEventHandler())
-        );
+    public void shouldThrowExceptionWhenHandlerIsNotRegistered() {
+        assertThrows(IllegalArgumentException.class, () -> consumerRepository.getEventProcessorFor(new SleepingEventHandler()));
     }
 }

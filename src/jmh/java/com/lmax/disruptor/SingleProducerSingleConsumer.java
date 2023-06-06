@@ -20,35 +20,27 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
 @Fork(1)
-public class SingleProducerSingleConsumer
-{
+public class SingleProducerSingleConsumer {
+
     private RingBuffer<SimpleEvent> ringBuffer;
+
     private Disruptor<SimpleEvent> disruptor;
 
     @Setup
-    public void setup(final Blackhole bh)
-    {
-        disruptor = new Disruptor<>(SimpleEvent::new,
-                Constants.RINGBUFFER_SIZE,
-                DaemonThreadFactory.INSTANCE,
-                ProducerType.SINGLE,
-                new BusySpinWaitStrategy());
-
+    public void setup(final Blackhole bh) {
+        disruptor = new Disruptor<>(SimpleEvent::new, Constants.RINGBUFFER_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BusySpinWaitStrategy());
         disruptor.handleEventsWith(new SimpleEventHandler(bh));
-
         ringBuffer = disruptor.start();
     }
 
     @Benchmark
-    public void producing()
-    {
+    public void producing() {
         long sequence = ringBuffer.next();
         SimpleEvent simpleEvent = ringBuffer.get(sequence);
         simpleEvent.setValue(0);
@@ -56,17 +48,12 @@ public class SingleProducerSingleConsumer
     }
 
     @TearDown
-    public void tearDown()
-    {
+    public void tearDown() {
         disruptor.shutdown();
     }
 
-    public static void main(final String[] args) throws RunnerException
-    {
-        Options opt = new OptionsBuilder()
-                .include(SingleProducerSingleConsumer.class.getSimpleName())
-                .forks(1)
-                .build();
+    public static void main(final String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder().include(SingleProducerSingleConsumer.class.getSimpleName()).forks(1).build();
         new Runner(opt).run();
     }
 }

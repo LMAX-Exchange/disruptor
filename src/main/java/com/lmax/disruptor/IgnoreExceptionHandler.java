@@ -22,25 +22,22 @@ import java.lang.System.Logger.Level;
  * Convenience implementation of an exception handler that uses the standard JDK logging
  * of {@link System.Logger} to log the exception as {@link Level}.INFO
  */
-public final class IgnoreExceptionHandler implements ExceptionHandler<Object>
-{
+public final class IgnoreExceptionHandler implements ExceptionHandler<Object> {
+
     private static final Logger LOGGER = System.getLogger(IgnoreExceptionHandler.class.getName());
 
     @Override
-    public void handleEventException(final Throwable ex, final long sequence, final Object event)
-    {
+    public void handleEventException(final Throwable ex, final long sequence, final Object event) {
         LOGGER.log(Level.INFO, () -> "Exception processing: " + sequence + " " + event, ex);
     }
 
     @Override
-    public void handleOnStartException(final Throwable ex)
-    {
+    public void handleOnStartException(final Throwable ex) {
         LOGGER.log(Level.INFO, "Exception during onStart()", ex);
     }
 
     @Override
-    public void handleOnShutdownException(final Throwable ex)
-    {
+    public void handleOnShutdownException(final Throwable ex) {
         LOGGER.log(Level.INFO, "Exception during onShutdown()", ex);
     }
 }

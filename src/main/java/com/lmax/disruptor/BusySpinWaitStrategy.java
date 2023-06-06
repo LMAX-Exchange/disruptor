@@ -21,26 +21,19 @@ package com.lmax.disruptor;
  * <p>This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best
  * used when threads can be bound to specific CPU cores.
  */
-public final class BusySpinWaitStrategy implements WaitStrategy
-{
-    @Override
-    public long waitFor(
-        final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)
-        throws AlertException, InterruptedException
-    {
-        long availableSequence;
+public final class BusySpinWaitStrategy implements WaitStrategy {
 
-        while ((availableSequence = dependentSequence.get()) < sequence)
-        {
+    @Override
+    public long waitFor(final long sequence, final Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier) throws AlertException, InterruptedException {
+        long availableSequence;
+        while ((availableSequence = dependentSequence.get()) < sequence) {
             barrier.checkAlert();
             Thread.onSpinWait();
         }
-
         return availableSequence;
     }
 
     @Override
-    public void signalAllWhenBlocking()
-    {
+    public void signalAllWhenBlocking() {
     }
 }

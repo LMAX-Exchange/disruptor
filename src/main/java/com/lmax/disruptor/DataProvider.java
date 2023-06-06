@@ -20,8 +20,8 @@ package com.lmax.disruptor;
  *
  * @param <T> The type provided by the implementation
  */
-public interface DataProvider<T>
-{
+public interface DataProvider<T> {
+
     /**
      * @param sequence The sequence at which to find the data
      * @return the data item located at that sequence

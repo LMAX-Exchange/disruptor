@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.lmax.disruptor;
 
-public final class BatchEventProcessorBuilder
-{
+public final class BatchEventProcessorBuilder {
+
     private int maxBatchSize = Integer.MAX_VALUE;
 
     /**
@@ -26,8 +25,7 @@ public final class BatchEventProcessorBuilder
      * @param maxBatchSize max number of events to process in one batch.
      * @return The builder
      */
-    public BatchEventProcessorBuilder setMaxBatchSize(final int maxBatchSize)
-    {
+    public BatchEventProcessorBuilder setMaxBatchSize(final int maxBatchSize) {
         this.maxBatchSize = maxBatchSize;
         return this;
     }
@@ -45,16 +43,9 @@ public final class BatchEventProcessorBuilder
      * @param <T>             event implementation storing the data for sharing during exchange or parallel coordination of an event.
      * @return the BatchEventProcessor
      */
-    public <T> BatchEventProcessor<T> build(
-            final DataProvider<T> dataProvider,
-            final SequenceBarrier sequenceBarrier,
-            final EventHandler<? super T> eventHandler)
-    {
-        final BatchEventProcessor<T> processor = new BatchEventProcessor<>(
-                dataProvider, sequenceBarrier, eventHandler, maxBatchSize, null
-        );
+    public <T> BatchEventProcessor<T> build(final DataProvider<T> dataProvider, final SequenceBarrier sequenceBarrier, final EventHandler<? super T> eventHandler) {
+        final BatchEventProcessor<T> processor = new BatchEventProcessor<>(dataProvider, sequenceBarrier, eventHandler, maxBatchSize, null);
         eventHandler.setSequenceCallback(processor.getSequence());
-
         return processor;
     }
 
@@ -69,19 +60,10 @@ public final class BatchEventProcessorBuilder
      * @param <T>                    event implementation storing the data for sharing during exchange or parallel coordination of an event.
      * @return the BatchEventProcessor
      */
-    public <T> BatchEventProcessor<T> build(
-            final DataProvider<T> dataProvider,
-            final SequenceBarrier sequenceBarrier,
-            final RewindableEventHandler<? super T> rewindableEventHandler,
-            final BatchRewindStrategy batchRewindStrategy)
-    {
-        if (null == batchRewindStrategy)
-        {
+    public <T> BatchEventProcessor<T> build(final DataProvider<T> dataProvider, final SequenceBarrier sequenceBarrier, final RewindableEventHandler<? super T> rewindableEventHandler, final BatchRewindStrategy batchRewindStrategy) {
+        if (null == batchRewindStrategy) {
             throw new NullPointerException("batchRewindStrategy cannot be null when building a BatchEventProcessor");
         }
-
-        return new BatchEventProcessor<>(
-                dataProvider, sequenceBarrier, rewindableEventHandler, maxBatchSize, batchRewindStrategy
-        );
+        return new BatchEventProcessor<>(dataProvider, sequenceBarrier, rewindableEventHandler, maxBatchSize, batchRewindStrategy);
     }
 }

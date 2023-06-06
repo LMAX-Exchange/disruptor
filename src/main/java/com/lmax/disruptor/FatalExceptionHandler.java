@@ -23,27 +23,23 @@ import java.lang.System.Logger.Level;
  * of {@link System.Logger} to log the exception as {@link Level}.ERROR and re-throw
  * it wrapped in a {@link RuntimeException}
  */
-public final class FatalExceptionHandler implements ExceptionHandler<Object>
-{
+public final class FatalExceptionHandler implements ExceptionHandler<Object> {
+
     private static final Logger LOGGER = System.getLogger(FatalExceptionHandler.class.getName());
 
     @Override
-    public void handleEventException(final Throwable ex, final long sequence, final Object event)
-    {
+    public void handleEventException(final Throwable ex, final long sequence, final Object event) {
         LOGGER.log(Level.ERROR, () -> "Exception processing: " + sequence + " " + event, ex);
-
         throw new RuntimeException(ex);
     }
 
     @Override
-    public void handleOnStartException(final Throwable ex)
-    {
+    public void handleOnStartException(final Throwable ex) {
         LOGGER.log(Level.ERROR, "Exception during onStart()", ex);
     }
 
     @Override
-    public void handleOnShutdownException(final Throwable ex)
-    {
+    public void handleOnShutdownException(final Throwable ex) {
         LOGGER.log(Level.ERROR, "Exception during onShutdown()", ex);
     }
 }

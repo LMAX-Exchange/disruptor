@@ -16,7 +16,6 @@
 package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Util;
-
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
@@ -26,17 +25,16 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * <p>The {@link SequenceGroup#get()} and {@link SequenceGroup#set(long)} methods are lock free and can be
  * concurrently be called with the {@link SequenceGroup#add(Sequence)} and {@link SequenceGroup#remove(Sequence)}.
  */
-public final class SequenceGroup extends Sequence
-{
-    private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER =
-        AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
+public final class SequenceGroup extends Sequence {
+
+    private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER = AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
+
     private volatile Sequence[] sequences = new Sequence[0];
 
     /**
      * Default Constructor
      */
-    public SequenceGroup()
-    {
+    public SequenceGroup() {
         super(-1);
     }
 
@@ -46,8 +44,7 @@ public final class SequenceGroup extends Sequence
      * @return the minimum sequence value for the group.
      */
     @Override
-    public long get()
-    {
+    public long get() {
         return Util.getMinimumSequence(sequences);
     }
 
@@ -57,11 +54,9 @@ public final class SequenceGroup extends Sequence
      * @param value to set the group of sequences to.
      */
     @Override
-    public void set(final long value)
-    {
+    public void set(final long value) {
         final Sequence[] sequences = this.sequences;
-        for (Sequence sequence : sequences)
-        {
+        for (Sequence sequence : sequences) {
             sequence.set(value);
         }
     }
@@ -73,19 +68,16 @@ public final class SequenceGroup extends Sequence
      * @param sequence to be added to the aggregate.
      * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      */
-    public void add(final Sequence sequence)
-    {
+    public void add(final Sequence sequence) {
         Sequence[] oldSequences;
         Sequence[] newSequences;
-        do
-        {
+        do {
             oldSequences = sequences;
             final int oldSize = oldSequences.length;
             newSequences = new Sequence[oldSize + 1];
             System.arraycopy(oldSequences, 0, newSequences, 0, oldSize);
             newSequences[oldSize] = sequence;
-        }
-        while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
+        } while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
     }
 
     /**
@@ -94,8 +86,7 @@ public final class SequenceGroup extends Sequence
      * @param sequence to be removed from this aggregate.
      * @return true if the sequence was removed otherwise false.
      */
-    public boolean remove(final Sequence sequence)
-    {
+    public boolean remove(final Sequence sequence) {
         return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
     }
 
@@ -104,8 +95,7 @@ public final class SequenceGroup extends Sequence
      *
      * @return the size of the group.
      */
-    public int size()
-    {
+    public int size() {
         return sequences.length;
     }
 
@@ -118,8 +108,7 @@ public final class SequenceGroup extends Sequence
      *                 be pulling it's events from.
      * @param sequence The sequence to add.
      */
-    public void addWhileRunning(final Cursored cursored, final Sequence sequence)
-    {
+    public void addWhileRunning(final Cursored cursored, final Sequence sequence) {
         SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
     }
 }

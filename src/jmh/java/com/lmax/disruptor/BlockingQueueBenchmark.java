@@ -17,7 +17,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -27,26 +26,23 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
 @Fork(1)
-public class BlockingQueueBenchmark
-{
+public class BlockingQueueBenchmark {
+
     private BlockingQueue<SimpleEvent> arrayBlockingQueue;
+
     private volatile boolean consumerRunning;
+
     private SimpleEvent simpleEvent;
 
     @Setup
-    public void setup(final Blackhole bh) throws InterruptedException
-    {
+    public void setup(final Blackhole bh) throws InterruptedException {
         arrayBlockingQueue = new ArrayBlockingQueue<>(Constants.RINGBUFFER_SIZE);
-
         final CountDownLatch consumerStartedLatch = new CountDownLatch(1);
-        final Thread eventHandler = DaemonThreadFactory.INSTANCE.newThread(() ->
-        {
+        final Thread eventHandler = DaemonThreadFactory.INSTANCE.newThread(() -> {
             consumerStartedLatch.countDown();
-            while (consumerRunning)
-            {
+            while (consumerRunning) {
                 SimpleEvent event = arrayBlockingQueue.poll();
-                if (event != null)
-                {
+                if (event != null) {
                     bh.consume(event);
                 }
             }
@@ -54,32 +50,24 @@ public class BlockingQueueBenchmark
         consumerRunning = true;
         eventHandler.start();
         consumerStartedLatch.await();
-
         simpleEvent = new SimpleEvent();
         simpleEvent.setValue(0);
     }
 
     @Benchmark
-    public void producing() throws InterruptedException
-    {
-        if (!arrayBlockingQueue.offer(simpleEvent, 1, TimeUnit.SECONDS))
-        {
+    public void producing() throws InterruptedException {
+        if (!arrayBlockingQueue.offer(simpleEvent, 1, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Queue full, benchmark should not experience backpressure");
         }
     }
 
     @TearDown
-    public void tearDown()
-    {
+    public void tearDown() {
         consumerRunning = false;
     }
 
-    public static void main(final String[] args) throws RunnerException
-    {
-        Options opt = new OptionsBuilder()
-                .include(BlockingQueueBenchmark.class.getSimpleName())
-                .forks(1)
-                .build();
+    public static void main(final String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder().include(BlockingQueueBenchmark.class.getSimpleName()).forks(1).build();
         new Runner(opt).run();
     }
 }

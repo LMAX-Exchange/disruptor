@@ -18,21 +18,18 @@ package com.lmax.disruptor.dsl.stubs;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.support.TestEvent;
 
-public class EvilEqualsEventHandler implements EventHandler<TestEvent>
-{
+public class EvilEqualsEventHandler implements EventHandler<TestEvent> {
+
     @Override
-    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception
-    {
+    public void onEvent(final TestEvent entry, final long sequence, final boolean endOfBatch) throws Exception {
     }
 
-    @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass"})
-    public boolean equals(final Object o)
-    {
+    @SuppressWarnings({ "EqualsWhichDoesntCheckParameterClass" })
+    public boolean equals(final Object o) {
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return 1;
     }
 }

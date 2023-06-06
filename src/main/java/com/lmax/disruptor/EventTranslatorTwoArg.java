@@ -23,8 +23,8 @@ package com.lmax.disruptor;
  * @param <B> type second user specified argument to the translator.
  * @see EventTranslator
  */
-public interface EventTranslatorTwoArg<T, A, B>
-{
+public interface EventTranslatorTwoArg<T, A, B> {
+
     /**
      * Translate a data representation into fields set in given event
      *

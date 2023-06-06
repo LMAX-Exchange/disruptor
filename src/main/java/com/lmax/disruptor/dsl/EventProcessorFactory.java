@@ -13,8 +13,8 @@ import com.lmax.disruptor.Sequence;
  *
  * @param <T> implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public interface EventProcessorFactory<T>
-{
+public interface EventProcessorFactory<T> {
+
     /**
      * Create a new event processor that gates on <code>barrierSequences</code>.
      *

@@ -19,7 +19,6 @@ import com.lmax.disruptor.AbstractPerfTestQueue;
 import com.lmax.disruptor.support.ValueAdditionQueueBatchProcessor;
 import com.lmax.disruptor.support.ValueQueuePublisher;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +44,6 @@ import java.util.concurrent.Future;
  * | P3 |------+
  * +----+
  *
- *
  * Queue Based:
  * ============
  *
@@ -69,69 +67,59 @@ import java.util.concurrent.Future;
  *
  * </pre>
  */
-public final class ThreeToOneQueueBatchThroughputTest extends AbstractPerfTestQueue
-{
+public final class ThreeToOneQueueBatchThroughputTest extends AbstractPerfTestQueue {
+
     private static final int NUM_PUBLISHERS = 3;
+
     private static final int BUFFER_SIZE = 1024 * 64;
+
     private static final long ITERATIONS = 1000L * 1000L * 20L;
+
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_PUBLISHERS + 1, DaemonThreadFactory.INSTANCE);
+
     private final CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM_PUBLISHERS + 1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     private final BlockingQueue<Long> blockingQueue = new ArrayBlockingQueue<>(BUFFER_SIZE);
-    private final ValueAdditionQueueBatchProcessor queueProcessor =
-        new ValueAdditionQueueBatchProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
+
+    private final ValueAdditionQueueBatchProcessor queueProcessor = new ValueAdditionQueueBatchProcessor(blockingQueue, ((ITERATIONS / NUM_PUBLISHERS) * NUM_PUBLISHERS) - 1L);
+
     private final ValueQueuePublisher[] valueQueuePublishers = new ValueQueuePublisher[NUM_PUBLISHERS];
 
     {
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
-            valueQueuePublishers[i] =
-                new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
+        for (int i = 0; i < NUM_PUBLISHERS; i++) {
+            valueQueuePublishers[i] = new ValueQueuePublisher(cyclicBarrier, blockingQueue, ITERATIONS / NUM_PUBLISHERS);
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
     @Override
-    protected int getRequiredProcessorCount()
-    {
+    protected int getRequiredProcessorCount() {
         return 4;
     }
 
     @Override
-    protected long runQueuePass() throws Exception
-    {
+    protected long runQueuePass() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         queueProcessor.reset(latch);
-
         Future<?>[] futures = new Future[NUM_PUBLISHERS];
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
+        for (int i = 0; i < NUM_PUBLISHERS; i++) {
             futures[i] = executor.submit(valueQueuePublishers[i]);
         }
         Future<?> processorFuture = executor.submit(queueProcessor);
-
         long start = System.currentTimeMillis();
         cyclicBarrier.await();
-
-        for (int i = 0; i < NUM_PUBLISHERS; i++)
-        {
+        for (int i = 0; i < NUM_PUBLISHERS; i++) {
             futures[i].get();
         }
-
         latch.await();
-
         long opsPerSecond = (ITERATIONS * 1000L) / (System.currentTimeMillis() - start);
         queueProcessor.halt();
         processorFuture.cancel(true);
-
         return opsPerSecond;
     }
 
-    public static void main(final String[] args) throws Exception
-    {
+    public static void main(final String[] args) throws Exception {
         new ThreeToOneQueueBatchThroughputTest().testImplementations();
     }
 }

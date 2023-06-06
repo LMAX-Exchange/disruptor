@@ -20,9 +20,8 @@ package com.lmax.disruptor;
  *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
-public final class AggregateEventHandler<T>
-    implements EventHandler<T>
-{
+public final class AggregateEventHandler<T> implements EventHandler<T> {
+
     private final EventHandler<T>[] eventHandlers;
 
     /**
@@ -31,35 +30,27 @@ public final class AggregateEventHandler<T>
      * @param eventHandlers to be called in sequence.
      */
     @SafeVarargs
-    public AggregateEventHandler(final EventHandler<T>... eventHandlers)
-    {
+    public AggregateEventHandler(final EventHandler<T>... eventHandlers) {
         this.eventHandlers = eventHandlers;
     }
 
     @Override
-    public void onEvent(final T event, final long sequence, final boolean endOfBatch)
-        throws Exception
-    {
-        for (final EventHandler<T> eventHandler : eventHandlers)
-        {
+    public void onEvent(final T event, final long sequence, final boolean endOfBatch) throws Exception {
+        for (final EventHandler<T> eventHandler : eventHandlers) {
             eventHandler.onEvent(event, sequence, endOfBatch);
         }
     }
 
     @Override
-    public void onStart()
-    {
-        for (final EventHandler<T> eventHandler : eventHandlers)
-        {
+    public void onStart() {
+        for (final EventHandler<T> eventHandler : eventHandlers) {
             eventHandler.onStart();
         }
     }
 
     @Override
-    public void onShutdown()
-    {
-        for (final EventHandler<T> eventHandler : eventHandlers)
-        {
+    public void onShutdown() {
+        for (final EventHandler<T> eventHandler : eventHandlers) {
             eventHandler.onShutdown();
         }
     }
