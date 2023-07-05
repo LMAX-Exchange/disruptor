@@ -195,15 +195,11 @@ public class Disruptor<T>
             consumerRepository.add(processor);
         }
 
-        final Sequence[] sequences = new Sequence[processors.length];
-        for (int i = 0; i < processors.length; i++)
-        {
-            sequences[i] = processors[i].getSequence();
-        }
+        final Sequence[] sequences = Util.getSequencesFor(processors);
 
         ringBuffer.addGatingSequences(sequences);
 
-        return new EventHandlerGroup<>(this, consumerRepository, Util.getSequencesFor(processors));
+        return new EventHandlerGroup<>(this, consumerRepository, sequences);
     }
 
 
