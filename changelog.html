@@ -446,12 +446,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">LMAX Development Team</span><br>
 <span id="email" class="email"></span><br>
-<span id="revnumber">version 4.0.0.RC2-SNAPSHOT</span>
+<span id="revnumber">version 4.0.0-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_4_0_0_release_candidate">4.0.0 - Release Candidate</a></li>
+<li><a href="#_4_0_0">4.0.0</a></li>
 <li><a href="#_3_4_3">3.4.3</a></li>
 <li><a href="#_3_4_2">3.4.2</a></li>
 <li><a href="#_3_4_1">3.4.1</a></li>
@@ -504,7 +504,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_4_0_0_release_candidate">4.0.0 - Release Candidate</h2>
+<h2 id="_4_0_0">4.0.0</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -518,10 +518,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>Disruptor</code> constructors using <code>Executor</code> have been removed. Use <code>ThreadFactory</code> instead.</p>
 </li>
 <li>
-<p>Rolled up event handling extension interfaces on to <code>EventHandler</code>:
-**<code>BatchStartAware</code></p>
+<p>Rolled up event handling extension interfaces on to <code>EventHandler</code>:</p>
 <div class="ulist">
 <ul>
+<li>
+<p><code>BatchStartAware</code></p>
+</li>
 <li>
 <p><code>LifecycleAware</code></p>
 </li>
@@ -530,6 +532,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p><code>FatalExceptionHandler</code> and <code>IgnoreExceptionHandler</code> now use the JDK 9 Platform Logging API, i.e. <code>System.Logger</code></p>
+</li>
+<li>
+<p>Add rewind batch feature to the <code>BatchEventProcessor</code></p>
+</li>
+<li>
+<p>Add a maximum batch size argument to <code>BatchEventProcessor</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>EventHandler::onBatchStart</code> now gets both the <code>batchSize</code> as well as <code>queueDepth</code> (previously it had <code>batchSize</code> which reported queue depth)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Added documentation to <code>EventPoller</code></p>
+</li>
+<li>
+<p><code>Util::log2</code> throws if passed a non-positive argument</p>
 </li>
 <li>
 <p>Deprecations</p>
@@ -556,28 +580,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p><code>FatalExceptionHandler</code> and <code>IgnoreExceptionHandler</code> now use the JDK 9 Platform Logging API, i.e. <code>System.Logger</code></p>
-</li>
-<li>
-<p>Add rewind batch feature to the <code>BatchEventProcessor</code></p>
-</li>
-<li>
-<p>Add a maximum batch size argument to <code>BatchEventProcessor</code></p>
-<div class="ulist">
-<ul>
-<li>
-<p><code>EventHandler::onBatchStart</code> now gets both the <code>batchSize</code> as well as <code>queueDepth</code> (previously it had <code>batchSize</code> which reported queue depth)</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Added documentation to <code>EventPoller</code></p>
-</li>
-<li>
-<p><code>Util::log2</code> throws if passed a non-positive argument</p>
 </li>
 </ul>
 </div>
@@ -1450,8 +1452,8 @@ RingBuffer.getPublished for consumers.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.0.RC2-SNAPSHOT<br>
-Last updated 2023-07-05 11:16:52 UTC
+Version 4.0.0-SNAPSHOT<br>
+Last updated 2023-09-07 15:13:51 UTC
 </div>
 </div>
 </body>
