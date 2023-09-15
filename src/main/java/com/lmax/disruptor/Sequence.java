@@ -69,13 +69,12 @@ public class Sequence extends RhsPadding
 
     /**
      * Create a sequence with a specified initial value.
-     *
+     * Perform an ordered write of this sequence.
      * @param initialValue The initial value for this sequence.
      */
     public Sequence(final long initialValue)
     {
-        VarHandle.releaseFence();
-        this.value = initialValue;
+        VALUE_FIELD.setRelease(this,initialValue);
     }
 
     /**
@@ -85,9 +84,7 @@ public class Sequence extends RhsPadding
      */
     public long get()
     {
-        long value = this.value;
-        VarHandle.acquireFence();
-        return value;
+         return (long) VALUE_FIELD.getAcquire(this);
     }
 
     /**
@@ -99,8 +96,7 @@ public class Sequence extends RhsPadding
      */
     public void set(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
+        VALUE_FIELD.setRelease(this,value);
     }
 
     /**
@@ -113,9 +109,7 @@ public class Sequence extends RhsPadding
      */
     public void setVolatile(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
-        VarHandle.fullFence();
+        VALUE_FIELD.setVolatile(this,value);
     }
 
     /**
