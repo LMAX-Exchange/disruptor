@@ -52,7 +52,7 @@ More details are available in the section about being optionally lock-free.
 There is no specific code representation of the Event as it defined entirely by the user.
 
 - *Event Processor*: The main event loop for handling events from the Disruptor and has ownership of consumer's Sequence.
-There is a single representation called BatchEventProcessor that contains an efficient implementation of the event loop and will call back onto a used supplied implementation of the EventHandler interface.
+There is a single representation called BatchEventProcessor that contains an efficient implementation of the event loop and will call back onto a user supplied implementation of the EventHandler interface.
 
 - *Event Handler*: An interface that is implemented by the user and represents a consumer for the Disruptor.
 
