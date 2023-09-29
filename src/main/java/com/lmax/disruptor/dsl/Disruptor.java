@@ -404,10 +404,10 @@ public class Disruptor<T>
      */
     public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException
     {
-        final long timeOutAt = System.currentTimeMillis() + timeUnit.toMillis(timeout);
+        final long timeOutAt = System.nanoTime() + timeUnit.toNanos(timeout);
         while (hasBacklog())
         {
-            if (timeout >= 0 && System.currentTimeMillis() > timeOutAt)
+            if (timeout >= 0 && System.nanoTime() > timeOutAt)
             {
                 throw TimeoutException.INSTANCE;
             }
