@@ -50,38 +50,32 @@ public final class BatchEventProcessorBuilder
             final SequenceBarrier sequenceBarrier,
             final EventHandler<? super T> eventHandler)
     {
-        final BatchEventProcessor<T> processor = new BatchEventProcessor<>(
-                dataProvider, sequenceBarrier, eventHandler, maxBatchSize, null
-        );
-        eventHandler.setSequenceCallback(processor.getSequence());
-
-        return processor;
+        return build(dataProvider, sequenceBarrier, eventHandler, null);
     }
 
     /**
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
-     * @param dataProvider           to which events are published.
-     * @param sequenceBarrier        on which it is waiting.
-     * @param rewindableEventHandler is the delegate to which events are dispatched.
-     * @param batchRewindStrategy    a {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}.
-     * @param <T>                    event implementation storing the data for sharing during exchange or parallel coordination of an event.
+     * @param dataProvider        to which events are published.
+     * @param sequenceBarrier     on which it is waiting.
+     * @param eventHandler        is the delegate to which events are dispatched.
+     * @param batchRewindStrategy a {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}.
+     * @param <T>                 event implementation storing the data for sharing during exchange or parallel coordination of an event.
      * @return the BatchEventProcessor
      */
     public <T> BatchEventProcessor<T> build(
             final DataProvider<T> dataProvider,
             final SequenceBarrier sequenceBarrier,
-            final RewindableEventHandler<? super T> rewindableEventHandler,
+            final EventHandler<? super T> eventHandler,
             final BatchRewindStrategy batchRewindStrategy)
     {
-        if (null == batchRewindStrategy)
-        {
-            throw new NullPointerException("batchRewindStrategy cannot be null when building a BatchEventProcessor");
-        }
-
-        return new BatchEventProcessor<>(
-                dataProvider, sequenceBarrier, rewindableEventHandler, maxBatchSize, batchRewindStrategy
+        final BatchEventProcessor<T> processor = new BatchEventProcessor<>(
+                dataProvider, sequenceBarrier, eventHandler, maxBatchSize, batchRewindStrategy
         );
+
+        eventHandler.setSequenceCallback(processor.getSequence());
+
+        return processor;
     }
 }

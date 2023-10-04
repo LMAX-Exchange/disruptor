@@ -21,7 +21,6 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.FatalExceptionHandler;
-import com.lmax.disruptor.RewindableEventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.SimpleBatchRewindStrategy;
@@ -144,7 +143,7 @@ public class DisruptorTest
     public void shouldHandleEventsWithRewindableEventHandlers() throws Exception
     {
         final CountDownLatch eventCounter = new CountDownLatch(2);
-        final RewindableEventHandler<TestEvent> testEventRewindableEventHandler = (event, sequence, endOfBatch) -> eventCounter.countDown();
+        final EventHandler<TestEvent> testEventRewindableEventHandler = (event, sequence, endOfBatch) -> eventCounter.countDown();
         disruptor.handleEventsWith(new SimpleBatchRewindStrategy(), testEventRewindableEventHandler);
 
         disruptor.start();

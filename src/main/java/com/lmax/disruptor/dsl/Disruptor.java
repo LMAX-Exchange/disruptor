@@ -27,7 +27,6 @@ import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.EventTranslatorThreeArg;
 import com.lmax.disruptor.EventTranslatorTwoArg;
 import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.RewindableEventHandler;
 import com.lmax.disruptor.RewindableException;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
@@ -147,7 +146,7 @@ public class Disruptor<T>
     @SuppressWarnings("varargs")
     @SafeVarargs
     public final EventHandlerGroup<T> handleEventsWith(final BatchRewindStrategy batchRewindStrategy,
-                                                       final RewindableEventHandler<? super T>... handlers)
+                                                       final EventHandler<? super T>... handlers)
     {
         return createEventProcessors(new Sequence[0], batchRewindStrategy, handlers);
     }
@@ -536,7 +535,7 @@ public class Disruptor<T>
     EventHandlerGroup<T> createEventProcessors(
             final Sequence[] barrierSequences,
             final BatchRewindStrategy batchRewindStrategy,
-            final RewindableEventHandler<? super T>[] eventHandlers)
+            final EventHandler<? super T>[] eventHandlers)
     {
         checkNotStarted();
 
@@ -545,7 +544,7 @@ public class Disruptor<T>
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
-            final RewindableEventHandler<? super T> eventHandler = eventHandlers[i];
+            final EventHandler<? super T> eventHandler = eventHandlers[i];
 
             final BatchEventProcessor<T> batchEventProcessor =
                     new BatchEventProcessorBuilder().build(ringBuffer, barrier, eventHandler, batchRewindStrategy);

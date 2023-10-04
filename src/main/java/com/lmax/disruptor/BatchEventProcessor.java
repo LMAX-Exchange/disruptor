@@ -38,7 +38,7 @@ public final class BatchEventProcessor<T>
     private ExceptionHandler<? super T> exceptionHandler;
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
-    private final EventHandlerBase<? super T> eventHandler;
+    private final EventHandler<? super T> eventHandler;
     private final int batchLimitOffset;
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final RewindHandler rewindHandler;
@@ -47,7 +47,7 @@ public final class BatchEventProcessor<T>
     BatchEventProcessor(
             final DataProvider<T> dataProvider,
             final SequenceBarrier sequenceBarrier,
-            final EventHandlerBase<? super T> eventHandler,
+            final EventHandler<? super T> eventHandler,
             final int maxBatchSize,
             final BatchRewindStrategy batchRewindStrategy
     )
@@ -61,10 +61,11 @@ public final class BatchEventProcessor<T>
             throw new IllegalArgumentException("maxBatchSize must be greater than 0");
         }
         this.batchLimitOffset = maxBatchSize - 1;
+        this.rewindHandler = batchRewindStrategy == null ? NoRewindHandler.getInstance() : new TryRewindHandler(batchRewindStrategy);
+    }
 
-        this.rewindHandler = eventHandler instanceof RewindableEventHandler
-                ? new TryRewindHandler(batchRewindStrategy)
-                : new NoRewindHandler();
+    public boolean isRewindable() {
+        return !(rewindHandler instanceof NoRewindHandler);
     }
 
     @Override
@@ -304,10 +305,19 @@ public final class BatchEventProcessor<T>
 
     private static class NoRewindHandler implements RewindHandler
     {
+
+        private static final RewindHandler INSTANCE = new NoRewindHandler();
+
+        private NoRewindHandler() {}
+
         @Override
         public long attemptRewindGetNextSequence(final RewindableException e, final long startOfBatchSequence)
         {
             throw new UnsupportedOperationException("Rewindable Exception thrown from a non-rewindable event handler", e);
+        }
+
+        public static RewindHandler getInstance() {
+            return INSTANCE;
         }
     }
 }

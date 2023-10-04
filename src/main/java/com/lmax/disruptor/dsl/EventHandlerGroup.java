@@ -18,7 +18,6 @@ package com.lmax.disruptor.dsl;
 import com.lmax.disruptor.BatchRewindStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.RewindableEventHandler;
 import com.lmax.disruptor.RewindableException;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -115,7 +114,7 @@ public class EventHandlerGroup<T>
      */
     @SafeVarargs
     public final EventHandlerGroup<T> then(final BatchRewindStrategy batchRewindStrategy,
-                                           final RewindableEventHandler<? super T>... handlers)
+                                           final EventHandler<? super T>... handlers)
     {
         return handleEventsWith(batchRewindStrategy, handlers);
     }
@@ -169,7 +168,7 @@ public class EventHandlerGroup<T>
      */
     @SafeVarargs
     public final EventHandlerGroup<T> handleEventsWith(final BatchRewindStrategy batchRewindStrategy,
-                                                       final RewindableEventHandler<? super T>... handlers)
+                                                       final EventHandler<? super T>... handlers)
     {
         return disruptor.createEventProcessors(sequences, batchRewindStrategy, handlers);
     }

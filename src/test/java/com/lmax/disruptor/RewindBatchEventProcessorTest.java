@@ -18,8 +18,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RewindBatchEventProcessorTest
 {
@@ -407,14 +406,28 @@ public class RewindBatchEventProcessorTest
     }
 
     @Test
-    void shouldNotAllowNullBatchRewindStrategy()
+    void batchEventProcessorsWithNullBatchRewindStrategyAreNotRewindable()
+    {
+        final TestEventHandler eventHandler = new TestEventHandler(values,
+                asList(rewind(15, 99), rewind(25, 99)),
+                -1,
+                -1);
+        EventuallyGiveUpBatchRewindStrategy batchRewindStrategy = new EventuallyGiveUpBatchRewindStrategy(3);
+        final BatchEventProcessorBuilder batchEventProcessorBuilder = new BatchEventProcessorBuilder();
+        final BatchEventProcessor<?> processor = assertDoesNotThrow(() -> batchEventProcessorBuilder.build(ringBuffer, ringBuffer.newBarrier(), eventHandler, batchRewindStrategy));
+        assertTrue(processor.isRewindable());
+    }
+
+    @Test
+    void batchEventProcessorsWithNonNullBatchRewindStrategyAreRewindable()
     {
         final TestEventHandler eventHandler = new TestEventHandler(values,
                 asList(rewind(15, 99), rewind(25, 99)),
                 -1,
                 -1);
         final BatchEventProcessorBuilder batchEventProcessorBuilder = new BatchEventProcessorBuilder();
-        assertThrows(NullPointerException.class, () -> batchEventProcessorBuilder.build(ringBuffer, ringBuffer.newBarrier(), eventHandler, null));
+        final BatchEventProcessor<?> processor = assertDoesNotThrow(() -> batchEventProcessorBuilder.build(ringBuffer, ringBuffer.newBarrier(), eventHandler, null));
+        assertFalse(processor.isRewindable());
     }
 
     private static ForceRewindSequence rewind(final long sequenceNumberToFailOn, final long timesToFail)
@@ -441,7 +454,7 @@ public class RewindBatchEventProcessorTest
                 batchRewindStrategy);
     }
 
-    private static final class TestEventHandler implements RewindableEventHandler<LongEvent>
+    private static final class TestEventHandler implements EventHandler<LongEvent>
     {
         private final List<EventResult> values;
         private BatchEventProcessor<LongEvent> processor;

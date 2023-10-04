@@ -15,13 +15,7 @@
  */
 package com.lmax.disruptor;
 
-/**
- * Callback interface to be implemented for processing events as they become available in the {@link RingBuffer}
- *
- * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
- * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propagated out of the handler.
- */
-public interface EventHandler<T> extends EventHandlerBase<T>
+public interface EventHandler<T> extends EventHandlerIdentity
 {
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}.  The {@link BatchEventProcessor} will
@@ -34,10 +28,47 @@ public interface EventHandler<T> extends EventHandlerBase<T>
      * @param event      published to the {@link RingBuffer}
      * @param sequence   of the event being processed
      * @param endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
-     * @throws Exception if the EventHandler would like the exception handled further up the chain.
+     * @throws Exception if the EventHandler would like the exception handled further up the chain or possible rewind
+     * the batch if a {@link RewindableException} is thrown.
      */
-    @Override
     void onEvent(T event, long sequence, boolean endOfBatch) throws Exception;
+
+    /**
+     * Invoked by {@link BatchEventProcessor} prior to processing a batch of events
+     *
+     * @param batchSize the size of the batch that is starting
+     * @param queueDepth the total number of queued up events including the batch about to be processed
+     */
+    default void onBatchStart(long batchSize, long queueDepth)
+    {
+    }
+
+    /**
+     * Called once on thread start before first event is available.
+     */
+    default void onStart()
+    {
+    }
+
+    /**
+     * Called once just before the event processing thread is shutdown.
+     *
+     * <p>Sequence event processing will already have stopped before this method is called. No events will
+     * be processed after this message.
+     */
+    default void onShutdown()
+    {
+    }
+
+    /**
+     * Invoked when a {@link BatchEventProcessor}'s {@link WaitStrategy} throws a {@link TimeoutException}.
+     *
+     * @param sequence - the last processed sequence.
+     * @throws Exception if the implementation is unable to handle this timeout.
+     */
+    default void onTimeout(long sequence) throws Exception
+    {
+    }
 
     /**
      *  Used by the {@link BatchEventProcessor} to set a callback allowing the {@link EventHandler} to notify

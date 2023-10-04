@@ -5,7 +5,7 @@ package com.lmax.disruptor;
  * On throwing this exception the {@link BatchEventProcessor} can choose to rewind and replay the batch or throw
  * depending on the {@link BatchRewindStrategy}
  */
-public class RewindableException extends Throwable
+public class RewindableException extends RuntimeException
 {
     /**
      * @param cause The underlying cause of the exception.
