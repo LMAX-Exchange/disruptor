@@ -32,10 +32,14 @@ abstract class RingBufferPad
 
 abstract class RingBufferFields<E> extends RingBufferPad
 {
+    // 为了避免 false sharing，这里设置了 32 字节的 padding
     private static final int BUFFER_PAD = 32;
 
+    // indexMask = bufferSize - 1，方便使用 & 来计算索引下标 index
     private final long indexMask;
+    // 实际存储数据的数组
     private final E[] entries;
+    // 一定是 2 的幂
     protected final int bufferSize;
     protected final Sequencer sequencer;
 
@@ -57,12 +61,15 @@ abstract class RingBufferFields<E> extends RingBufferPad
         }
 
         this.indexMask = bufferSize - 1;
+        // 初始化内容数组
         this.entries = (E[]) new Object[bufferSize + 2 * BUFFER_PAD];
+        // 填充初始值
         fill(eventFactory);
     }
 
     private void fill(final EventFactory<E> eventFactory)
     {
+        // 从 BUFFER_PAD ～ bufferSize + BUFFER_PAD 的位置初始化 entries 数组
         for (int i = 0; i < bufferSize; i++)
         {
             entries[BUFFER_PAD + i] = eventFactory.newInstance();
@@ -98,6 +105,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
 
     /**
      * Construct a RingBuffer with the full option set.
+     *
+     * <p>使用完整的选项集构造一个 RingBuffer。</p>
      *
      * @param eventFactory to newInstance entries for filling the RingBuffer
      * @param sequencer    sequencer to handle the ordering of events moving through the RingBuffer.
@@ -213,14 +222,22 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     /**
      * <p>Get the event for a given sequence in the RingBuffer.</p>
      *
+     * <p>根据序号获取 RingBuffer 中的 event。</p>
+     *
      * <p>This call has 2 uses.  Firstly use this call when publishing to a ring buffer.
      * After calling {@link RingBuffer#next()} use this call to get hold of the
      * preallocated event to fill with data before calling {@link RingBuffer#publish(long)}.</p>
+     *
+     * <p>这个方法有两个用途。首先，当往 RingBuffer 中发布数据时，调用 {@link RingBuffer#next()} 方法后，
+     * 使用这个方法获取预分配的 event，填充数据后再调用 {@link RingBuffer#publish(long)} 方法。</p>
      *
      * <p>Secondly use this call when consuming data from the ring buffer.  After calling
      * {@link SequenceBarrier#waitFor(long)} call this method with any value greater than
      * that your current consumer sequence and less than or equal to the value returned from
      * the {@link SequenceBarrier#waitFor(long)} method.</p>
+     *
+     * <p>其次，当从 RingBuffer 中消费数据时，调用 {@link SequenceBarrier#waitFor(long)} 方法后，
+     * 使用这个方法传入任何大于当前消费者序号的值，小于等于 {@link SequenceBarrier#waitFor(long)} 方法返回的值。</p>
      *
      * @param sequence for the event
      * @return the event for the given sequence
@@ -483,6 +500,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     @Override
     public <A> void publishEvent(final EventTranslatorOneArg<E, A> translator, final A arg0)
     {
+        // 通过 sequencer 获取下一个可用的序号
         final long sequence = sequencer.next();
         translateAndPublish(translator, sequence, arg0);
     }
@@ -610,7 +628,9 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     @Override
     public void publishEvents(final EventTranslator<E>[] translators, final int batchStartsAt, final int batchSize)
     {
+        // 检查边界
         checkBounds(translators, batchStartsAt, batchSize);
+        // 获取下一个可用的序号，这里是获取 batchSize 个序号，sequencer 保障了这些序号是连续的
         final long finalSequence = sequencer.next(batchSize);
         translateAndPublishBatch(translators, batchStartsAt, batchSize, finalSequence);
     }
@@ -964,10 +984,12 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         try
         {
+            // 将 arg0 传递给 translator，将结果写入到 sequence 对应的 event 中
             translator.translateTo(get(sequence), sequence, arg0);
         }
         finally
         {
+            // 调用 sequencer.publish() 方法，通知消费者，sequence 对应的 event 已经准备好了
             sequencer.publish(sequence);
         }
     }
@@ -1014,19 +1036,24 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         final EventTranslator<E>[] translators, final int batchStartsAt,
         final int batchSize, final long finalSequence)
     {
+        // 计算初始序号
         final long initialSequence = finalSequence - (batchSize - 1);
         try
         {
+            // 定义参与遍历的序号
             long sequence = initialSequence;
             final int batchEndsAt = batchStartsAt + batchSize;
+            // 遍历指定范围的 translators 数组
             for (int i = batchStartsAt; i < batchEndsAt; i++)
             {
+                // 取到 translator 对象，并调用 translateTo() 方法，将结果写入到 sequence 对应的 event 中
                 final EventTranslator<E> translator = translators[i];
                 translator.translateTo(get(sequence), sequence++);
             }
         }
         finally
         {
+            // 批量发布，表示指定范围内的 event 已经准备好了
             sequencer.publish(initialSequence, finalSequence);
         }
     }

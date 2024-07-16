@@ -20,11 +20,16 @@ package com.lmax.disruptor;
  * that represents their current cursor value.  Used during dynamic
  * add/remove of Sequences from a
  * {@link SequenceGroups#addSequences(Object, java.util.concurrent.atomic.AtomicReferenceFieldUpdater, Cursored, Sequence...)}.
+ *
+ * <p>当前接口的实现类必须提供一个表示当前游标值的单个长整型值。
+ * 在动态添加/删除Sequences时使用，从{@link SequenceGroups#addSequences(Object, java.util.concurrent.atomic.AtomicReferenceFieldUpdater, Cursored, Sequence...)}。</p>
  */
 public interface Cursored
 {
     /**
      * Get the current cursor value.
+     *
+     * <p>获取当前游标值。</p>
      *
      * @return current cursor value
      */
