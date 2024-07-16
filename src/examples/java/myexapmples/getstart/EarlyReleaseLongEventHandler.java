@@ -50,7 +50,8 @@ public class EarlyReleaseLongEventHandler implements EventHandler<LongEvent>
         this.sequenceCallback = sequenceCallback;
     }
 
-    private void processEvent(final LongEvent event) {
+    private void processEvent(final LongEvent event)
+    {
         System.out.println("Event: " + event + " Sequence: " + sequenceCallback.get() + " EndOfBatch: " + batchRemaining);
     }
 }

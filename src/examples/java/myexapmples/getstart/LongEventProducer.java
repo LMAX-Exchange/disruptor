@@ -22,12 +22,16 @@ public class LongEventProducer
         this.ringBuffer = ringBuffer;
     }
 
-    public void onDate(ByteBuffer bb) {
+    public void onDate(ByteBuffer bb)
+    {
         long sequence = ringBuffer.next();
-        try {
+        try
+        {
             LongEvent event = ringBuffer.get(sequence);
             event.setValue(bb.getLong(0));
-        } finally {
+        }
+        finally
+        {
             ringBuffer.publish(sequence);
         }
     }

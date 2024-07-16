@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A DSL-style API for setting up the disruptor pattern around a ring buffer
  * (aka the Builder pattern).
  *
+ * <p>一个用于在环形缓冲区周围设置 disruptor 模式的 DSL 风格 API（也称为构建器模式）。
+ *
  * <p>A simple example of setting up the disruptor with two event handlers that
  * must process events in order:
  *
@@ -61,11 +63,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Disruptor<T>
 {
+
+    // --- 成员变量 ↓↓↓↓↓ ---
+
+    // 环形缓冲区
     private final RingBuffer<T> ringBuffer;
+    // 线程工厂，用于创建 consumer 线程
     private final ThreadFactory threadFactory;
+    // consumer 仓库，记录了监听 disruptor 的所有 consumer
     private final ConsumerRepository consumerRepository = new ConsumerRepository();
+    // 布尔值，明确记录了 disruptor 的启动状态
     private final AtomicBoolean started = new AtomicBoolean(false);
+    // 异常处理器
     private ExceptionHandler<? super T> exceptionHandler = new ExceptionHandlerWrapper<>();
+
+    // --- 成员变量 ↑↑↑↑↑ ---
+
+    // --- 构造函数 ↓↓↓↓↓ ---
 
     /**
      * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
@@ -110,15 +124,25 @@ public class Disruptor<T>
         this.threadFactory = threadFactory;
     }
 
+    // --- 构造函数 ↑↑↑↑↑ ---
+
+    // --- 编排 consumer ↓↓↓↓ ---
+
     /**
      * <p>Set up event handlers to handle events from the ring buffer. These handlers will process events
      * as soon as they become available, in parallel.</p>
+     *
+     * <p>设置 event handlers 以处理 ring buffer 中的 events。这些处理器将在 events 一旦可用就立即处理，以并行方式。</p>
      *
      * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
      * process events before handler <code>B</code>:</p>
      * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
+     * <p>此方法可以用作链的开始。例如，如果处理程序 <code>A</code> 必须在处理程序 <code>B</code> 之前处理 events：</p>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
+     *
      * <p>This call is additive, but generally should only be called once when setting up the Disruptor instance</p>
+     * <p>此调用是可累加的，但通常在设置 Disruptor 实例时只应调用一次</p>
      *
      * @param handlers the event handlers that will process events.
      * @return a {@link EventHandlerGroup} that can be used to chain dependencies.
@@ -134,11 +158,19 @@ public class Disruptor<T>
      * <p>Set up event handlers to handle events from the ring buffer. These handlers will process events
      * as soon as they become available, in parallel.</p>
      *
+     * <p>设置 event handlers 以处理 ring buffer 中的 events。
+     * 这些处理器将在 events 一旦可用就立即处理，以并行方式。</p>
+     *
      * <p>This method can be used as the start of a chain. For example if the handler <code>A</code> must
      * process events before handler <code>B</code>:</p>
      * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
      *
+     * <p>此方法可以用作链的开始。例如，如果处理程序 <code>A</code> 必须在处理程序 <code>B</code> 之前处理 events：</p>
+     * <pre><code>dw.handleEventsWith(A).then(B);</code></pre>
+     *
      * <p>This call is additive, but generally should only be called once when setting up the Disruptor instance</p>
+     *
+     * <p>此调用是可累加的，但通常在设置 Disruptor 实例时只应调用一次</p>
      *
      * @param batchRewindStrategy a {@link BatchRewindStrategy} for customizing how to handle a {@link RewindableException}.
      * @param handlers            the rewindable event handlers that will process events.
@@ -149,6 +181,8 @@ public class Disruptor<T>
     public final EventHandlerGroup<T> handleEventsWith(final BatchRewindStrategy batchRewindStrategy,
                                                        final RewindableEventHandler<? super T>... handlers)
     {
+        // 指定了 BatchRewindStrategy 的情况下，创建 event processors
+        // BatchRewindStrategy 用于处理 RewindableException，代表是否、如何处理一个 consume 时抛出 RewindableException 的 event
         return createEventProcessors(new Sequence[0], batchRewindStrategy, handlers);
     }
 
@@ -173,6 +207,8 @@ public class Disruptor<T>
     @SafeVarargs
     public final EventHandlerGroup<T> handleEventsWith(final EventProcessorFactory<T>... eventProcessorFactories)
     {
+        // 传入了 EventProcessorFactory 的情况下，创建 event processors
+        // EventProcessorFactory 用于创建 event processor，即消费者
         final Sequence[] barrierSequences = new Sequence[0];
         return createEventProcessors(barrierSequences, eventProcessorFactories);
     }
@@ -180,6 +216,9 @@ public class Disruptor<T>
     /**
      * <p>Set up custom event processors to handle events from the ring buffer. The Disruptor will
      * automatically start this processors when {@link #start()} is called.</p>
+     *
+     * <p>设置 event processors 以处理 ring buffer 中的事件。
+     * 当调用 {@link #start()} 时，Disruptor 将自动启动这些处理器。</p>
      *
      * <p>This method can be used as the start of a chain. For example if the processor <code>A</code> must
      * process events before handler <code>B</code>:</p>
@@ -190,13 +229,15 @@ public class Disruptor<T>
      */
     public EventHandlerGroup<T> handleEventsWith(final EventProcessor... processors)
     {
+        // 遍历 processors，将每个 processor 添加到 consumerRepository 中
         for (final EventProcessor processor : processors)
         {
             consumerRepository.add(processor);
         }
 
+        // 获取 processors 的 sequences
         final Sequence[] sequences = Util.getSequencesFor(processors);
-
+        // 将 processors 的 sequences 添加到 ringBuffer 的 gatingSequences 中
         ringBuffer.addGatingSequences(sequences);
 
         return new EventHandlerGroup<>(this, consumerRepository, sequences);
@@ -220,7 +261,11 @@ public class Disruptor<T>
     /**
      * <p>Specify an exception handler to be used for event handlers and worker pools created by this Disruptor.</p>
      *
+     * <p>指定一个异常处理器，用于由此 Disruptor 创建的事件处理器和工作池。</p>
+     *
      * <p>The exception handler will be used by existing and future event handlers and worker pools created by this Disruptor instance.</p>
+     *
+     * <p>此异常处理器将用于由此 Disruptor 实例创建的现有和未来的事件处理器和工作池。</p>
      *
      * @param exceptionHandler the exception handler to use.
      */
@@ -228,6 +273,8 @@ public class Disruptor<T>
     public void setDefaultExceptionHandler(final ExceptionHandler<? super T> exceptionHandler)
     {
         checkNotStarted();
+        // 如果 exceptionHandler 不是 ExceptionHandlerWrapper 的实例
+        // 说明它已经被其他方法变更了（handleExceptionsWith），此时不允许再次变更
         if (!(this.exceptionHandler instanceof ExceptionHandlerWrapper))
         {
             throw new IllegalStateException("setDefaultExceptionHandler can not be used after handleExceptionsWith");
@@ -239,11 +286,15 @@ public class Disruptor<T>
      * Override the default exception handler for a specific handler.
      * <pre>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</pre>
      *
+     * <p>为特定处理程序覆盖默认异常处理程序。</p>
+     * <pre>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</pre>
+     *
      * @param eventHandler the event handler to set a different exception handler for.
      * @return an ExceptionHandlerSetting dsl object - intended to be used by chaining the with method call.
      */
     public ExceptionHandlerSetting<T> handleExceptionsFor(final EventHandlerIdentity eventHandler)
     {
+        // 这个场景暂时还不清楚，内部是直接针对两个入参封装了一个 ExceptionHandlerSetting 对象就结束了
         return new ExceptionHandlerSetting<>(eventHandler, consumerRepository);
     }
 
@@ -251,14 +302,21 @@ public class Disruptor<T>
      * <p>Create a group of event handlers to be used as a dependency.
      * For example if the handler <code>A</code> must process events before handler <code>B</code>:</p>
      *
+     * <p>创建一组事件处理程序以用作依赖关系。
+     * 例如，如果处理程序 <code>A</code> 必须在处理程序 <code>B</code> 之前处理 events：</p>
+     *
      * <pre><code>dw.after(A).handleEventsWith(B);</code></pre>
      *
      * @param handlers the event handlers, previously set up with {@link #handleEventsWith(EventHandler[])},
      *                 that will form the barrier for subsequent handlers or processors.
+     *                 eventHandlers，之前必须使用 {@link #handleEventsWith(EventHandler[])} 设置过的事件处理程序，
+     *                 将形成后续处理程序或处理器的屏障。
+     *
      * @return an {@link EventHandlerGroup} that can be used to setup a dependency barrier over the specified event handlers.
      */
     public final EventHandlerGroup<T> after(final EventHandlerIdentity... handlers)
     {
+        // 注意这里的前提是入参 handlers 已经被正确的添加过了
         final Sequence[] sequences = new Sequence[handlers.length];
         for (int i = 0, handlersLength = handlers.length; i < handlersLength; i++)
         {
@@ -271,6 +329,8 @@ public class Disruptor<T>
     /**
      * Create a group of event processors to be used as a dependency.
      *
+     * <p>创建一组事件处理程序以用作依赖关系。</p>
+     *
      * @param processors the event processors, previously set up with {@link #handleEventsWith(com.lmax.disruptor.EventProcessor...)},
      *                   that will form the barrier for subsequent handlers or processors.
      * @return an {@link EventHandlerGroup} that can be used to setup a {@link SequenceBarrier} over the specified event processors.
@@ -281,6 +341,9 @@ public class Disruptor<T>
         return new EventHandlerGroup<>(this, consumerRepository, Util.getSequencesFor(processors));
     }
 
+    // --- 编排 consumer ↑↑↑↑↑ ---
+
+    // --- publisher 发消息 ↓↓↓↓↓ ---
     /**
      * Publish an event to the ring buffer.
      *
@@ -312,6 +375,7 @@ public class Disruptor<T>
      */
     public <A> void publishEvents(final EventTranslatorOneArg<T, A> eventTranslator, final A[] arg)
     {
+        // 全部都交给 ringBuffer 来处理
         ringBuffer.publishEvents(eventTranslator, arg);
     }
 
@@ -344,6 +408,8 @@ public class Disruptor<T>
     {
         ringBuffer.publishEvent(eventTranslator, arg0, arg1, arg2);
     }
+
+    // --- publisher 发消息 ↑↑↑↑↑ ---
 
     /**
      * <p>Starts the event processors and returns the fully configured ring buffer.</p>
