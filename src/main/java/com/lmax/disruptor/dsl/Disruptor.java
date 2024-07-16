@@ -85,17 +85,30 @@ public class Disruptor<T>
      * Create a new Disruptor. Will default to {@link com.lmax.disruptor.BlockingWaitStrategy} and
      * {@link ProducerType}.MULTI
      *
+     * <p>创建一个新的 disruptor 对象。
+     * 会默认使用 BlockingWaitStrategy 和 ProducerType.MULTI 参数
+     *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param threadFactory  a {@link ThreadFactory} to create threads to for processors.
      */
-    public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final ThreadFactory threadFactory)
+    public Disruptor(
+            final EventFactory<T> eventFactory,
+            final int ringBufferSize,
+            final ThreadFactory threadFactory)
     {
-        this(RingBuffer.createMultiProducer(eventFactory, ringBufferSize), threadFactory);
+        // 对比下面的方法，少了两个参数；即没有指定 producerType 和 waitStrategy
+        // 此时 RingBuffer 会使用默认的 BlockingWaitStrategy 和 ProducerType.MULTI
+        this(
+                RingBuffer.createMultiProducer(eventFactory, ringBufferSize),
+                threadFactory);
     }
 
     /**
      * Create a new Disruptor.
+     *
+     * <p>创建一个新的 disruptor 对象。
+     * 它允许指定所有的参数
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer, must be power of 2.
@@ -111,8 +124,8 @@ public class Disruptor<T>
             final WaitStrategy waitStrategy)
     {
         this(
-            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
-            threadFactory);
+                RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+                threadFactory);
     }
 
     /**
@@ -120,6 +133,8 @@ public class Disruptor<T>
      */
     private Disruptor(final RingBuffer<T> ringBuffer, final ThreadFactory threadFactory)
     {
+        // 私有的构造方法，用于初始化 Disruptor 对象
+        // 它的入参只有 ringBuffer 和 threadFactory，说明 ringBuffer 内部才会感知其他的那些参数
         this.ringBuffer = ringBuffer;
         this.threadFactory = threadFactory;
     }
