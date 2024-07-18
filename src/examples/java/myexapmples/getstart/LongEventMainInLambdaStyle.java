@@ -6,11 +6,11 @@
  */
 package myexapmples.getstart;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
-
-import java.nio.ByteBuffer;
 
 /**
  * 使用 lambda 风格的 api 来编写 publisher 的实现
@@ -24,7 +24,7 @@ public class LongEventMainInLambdaStyle
         // 构造队列
         int bufferSize = 1024;
 
-        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE);
+        Disruptor<LongEvent> disruptor = new Disruptor<>(LongEvent::new, bufferSize, DaemonThreadFactory.INSTANCE, ProducerType.SINGLE, new BlockingWaitStrategy());
         // 设置队列的 consumer
         disruptor
                 .handleEventsWith((event, sequence, endOfBatch) ->
@@ -35,16 +35,13 @@ public class LongEventMainInLambdaStyle
 
         // 取到 ringBuffer
         RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-        ByteBuffer bb = ByteBuffer.allocate(8);
 
-        for (int i = 0; true; i++)
+        ringBuffer.hasAvailableCapacity(100);
+
+        for (int i = 0; i < 10000; i++)
         {
-            // 假设 bb 为数据源/事件源
-            bb.putLong(0, i);
-            // 发布消息
-            final int finalI = i;
-            ringBuffer.publishEvent((event, sequence) -> event.setValue(finalI));
-            Thread.sleep(1000);
+            ringBuffer.publishEvent((event, sequence) -> event.setValue(1L));
         }
+        System.out.println("main:" + ringBuffer.hasAvailableCapacity(100));
     }
 }
