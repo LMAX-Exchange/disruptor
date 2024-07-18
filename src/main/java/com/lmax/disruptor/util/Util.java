@@ -20,6 +20,8 @@ import com.lmax.disruptor.Sequence;
 
 /**
  * Set of common functions used by the Disruptor.
+ *
+ * <p>Disruptor使用的一组常用函数。</p>
  */
 public final class Util
 {
@@ -27,6 +29,8 @@ public final class Util
 
     /**
      * Calculate the next power of 2, greater than or equal to x.
+     *
+     * <p>计算大于或等于x的下一个2的幂。</p>
      *
      * <p>From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
      *
@@ -41,6 +45,8 @@ public final class Util
     /**
      * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
      *
+     * <p>从{@link com.lmax.disruptor.Sequence}数组中获取最小序列。</p>
+     *
      * @param sequences to compare.
      * @return the minimum sequence found or Long.MAX_VALUE if the array is empty.
      */
@@ -52,6 +58,8 @@ public final class Util
     /**
      * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
      *
+     * <p>从{@link com.lmax.disruptor.Sequence}数组中获取最小序列。</p>
+     *
      * @param sequences to compare.
      * @param minimum   an initial default minimum.  If the array is empty this value will be
      *                  returned.
@@ -60,7 +68,9 @@ public final class Util
      */
     public static long getMinimumSequence(final Sequence[] sequences, final long minimum)
     {
+        // 声明内部变量，记录最小序列
         long minimumSequence = minimum;
+        // 遍历所有序列，找到最小的序列
         for (int i = 0, n = sequences.length; i < n; i++)
         {
             long value = sequences[i].get();
@@ -72,6 +82,8 @@ public final class Util
 
     /**
      * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s.
+     *
+     * <p>获取传递的{@link EventProcessor}的{@link Sequence}数组。</p>
      *
      * @param processors for which to get the sequences
      * @return the array of {@link Sequence}s
@@ -90,6 +102,8 @@ public final class Util
     /**
      * Calculate the log base 2 of the supplied integer, essentially reports the location
      * of the highest bit.
+     *
+     * <p>计算所提供整数的以2为底的对数，基本上报告最高位的位置。</p>
      *
      * @param value Positive value to calculate log2 for.
      * @return The log2 value
@@ -111,13 +125,16 @@ public final class Util
      */
     public static long awaitNanos(final Object mutex, final long timeoutNanos) throws InterruptedException
     {
+        // 计算等待时间
         long millis = timeoutNanos / ONE_MILLISECOND_IN_NANOSECONDS;
         long nanos = timeoutNanos % ONE_MILLISECOND_IN_NANOSECONDS;
 
         long t0 = System.nanoTime();
+        // 触发等待
         mutex.wait(millis, (int) nanos);
         long t1 = System.nanoTime();
 
+        // 返回实际等待时间
         return timeoutNanos - (t1 - t0);
     }
 }

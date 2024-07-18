@@ -21,6 +21,8 @@ import java.util.Arrays;
 
 /**
  * Hides a group of Sequences behind a single Sequence
+ *
+ * <p>在单个Sequence后面隐藏一组Sequences</p>
  */
 public final class FixedSequenceGroup extends Sequence
 {
@@ -33,11 +35,14 @@ public final class FixedSequenceGroup extends Sequence
      */
     public FixedSequenceGroup(final Sequence[] sequences)
     {
+        // 拷贝一份 sequences 数组，但是不会拷贝数组中的元素（浅拷贝）
         this.sequences = Arrays.copyOf(sequences, sequences.length);
     }
 
     /**
      * Get the minimum sequence value for the group.
+     *
+     * <p>获取组的最小序列值。</p>
      *
      * @return the minimum sequence value for the group.
      */
@@ -52,6 +57,8 @@ public final class FixedSequenceGroup extends Sequence
     {
         return Arrays.toString(sequences);
     }
+
+    // 所有的更新操作都不支持
 
     /**
      * Not supported.

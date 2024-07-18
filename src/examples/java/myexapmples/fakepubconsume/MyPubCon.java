@@ -22,8 +22,10 @@ public class MyPubCon<T>
         {
             for (final Consumer<T> consumer : consumerList)
             {
-                Thread thread = new Thread(() -> {
-                    while (true) {
+                Thread thread = new Thread(() ->
+                {
+                    while (true)
+                    {
                         final T event;
                         try
                         {
