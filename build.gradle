@@ -21,7 +21,6 @@ plugins {
     id 'idea'
     id "io.github.reyerizo.gradle.jcstress" version "0.8.14"
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id 'org.asciidoctor.jvm.gems' version '3.3.2'
     id "me.champeau.jmh" version "0.6.8"
     id "biz.aQute.bnd.builder" version "6.3.1"
 }
@@ -50,7 +49,6 @@ wrapper.gradleVersion = '7.6'
 
 repositories {
     mavenCentral()
-    ruby.gems()
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11

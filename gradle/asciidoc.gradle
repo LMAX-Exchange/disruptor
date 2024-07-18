@@ -2,14 +2,6 @@
 // Configure ASCIIDoc publishing
 //
 
-dependencies {
-    asciidoctorGems 'rubygems:pygments.rb:2.+'
-}
-
-asciidoctorj {
-    requires("pygments")
-}
-
 asciidoctor {
     languages 'en'
     resources {
@@ -28,7 +20,7 @@ asciidoctor {
     // the documents themselves - so to some degree it's pointless setting anything
     // at a document level. That said, IntelliJ IDEA doesn't know this, so it's
     // still kind of nice to have them at a document level so it doesn't complain!
-    attributes 'source-highlighter': 'pygments',
+    attributes 'source-highlighter': 'rouge',
             'toc': 'left',
             'icons': 'font',
             'xrefstyle': 'short',
@@ -37,5 +29,4 @@ asciidoctor {
     baseDirFollowsSourceFile()
 
     asciidoctorj.version = '2.4.3'
-    dependsOn asciidoctorGemsPrepare
 }
