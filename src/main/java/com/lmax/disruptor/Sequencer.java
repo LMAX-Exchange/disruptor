@@ -104,7 +104,7 @@ public interface Sequencer extends Cursored, Sequenced
      * <p>获取可以安全读取的环形缓冲区中的最高序列号。
      * 根据Sequencer的实现，此调用可能需要扫描Sequencer中的多个值。
      * 扫描范围从nextSequence到availableSequence。
-     * 如果没有可用值 >= nextSequence，则返回值将为 nextSequence - 1。
+     * 如果没有availableSequence>=nextSequence，则返回值将为 nextSequence - 1。
      * 为了正确工作，消费者应传递一个比最后成功处理的序列号高1的值。</p>
      *
      * @param nextSequence      The sequence to start scanning from.

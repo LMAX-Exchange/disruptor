@@ -50,7 +50,12 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     /**
      * Set to -1 as sequence starting point
      */
+    // nextValue 代表最近一次被发布者占有的序号（next），cursor 代表最近一次被发布者发布的序号（publish）
+    // 但是占有不一定意味着发布，即调用 next 后不一定立即调用 publish，即 cursor <= nextValue
+    // 每一次 next 都会更新 nextValue 值，但只有发布才会真正更新 cursor 的值
     long nextValue = Sequence.INITIAL_VALUE;
+    // cachedValue 是被缓存着的消费者的最小消费序号
+    // 它是一个懒更新的值
     long cachedValue = Sequence.INITIAL_VALUE;
 }
 
@@ -100,9 +105,11 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         return hasAvailableCapacity(requiredCapacity, false);
     }
 
+    // 在被 tryNext 调用时，会设置 doStore 为 true
+    // 在被 hasAvailableCapacity 调用时，会设置 doStore 为 false
     private boolean hasAvailableCapacity(final int requiredCapacity, final boolean doStore)
     {
-        // 获取下一个可发布的 Sequence
+        // 获取最近已经被申请占有了的序列号
         long nextValue = this.nextValue;
         // TODO 将整个数组看作是滑动窗口，则假设 nextValue 是窗口的右边界，它在向右滑动 requiredCapacity 个单位后的数组左边界对应的 sequence 值
         // 它代表了数组能维持的最旧的数据，如果消费者的最小序号小于这个值，说明此时无法直接滑动 requiredCapacity 个单位，即 unavailable
@@ -113,7 +120,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         if (wrapPoint > cachedGatingSequence // 说明生产者发布新事件后，会超过当前消费者的最小序列号
                 || cachedGatingSequence > nextValue) // 说明消费者的序号已经超过了生产者的序号，这通常不会发生
         {
-            // 如果需要更新 cursor 的值，那么就更新；即这次的 requiredCapacity 会被记录下来
+            // 如果需要更新 cursor 的值，那么就更新；
+            // 即记录 nextValue 及以前的所有 event 都是可以被消费的
             if (doStore)
             {
                 cursor.setVolatile(nextValue);  // StoreLoad fence
@@ -123,7 +131,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
             this.cachedValue = minSequence;
 
-            // 再次判断
+            // 再次判断滑动窗口的左边界是否 > 消费者的最小序号，即是否有足够的容量
             if (wrapPoint > minSequence)
             {
                 return false;
@@ -158,6 +166,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         }
 
         // 取到 nextValue，默认初始值为 -1
+        // 即取到最近已经被占有的 event 的序号（注意，占有不一定被发布）
         long nextValue = this.nextValue;
 
         // 计算得到下一个 Sequence，即需要返回的 sequence 值
@@ -174,6 +183,9 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
                 || cachedGatingSequence > nextValue)
         {
             // 更新 cursor 的值，这里会增加一个 StoreLoad fence
+            // 一般来说 cursor 的值变更会在 publish 的时候进行，但是这里会再次设置，可能就是为了 fence 而重复设置
+            // 注意：当前类是 single producer 的；所以不存在多线程的操作，只要 next 和 publish 方法是顺序调用的，这次的 set 方法就不会导致 cursor 变化
+            // TODO 即 next 方法和 publish 方法必须是顺序调用的！不能 next next publish publish，否则一旦第二次 next 的时候计算容量不足，就会导致直接设置 cursor 为第一次 next 的 Sequence（此时尚未真正 publish）
             cursor.setVolatile(nextValue);  // StoreLoad fence
 
             // 使用 minSequence 记录消费者的最小序号
@@ -187,8 +199,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             this.cachedValue = minSequence;
         }
 
+        // 不管如何，nextValue 的值一定会更新，但是 cursor 的值不一定
         this.nextValue = nextSequence;
-
         return nextSequence;
     }
 
@@ -213,6 +225,8 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         }
 
         // 注意，这里设置了 dbStore 为 true，即如果容量不够了，那么会更新 cursor 的值；并且如果容量不够，会抛异常
+        // tryNext 和 next 一样，都可能触发 cursor 的更新
+        // 但是 tryNext 会抛异常，而 next 会阻塞
         if (!hasAvailableCapacity(n, true))
         {
             throw InsufficientCapacityException.INSTANCE;
@@ -229,7 +243,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     @Override
     public long remainingCapacity()
     {
-        // 取到 nextValue，默认初始值为 -1；即最近一个已发布的 event 的序号
+        // 取到 nextValue，默认初始值为 -1；即最近一个已被发布者占有的序号（占有不一定意味着发布）
         long nextValue = this.nextValue;
         // 获取消费者消费序号中最小的一个
         long consumed = Util.getMinimumSequence(gatingSequences, nextValue);
