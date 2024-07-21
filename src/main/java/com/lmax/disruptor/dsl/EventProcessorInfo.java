@@ -24,13 +24,19 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Wrapper class to tie together a particular event processing stage</p>
  *
+ * <p>包装类，用于将特定事件处理阶段绑定在一起，类似于聚合根的概念</p>
+ *
  * <p><p>Tracks the event processor instance, the event handler instance, and sequence barrier which the stage is attached to.</p>
+ *
+ * <p>跟踪事件处理器实例、事件处理器实例和阶段附加到的序列屏障。</p>
  *
  */
 class EventProcessorInfo implements ConsumerInfo
 {
     private final EventProcessor eventprocessor;
     private final SequenceBarrier barrier;
+    // 记录是否处于消费链路的最后一个环节
+    // 一旦当前消费者被添加到了其他消费者的 barrier 中，说明当前消费者不是消费链路的最后一个环节
     private boolean endOfChain = true;
 
     EventProcessorInfo(final EventProcessor eventprocessor, final SequenceBarrier barrier)

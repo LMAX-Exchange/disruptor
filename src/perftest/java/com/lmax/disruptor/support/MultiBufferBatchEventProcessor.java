@@ -10,10 +10,12 @@ import com.lmax.disruptor.TimeoutException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// 这个应该是一个可以支持多个 RingBuffer 消费的 EventProcessor
 public class MultiBufferBatchEventProcessor<T>
     implements EventProcessor
 {
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
+    // 支持多个DataProvider，即多个RingBuffer
     private final DataProvider<T>[] providers;
     private final SequenceBarrier[] barriers;
     private final EventHandler<T> handler;
@@ -60,18 +62,23 @@ public class MultiBufferBatchEventProcessor<T>
         {
             try
             {
+                // 本质上是遍历 ringBuffer
                 for (int i = 0; i < barrierLength; i++)
                 {
+                    // 取到可消费的最大序列
                     long available = barriers[i].waitFor(-1);
+                    // 取到当前已消费的最大序列
                     Sequence sequence = sequences[i];
 
                     long nextSequence = sequence.get() + 1;
 
+                    // 遍历区间内的 sequence，从 ringBuffer 处取到数据并消费
                     for (long l = nextSequence; l <= available; l++)
                     {
                         handler.onEvent(providers[i].get(l), l, nextSequence == available);
                     }
 
+                    // 消费完了之后才会更新自己的已消费记录
                     sequence.set(available);
 
                     count += available - nextSequence + 1;

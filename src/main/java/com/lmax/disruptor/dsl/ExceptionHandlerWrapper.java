@@ -5,6 +5,9 @@ import com.lmax.disruptor.ExceptionHandlers;
 
 /**
  * A mutable exception handler wrapper
+ *
+ * <p>一个可变的 exception handler 的包装类</p>
+ *
  * @param <T> The data type of the underlying {@link com.lmax.disruptor.RingBuffer}
  */
 public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
@@ -13,6 +16,9 @@ public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
 
     /**
      * Switch to a different exception handler
+     *
+     * <p>切换到另一个 exception handler</p>
+     *
      * @param exceptionHandler the exception handler to use from now on
      */
     public void switchTo(final ExceptionHandler<? super T> exceptionHandler)

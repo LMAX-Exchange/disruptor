@@ -15,12 +15,18 @@
  */
 package com.lmax.disruptor;
 
-/** Provides static methods for accessing a default {@link ExceptionHandler} object. */
+/**
+ * Provides static methods for accessing a default {@link ExceptionHandler} object.
+ *
+ * <p>提供用于访问默认{@link ExceptionHandler}对象的静态方法。</p>
+ */
 public final class ExceptionHandlers
 {
 
     /**
      * Get a reference to the default {@link ExceptionHandler} instance.
+     *
+     * <p>获取对默认{@link ExceptionHandler}实例的引用。</p>
      *
      * @return a reference to the default {@link ExceptionHandler} instance
      */
@@ -36,6 +42,8 @@ public final class ExceptionHandlers
     // lazily initialize the default exception handler.
     // This nested object isn't strictly necessary unless additional utility functionality is
     // added to ExceptionHandlers, but it exists to ensure the code remains obvious.
+    // 懒初始化默认异常处理程序。
+    // 除非将其他实用程序功能添加到ExceptionHandlers，否则此嵌套对象并不是绝对必要的，但它确保代码保持明显。
     private static final class DefaultExceptionHandlerHolder
     {
         private static final ExceptionHandler<Object> HANDLER = new FatalExceptionHandler();

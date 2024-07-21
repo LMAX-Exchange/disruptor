@@ -18,10 +18,13 @@ package com.lmax.disruptor;
 
 public final class BatchEventProcessorBuilder
 {
+    // 注意它不是静态的
     private int maxBatchSize = Integer.MAX_VALUE;
 
     /**
      * Set the maximum number of events that will be processed in a batch before updating the sequence.
+     *
+     * <p>设置在更新序列之前将在批处理中处理的事件的最大数量。</p>
      *
      * @param maxBatchSize max number of events to process in one batch.
      * @return The builder
@@ -36,8 +39,12 @@ public final class BatchEventProcessorBuilder
      * Construct a {@link EventProcessor} that will automatically track the progress by updating its sequence when
      * the {@link EventHandler#onEvent(Object, long, boolean)} method returns.
      *
+     * <p>构造一个{@link EventProcessor}，当{@link EventHandler#onEvent(Object, long, boolean)}方法返回时，它将自动跟踪进度，通过更新其序列。</p>
+     *
      * <p>The created {@link BatchEventProcessor} will not support batch rewind,
      * but {@link EventHandler#setSequenceCallback(Sequence)} will be supported.
+     *
+     * <p>创建的{@link BatchEventProcessor}将不支持批量倒带，但将支持{@link EventHandler#setSequenceCallback(Sequence)}。</p>
      *
      * @param dataProvider    to which events are published.
      * @param sequenceBarrier on which it is waiting.
@@ -53,6 +60,8 @@ public final class BatchEventProcessorBuilder
         final BatchEventProcessor<T> processor = new BatchEventProcessor<>(
                 dataProvider, sequenceBarrier, eventHandler, maxBatchSize, null
         );
+        // 从 processor 中取出 sequence 对象，设置到 eventHandler 中
+        // 进而可以实现倒带
         eventHandler.setSequenceCallback(processor.getSequence());
 
         return processor;

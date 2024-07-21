@@ -18,15 +18,21 @@ package com.lmax.disruptor;
 /**
  * An aggregate collection of {@link EventHandler}s that get called in sequence for each event.
  *
+ * <p>一组{@link EventHandler}的集合，每个事件都会按顺序调用。</p>
+ *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  */
 public final class AggregateEventHandler<T>
     implements EventHandler<T>
 {
+    // 一组 EventHandler
+    // 如果 eventHandlers 中有 this，那么会导致死循环
     private final EventHandler<T>[] eventHandlers;
 
     /**
      * Construct an aggregate collection of {@link EventHandler}s to be called in sequence.
+     *
+     * <p>构造一个按顺序调用的{@link EventHandler}的集合。</p>
      *
      * @param eventHandlers to be called in sequence.
      */

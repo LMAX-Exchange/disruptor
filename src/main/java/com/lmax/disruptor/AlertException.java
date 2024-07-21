@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 /**
  * Used to alert {@link EventProcessor}s waiting at a {@link SequenceBarrier} of status changes.
  *
+ * <p>用于通知{@link EventProcessor}在{@link SequenceBarrier}上等待状态更改。</p>
+ *
  * <p>It does not fill in a stack trace for performance reasons.
  */
 @SuppressWarnings({"serial", "lgtm[java/non-sync-override]"})
@@ -37,6 +39,8 @@ public final class AlertException extends Exception
 
     /**
      * Overridden so the stack trace is not filled in for this exception for performance reasons.
+     *
+     * <p>重写以便出于性能原因不填充此异常的堆栈跟踪。</p>
      *
      * @return this instance.
      */

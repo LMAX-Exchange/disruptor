@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 /**
  * Callback interface to be implemented for processing events as they become available in the {@link RingBuffer}
  *
+ * <p>回调接口，用于在{@link RingBuffer}中的事件可用时进行处理</p>
+ *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler) if you want to handle exceptions propagated out of the handler.
  */
@@ -43,9 +45,15 @@ public interface EventHandler<T> extends EventHandlerBase<T>
      *  Used by the {@link BatchEventProcessor} to set a callback allowing the {@link EventHandler} to notify
      *  when it has finished consuming an event if this happens after the {@link EventHandler#onEvent(Object, long, boolean)} call.
      *
+     *  <p>由{@link BatchEventProcessor}使用，用于设置回调，允许{@link EventHandler}在消耗事件后通知
+     *  如果这发生在{@link EventHandler#onEvent(Object, long, boolean)}调用之后。</p>
+     *
      *  <p>Typically this would be used when the handler is performing some sort of batching operation such as writing to an IO
      *  device; after the operation has completed, the implementation should call {@link Sequence#set} to update the
      *  sequence and allow other processes that are dependent on this handler to progress.
+     *
+     *  <p>通常在处理程序执行某种批处理操作（例如写入IO设备）时使用此方法；
+     *  操作完成后，实现应调用{@link Sequence#set}来更新序列，并允许依赖于此处理程序的其他进程继续。</p>
      *
      * @param sequenceCallback callback on which to notify the {@link BatchEventProcessor} that the sequence has progressed.
      */

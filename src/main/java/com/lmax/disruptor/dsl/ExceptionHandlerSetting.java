@@ -25,6 +25,9 @@ import com.lmax.disruptor.ExceptionHandler;
  * For example:
  * <pre><code>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</code></pre>
  *
+ * <p>用作为特定事件处理程序设置异常处理程序的一部分的支持类。
+ * 例如：<pre><code>disruptorWizard.handleExceptionsIn(eventHandler).with(exceptionHandler);</code></pre></p>
+ *
  * @param <T> the type of event being handled.
  */
 public class ExceptionHandlerSetting<T>
@@ -36,6 +39,7 @@ public class ExceptionHandlerSetting<T>
         final EventHandlerIdentity handlerIdentity,
         final ConsumerRepository consumerRepository)
     {
+        // 一个 setting 对象，对应一个 eventHandlerIdentity
         this.handlerIdentity = handlerIdentity;
         this.consumerRepository = consumerRepository;
     }
@@ -48,10 +52,12 @@ public class ExceptionHandlerSetting<T>
     @SuppressWarnings("unchecked")
     public void with(final ExceptionHandler<? super T> exceptionHandler)
     {
+        // 根据成员变量 handlerIdentity 获取对应的 EventProcessor，进而设置 exceptionHandler
         final EventProcessor eventProcessor = consumerRepository.getEventProcessorFor(handlerIdentity);
         if (eventProcessor instanceof BatchEventProcessor)
         {
             ((BatchEventProcessor<T>) eventProcessor).setExceptionHandler(exceptionHandler);
+            // 获取 eventHandler 对应的 sequenceBarrier，然后 alert，即触发一个异常？可能是为了唤醒等待的线程
             consumerRepository.getBarrierFor(handlerIdentity).alert();
         }
         else

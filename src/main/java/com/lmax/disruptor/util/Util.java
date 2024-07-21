@@ -134,7 +134,7 @@ public final class Util
         mutex.wait(millis, (int) nanos);
         long t1 = System.nanoTime();
 
-        // 返回实际等待时间
+        // 返回剩余超时时间
         return timeoutNanos - (t1 - t0);
     }
 }

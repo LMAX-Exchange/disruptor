@@ -18,6 +18,9 @@ class LhsPadding
 
 class Value extends LhsPadding
 {
+    // value 定义在这里
+    // lhs 是 value 前面的填充
+    // rhs 是 value 后面的填充
     protected long value;
 }
 
@@ -38,12 +41,18 @@ class RhsPadding extends Value
  * the ring buffer and event processors.  Support a number
  * of concurrent operations including CAS and order writes.
  *
+ * <p>并发序列类，用于跟踪环形缓冲区和事件处理器的进度。
+ * 支持一些并发操作，包括CAS和有序写入。</p>
+ *
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
+ *
+ * <p>还尝试通过在 volatile 字段周围添加填充来提高对于伪共享的效率。</p>
  */
 public class Sequence extends RhsPadding
 {
     static final long INITIAL_VALUE = -1L;
+    // 作为对 value 值进行原子操作的 handle 对象
     private static final VarHandle VALUE_FIELD;
 
     static
@@ -61,6 +70,8 @@ public class Sequence extends RhsPadding
 
     /**
      * Create a sequence initialised to -1.
+     *
+     * <p>创建一个初始化为-1的序列。</p>
      */
     public Sequence()
     {
@@ -69,6 +80,8 @@ public class Sequence extends RhsPadding
 
     /**
      * Create a sequence with a specified initial value.
+     *
+     * <p>使用指定的初始值创建序列。</p>
      *
      * @param initialValue The initial value for this sequence.
      */
@@ -80,6 +93,8 @@ public class Sequence extends RhsPadding
 
     /**
      * Perform a volatile read of this sequence's value.
+     *
+     * <p>执行此序列值的 volatile 读取。</p>
      *
      * @return The current value of the sequence.
      */
@@ -94,6 +109,8 @@ public class Sequence extends RhsPadding
      * Perform an ordered write of this sequence.  The intent is
      * a Store/Store barrier between this write and any previous
      * store.
+     *
+     * <p>执行此序列的有序写入。意图是在此写入和任何先前的存储之间进行 Store/Store 屏障。</p>
      *
      * @param value The new value for the sequence.
      */

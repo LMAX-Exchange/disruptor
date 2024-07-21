@@ -10,7 +10,13 @@ import static com.lmax.disruptor.util.Util.awaitNanos;
  * {@link TimeoutException}.  To make use of this, the event handler class should override
  * {@link EventHandler#onTimeout(long)}, which the {@link BatchEventProcessor} will call if the timeout occurs.
  *
+ * <p>使用锁和条件变量的阻塞策略，用于在屏障上等待的{@link EventProcessor}。
+ * 但是，如果已经空闲了指定的时间段，它将定期唤醒，抛出{@link TimeoutException}。
+ * 要使用此功能，事件处理程序类应覆盖{@link EventHandler#onTimeout(long)}，{@link BatchEventProcessor}将在超时发生时调用它。</p>
+ *
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
+ *
+ * <p>当吞吐量和低延迟不像CPU资源那么重要时，可以使用此策略。</p>
  */
 public class TimeoutBlockingWaitStrategy implements WaitStrategy
 {

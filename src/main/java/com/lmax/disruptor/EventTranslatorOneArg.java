@@ -18,6 +18,8 @@ package com.lmax.disruptor;
 /**
  * Implementations translate another data representations into events claimed from the {@link RingBuffer}
  *
+ * <p>实现将另一个数据表示转换为从{@link RingBuffer}中声明的事件</p>
+ *
  * @param <T> event implementation storing the data for sharing during exchange or parallel coordination of an event.
  * @param <A> type first user specified argument to the translator.
  * @see EventTranslator

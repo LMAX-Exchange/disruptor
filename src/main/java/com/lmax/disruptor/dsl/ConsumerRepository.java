@@ -29,11 +29,15 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Provides a repository mechanism to associate {@link EventHandler}s with {@link EventProcessor}s
+ *
+ * <p>提供一个存储库机制，将{@link EventHandler}与{@link EventProcessor}关联起来</p>
  */
 class ConsumerRepository
 {
+    // key = eventHandler, value = eventProcessor+barrier
     private final Map<EventHandlerIdentity, EventProcessorInfo> eventProcessorInfoByEventHandler =
         new IdentityHashMap<>();
+    // key = sequence, value = eventProcessor+barrier
     private final Map<Sequence, ConsumerInfo> eventProcessorInfoBySequence =
         new IdentityHashMap<>();
     private final Collection<ConsumerInfo> consumerInfos = new ArrayList<>();
@@ -43,7 +47,9 @@ class ConsumerRepository
         final EventHandlerIdentity handlerIdentity,
         final SequenceBarrier barrier)
     {
+        // 将 processor 和 barrier 封装为一个 consumerInfo 对象
         final EventProcessorInfo consumerInfo = new EventProcessorInfo(eventprocessor, barrier);
+        // 缓存
         eventProcessorInfoByEventHandler.put(handlerIdentity, consumerInfo);
         eventProcessorInfoBySequence.put(eventprocessor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
@@ -52,12 +58,14 @@ class ConsumerRepository
     public void add(final EventProcessor processor)
     {
         final EventProcessorInfo consumerInfo = new EventProcessorInfo(processor, null);
+        // 这个方法不会添加 eventProcessorInfoByEventHandler
         eventProcessorInfoBySequence.put(processor.getSequence(), consumerInfo);
         consumerInfos.add(consumerInfo);
     }
 
     public void startAll(final ThreadFactory threadFactory)
     {
+        // 触发每个 Consumer 创建 thread 并启动的过程
         consumerInfos.forEach(c -> c.start(threadFactory));
     }
 
@@ -68,13 +76,17 @@ class ConsumerRepository
 
     public boolean hasBacklog(final long cursor, final boolean includeStopped)
     {
+        // 遍历每一个消费者
         for (ConsumerInfo consumerInfo : consumerInfos)
         {
-            if ((includeStopped || consumerInfo.isRunning()) && consumerInfo.isEndOfChain())
+            if ((includeStopped || consumerInfo.isRunning()) // 是否包含已停止的消费者
+                    && consumerInfo.isEndOfChain()) // 位于消费链路的最后一个环节
             {
+                // 获取位于链路最后一个环节的消费者的消费进度
                 final Sequence[] sequences = consumerInfo.getSequences();
                 for (Sequence sequence : sequences)
                 {
+                    // 如果 cursor > 消费进度，说明还有消息没有被消费
                     if (cursor > sequence.get())
                     {
                         return true;

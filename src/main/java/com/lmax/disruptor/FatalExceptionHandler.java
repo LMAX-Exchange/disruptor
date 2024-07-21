@@ -22,6 +22,8 @@ import java.lang.System.Logger.Level;
  * Convenience implementation of an exception handler that uses the standard JDK logging
  * of {@link System.Logger} to log the exception as {@link Level}.ERROR and re-throw
  * it wrapped in a {@link RuntimeException}
+ *
+ * <p>异常处理程序的便利实现，使用标准的JDK日志记录{@link System.Logger}将异常记录为{@link Level}.ERROR并将其重新抛出
  */
 public final class FatalExceptionHandler implements ExceptionHandler<Object>
 {

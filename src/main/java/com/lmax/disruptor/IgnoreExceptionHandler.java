@@ -21,6 +21,8 @@ import java.lang.System.Logger.Level;
 /**
  * Convenience implementation of an exception handler that uses the standard JDK logging
  * of {@link System.Logger} to log the exception as {@link Level}.INFO
+ *
+ * <p>异常处理程序的便利实现，使用标准的JDK日志记录{@link System.Logger}将异常记录为{@link Level}.INFO</p>
  */
 public final class IgnoreExceptionHandler implements ExceptionHandler<Object>
 {

@@ -21,6 +21,10 @@ package com.lmax.disruptor.util;
  * behaviours that are implemented in or anticipated to be spec'ed under the
  * {@link java.lang.Thread} class in some Java SE versions, but missing in prior
  * versions.
+ *
+ * <p>此类捕获了一些可能由某些运行时使用的提示，以提高代码性能。
+ * 它旨在捕获在某些Java SE版本中实现或预期在{@link java.lang.Thread}类下规范的提示行为，但在先前版本中缺失。</p>
+ *
  * @deprecated Use Thread.onSpinWait() directly. This class previously existed to accommodate
  * Java versions which do not have Thread.onSpinWait().
  */
@@ -38,6 +42,10 @@ public final class ThreadHints
      * invoking this method within each iteration of a spin-wait loop construct,
      * the calling thread indicates to the runtime that it is busy-waiting. The runtime
      * may take action to improve the performance of invoking spin-wait loop constructions.
+     *
+     * <p>指示调用者暂时无法继续，直到其他活动的一项或多项操作发生。
+     * 通过在自旋等待循环结构的每次迭代中调用此方法，调用线程向运行时指示它正在忙等待。
+     * 运行时可以采取行动来提高调用自旋等待循环结构的性能。</p>
      *
      * @deprecated Use Thread.onSpinWait() directly. This method previously existed to accommodate
      * Java versions which do not have Thread.onSpinWait().

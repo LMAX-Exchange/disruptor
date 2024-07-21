@@ -23,11 +23,17 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * A {@link Sequence} group that can dynamically have {@link Sequence}s added and removed while being
  * thread safe.
  *
+ * <p>一个{@link Sequence}组，可以在线程安全的情况下动态添加和删除{@link Sequence}。</p>
+ *
  * <p>The {@link SequenceGroup#get()} and {@link SequenceGroup#set(long)} methods are lock free and can be
  * concurrently be called with the {@link SequenceGroup#add(Sequence)} and {@link SequenceGroup#remove(Sequence)}.
+ *
+ * <p>{@link SequenceGroup#get()}和{@link SequenceGroup#set(long)}方法是无锁的，
+ * 可以与{@link SequenceGroup#add(Sequence)}和{@link SequenceGroup#remove(Sequence)}并发调用。</p>
  */
 public final class SequenceGroup extends Sequence
 {
+    // 针对 sequences 字段的原子更新器
     private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER =
         AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
     private volatile Sequence[] sequences = new Sequence[0];
@@ -54,6 +60,8 @@ public final class SequenceGroup extends Sequence
     /**
      * Set all {@link Sequence}s in the group to a given value.
      *
+     * <p>将组中的所有{@link Sequence}设置为给定值。</p>
+     *
      * @param value to set the group of sequences to.
      */
     @Override
@@ -69,6 +77,9 @@ public final class SequenceGroup extends Sequence
     /**
      * Add a {@link Sequence} into this aggregate.  This should only be used during
      * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
+     *
+     * <p>将{@link Sequence}添加到此聚合中。
+     * 这只应在初始化期间使用。
      *
      * @param sequence to be added to the aggregate.
      * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
@@ -91,6 +102,8 @@ public final class SequenceGroup extends Sequence
     /**
      * Remove the first occurrence of the {@link Sequence} from this aggregate.
      *
+     * <p>从此聚合中删除{@link Sequence}的第一个出现。</p>
+     *
      * @param sequence to be removed from this aggregate.
      * @return true if the sequence was removed otherwise false.
      */
@@ -101,6 +114,8 @@ public final class SequenceGroup extends Sequence
 
     /**
      * Get the size of the group.
+     *
+     * <p>获取组的大小。</p>
      *
      * @return the size of the group.
      */
@@ -113,6 +128,10 @@ public final class SequenceGroup extends Sequence
      * Adds a sequence to the sequence group after threads have started to publish to
      * the Disruptor.  It will set the sequences to cursor value of the ringBuffer
      * just after adding them.  This should prevent any nasty rewind/wrapping effects.
+     *
+     * <p>在线程开始发布到Disruptor之后，将序列添加到序列组。
+     * 它将在添加它们后将序列设置为ringBuffer的游标值。
+     * 这应该防止任何不良的倒带/包装效果。</p>
      *
      * @param cursored The data structure that the owner of this sequence group will
      *                 be pulling it's events from.

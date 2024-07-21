@@ -166,6 +166,7 @@ public class Disruptor<T>
     @SafeVarargs
     public final EventHandlerGroup<T> handleEventsWith(final EventHandler<? super T>... handlers)
     {
+        // 这里传入的是一个空数组，表示没有其他依赖的消费者；即消费者之间没有依赖
         return createEventProcessors(new Sequence[0], handlers);
     }
 
@@ -476,8 +477,12 @@ public class Disruptor<T>
      * <p>Waits until all events currently in the disruptor have been processed by all event processors
      * and then halts the processors.</p>
      *
+     * <p>等待所有当前在 disruptor 中的事件被所有事件处理器处理完毕，然后停止处理器。</p>
+     *
      * <p>This method will not shutdown the executor, nor will it await the final termination of the
      * processor threads.</p>
+     *
+     * <p>此方法不会关闭执行器，也不会等待处理器线程的最终终止。</p>
      *
      * @param timeout  the amount of time to wait for all events to be processed. <code>-1</code> will give an infinite timeout
      * @param timeUnit the unit the timeOut is specified in
@@ -485,15 +490,19 @@ public class Disruptor<T>
      */
     public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException
     {
+        // 计算等待时间
         final long timeOutAt = System.nanoTime() + timeUnit.toNanos(timeout);
+        // 循环等待消息均被消费
         while (hasBacklog())
         {
+            // 如果超时，抛出异常
             if (timeout >= 0 && System.nanoTime() > timeOutAt)
             {
                 throw TimeoutException.INSTANCE;
             }
             // Busy spin
         }
+        // 标记 consumer 暂停
         halt();
     }
 
@@ -566,6 +575,8 @@ public class Disruptor<T>
 
     /**
      * Confirms if all messages have been consumed by all event processors
+     *
+     * <p>确认所有消息是否已被所有事件处理器消耗</p>
      */
     private boolean hasBacklog()
     {
@@ -585,18 +596,23 @@ public class Disruptor<T>
     }
 
     EventHandlerGroup<T> createEventProcessors(
-            final Sequence[] barrierSequences,
+            final Sequence[] barrierSequences, // barrierSequences 代表当前消费者依赖的前置消费者对应的消费进度，即当前消费者的消费进度永远小于等于 barrierSequences 中的最小进度
             final EventHandler<? super T>[] eventHandlers)
     {
+        // 确认 disruptor 还没有启动
         checkNotStarted();
 
+        // 为消费者构造一个 processorSequences 数组
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
+        // 基于需要同步的 barrier 创建一个 SequenceBarrier（即为依赖的 sequence 们创建一个数组）
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
+        // 遍历每一个入参的消费者 handler
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
         {
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
+            // 封账为 BatchEventProcessor，代表实际作为线程的消费方法
             final BatchEventProcessor<T> batchEventProcessor =
                     new BatchEventProcessorBuilder().build(ringBuffer, barrier, eventHandler);
 
@@ -605,10 +621,13 @@ public class Disruptor<T>
                 batchEventProcessor.setExceptionHandler(exceptionHandler);
             }
 
+            // 将消费者信息放入 consumerRepository 中统一管理
             consumerRepository.add(batchEventProcessor, eventHandler, barrier);
+            // 将消费者对应的消费进度序列添加到数组中
             processorSequences[i] = batchEventProcessor.getSequence();
         }
 
+        // 更新 ringBuffer 中记录的 gatingSequences
         updateGatingSequencesForNextInChain(barrierSequences, processorSequences);
 
         return new EventHandlerGroup<>(this, consumerRepository, processorSequences);
@@ -647,6 +666,8 @@ public class Disruptor<T>
 
     private void updateGatingSequencesForNextInChain(final Sequence[] barrierSequences, final Sequence[] processorSequences)
     {
+        // 添加 processorSequences 到 ringBuffer 的 gatingSequences 中；即添加新增消费者对应的消费进度序列
+        // 移除 barrierSequences 从 ringBuffer 的 gatingSequences 中；即移除依赖的 sequence
         if (processorSequences.length > 0)
         {
             ringBuffer.addGatingSequences(processorSequences);
@@ -654,6 +675,7 @@ public class Disruptor<T>
             {
                 ringBuffer.removeGatingSequence(barrierSequence);
             }
+            // 取消标记 barrierSequences 作为某一消费链路的最后一个消费者
             consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
     }
