@@ -271,6 +271,8 @@ public class Disruptor<T>
     @Deprecated
     public void handleExceptionsWith(final ExceptionHandler<? super T> exceptionHandler)
     {
+        // 其他更新 exceptionHandler 的方法实现是通过 ExceptionHandlerWrapper 的 switchTo 方法，这里是直接更新了成员变量
+        // 因此在其他方法中都会检测是否是 ExceptionHandlerWrapper 的实例，如果是则不允许再次更新
         this.exceptionHandler = exceptionHandler;
     }
 

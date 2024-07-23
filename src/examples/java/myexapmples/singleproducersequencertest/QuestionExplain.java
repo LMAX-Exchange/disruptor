@@ -8,7 +8,6 @@ package myexapmples.singleproducersequencertest;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.examples.longevent.LongEvent;

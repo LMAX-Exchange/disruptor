@@ -76,6 +76,9 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
 
         // 否则，说明本次 waitFor 方法等待非常有效，那么会返回最新的 publish 的 event 对应的 sequence 值
         // 即返回最新可消费的消息的 sequence 值
+
+        // MultiProducerSequencer 之所以在 next 的时候更新 cursor 不会出问题，
+        // 就是因为这里通过 getHighestPublishedSequence 来计算结果的时候，MultiProducerSequencer 内部会额外判断一次 isAvailable 方法
         return sequencer.getHighestPublishedSequence(sequence, availableSequence);
     }
 
@@ -96,7 +99,7 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         // 设置警报状态，表示发生了异常
         alerted = true;
-        // 唤醒所有等待的线程
+        // 唤醒所有等待的线程，主要是调用这个方法的不一定是 barrier 对应的消费者线程
         waitStrategy.signalAllWhenBlocking();
     }
 

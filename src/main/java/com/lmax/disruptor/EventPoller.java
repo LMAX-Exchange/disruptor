@@ -191,6 +191,7 @@ public class EventPoller<T>
         final DataProvider<T> dataProvider,
         final Sequencer sequencer,
         // 这个 Sequence 是 new Sequence()，即一个新的 sequence，-1
+        // 代表 poller 的消费进度
         final Sequence sequence,
         final Sequence cursorSequence,
         final Sequence... gatingSequences)
