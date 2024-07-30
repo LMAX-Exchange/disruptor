@@ -521,22 +521,22 @@ public class RewindBatchEventProcessorTest
             }
 
             @Override
-            public boolean matchesSafely(final List<EventResult> item)
+            public boolean matchesSafely(final List<EventResult> eventResults)
             {
                 int index = 0;
                 for (final EventRangeExpectation range : ranges)
                 {
-                    for (long v = range.sequenceStart, end = range.sequenceEnd; v <= end; v++)
+                    for (long currentSequence = range.sequenceStart, end = range.sequenceEnd; currentSequence <= end; currentSequence++)
                     {
-                        final EventResult eventResult = item.get(index++);
-                        if (eventResult.sequence != v && eventResult.batchFinish != range.batchFinish)
+                        final EventResult eventResult = eventResults.get(index++);
+                        if (eventResult.sequence != currentSequence && eventResult.batchFinish != range.batchFinish)
                         {
                             return false;
                         }
                     }
                 }
 
-                return item.size() == index;
+                return eventResults.size() == index;
             }
         };
     }
