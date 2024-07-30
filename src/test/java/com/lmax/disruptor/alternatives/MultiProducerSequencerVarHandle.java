@@ -112,9 +112,9 @@ public final class MultiProducerSequencerVarHandle extends AbstractSequencer
      * @see Sequencer#next(int)
      */
     @Override
-    public long next(final int n)
+    public long next(final int numberOfEntities)
     {
-        if (n < 1 || n > bufferSize)
+        if (numberOfEntities < 1 || numberOfEntities > bufferSize)
         {
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
@@ -125,7 +125,7 @@ public final class MultiProducerSequencerVarHandle extends AbstractSequencer
         do
         {
             current = cursor.get();
-            next = current + n;
+            next = current + numberOfEntities;
 
             long wrapPoint = next - bufferSize;
             long cachedGatingSequence = gatingSequenceCache.get();
