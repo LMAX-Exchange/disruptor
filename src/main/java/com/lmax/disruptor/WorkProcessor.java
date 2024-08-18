@@ -91,6 +91,11 @@ public final class WorkProcessor<T>
         sequenceBarrier.alert();
     }
 
+    public void haltGracefully(){
+        running.set(false);
+        // Don't send a signal
+    }
+
     @Override
     public boolean isRunning()
     {
@@ -142,6 +147,10 @@ public final class WorkProcessor<T>
                     event = ringBuffer.get(nextSequence);
                     workHandler.onEvent(event);
                     processedSequence = true;
+                    if(!running.get()){
+                        sequenceBarrier.alert();
+                        sequenceBarrier.checkAlert();
+                    }
                 }
                 else
                 {
