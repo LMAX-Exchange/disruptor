@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OperationsPerInvocation;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -32,6 +33,7 @@ public class MultiProducerSingleConsumer
     private RingBuffer<SimpleEvent> ringBuffer;
     private Disruptor<SimpleEvent> disruptor;
     private static final int BIG_BUFFER = 1 << 22;
+    private static final int BATCH_SIZE = 100;
 
     @Setup
     public void setup(final Blackhole bh)
@@ -55,6 +57,21 @@ public class MultiProducerSingleConsumer
         SimpleEvent simpleEvent = ringBuffer.get(sequence);
         simpleEvent.setValue(0);
         ringBuffer.publish(sequence);
+    }
+
+    @Benchmark
+    @Threads(4)
+    @OperationsPerInvocation(BATCH_SIZE)
+    public void producingBatch()
+    {
+        long hi = ringBuffer.next(BATCH_SIZE);
+        long lo = hi - (BATCH_SIZE - 1);
+        for (long sequence = lo; sequence <= hi; sequence++)
+        {
+            SimpleEvent simpleEvent = ringBuffer.get(sequence);
+            simpleEvent.setValue(0);
+        }
+        ringBuffer.publish(lo, hi);
     }
 
     @TearDown
