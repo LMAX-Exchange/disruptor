@@ -1333,6 +1333,59 @@ Results can vary substantially across different JVM executions and the figures b
 </tr>
 </tbody>
 </table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Comparative throughput updated for modern hardware (in ops per sec)</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top" colspan="3">AMD EPYC 9374F – Linux 5.4.277 – OpenJDK 11.0.24</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">ABQ</p></th>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Disruptor 3</p></th>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Disruptor 4</p></th>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unicast: 1P – 1C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20,895,148</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">134,553,283</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">160,359,204</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pipeline: 1P – 3C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5,216,647</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">76,068,766</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">101,317,122</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sequencer: 3P – 1C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18,791,340</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16,010,759</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">29,726,516</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multicast: 1P – 3C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2,355,379</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">68,157,033</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70,018,204</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diamond: 1P – 3C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3,433,665</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">61,229,488</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">63,123,343</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect1">
@@ -1352,7 +1405,7 @@ Mean latency per hop for the Disruptor comes out at 52 nanoseconds compared to 3
 Profiling shows the use of locks and signalling via a condition variable are the main cause of latency for the ArrayBlockingQueue.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Comparative Latency in three stage pipeline</caption>
+<caption class="title">Table 4. Comparative Latency in three stage pipeline</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -1445,7 +1498,7 @@ As load increases on the Disruptor, latency remains almost flat until saturation
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2024-09-11 18:21:51 UTC
+Last updated 2024-09-13 18:40:29 UTC
 </div>
 </div>
 </body>
