@@ -472,6 +472,43 @@ h| Disruptor
 | 15,295,197
 |===
 
+.Comparative throughput updated for modern hardware (in ops per sec)
+[cols=4*,options="header"]
+|===
+|
+3+| AMD EPYC 9374F – Linux 5.4.277 – OpenJDK 11.0.24
+
+|
+h| ABQ
+h| Disruptor 3
+h| Disruptor 4
+
+| Unicast: 1P – 1C
+| 20,895,148
+| 134,553,283
+| 160,359,204
+
+| Pipeline: 1P – 3C
+| 5,216,647
+| 76,068,766
+| 101,317,122
+
+| Sequencer: 3P – 1C
+| 18,791,340
+| 16,010,759
+| 29,726,516
+
+| Multicast: 1P – 3C
+| 2,355,379
+| 68,157,033
+| 70,018,204
+
+| Diamond: 1P – 3C
+| 3,433,665
+| 61,229,488
+| 63,123,343
+|===
+
 == Latency Performance Testing
 To measure latency we take the three stage pipeline and generate events at less than saturation.
 This is achieved by waiting 1 microsecond after injecting an event before injecting the next and repeating 50 million times.
