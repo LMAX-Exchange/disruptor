@@ -156,12 +156,12 @@ public final class MultiProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        long next = getNextSequence(n);
+        long next = calculateNextSequence(n);
 
         return next;
     }
 
-    private long getNextSequence(final int n) throws InsufficientCapacityException
+    private long calculateNextSequence(final int n) throws InsufficientCapacityException
     {
         long current;
         long next;
