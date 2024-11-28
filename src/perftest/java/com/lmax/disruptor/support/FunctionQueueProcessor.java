@@ -18,18 +18,36 @@ package com.lmax.disruptor.support;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
-public final class FunctionQueueProcessor implements Runnable
+public abstract class AbstractQueueProcessor implements Runnable
+{
+    protected volatile boolean running;
+    protected long stepThreeCounter;
+    protected long sequence;
+    protected CountDownLatch latch;
+
+    public void reset(final CountDownLatch latch)
+    {
+        stepThreeCounter = 0L;
+        sequence = 0L;
+        this.latch = latch;
+    }
+
+    public void halt()
+    {
+        running = false;
+    }
+
+    @Override
+    public abstract void run();
+}
+
+public final class FunctionQueueProcessor extends AbstractQueueProcessor
 {
     private final FunctionStep functionStep;
     private final BlockingQueue<long[]> stepOneQueue;
     private final BlockingQueue<Long> stepTwoQueue;
     private final BlockingQueue<Long> stepThreeQueue;
     private final long count;
-
-    private volatile boolean running;
-    private long stepThreeCounter;
-    private long sequence;
-    private CountDownLatch latch;
 
     public FunctionQueueProcessor(
         final FunctionStep functionStep,
@@ -50,18 +68,6 @@ public final class FunctionQueueProcessor implements Runnable
         return stepThreeCounter;
     }
 
-    public void reset(final CountDownLatch latch)
-    {
-        stepThreeCounter = 0L;
-        sequence = 0L;
-        this.latch = latch;
-    }
-
-    public void halt()
-    {
-        running = false;
-    }
-
     @Override
     public void run()
     {
@@ -73,21 +79,14 @@ public final class FunctionQueueProcessor implements Runnable
                 switch (functionStep)
                 {
                     case ONE:
-                    {
                         long[] values = stepOneQueue.take();
                         stepTwoQueue.put(Long.valueOf(values[0] + values[1]));
                         break;
-                    }
-
                     case TWO:
-                    {
                         Long value = stepTwoQueue.take();
                         stepThreeQueue.put(Long.valueOf(value.longValue() + 3));
                         break;
-                    }
-
                     case THREE:
-                    {
                         Long value = stepThreeQueue.take();
                         long testValue = value.longValue();
                         if ((testValue & 4L) == 4L)
@@ -95,7 +94,6 @@ public final class FunctionQueueProcessor implements Runnable
                             ++stepThreeCounter;
                         }
                         break;
-                    }
                 }
 
                 if (null != latch && sequence++ == count)
