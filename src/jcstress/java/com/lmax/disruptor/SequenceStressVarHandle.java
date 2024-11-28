@@ -17,6 +17,11 @@ import static org.openjdk.jcstress.annotations.Expect.FORBIDDEN;
 
 public class SequenceStressVarHandle
 {
+    public static abstract class AbstractStressTest
+    {
+        protected SequenceVarHandle sequence = new SequenceVarHandle(0);
+    }
+
     /**
      * `SequenceVarHandle::incrementAndGet` is atomic and should never lose an update, even with multiple threads racing.
      */
@@ -24,10 +29,8 @@ public class SequenceStressVarHandle
     @Outcome(id = "1", expect = FORBIDDEN, desc = "One update lost.")
     @Outcome(id = "2", expect = ACCEPTABLE, desc = "Both updates.")
     @State
-    public static class IncrementAndGet
+    public static class IncrementAndGet extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void actor1()
         {
@@ -54,10 +57,8 @@ public class SequenceStressVarHandle
     @Outcome(id = {"true, false, 10", "false, true, 20"}, expect = ACCEPTABLE, desc = "Either updated.")
     @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
     @State
-    public static class CompareAndSet
+    public static class CompareAndSet extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void actor1(final ZZJ_Result r)
         {
@@ -85,10 +86,8 @@ public class SequenceStressVarHandle
     @Outcome(id = "20", expect = FORBIDDEN, desc = "One update lost.")
     @Outcome(id = "30", expect = ACCEPTABLE, desc = "Both updates.")
     @State
-    public static class AddAndGet
+    public static class AddAndGet extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void actor1()
         {
@@ -119,10 +118,8 @@ public class SequenceStressVarHandle
     @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
     @Ref("https://docs.oracle.com/javase/specs/jls/se11/html/jls-17.html#jls-17.7")
     @State
-    public static class LongFullSet
+    public static class LongFullSet extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void writer()
         {
@@ -146,10 +143,8 @@ public class SequenceStressVarHandle
     @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
     @Ref("https://docs.oracle.com/javase/specs/jls/se11/html/jls-17.html#jls-17.7")
     @State
-    public static class LongFullSetVolatile
+    public static class LongFullSetVolatile extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void writer()
         {
@@ -173,10 +168,8 @@ public class SequenceStressVarHandle
     @Outcome(expect = FORBIDDEN, desc = "Other cases are forbidden.")
     @Ref("https://docs.oracle.com/javase/specs/jls/se11/html/jls-17.html#jls-17.7")
     @State
-    public static class LongFullCompareAndSet
+    public static class LongFullCompareAndSet extends AbstractStressTest
     {
-        SequenceVarHandle sequence = new SequenceVarHandle(0);
-
         @Actor
         public void writer()
         {
@@ -190,7 +183,6 @@ public class SequenceStressVarHandle
         }
     }
 
-
     /**
      * In absence of synchronization, the order of independent reads is undefined.
      * In our case, the value in SequenceVarHandle is volatile which mandates the writes to the same
@@ -202,7 +194,7 @@ public class SequenceStressVarHandle
     @Outcome(id = "0, 1", expect = ACCEPTABLE, desc = "Doing first read early, not surprising.")
     @Outcome(id = "1, 0", expect = FORBIDDEN, desc = "Violates coherence.")
     @State
-    public static class SameVolatileRead
+    public static class SameVolatileRead extends AbstractStressTest
     {
         private final Holder h1 = new Holder();
         private final Holder h2 = h1;
@@ -229,7 +221,6 @@ public class SequenceStressVarHandle
         }
     }
 
-
     /**
      * The value field in SequenceVarHandle is volatile so we should never see an update to it without seeing the update to a
      * previously set value also.
@@ -243,7 +234,7 @@ public class SequenceStressVarHandle
     @Outcome(id = "0, 1", expect = ACCEPTABLE, desc = "Caught in the middle: $x is visible, $y is not.")
     @Outcome(id = "1, 0", expect = FORBIDDEN, desc = "Seeing $y, but not $x!")
     @State
-    public static class SetVolatileGuard
+    public static class SetVolatileGuard extends AbstractStressTest
     {
         long x = 0;
         SequenceVarHandle y = new SequenceVarHandle(0);
@@ -278,7 +269,7 @@ public class SequenceStressVarHandle
     @Outcome(id = "0, 1", expect = ACCEPTABLE, desc = "Caught in the middle: $x is visible, $y is not.")
     @Outcome(id = "1, 0", expect = FORBIDDEN, desc = "Seeing $y, but not $x!")
     @State
-    public static class SetGuard
+    public static class SetGuard extends AbstractStressTest
     {
         long x = 0;
         SequenceVarHandle y = new SequenceVarHandle(0);
@@ -298,7 +289,6 @@ public class SequenceStressVarHandle
         }
     }
 
-
     /**
      * Volatile setting will experience total ordering.
      */
@@ -306,7 +296,7 @@ public class SequenceStressVarHandle
     @Outcome(id = {"0, 1", "1, 0", "1, 1"}, expect = ACCEPTABLE, desc = "Trivial under sequential consistency")
     @Outcome(id = "0, 0", expect = FORBIDDEN, desc = "Violates sequential consistency")
     @State
-    public static class SetVolatileDekker
+    public static class SetVolatileDekker extends AbstractStressTest
     {
         SequenceVarHandle x = new SequenceVarHandle(0);
         SequenceVarHandle y = new SequenceVarHandle(0);
@@ -323,7 +313,6 @@ public class SequenceStressVarHandle
         {
             y.setVolatile(1);
             r.r2 = x.get();
-
         }
     }
 
@@ -334,7 +323,7 @@ public class SequenceStressVarHandle
     @Outcome(id = {"0, 1", "1, 0", "1, 1"}, expect = ACCEPTABLE, desc = "Trivial under sequential consistency")
     @Outcome(id = "0, 0", expect = ACCEPTABLE_INTERESTING, desc = "Violates sequential consistency")
     @State
-    public static class SetDekker
+    public static class SetDekker extends AbstractStressTest
     {
         SequenceVarHandle x = new SequenceVarHandle(0);
         SequenceVarHandle y = new SequenceVarHandle(0);
