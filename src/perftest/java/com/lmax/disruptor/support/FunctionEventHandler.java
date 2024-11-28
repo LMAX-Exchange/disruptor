@@ -50,24 +50,40 @@ public final class FunctionEventHandler implements EventHandler<FunctionEvent>
         switch (functionStep)
         {
             case ONE:
-                event.setStepOneResult(event.getOperandOne() + event.getOperandTwo());
+
+                handleStepOne(event);
                 break;
 
             case TWO:
-                event.setStepTwoResult(event.getStepOneResult() + 3L);
+                handleStepTwo(event);
                 break;
 
             case THREE:
-                if ((event.getStepTwoResult() & 4L) == 4L)
-                {
-                    stepThreeCounter.set(stepThreeCounter.get() + 1L);
-                }
+                handleStepThree(event);
                 break;
         }
 
         if (latch != null && count == sequence)
         {
             latch.countDown();
+        }
+    }
+
+    private void handleStepOne(final FunctionEvent event)
+    {
+        event.setStepOneResult(event.getOperandOne() + event.getOperandTwo());
+    }
+
+    private void handleStepTwo(final FunctionEvent event)
+    {
+        event.setStepTwoResult(event.getStepOneResult() + 3L);
+    }
+
+    private void handleStepThree(final FunctionEvent event)
+    {
+        if ((event.getStepTwoResult() & 4L) == 4L)
+        {
+            stepThreeCounter.set(stepThreeCounter.get() + 1L);
         }
     }
 }
