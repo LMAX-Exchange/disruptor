@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 
 public final class ValueMutationQueueProcessor implements Runnable
 {
+    private static final boolean RUNNING = true;
     private volatile boolean running;
     private long value;
     private long sequence;
@@ -57,7 +58,7 @@ public final class ValueMutationQueueProcessor implements Runnable
     @Override
     public void run()
     {
-        running = true;
+        running = RUNNING;
         while (true)
         {
             try
