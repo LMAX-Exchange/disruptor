@@ -517,7 +517,7 @@ We chose CPUs with an invariant TSC because older processors suffer from changin
 Intel Nehalem and later processors use an invariant TSC which can be accessed by the latest Oracle JVMs running on Ubuntu 11.04.
 No CPU binding has been employed for this test.
 For comparison we use the ArrayBlockingQueue once again.
-We could have used ConcurrentLinkedQueueviii which is likely to give better results but we want to use a bounded queue implementation to ensure producers do not outpace consumers by creating back pressure.
+We could have used ConcurrentLinkedQueue footnote:CLQ[ConcurrentLinkedQueue - http://download.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ConcurrentLinkedQueue.html] which is likely to give better results but we want to use a bounded queue implementation to ensure producers do not outpace consumers by creating back pressure.
 The results below are for 2.2Ghz Core i7-2720QM running Java 1.6.0_25 64-bit on Ubuntu 11.04.
 Mean latency per hop for the Disruptor comes out at 52 nanoseconds compared to 32,757 nanoseconds for ArrayBlockingQueue.
 Profiling shows the use of locks and signalling via a condition variable are the main cause of latency for the ArrayBlockingQueue.
