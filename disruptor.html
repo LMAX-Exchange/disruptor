@@ -1399,7 +1399,7 @@ We chose CPUs with an invariant TSC because older processors suffer from changin
 Intel Nehalem and later processors use an invariant TSC which can be accessed by the latest Oracle JVMs running on Ubuntu 11.04.
 No CPU binding has been employed for this test.
 For comparison we use the ArrayBlockingQueue once again.
-We could have used ConcurrentLinkedQueueviii which is likely to give better results but we want to use a bounded queue implementation to ensure producers do not outpace consumers by creating back pressure.
+We could have used ConcurrentLinkedQueue <sup class="footnote" id="_footnote_CLQ">[<a id="_footnoteref_8" class="footnote" href="#_footnotedef_8" title="View footnote.">8</a>]</sup> which is likely to give better results but we want to use a bounded queue implementation to ensure producers do not outpace consumers by creating back pressure.
 The results below are for 2.2Ghz Core i7-2720QM running Java 1.6.0_25 64-bit on Ubuntu 11.04.
 Mean latency per hop for the Disruptor comes out at 52 nanoseconds compared to 32,757 nanoseconds for ArrayBlockingQueue.
 Profiling shows the use of locks and signalling via a condition variable are the main cause of latency for the ArrayBlockingQueue.</p>
@@ -1494,11 +1494,14 @@ As load increases on the Disruptor, latency remains almost flat until saturation
 <div class="footnote" id="_footnotedef_7">
 <a href="#_footnoteref_7">7</a>. ArrayBlockingQueue - <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ArrayBlockingQueue.html" class="bare">https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/ArrayBlockingQueue.html</a>
 </div>
+<div class="footnote" id="_footnotedef_8">
+<a href="#_footnoteref_8">8</a>. ConcurrentLinkedQueue - <a href="http://download.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ConcurrentLinkedQueue.html" class="bare">http://download.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ConcurrentLinkedQueue.html</a>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2024-09-13 20:06:02 UTC
+Last updated 2025-02-16 11:03:29 UTC
 </div>
 </div>
 </body>
