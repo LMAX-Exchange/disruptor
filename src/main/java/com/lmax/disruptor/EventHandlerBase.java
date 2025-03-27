@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+@FunctionalInterface
 interface EventHandlerBase<T> extends EventHandlerIdentity
 {
     /**
