@@ -29,5 +29,5 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: jcstress-report-manual
+          name: jcstress-report-manual-${{ matrix.java }}
           path: build/reports/jcstress
