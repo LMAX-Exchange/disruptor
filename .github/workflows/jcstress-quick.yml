@@ -21,7 +21,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew jcstress -Pmode=quick
       - name: Archive artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: jcstress-report-quick
+          name: jcstress-report-quick-${{ matrix.java }}
           path: build/reports/jcstress
