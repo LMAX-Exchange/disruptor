@@ -107,7 +107,7 @@ public class RingBufferBenchmark
     {
         RingBufferUnsafe<Object> ringBufferUnsafe = new RingBufferUnsafe<>(
                 () -> new StubEvent(-1),
-                new SingleProducerSequencer(128, new DummyWaitStrategy()));
+                new SingleProducerSequencer(128, new DummyWaitStrategy(), new BlockingProducerWaitStrategy()));
     }
 
     @Benchmark
@@ -134,7 +134,7 @@ public class RingBufferBenchmark
     {
         RingBufferArray<Object> ringBufferVarHandle = new RingBufferArray<>(
                 () -> new StubEvent(-1),
-                new SingleProducerSequencer(128, new DummyWaitStrategy())
+                new SingleProducerSequencer(128, new DummyWaitStrategy(), new BlockingProducerWaitStrategy())
         );
     }
 

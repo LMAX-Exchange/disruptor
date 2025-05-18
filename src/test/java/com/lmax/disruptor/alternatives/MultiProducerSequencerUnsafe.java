@@ -17,6 +17,7 @@ package com.lmax.disruptor.alternatives;
 
 import com.lmax.disruptor.AbstractSequencer;
 import com.lmax.disruptor.InsufficientCapacityException;
+import com.lmax.disruptor.ProducerWaitStrategy;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.WaitStrategy;
@@ -55,9 +56,9 @@ public final class MultiProducerSequencerUnsafe extends AbstractSequencer
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
      */
-    public MultiProducerSequencerUnsafe(final int bufferSize, final WaitStrategy waitStrategy)
+    public MultiProducerSequencerUnsafe(final int bufferSize, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
-        super(bufferSize, waitStrategy);
+        super(bufferSize, waitStrategy, producerWaitStrategy);
         availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);

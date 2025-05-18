@@ -70,7 +70,7 @@ public class BatchingTest
     {
         Disruptor<LongEvent> d = new Disruptor<>(
                 LongEvent.FACTORY, 2048, DaemonThreadFactory.INSTANCE,
-                producerType, new SleepingWaitStrategy());
+                producerType, new SleepingWaitStrategy(), new BlockingProducerWaitStrategy());
 
         ParallelEventHandler handler1 = new ParallelEventHandler(1, 0);
         ParallelEventHandler handler2 = new ParallelEventHandler(1, 1);

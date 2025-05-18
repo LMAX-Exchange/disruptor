@@ -16,6 +16,7 @@
 package com.lmax.disruptor.alternatives;
 
 
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.Cursored;
 import com.lmax.disruptor.EventFactory;
@@ -30,6 +31,7 @@ import com.lmax.disruptor.EventTranslatorTwoArg;
 import com.lmax.disruptor.EventTranslatorVararg;
 import com.lmax.disruptor.InsufficientCapacityException;
 import com.lmax.disruptor.MultiProducerSequencer;
+import com.lmax.disruptor.ProducerWaitStrategy;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.Sequencer;
@@ -143,9 +145,10 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
     public static <E> RingBufferArray<E> createMultiProducer(
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
-        MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
+        MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy, producerWaitStrategy);
 
         return new RingBufferArray<>(factory, sequencer);
     }
@@ -162,7 +165,7 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
      */
     public static <E> RingBufferArray<E> createMultiProducer(final EventFactory<E> factory, final int bufferSize)
     {
-        return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy());
+        return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     /**
@@ -179,9 +182,10 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
     public static <E> RingBufferArray<E> createSingleProducer(
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
-        SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy, producerWaitStrategy);
 
         return new RingBufferArray<>(factory, sequencer);
     }
@@ -198,7 +202,7 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
      */
     public static <E> RingBufferArray<E> createSingleProducer(final EventFactory<E> factory, final int bufferSize)
     {
-        return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy());
+        return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     /**
@@ -216,14 +220,15 @@ public final class RingBufferArray<E> extends RingBufferFieldsArray<E> implement
         final ProducerType producerType,
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
         switch (producerType)
         {
             case SINGLE:
-                return createSingleProducer(factory, bufferSize, waitStrategy);
+                return createSingleProducer(factory, bufferSize, waitStrategy, producerWaitStrategy);
             case MULTI:
-                return createMultiProducer(factory, bufferSize, waitStrategy);
+                return createMultiProducer(factory, bufferSize, waitStrategy, producerWaitStrategy);
             default:
                 throw new IllegalStateException(producerType.toString());
         }

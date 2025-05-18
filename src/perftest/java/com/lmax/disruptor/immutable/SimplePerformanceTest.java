@@ -2,6 +2,7 @@ package com.lmax.disruptor.immutable;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
@@ -15,7 +16,7 @@ public class SimplePerformanceTest
 
     public SimplePerformanceTest()
     {
-        ringBuffer = RingBuffer.createSingleProducer(EventHolder.FACTORY, Constants.SIZE, new YieldingWaitStrategy());
+        ringBuffer = RingBuffer.createSingleProducer(EventHolder.FACTORY, Constants.SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
         eventHolderHandler = new EventHolderHandler(new SimpleEventHandler());
     }
 

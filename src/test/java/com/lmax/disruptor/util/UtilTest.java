@@ -18,8 +18,12 @@ package com.lmax.disruptor.util;
 import com.lmax.disruptor.Sequence;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class UtilTest
 {
@@ -70,5 +74,17 @@ public final class UtilTest
         assertEquals(1, Util.log2(3));
         assertEquals(10, Util.log2(1024));
         assertEquals(30, Util.log2(Integer.MAX_VALUE));
+    }
+
+    @Test
+    void shouldReturnTrueIfTimeoutIsExpired()
+    {
+        assertTrue(Util.isTimeoutExpired(System.nanoTime(), 0));
+    }
+
+    @Test
+    void shouldReturnFalseIfTimeoutIsNotExpired()
+    {
+        assertFalse(Util.isTimeoutExpired(System.nanoTime(), TimeUnit.SECONDS.toNanos(5)));
     }
 }

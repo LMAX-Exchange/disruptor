@@ -42,7 +42,8 @@ public class MultiProducerSingleConsumer
                 BIG_BUFFER,
                 DaemonThreadFactory.INSTANCE,
                 ProducerType.MULTI,
-                new BusySpinWaitStrategy());
+                new BusySpinWaitStrategy(),
+                new BlockingProducerWaitStrategy());
 
         disruptor.handleEventsWith(new SimpleEventHandler(bh));
 

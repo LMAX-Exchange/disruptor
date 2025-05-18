@@ -15,7 +15,7 @@ public class EventPollerTest
     public void shouldPollForEvents() throws Exception
     {
         final Sequence gatingSequence = new Sequence();
-        final SingleProducerSequencer sequencer = new SingleProducerSequencer(16, new BusySpinWaitStrategy());
+        final SingleProducerSequencer sequencer = new SingleProducerSequencer(16, new BusySpinWaitStrategy(), new BlockingProducerWaitStrategy());
         final EventPoller.Handler<Object> handler = (event, sequence, endOfBatch) -> false;
 
         final Object[] data = new Object[16];
@@ -48,7 +48,7 @@ public class EventPollerTest
 
         EventFactory<byte[]> factory = () -> new byte[1];
 
-        final RingBuffer<byte[]> ringBuffer = RingBuffer.createMultiProducer(factory, 4, new SleepingWaitStrategy());
+        final RingBuffer<byte[]> ringBuffer = RingBuffer.createMultiProducer(factory, 4, new SleepingWaitStrategy(), new BlockingProducerWaitStrategy());
 
         final EventPoller<byte[]> poller = ringBuffer.newPoller();
         ringBuffer.addGatingSequences(poller.getSequence());

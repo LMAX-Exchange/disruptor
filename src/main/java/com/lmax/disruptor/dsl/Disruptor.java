@@ -27,6 +27,7 @@ import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.EventTranslatorThreeArg;
 import com.lmax.disruptor.EventTranslatorTwoArg;
 import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.ProducerWaitStrategy;
 import com.lmax.disruptor.RewindableEventHandler;
 import com.lmax.disruptor.RewindableException;
 import com.lmax.disruptor.RingBuffer;
@@ -88,16 +89,18 @@ public class Disruptor<T>
      * @param threadFactory  a {@link ThreadFactory} to create threads for processors.
      * @param producerType   the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
+     * @param producerWaitStrategy the wait strategy to use for producer thread
      */
     public Disruptor(
             final EventFactory<T> eventFactory,
             final int ringBufferSize,
             final ThreadFactory threadFactory,
             final ProducerType producerType,
-            final WaitStrategy waitStrategy)
+            final WaitStrategy waitStrategy,
+            final ProducerWaitStrategy producerWaitStrategy)
     {
         this(
-            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy, producerWaitStrategy),
             threadFactory);
     }
 
@@ -284,6 +287,8 @@ public class Disruptor<T>
     /**
      * Publish an event to the ring buffer.
      *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
+     *
      * @param eventTranslator the translator that will load data into the event.
      */
     public void publishEvent(final EventTranslator<T> eventTranslator)
@@ -293,6 +298,8 @@ public class Disruptor<T>
 
     /**
      * Publish an event to the ring buffer.
+     *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
      *
      * @param <A>             Class of the user supplied argument.
      * @param eventTranslator the translator that will load data into the event.
@@ -306,6 +313,8 @@ public class Disruptor<T>
     /**
      * Publish a batch of events to the ring buffer.
      *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
+     *
      * @param <A>             Class of the user supplied argument.
      * @param eventTranslator the translator that will load data into the event.
      * @param arg             An array single arguments to load into the events. One Per event.
@@ -317,6 +326,8 @@ public class Disruptor<T>
 
     /**
      * Publish an event to the ring buffer.
+     *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
      *
      * @param <A>             Class of the user supplied argument.
      * @param <B>             Class of the user supplied argument.
@@ -331,6 +342,8 @@ public class Disruptor<T>
 
     /**
      * Publish an event to the ring buffer.
+     *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
      *
      * @param eventTranslator the translator that will load data into the event.
      * @param <A>             Class of the user supplied argument.

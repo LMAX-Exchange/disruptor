@@ -39,7 +39,8 @@ public class SingleProducerSingleConsumer
                 Constants.RINGBUFFER_SIZE,
                 DaemonThreadFactory.INSTANCE,
                 ProducerType.SINGLE,
-                new BusySpinWaitStrategy());
+                new BusySpinWaitStrategy(),
+                new BlockingProducerWaitStrategy());
 
         disruptor.handleEventsWith(new SimpleEventHandler(bh));
 

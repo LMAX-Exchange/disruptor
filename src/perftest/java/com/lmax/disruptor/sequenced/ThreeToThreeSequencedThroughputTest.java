@@ -16,6 +16,7 @@
 package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
@@ -89,7 +90,7 @@ public final class ThreeToThreeSequencedThroughputTest extends AbstractPerfTestD
     {
         for (int i = 0; i < NUM_PUBLISHERS; i++)
         {
-            buffers[i] = RingBuffer.createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+            buffers[i] = RingBuffer.createSingleProducer(FACTORY, BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
             barriers[i] = buffers[i].newBarrier();
             valuePublishers[i] = new LongArrayPublisher(
                 cyclicBarrier,

@@ -102,8 +102,8 @@ public class MultiProducerSequencerBenchmark
     @State(Scope.Group)
     public static class StateMultiProducerSequencerUnsafe
     {
-        Sequencer value1 = new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy());
-        Sequencer value2 = new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy());
+        Sequencer value1 = new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
+        Sequencer value2 = new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     @Benchmark
@@ -154,8 +154,8 @@ public class MultiProducerSequencerBenchmark
     @State(Scope.Group)
     public static class StateMultiProducerSequencerVarHandle
     {
-        Sequencer value1 = new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy());
-        Sequencer value2 = new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy());
+        Sequencer value1 = new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
+        Sequencer value2 = new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     @Benchmark

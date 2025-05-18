@@ -17,6 +17,7 @@ package com.lmax.disruptor.dsl;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
@@ -749,7 +750,8 @@ public class DisruptorTest
                 4,
                 executor,
                 ProducerType.SINGLE,
-                new BlockingWaitStrategy());
+                new BlockingWaitStrategy(),
+                new BlockingProducerWaitStrategy());
     }
 
     private void publishEvent() throws InterruptedException, BrokenBarrierException

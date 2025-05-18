@@ -16,6 +16,7 @@
 package com.lmax.disruptor.raw;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
@@ -80,7 +81,7 @@ public final class OneToOneRawBatchThroughputTest extends AbstractPerfTestDisrup
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy());
+    private final Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
     private final MyRunnable myRunnable = new MyRunnable(sequencer);
 
     {

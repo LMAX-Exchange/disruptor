@@ -74,7 +74,8 @@ public class LoggerInitializationStress
                 128,
                 Executors.defaultThreadFactory(),
                 ProducerType.MULTI,
-                new BlockingWaitStrategy());
+                new BlockingWaitStrategy(),
+                new BlockingProducerWaitStrategy());
         disruptor.setDefaultExceptionHandler(SimpleEventExceptionHandler.INSTANCE);
         disruptor.handleEventsWith(SimpleEventHandler.INSTANCE);
         disruptor.start();

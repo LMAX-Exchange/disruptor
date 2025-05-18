@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultiProducerSequencerTest
 {
-    private final Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+    private final Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
 
     @Test
     public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished() throws Exception

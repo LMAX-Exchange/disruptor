@@ -112,7 +112,7 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
 
         public HalfPaddedRingBufferWithNoisyNeighbour()
         {
-            super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy()));
+            super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy(), new BlockingProducerWaitStrategy()));
         }
     }
 
@@ -148,7 +148,7 @@ Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
 
         public PaddedRingBuffer()
         {
-            super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy()));
+            super(SimpleEvent::new, new SingleProducerSequencer(16, new BusySpinWaitStrategy(), new BlockingProducerWaitStrategy()));
         }
     }
 

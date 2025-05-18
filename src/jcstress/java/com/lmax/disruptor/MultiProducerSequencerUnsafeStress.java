@@ -14,7 +14,7 @@ public final class MultiProducerSequencerUnsafeStress
 {
     private static Sequencer createSequencer()
     {
-        return new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy());
+        return new MultiProducerSequencerUnsafe(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     @JCStressTest

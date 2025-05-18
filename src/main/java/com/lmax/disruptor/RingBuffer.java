@@ -117,6 +117,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param factory      used to create the events within the ring buffer.
      * @param bufferSize   number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @param producerWaitStrategy used by producer thread to wait for an available slot in the ring buffer
      * @return a constructed ring buffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      * @see MultiProducerSequencer
@@ -124,9 +125,10 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     public static <E> RingBuffer<E> createMultiProducer(
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
-        MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy);
+        MultiProducerSequencer sequencer = new MultiProducerSequencer(bufferSize, waitStrategy, producerWaitStrategy);
 
         return new RingBuffer<>(factory, sequencer);
     }
@@ -143,7 +145,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      */
     public static <E> RingBuffer<E> createMultiProducer(final EventFactory<E> factory, final int bufferSize)
     {
-        return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy());
+        return createMultiProducer(factory, bufferSize, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     /**
@@ -153,6 +155,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param factory      used to create the events within the ring buffer.
      * @param bufferSize   number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @param producerWaitStrategy used to determine how to wait for an available slot in the ring buffer for producer threads.
      * @return a constructed ring buffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      * @see SingleProducerSequencer
@@ -160,9 +163,10 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     public static <E> RingBuffer<E> createSingleProducer(
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
-        SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy, producerWaitStrategy);
 
         return new RingBuffer<>(factory, sequencer);
     }
@@ -179,7 +183,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      */
     public static <E> RingBuffer<E> createSingleProducer(final EventFactory<E> factory, final int bufferSize)
     {
-        return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy());
+        return createSingleProducer(factory, bufferSize, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     /**
@@ -190,6 +194,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param factory      used to create events within the ring buffer.
      * @param bufferSize   number of elements to create within the ring buffer.
      * @param waitStrategy used to determine how to wait for new elements to become available.
+     * @param producerWaitStrategy used to determine how to wait for an available slot in the ring buffer for producer threads
      * @return a constructed ring buffer.
      * @throws IllegalArgumentException if bufferSize is less than 1 or not a power of 2
      */
@@ -197,14 +202,15 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         final ProducerType producerType,
         final EventFactory<E> factory,
         final int bufferSize,
-        final WaitStrategy waitStrategy)
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
         switch (producerType)
         {
             case SINGLE:
-                return createSingleProducer(factory, bufferSize, waitStrategy);
+                return createSingleProducer(factory, bufferSize, waitStrategy, producerWaitStrategy);
             case MULTI:
-                return createMultiProducer(factory, bufferSize, waitStrategy);
+                return createMultiProducer(factory, bufferSize, waitStrategy, producerWaitStrategy);
             default:
                 throw new IllegalStateException(producerType.toString());
         }
@@ -244,6 +250,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * }
      * </pre>
      *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
+     *
      * @return The next sequence to publish to.
      * @see RingBuffer#publish(long)
      * @see RingBuffer#get(long)
@@ -257,6 +265,8 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     /**
      * The same functionality as {@link RingBuffer#next()}, but allows the caller to claim
      * the next n sequences.
+     *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
      *
      * @param n number of slots to claim
      * @return sequence number of the highest slot claimed
@@ -450,6 +460,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
 
     /**
      * @see com.lmax.disruptor.EventSink#publishEvent(com.lmax.disruptor.EventTranslator)
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
      */
     @Override
     public void publishEvent(final EventTranslator<E> translator)

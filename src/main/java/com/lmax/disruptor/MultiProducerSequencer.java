@@ -20,7 +20,6 @@ import com.lmax.disruptor.util.Util;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
-import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -48,10 +47,11 @@ public final class MultiProducerSequencer extends AbstractSequencer
      *
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
+     * @param producerWaitStrategy for producer threads to wait for an available slot in the ring buffer
      */
-    public MultiProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy)
+    public MultiProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
-        super(bufferSize, waitStrategy);
+        super(bufferSize, waitStrategy, producerWaitStrategy);
         availableBuffer = new int[bufferSize];
         Arrays.fill(availableBuffer, -1);
 
@@ -116,24 +116,24 @@ public final class MultiProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
 
-        long current = cursor.getAndAdd(n);
+        long current;
+        long next;
+        long startedAt = System.nanoTime();
 
-        long nextSequence = current + n;
-        long wrapPoint = nextSequence - bufferSize;
-        long cachedGatingSequence = gatingSequenceCache.get();
-
-        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
+        do
         {
-            long gatingSequence;
-            while (wrapPoint > (gatingSequence = Util.getMinimumSequence(gatingSequences, current)))
+            current = cursor.get();
+            next = current + n;
+
+            while (!hasAvailableCapacity(gatingSequences, n, current))
             {
-                LockSupport.parkNanos(1L); // TODO, should we spin based on the wait strategy?
+                producerWaitStrategy.await(startedAt);
             }
 
-            gatingSequenceCache.set(gatingSequence);
         }
+        while (!cursor.compareAndSet(current, next));
 
-        return nextSequence;
+        return next;
     }
 
     /**

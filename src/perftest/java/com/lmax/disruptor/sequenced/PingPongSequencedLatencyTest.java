@@ -17,6 +17,7 @@ package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
@@ -79,9 +80,9 @@ public final class PingPongSequencedLatencyTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> pingBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     private final RingBuffer<ValueEvent> pongBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
 
     private final SequenceBarrier pongBarrier = pongBuffer.newBarrier();
     private final Pinger pinger = new Pinger(pingBuffer, ITERATIONS, PAUSE_NANOS);

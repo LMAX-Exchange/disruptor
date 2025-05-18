@@ -10,7 +10,7 @@ public class SingleProducerSequencerTest
     @Test
     public void shouldNotUpdateCursorDuringHasAvailableCapacity() throws Exception
     {
-        SingleProducerSequencer sequencer = new SingleProducerSequencer(16, new BusySpinWaitStrategy());
+        SingleProducerSequencer sequencer = new SingleProducerSequencer(16, new BusySpinWaitStrategy(), new BlockingProducerWaitStrategy());
 
         for (int i = 0; i < 32; i++)
         {

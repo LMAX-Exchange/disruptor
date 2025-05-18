@@ -14,7 +14,7 @@ public final class MultiProducerSequencerVarHandleStress
 {
     private static Sequencer createSequencer()
     {
-        return new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy());
+        return new MultiProducerSequencerVarHandle(64, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
     }
 
     @JCStressTest

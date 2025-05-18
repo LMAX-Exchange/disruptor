@@ -3,6 +3,7 @@ package com.lmax.disruptor.offheap;
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.PerfTestContext;
@@ -32,7 +33,7 @@ public class OneToOneOnHeapThroughputTest extends AbstractPerfTestDisruptor
     private final RingBuffer<ByteBuffer> buffer =
         RingBuffer.createSingleProducer(
             SLICED_BUFFER ? SlicedBufferFactory.direct(BLOCK_SIZE, BUFFER_SIZE) : BufferFactory.direct(BLOCK_SIZE),
-            BUFFER_SIZE, waitStrategy);
+            BUFFER_SIZE, waitStrategy, new BlockingProducerWaitStrategy());
         private final ByteBufferHandler handler = new ByteBufferHandler();
     private final BatchEventProcessor<ByteBuffer> processor =
             new BatchEventProcessorBuilder().build(buffer, buffer.newBarrier(), handler);

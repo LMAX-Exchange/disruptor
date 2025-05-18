@@ -16,6 +16,7 @@
 package com.lmax.disruptor.sequenced;
 
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.EventPoller;
 import com.lmax.disruptor.EventPoller.PollState;
 import com.lmax.disruptor.PerfTestContext;
@@ -72,7 +73,7 @@ public final class OneToOneSequencedPollerThroughputTest extends AbstractPerfTes
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
 
     private final EventPoller<ValueEvent> poller = ringBuffer.newPoller();
     private final PollRunnable pollRunnable = new PollRunnable(poller);

@@ -18,6 +18,7 @@ package com.lmax.disruptor.sequenced;
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -108,7 +109,7 @@ public final class OneToThreeDiamondSequencedThroughputTest extends AbstractPerf
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FizzBuzzEvent> ringBuffer =
-        createSingleProducer(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(FizzBuzzEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
 
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 

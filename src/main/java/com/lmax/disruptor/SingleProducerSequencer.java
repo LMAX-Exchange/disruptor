@@ -20,7 +20,6 @@ import com.lmax.disruptor.util.Util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.LockSupport;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
@@ -33,17 +32,17 @@ abstract class SingleProducerSequencerPad extends AbstractSequencer
         p60, p61, p62, p63, p64, p65, p66, p67,
         p70, p71, p72, p73, p74, p75, p76, p77;
 
-    SingleProducerSequencerPad(final int bufferSize, final WaitStrategy waitStrategy)
+    SingleProducerSequencerPad(final int bufferSize, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
-        super(bufferSize, waitStrategy);
+        super(bufferSize, waitStrategy, producerWaitStrategy);
     }
 }
 
 abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 {
-    SingleProducerSequencerFields(final int bufferSize, final WaitStrategy waitStrategy)
+    SingleProducerSequencerFields(final int bufferSize, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
-        super(bufferSize, waitStrategy);
+        super(bufferSize, waitStrategy, producerWaitStrategy);
     }
 
     /**
@@ -77,10 +76,11 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
      *
      * @param bufferSize   the size of the buffer that this will sequence over.
      * @param waitStrategy for those waiting on sequences.
+     * @param producerWaitStrategy for producer thread to wait on it when the ring buffer has no available slot.
      */
-    public SingleProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy)
+    public SingleProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
-        super(bufferSize, waitStrategy);
+        super(bufferSize, waitStrategy, producerWaitStrategy);
     }
 
     /**
@@ -140,26 +140,14 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
 
-        long nextValue = this.nextValue;
+        long startedAt = System.nanoTime();
 
-        long nextSequence = nextValue + n;
-        long wrapPoint = nextSequence - bufferSize;
-        long cachedGatingSequence = this.cachedValue;
-
-        if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
+        while (!hasAvailableCapacity(n, true))
         {
-            cursor.setVolatile(nextValue);  // StoreLoad fence
-
-            long minSequence;
-            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
-            {
-                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
-            }
-
-            this.cachedValue = minSequence;
+            producerWaitStrategy.await(startedAt);
         }
 
-        this.nextValue = nextSequence;
+        long nextSequence = this.nextValue += n;
 
         return nextSequence;
     }

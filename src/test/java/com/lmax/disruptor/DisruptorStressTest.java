@@ -25,7 +25,7 @@ public class DisruptorStressTest
     {
         Disruptor<TestEvent> disruptor = new Disruptor<>(
                 TestEvent.FACTORY, 1 << 16, DaemonThreadFactory.INSTANCE,
-                ProducerType.MULTI, new BusySpinWaitStrategy());
+                ProducerType.MULTI, new BusySpinWaitStrategy(), new BlockingProducerWaitStrategy());
         RingBuffer<TestEvent> ringBuffer = disruptor.getRingBuffer();
         disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
 

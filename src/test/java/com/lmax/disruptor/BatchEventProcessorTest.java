@@ -201,7 +201,7 @@ public final class BatchEventProcessorTest
     public void shouldAlwaysHalt() throws InterruptedException
     {
         WaitStrategy waitStrategy = new BusySpinWaitStrategy();
-        final SingleProducerSequencer sequencer = new SingleProducerSequencer(8, waitStrategy);
+        final SingleProducerSequencer sequencer = new SingleProducerSequencer(8, waitStrategy, new BlockingProducerWaitStrategy());
         final ProcessingSequenceBarrier barrier = new ProcessingSequenceBarrier(
             sequencer, waitStrategy, new Sequence(-1), new Sequence[0]);
         DataProvider<Object> dp = sequence -> null;

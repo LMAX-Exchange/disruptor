@@ -1,6 +1,7 @@
 package com.lmax.disruptor.immutable;
 
 import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.SingleProducerSequencer;
 import com.lmax.disruptor.YieldingWaitStrategy;
 
@@ -13,7 +14,7 @@ public class CustomPerformanceTest
     public CustomPerformanceTest()
     {
         ringBuffer =
-                new CustomRingBuffer<>(new SingleProducerSequencer(Constants.SIZE, new YieldingWaitStrategy()));
+                new CustomRingBuffer<>(new SingleProducerSequencer(Constants.SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy()));
     }
 
     public void run()

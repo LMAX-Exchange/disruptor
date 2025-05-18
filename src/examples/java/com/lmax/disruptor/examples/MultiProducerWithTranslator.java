@@ -1,5 +1,6 @@
 package com.lmax.disruptor.examples;
 
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
@@ -69,7 +70,7 @@ public class MultiProducerWithTranslator
     {
         Disruptor<ObjectBox> disruptor = new Disruptor<>(
                 ObjectBox.FACTORY, RING_SIZE, DaemonThreadFactory.INSTANCE, ProducerType.MULTI,
-                new BlockingWaitStrategy());
+                new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
         disruptor.handleEventsWith(new Consumer()).then(new Consumer());
         final RingBuffer<ObjectBox> ringBuffer = disruptor.getRingBuffer();
         Publisher p = new Publisher();

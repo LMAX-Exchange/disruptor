@@ -26,7 +26,7 @@ plugins {
 }
 
 group = 'com.lmax'
-version = new Version(major: 4, minor: 0, revision: 0, snapshot: true)
+version = new Version(major: 5, minor: 0, revision: 0, snapshot: false)
 
 defaultTasks 'build'
 

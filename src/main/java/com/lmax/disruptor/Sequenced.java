@@ -32,6 +32,8 @@ public interface Sequenced
     /**
      * Claim the next event in sequence for publishing.
      *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
+     *
      * @return the claimed sequence value
      */
     long next();
@@ -49,8 +51,11 @@ public interface Sequenced
      * sequencer.publish(lo, hi);
      * </pre>
      *
+     * <p>Note that this method may throw {@link com.lmax.disruptor.RuntimeTimeoutException}, it depends on the producer wait strategy</p>
+     *
      * @param n the number of sequences to claim
      * @return the highest claimed sequence value
+     *
      */
     long next(int n);
 

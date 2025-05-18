@@ -18,6 +18,7 @@ package com.lmax.disruptor.sequenced;
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -97,7 +98,7 @@ public final class OneToThreePipelineSequencedThroughputTest extends AbstractPer
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<FunctionEvent> ringBuffer =
-        createSingleProducer(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(FunctionEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
 
     private final SequenceBarrier stepOneSequenceBarrier = ringBuffer.newBarrier();
     private final FunctionEventHandler stepOneFunctionHandler = new FunctionEventHandler(FunctionStep.ONE);

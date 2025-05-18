@@ -30,8 +30,8 @@ public class SequencerTest
     private static Stream<Arguments> sequencerGenerator()
     {
         return Stream.of(
-                arguments(newProducer(ProducerType.SINGLE, new BlockingWaitStrategy())),
-                arguments(newProducer(ProducerType.MULTI, new BlockingWaitStrategy()))
+                arguments(newProducer(ProducerType.SINGLE, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy())),
+                arguments(newProducer(ProducerType.MULTI, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy()))
         );
     }
 
@@ -40,14 +40,14 @@ public class SequencerTest
         return Stream.of(arguments(ProducerType.SINGLE), arguments(ProducerType.MULTI));
     }
 
-    private static Sequencer newProducer(final ProducerType producerType, final WaitStrategy waitStrategy)
+    private static Sequencer newProducer(final ProducerType producerType, final WaitStrategy waitStrategy, final ProducerWaitStrategy producerWaitStrategy)
     {
         switch (producerType)
         {
             case SINGLE:
-                return new SingleProducerSequencer(BUFFER_SIZE, waitStrategy);
+                return new SingleProducerSequencer(BUFFER_SIZE, waitStrategy, producerWaitStrategy);
             case MULTI:
-                return new MultiProducerSequencer(BUFFER_SIZE, waitStrategy);
+                return new MultiProducerSequencer(BUFFER_SIZE, waitStrategy, producerWaitStrategy);
             default:
                 throw new IllegalStateException(producerType.toString());
         }
@@ -56,7 +56,7 @@ public class SequencerTest
     @Test
     public void shouldThrowAssertionErrorIfTwoThreadsPublishToSingleProducer() throws InterruptedException
     {
-        Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new BlockingWaitStrategy());
+        Sequencer sequencer = new SingleProducerSequencer(BUFFER_SIZE, new BlockingWaitStrategy(), new BlockingProducerWaitStrategy());
         Thread otherThread  = new Thread(sequencer::next);
         otherThread.start();
         otherThread.join();
@@ -201,7 +201,7 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublish(final ProducerType producerType) throws Exception
     {
         final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
-        final Sequenced sequencer = newProducer(producerType, waitStrategy);
+        final Sequenced sequencer = newProducer(producerType, waitStrategy, new BlockingProducerWaitStrategy());
 
         sequencer.publish(sequencer.next());
 
@@ -213,7 +213,7 @@ public class SequencerTest
     public void shouldNotifyWaitStrategyOnPublishBatch(final ProducerType producerType) throws Exception
     {
         final DummyWaitStrategy waitStrategy = new DummyWaitStrategy();
-        final Sequenced sequencer = newProducer(producerType, waitStrategy);
+        final Sequenced sequencer = newProducer(producerType, waitStrategy, new BlockingProducerWaitStrategy());
 
         long next = sequencer.next(4);
         sequencer.publish(next - (4 - 1), next);

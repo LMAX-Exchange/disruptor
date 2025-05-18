@@ -18,6 +18,7 @@ package com.lmax.disruptor.sequenced;
 import com.lmax.disruptor.AbstractPerfTestDisruptor;
 import com.lmax.disruptor.BatchEventProcessor;
 import com.lmax.disruptor.BatchEventProcessorBuilder;
+import com.lmax.disruptor.BlockingProducerWaitStrategy;
 import com.lmax.disruptor.PerfTestContext;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SequenceBarrier;
@@ -74,7 +75,7 @@ public final class OneToOneSequencedBatchThroughputTest extends AbstractPerfTest
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private final RingBuffer<ValueEvent> ringBuffer =
-        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy());
+        createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, new YieldingWaitStrategy(), new BlockingProducerWaitStrategy());
     private final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
     private final ValueAdditionEventHandler handler = new ValueAdditionEventHandler();
     private final BatchEventProcessor<ValueEvent> batchEventProcessor =
