@@ -8,7 +8,12 @@ public interface ProducerWaitStrategy
 {
     /**
      *
-     * @param startedAtNanos Time in nanoseconds when a producer thread has tried to get the next available sequence for a first time
+     * @param claimedAt Time in nanoseconds when a producer thread has tried to get the next available sequence for a first time
      */
-    void await(long startedAtNanos);
+    void await(long claimedAt);
+
+    /**
+     * @return nanos when a producer thread claimed to get the next available sequence.
+     */
+    long getClaimedAtNanos();
 }

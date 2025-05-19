@@ -140,16 +140,14 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
 
-        long startedAt = System.nanoTime();
+        long claimedAt = producerWaitStrategy.getClaimedAtNanos();
 
         while (!hasAvailableCapacity(n, true))
         {
-            producerWaitStrategy.await(startedAt);
+            producerWaitStrategy.await(claimedAt);
         }
 
-        long nextSequence = this.nextValue += n;
-
-        return nextSequence;
+        return this.nextValue += n;
     }
 
     /**

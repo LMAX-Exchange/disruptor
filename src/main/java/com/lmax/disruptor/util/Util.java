@@ -121,14 +121,4 @@ public final class Util
         return timeoutNanos - (t1 - t0);
     }
 
-    /**
-     *
-     * @param startedAtNanos Time in nanos when a producer thread tried to get a next sequence for the ring buffer
-     * @param timeoutNanos The number of nanoseconds to wait for
-     * @return true if this timeout is expired
-     */
-    public static boolean isTimeoutExpired(final long startedAtNanos, final long timeoutNanos)
-    {
-        return (System.nanoTime() - startedAtNanos) >= timeoutNanos;
-    }
 }

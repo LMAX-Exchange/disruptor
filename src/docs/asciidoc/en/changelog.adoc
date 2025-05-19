@@ -4,6 +4,9 @@
 
 = Changelog
 
+== 5.0.0
+* `ProducerWaitStrategy` is now supported.
+
 == 4.0.0
 
 * Minimum Java version now 11

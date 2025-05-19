@@ -1,7 +1,5 @@
 package com.lmax.disruptor;
 
-import com.lmax.disruptor.util.Util;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -26,13 +24,22 @@ public final class TimeoutBlockingProducerWaitStrategy implements ProducerWaitSt
      * @see ProducerWaitStrategy#await(long)
      */
     @Override
-    public void await(final long startedAt)
+    public void await(final long claimedAt)
     {
-        if (Util.isTimeoutExpired(startedAt, timeoutInNanos))
+        LockSupport.parkNanos(1L);
+        if ((System.nanoTime() - claimedAt) >= timeoutInNanos)
         {
             throw new RuntimeTimeoutException("The ring buffer is full. Could not get a next sequence in the specified timeout " + timeoutInNanos + " nanoseconds");
         }
-        LockSupport.parkNanos(1L);
+    }
+
+    /**
+     * @see ProducerWaitStrategy#getClaimedAtNanos()
+     */
+    @Override
+    public long getClaimedAtNanos()
+    {
+        return System.nanoTime();
     }
 
 }

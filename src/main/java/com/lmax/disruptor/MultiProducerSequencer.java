@@ -118,7 +118,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
         long current;
         long next;
-        long startedAt = System.nanoTime();
+        long claimedAt = producerWaitStrategy.getClaimedAtNanos();
 
         do
         {
@@ -127,7 +127,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
             while (!hasAvailableCapacity(gatingSequences, n, current))
             {
-                producerWaitStrategy.await(startedAt);
+                producerWaitStrategy.await(claimedAt);
             }
 
         }
