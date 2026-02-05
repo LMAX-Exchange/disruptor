@@ -314,7 +314,8 @@ public class LongEventMain
             bufferSize,
             DaemonThreadFactory.INSTANCE,
             ProducerType.SINGLE, // <1>
-            new BlockingWaitStrategy() // <2>
+            new BlockingWaitStrategy(), // <2>
+            PhasedBackoffProducerWaitStrategy.withDefaults() // <3>
         );
         //.....
     }
@@ -322,6 +323,7 @@ public class LongEventMain
 ----
 <1> Use `ProducerType#SINGLE` to create a `SingleProducerSequencer`; use `ProducerType#MULTI` to create a `MultiProducerSequence`
 <2> Set the desired `WaitStrategy`
+<3> Set the desired `ProducerWaitStrategy` (for producers waiting on capacity)
 
 
 [#_single_vs_multiple_producers]
@@ -400,6 +402,30 @@ Like the `YieldingWaitStrategy`, it can be used in low-latency systems, but puts
 
 This wait strategy should only be used if the number of `EventHandler` threads is lower than the number of physical cores on the box, e.g. hyper-threading should be disabled.
 --
+
+[#_producer_wait_strategies]
+==== Producer Wait Strategies
+
+Producers also need to wait when the ring buffer is full. By default, producers will park briefly when capacity is not available.
+You can customize this behavior independently of the consumer `WaitStrategy`.
+
+- **ParkNanosProducerWaitStrategy** ->
+
+--
+Parks the producer thread for a short duration when capacity is unavailable.
+This is conservative on CPU usage and matches the historic behavior.
+--
+
+- **PhasedBackoffProducerWaitStrategy** ->
+
+--
+Spins, then yields, then parks. This can reduce tail latency during contention at the cost of higher CPU usage.
+--
+
+**When to use which**
+
+- Use `ParkNanosProducerWaitStrategy` when CPU conservation is more important than producer-side latency, or when you expect the ring buffer to be full only rarely.
+- Use `PhasedBackoffProducerWaitStrategy` when you expect frequent producer contention and want lower tail latency, and you can afford higher CPU usage.
 
 === Clearing Objects From the Ring Buffer
 

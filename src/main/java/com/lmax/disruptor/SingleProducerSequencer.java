@@ -20,7 +20,6 @@ import com.lmax.disruptor.util.Util;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.LockSupport;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
@@ -37,6 +36,14 @@ abstract class SingleProducerSequencerPad extends AbstractSequencer
     {
         super(bufferSize, waitStrategy);
     }
+
+    SingleProducerSequencerPad(
+        final int bufferSize,
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
+    {
+        super(bufferSize, waitStrategy, producerWaitStrategy);
+    }
 }
 
 abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
@@ -44,6 +51,14 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     SingleProducerSequencerFields(final int bufferSize, final WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
+    }
+
+    SingleProducerSequencerFields(
+        final int bufferSize,
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
+    {
+        super(bufferSize, waitStrategy, producerWaitStrategy);
     }
 
     /**
@@ -81,6 +96,21 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
     public SingleProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
+    }
+
+    /**
+     * Construct a Sequencer with the selected wait strategy and buffer size.
+     *
+     * @param bufferSize           the size of the buffer that this will sequence over.
+     * @param waitStrategy         for those waiting on sequences.
+     * @param producerWaitStrategy for producers waiting on capacity.
+     */
+    public SingleProducerSequencer(
+        final int bufferSize,
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
+    {
+        super(bufferSize, waitStrategy, producerWaitStrategy);
     }
 
     /**
@@ -151,10 +181,12 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             cursor.setVolatile(nextValue);  // StoreLoad fence
 
             long minSequence;
+            int idleCounter = 0;
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
-                LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
+                idleCounter = producerWaitStrategy.idle(idleCounter);
             }
+            producerWaitStrategy.reset();
 
             this.cachedValue = minSequence;
         }
