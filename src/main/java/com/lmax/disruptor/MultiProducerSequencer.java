@@ -20,7 +20,6 @@ import com.lmax.disruptor.util.Util;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
-import java.util.concurrent.locks.LockSupport;
 
 
 /**
@@ -52,6 +51,26 @@ public final class MultiProducerSequencer extends AbstractSequencer
     public MultiProducerSequencer(final int bufferSize, final WaitStrategy waitStrategy)
     {
         super(bufferSize, waitStrategy);
+        availableBuffer = new int[bufferSize];
+        Arrays.fill(availableBuffer, -1);
+
+        indexMask = bufferSize - 1;
+        indexShift = Util.log2(bufferSize);
+    }
+
+    /**
+     * Construct a Sequencer with the selected wait strategy and buffer size.
+     *
+     * @param bufferSize           the size of the buffer that this will sequence over.
+     * @param waitStrategy         for those waiting on sequences.
+     * @param producerWaitStrategy for producers waiting on capacity.
+     */
+    public MultiProducerSequencer(
+        final int bufferSize,
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
+    {
+        super(bufferSize, waitStrategy, producerWaitStrategy);
         availableBuffer = new int[bufferSize];
         Arrays.fill(availableBuffer, -1);
 
@@ -125,10 +144,12 @@ public final class MultiProducerSequencer extends AbstractSequencer
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
         {
             long gatingSequence;
+            int idleCounter = 0;
             while (wrapPoint > (gatingSequence = Util.getMinimumSequence(gatingSequences, current)))
             {
-                LockSupport.parkNanos(1L); // TODO, should we spin based on the wait strategy?
+                idleCounter = producerWaitStrategy.idle(idleCounter);
             }
+            producerWaitStrategy.reset();
 
             gatingSequenceCache.set(gatingSequence);
         }

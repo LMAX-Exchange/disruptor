@@ -33,6 +33,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.Sequence;
 import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.TimeoutException;
+import com.lmax.disruptor.ProducerWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.util.Util;
 
@@ -98,6 +99,29 @@ public class Disruptor<T>
     {
         this(
             RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy),
+            threadFactory);
+    }
+
+    /**
+     * Create a new Disruptor.
+     *
+     * @param eventFactory         the factory to create events in the ring buffer.
+     * @param ringBufferSize       the size of the ring buffer, must be power of 2.
+     * @param threadFactory        a {@link ThreadFactory} to create threads for processors.
+     * @param producerType         the claim strategy to use for the ring buffer.
+     * @param waitStrategy         the wait strategy to use for the ring buffer.
+     * @param producerWaitStrategy the wait strategy to use for producers waiting on capacity.
+     */
+    public Disruptor(
+            final EventFactory<T> eventFactory,
+            final int ringBufferSize,
+            final ThreadFactory threadFactory,
+            final ProducerType producerType,
+            final WaitStrategy waitStrategy,
+            final ProducerWaitStrategy producerWaitStrategy)
+    {
+        this(
+            RingBuffer.create(producerType, eventFactory, ringBufferSize, waitStrategy, producerWaitStrategy),
             threadFactory);
     }
 

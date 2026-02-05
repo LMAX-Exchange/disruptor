@@ -32,6 +32,7 @@ public abstract class AbstractSequencer implements Sequencer
 
     protected final int bufferSize;
     protected final WaitStrategy waitStrategy;
+    protected final ProducerWaitStrategy producerWaitStrategy;
     protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     protected volatile Sequence[] gatingSequences = new Sequence[0];
 
@@ -42,6 +43,21 @@ public abstract class AbstractSequencer implements Sequencer
      * @param waitStrategy The wait strategy used by this sequencer
      */
     public AbstractSequencer(final int bufferSize, final WaitStrategy waitStrategy)
+    {
+        this(bufferSize, waitStrategy, ParkNanosProducerWaitStrategy.INSTANCE);
+    }
+
+    /**
+     * Create with the specified buffer size, wait strategy, and producer wait strategy.
+     *
+     * @param bufferSize           The total number of entries, must be a positive power of 2.
+     * @param waitStrategy         The wait strategy used by this sequencer
+     * @param producerWaitStrategy The producer wait strategy for capacity waits
+     */
+    public AbstractSequencer(
+        final int bufferSize,
+        final WaitStrategy waitStrategy,
+        final ProducerWaitStrategy producerWaitStrategy)
     {
         if (bufferSize < 1)
         {
@@ -54,6 +70,7 @@ public abstract class AbstractSequencer implements Sequencer
 
         this.bufferSize = bufferSize;
         this.waitStrategy = waitStrategy;
+        this.producerWaitStrategy = producerWaitStrategy;
     }
 
     /**
@@ -129,6 +146,7 @@ public abstract class AbstractSequencer implements Sequencer
     {
         return "AbstractSequencer{" +
             "waitStrategy=" + waitStrategy +
+            ", producerWaitStrategy=" + producerWaitStrategy +
             ", cursor=" + cursor +
             ", gatingSequences=" + Arrays.toString(gatingSequences) +
             '}';
