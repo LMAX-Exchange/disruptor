@@ -175,7 +175,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
      * @param bufferSize number of elements to create within the ring buffer.
      * @return a constructed ring buffer.
      * @throws IllegalArgumentException if <code>bufferSize</code> is less than 1 or not a power of 2
-     * @see MultiProducerSequencer
+     * @see SingleProducerSequencer
      */
     public static <E> RingBuffer<E> createSingleProducer(final EventFactory<E> factory, final int bufferSize)
     {
@@ -943,7 +943,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         {
             throw new IllegalArgumentException(
                 "A batchSize of: " + batchSize +
-                    " with batchStatsAt of: " + batchStartsAt +
+                    " with batchStartsAt of: " + batchStartsAt +
                     " will overrun the available number of arguments: " + (arg0.length - batchStartsAt));
         }
     }
