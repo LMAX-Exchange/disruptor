@@ -616,23 +616,27 @@ public class DisruptorTest
     }
 
     @Test
-    public void shouldCompleteShutdownWithoutInvokingShutdownExceptionHandler()
+    @Timeout(value = 2000, unit = MILLISECONDS)
+    public void shouldShutdownDrainBacklogWithoutTimeoutException()
         throws Exception
     {
-        final AtomicReference<Throwable> exceptionHandled = new AtomicReference<>();
-        final ExceptionHandler<Object> exceptionHandler = new StubExceptionHandler(exceptionHandled);
-        final CountDownLatch latch = new CountDownLatch(1);
-        final EventHandler<TestEvent> eventHandler = new EventHandlerStub<>(latch);
-
-        disruptor.setDefaultExceptionHandler(exceptionHandler);
-        disruptor.handleEventsWith(eventHandler);
+        // no-arg shutdown() busy-spins until backlog clears; handleOnShutdownException
+        // was unreachable dead code because shutdown(-1, …) never throws TimeoutException.
+        final CountDownLatch eventProcessed = new CountDownLatch(1);
+        final DelayedEventHandler delayedEventHandler = createDelayedEventHandler();
+        disruptor.handleEventsWith(delayedEventHandler).then((event, sequence, endOfBatch) ->
+            eventProcessed.countDown());
 
         publishEvent();
-        assertThatCountDownLatchIsZero(latch);
 
-        disruptor.shutdown();
+        final Thread shutdownThread = new Thread(disruptor::shutdown);
+        shutdownThread.start();
 
-        assertNull(exceptionHandled.get());
+        delayedEventHandler.processEvent();
+
+        shutdownThread.join();
+
+        assertTrue(eventProcessed.await(0, MILLISECONDS));
     }
 
     @Test
