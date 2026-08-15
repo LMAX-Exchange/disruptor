@@ -56,6 +56,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -612,6 +613,26 @@ public class DisruptorTest
             //Then
             disruptor.shutdown(1, SECONDS);
         });
+    }
+
+    @Test
+    public void shouldCompleteShutdownWithoutInvokingShutdownExceptionHandler()
+        throws Exception
+    {
+        final AtomicReference<Throwable> exceptionHandled = new AtomicReference<>();
+        final ExceptionHandler<Object> exceptionHandler = new StubExceptionHandler(exceptionHandled);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final EventHandler<TestEvent> eventHandler = new EventHandlerStub<>(latch);
+
+        disruptor.setDefaultExceptionHandler(exceptionHandler);
+        disruptor.handleEventsWith(eventHandler);
+
+        publishEvent();
+        assertThatCountDownLatchIsZero(latch);
+
+        disruptor.shutdown();
+
+        assertNull(exceptionHandled.get());
     }
 
     @Test

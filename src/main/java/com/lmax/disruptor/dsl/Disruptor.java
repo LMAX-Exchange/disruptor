@@ -381,14 +381,11 @@ public class Disruptor<T>
      */
     public void shutdown()
     {
-        try
+        while (hasBacklog())
         {
-            shutdown(-1, TimeUnit.MILLISECONDS);
+            // Busy spin
         }
-        catch (final TimeoutException e)
-        {
-            exceptionHandler.handleOnShutdownException(e);
-        }
+        halt();
     }
 
     /**
