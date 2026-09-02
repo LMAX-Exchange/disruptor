@@ -137,7 +137,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (n < 1 || n > bufferSize)
         {
-            throw new IllegalArgumentException("n must be > 0 and < bufferSize");
+            throw new IllegalArgumentException("n must be > 0 and <= bufferSize");
         }
 
         long nextValue = this.nextValue;

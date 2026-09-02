@@ -901,7 +901,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         if (batchStartsAt < 0 || batchSize < 0)
         {
-            throw new IllegalArgumentException("Both batchStartsAt and batchSize must be positive but got: batchStartsAt " + batchStartsAt + " and batchSize " + batchSize);
+            throw new IllegalArgumentException("Both batchStartsAt and batchSize must not be negative but got: batchStartsAt " + batchStartsAt + " and batchSize " + batchSize);
         }
         else if (batchSize > bufferSize)
         {

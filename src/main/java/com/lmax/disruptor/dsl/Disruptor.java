@@ -73,7 +73,7 @@ public class Disruptor<T>
      *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
-     * @param threadFactory  a {@link ThreadFactory} to create threads to for processors.
+     * @param threadFactory  a {@link ThreadFactory} to create threads for processors.
      */
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize, final ThreadFactory threadFactory)
     {

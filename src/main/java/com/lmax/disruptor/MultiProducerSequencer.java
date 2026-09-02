@@ -113,7 +113,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     {
         if (n < 1 || n > bufferSize)
         {
-            throw new IllegalArgumentException("n must be > 0 and < bufferSize");
+            throw new IllegalArgumentException("n must be > 0 and <= bufferSize");
         }
 
         long current = cursor.getAndAdd(n);

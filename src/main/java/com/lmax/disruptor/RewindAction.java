@@ -6,7 +6,7 @@ package com.lmax.disruptor;
 public enum RewindAction
 {
     /**
-     * Rewind and replay the whole batch from  he beginning
+     * Rewind and replay the whole batch from the beginning
      */
     REWIND,
 

@@ -35,7 +35,7 @@ public class ExceptionHandlerWrapper<T> implements ExceptionHandler<T>
     @Override
     public void handleOnShutdownException(final Throwable ex)
     {
-        getExceptionHandler() .handleOnShutdownException(ex);
+        getExceptionHandler().handleOnShutdownException(ex);
     }
 
     private ExceptionHandler<? super T> getExceptionHandler()
