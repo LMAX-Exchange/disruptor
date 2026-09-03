@@ -23,9 +23,18 @@ public interface Sequenced
     boolean hasAvailableCapacity(int requiredCapacity);
 
     /**
-     * Get the remaining capacity for this sequencer.
+     * Get an estimate of the remaining capacity for this sequencer.
      *
-     * @return The number of slots remaining.
+     * <p>This is a concurrent operation and the result is only an indication of the
+     * available capacity. It is not an atomic snapshot and may be stale by the time
+     * it is returned. With multiple producers, sequences may be reserved before they
+     * are published, so the result may be negative while producers are contending for
+     * a full buffer.
+     *
+     * <p>Use {@link #hasAvailableCapacity(int)} or {@link #tryNext()} when making
+     * capacity decisions that must be correct.
+     *
+     * @return an estimate of the number of slots remaining
      */
     long remainingCapacity();
 
