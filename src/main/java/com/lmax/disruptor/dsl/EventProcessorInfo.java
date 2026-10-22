@@ -32,6 +32,7 @@ class EventProcessorInfo implements ConsumerInfo
     private final EventProcessor eventprocessor;
     private final SequenceBarrier barrier;
     private boolean endOfChain = true;
+    private volatile Thread thread;
 
     EventProcessorInfo(final EventProcessor eventprocessor, final SequenceBarrier barrier)
     {
@@ -71,6 +72,7 @@ class EventProcessorInfo implements ConsumerInfo
             throw new RuntimeException("Failed to create thread to run: " + eventprocessor);
         }
 
+        this.thread = thread;
         thread.start();
     }
 
@@ -92,6 +94,8 @@ class EventProcessorInfo implements ConsumerInfo
     @Override
     public boolean isRunning()
     {
-        return eventprocessor.isRunning();
+        // A started thread may not have entered EventProcessor.run() yet.
+        final Thread consumerThread = thread;
+        return eventprocessor.isRunning() || (consumerThread != null && consumerThread.isAlive());
     }
 }

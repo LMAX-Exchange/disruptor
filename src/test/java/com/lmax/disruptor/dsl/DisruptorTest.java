@@ -35,6 +35,7 @@ import com.lmax.disruptor.dsl.stubs.StubExceptionHandler;
 import com.lmax.disruptor.dsl.stubs.StubPublisher;
 import com.lmax.disruptor.dsl.stubs.StubThreadFactory;
 import com.lmax.disruptor.support.DummyEventHandler;
+import com.lmax.disruptor.support.DummyEventProcessor;
 import com.lmax.disruptor.support.TestEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,7 @@ import java.util.Collection;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
@@ -612,6 +614,105 @@ public class DisruptorTest
             //Then
             disruptor.shutdown(1, SECONDS);
         });
+    }
+
+    @Test
+    public void shouldWaitForConsumerThreadToStartProcessingBeforeShutdown() throws Exception
+    {
+        assertShutdownWaitsForConsumerStart(false);
+    }
+
+    @Test
+    public void shouldWaitForDependentConsumerThreadToStartProcessingBeforeShutdown() throws Exception
+    {
+        assertShutdownWaitsForConsumerStart(true);
+    }
+
+    private void assertShutdownWaitsForConsumerStart(final boolean dependent) throws Exception
+    {
+        final CountDownLatch allowConsumerStart = new CountDownLatch(1);
+        final CountDownLatch firstConsumerProcessed = new CountDownLatch(1);
+        final AtomicInteger threadIndex = new AtomicInteger();
+        final AtomicInteger processed = new AtomicInteger();
+        disruptor = new Disruptor<>(TestEvent.EVENT_FACTORY, 4, command ->
+        {
+            final boolean delay = !dependent || threadIndex.getAndIncrement() == 1;
+            return executor.newThread(() ->
+            {
+                try
+                {
+                    if (delay)
+                    {
+                        allowConsumerStart.await();
+                    }
+                    command.run();
+                }
+                catch (InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        });
+        final EventHandler<TestEvent> handler = (event, sequence, endOfBatch) -> processed.incrementAndGet();
+        if (dependent)
+        {
+            disruptor.handleEventsWith((event, sequence, endOfBatch) -> firstConsumerProcessed.countDown())
+                .then(handler);
+        }
+        else
+        {
+            disruptor.handleEventsWith(handler);
+        }
+
+        try
+        {
+            disruptor.start();
+            disruptor.publishEvent((event, sequence) ->
+            {
+            });
+            if (dependent)
+            {
+                assertTrue(firstConsumerProcessed.await(5, SECONDS));
+            }
+            assertThrows(TimeoutException.class, () -> disruptor.shutdown(0, SECONDS));
+
+            allowConsumerStart.countDown();
+            disruptor.shutdown(5, SECONDS);
+            assertEquals(1, processed.get());
+        }
+        finally
+        {
+            allowConsumerStart.countDown();
+        }
+    }
+
+    @Test
+    public void shouldIgnoreTerminatedConsumerDuringShutdown() throws Exception
+    {
+        final AtomicReference<Thread> consumerThread = new AtomicReference<>();
+        disruptor = new Disruptor<>(TestEvent.EVENT_FACTORY, 4, command ->
+        {
+            final Thread thread = executor.newThread(command);
+            consumerThread.set(thread);
+            return thread;
+        });
+        disruptor.handleEventsWith(new DummyEventProcessor()
+        {
+            @Override
+            public void run()
+            {
+                super.run();
+                halt();
+            }
+        });
+        disruptor.start();
+        consumerThread.get().join(5000);
+        assertFalse(consumerThread.get().isAlive());
+        disruptor.publishEvent((event, sequence) ->
+        {
+        });
+
+        disruptor.shutdown(0, SECONDS);
     }
 
     @Test
