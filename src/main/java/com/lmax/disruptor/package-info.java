@@ -100,61 +100,79 @@
  * }</pre>
  *
  * <h2>Code Example</h2>
+ *
+ * <p>This complete example publishes one value, waits for it to be processed, and stops the processor.
+ *
  * <pre>{@code
- * // Event holder for data to be exchanged
- * public final class ValueEvent
+ * import com.lmax.disruptor.BatchEventProcessor;
+ * import com.lmax.disruptor.BatchEventProcessorBuilder;
+ * import com.lmax.disruptor.EventHandler;
+ * import com.lmax.disruptor.RingBuffer;
+ * import com.lmax.disruptor.SequenceBarrier;
+ * import com.lmax.disruptor.SleepingWaitStrategy;
+ *
+ * import java.util.concurrent.CountDownLatch;
+ *
+ * public class DisruptorExample
  * {
- *     private long value;
- *
- *     public long getValue()
+ *     public static final class ValueEvent
  *     {
- *         return value;
- *     }
+ *         private long value;
  *
- *     public void setValue(final long value)
- *     {
- *         this.value = value;
- *     }
- *
- *     public final static EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>()
- *     {
- *         public ValueEvent newInstance()
+ *         public long getValue()
  *         {
- *             return new ValueEvent();
+ *             return value;
  *         }
- *     };
- * }
  *
- * // Callback handler which can be implemented by EventProcessors
- * final EventHandler<ValueEvent> eventHandler = new EventHandler<ValueEvent>()
- * {
- *     public void onEvent(final ValueEvent event, final long sequence, final boolean endOfBatch)
- *         throws Exception
- *     {
- *         // process a new event as it becomes available.
+ *         public void setValue(final long value)
+ *         {
+ *             this.value = value;
+ *         }
  *     }
- * };
  *
- * RingBuffer<ValueEvent> ringBuffer =
- *     new RingBuffer<ValueEvent>(ValueEvent.EVENT_FACTORY,
- *                                new SingleThreadedClaimStrategy(BUFFER_SIZE),
- *                                new SleepingWaitStrategy());
+ *     public static void main(final String[] args) throws InterruptedException
+ *     {
+ *         final int bufferSize = 1024;
+ *         final CountDownLatch processed = new CountDownLatch(1);
+ *         final EventHandler<ValueEvent> eventHandler = (event, sequence, endOfBatch) ->
+ *         {
+ *             System.out.println(event.getValue());
+ *             processed.countDown();
+ *         };
  *
- * SequenceBarrier<ValueEvent> sequenceBarrier = ringBuffer.newBarrier();
- * BatchEventProcessor<ValueEvent> batchProcessor = new BatchEventProcessor<ValueEvent>(sequenceBarrier, eventHandler);
- * ringBuffer.setGatingSequences(batchProcessor.getSequence());
+ *         final RingBuffer<ValueEvent> ringBuffer =
+ *             RingBuffer.createSingleProducer(ValueEvent::new, bufferSize, new SleepingWaitStrategy());
+ *         final SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+ *         final BatchEventProcessor<ValueEvent> batchProcessor =
+ *             new BatchEventProcessorBuilder().build(ringBuffer, sequenceBarrier, eventHandler);
+ *         ringBuffer.addGatingSequences(batchProcessor.getSequence());
  *
- * // Each processor runs on a separate thread
- * EXECUTOR.submit(batchProcessor);
+ *         // Each processor runs on a separate thread.
+ *         final Thread processorThread = new Thread(batchProcessor);
+ *         processorThread.start();
+ *         try
+ *         {
+ *             // Publishers claim events in sequence and always publish the claimed slot.
+ *             final long sequence = ringBuffer.next();
+ *             try
+ *             {
+ *                 ringBuffer.get(sequence).setValue(1234);
+ *             }
+ *             finally
+ *             {
+ *                 ringBuffer.publish(sequence);
+ *             }
  *
- * // Publishers claim events in sequence
- * long sequence = ringBuffer.next();
- * ValueEvent event = ringBuffer.get(sequence);
- *
- * event.setValue(1234);
- *
- * // publish the event so it is available to EventProcessors
- * ringBuffer.publish(sequence);
+ *             // Wait for the event before stopping its processor.
+ *             processed.await();
+ *         }
+ *         finally
+ *         {
+ *             batchProcessor.halt();
+ *             processorThread.join();
+ *         }
+ *     }
+ * }
  * }</pre>
  */
 package com.lmax.disruptor;
