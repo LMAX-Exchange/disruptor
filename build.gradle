@@ -21,7 +21,7 @@ plugins {
     id 'idea'
     id "io.github.reyerizo.gradle.jcstress" version "1.0.0"
     id 'org.asciidoctor.jvm.convert' version '4.0.5'
-    id "me.champeau.jmh" version "0.6.8"
+    id "me.champeau.jmh" version "0.7.4"
     id "biz.aQute.bnd.builder" version "6.3.1"
 }
 
