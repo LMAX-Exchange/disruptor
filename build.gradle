@@ -45,17 +45,21 @@ apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
 apply from: 'gradle/jcstress.gradle'
 
-wrapper.gradleVersion = '7.6'
+wrapper.gradleVersion = '9.9.0'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:10.4'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
