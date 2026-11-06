@@ -22,7 +22,7 @@ plugins {
     id "io.github.reyerizo.gradle.jcstress" version "1.0.0"
     id 'org.asciidoctor.jvm.convert' version '4.0.5'
     id "me.champeau.jmh" version "0.7.4"
-    id "biz.aQute.bnd.builder" version "6.3.1"
+    id "biz.aQute.bnd.builder" version "7.4.0"
 }
 
 group = 'com.lmax'
@@ -94,16 +94,18 @@ javadoc {
 jar {
     manifest.attributes('Built-By': System.properties.get('user.name'),
             'Automatic-Module-Name': moduleName)
-    bnd(
-            '-exportcontents': 'com.lmax.disruptor.*;-noimport:=true',
-            '-noimportjava': 'true',
-            'Import-Package': '!*',
-            'Bundle-Name': fullName,
-            'Bundle-Vendor': teamName,
-            'Bundle-Description': fullDescription,
-            'Bundle-DocURL': siteUrl,
-            'Bundle-SymbolicName': moduleName,
-    )
+    bundle {
+        bnd(
+                '-exportcontents': 'com.lmax.disruptor.*;-noimport:=true',
+                '-noimportjava': 'true',
+                'Import-Package': '!*',
+                'Bundle-Name': fullName,
+                'Bundle-Vendor': teamName,
+                'Bundle-Description': fullDescription,
+                'Bundle-DocURL': siteUrl,
+                'Bundle-SymbolicName': moduleName,
+        )
+    }
 }
 
 tasks.withType(Test) {
