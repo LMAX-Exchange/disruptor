@@ -19,7 +19,7 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-    id "io.github.reyerizo.gradle.jcstress" version "0.8.15"
+    id "io.github.reyerizo.gradle.jcstress" version "1.0.0"
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id "me.champeau.jmh" version "0.6.8"
     id "biz.aQute.bnd.builder" version "6.3.1"
