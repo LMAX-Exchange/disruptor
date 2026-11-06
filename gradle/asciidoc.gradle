@@ -3,6 +3,8 @@
 //
 
 asciidoctor {
+    // The javadoc is copied in as a resource; asciidoctor 4 does not infer the task dependency from that.
+    dependsOn javadoc
     languages 'en'
     resources {
         from(javadoc) {
@@ -28,5 +30,5 @@ asciidoctor {
     copyResourcesOnlyIf 'html5'
     baseDirFollowsSourceFile()
 
-    asciidoctorj.version = '2.4.3'
+    asciidoctorj.version = '3.0.1'
 }
