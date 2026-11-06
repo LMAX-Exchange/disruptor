@@ -51,7 +51,7 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:10.4'
