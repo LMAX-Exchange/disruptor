@@ -16,6 +16,7 @@ dependencies {
     jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhLibVersion}"
 
     jmhImplementation 'net.openhft:affinity:3.23.2'
+    jmhImplementation 'org.agrona:agrona:2.7.0'
 }
 
 jmh {
