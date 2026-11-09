@@ -9,19 +9,20 @@ sourceSets {
     }
 }
 
-def jmhLibVersion = '1.35'
+def jmhLibVersion = '1.37'
 
 dependencies {
     jmhImplementation "org.openjdk.jmh:jmh-core:${jmhLibVersion}"
     jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${jmhLibVersion}"
 
     jmhImplementation 'net.openhft:affinity:3.23.2'
+    jmhImplementation 'org.agrona:agrona:2.7.0'
 }
 
 jmh {
     jmhVersion = jmhLibVersion
     jvmArgsPrepend = ['-Xms256m -Xmx256m -XX:MaxDirectMemorySize=1g']
-    resultsFile.set(project.file("${project.buildDir}/reports/jmh/result.json"))
+    resultsFile.set(layout.buildDirectory.file("reports/jmh/result.json"))
     profilers = [ 'pauses' ]
     resultFormat = 'JSON'
     failOnError = true

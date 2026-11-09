@@ -19,10 +19,10 @@ plugins {
     id 'signing'
     id 'checkstyle'
     id 'idea'
-    id "io.github.reyerizo.gradle.jcstress" version "0.8.15"
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id "me.champeau.jmh" version "0.6.8"
-    id "biz.aQute.bnd.builder" version "6.3.1"
+    id "io.github.reyerizo.gradle.jcstress" version "1.0.0"
+    id 'org.asciidoctor.jvm.convert' version '4.0.5'
+    id "me.champeau.jmh" version "0.7.4"
+    id "biz.aQute.bnd.builder" version "7.4.0"
 }
 
 group = 'com.lmax'
@@ -45,17 +45,21 @@ apply from: 'gradle/jmh.gradle'
 apply from: 'gradle/asciidoc.gradle'
 apply from: 'gradle/jcstress.gradle'
 
-wrapper.gradleVersion = '7.6'
+wrapper.gradleVersion = '9.9.0'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:10.4'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
@@ -94,16 +98,18 @@ javadoc {
 jar {
     manifest.attributes('Built-By': System.properties.get('user.name'),
             'Automatic-Module-Name': moduleName)
-    bnd(
-            '-exportcontents': 'com.lmax.disruptor.*;-noimport:=true',
-            '-noimportjava': 'true',
-            'Import-Package': '!*',
-            'Bundle-Name': fullName,
-            'Bundle-Vendor': teamName,
-            'Bundle-Description': fullDescription,
-            'Bundle-DocURL': siteUrl,
-            'Bundle-SymbolicName': moduleName,
-    )
+    bundle {
+        bnd(
+                '-exportcontents': 'com.lmax.disruptor.*;-noimport:=true',
+                '-noimportjava': 'true',
+                'Import-Package': '!*',
+                'Bundle-Name': fullName,
+                'Bundle-Vendor': teamName,
+                'Bundle-Description': fullDescription,
+                'Bundle-DocURL': siteUrl,
+                'Bundle-SymbolicName': moduleName,
+        )
+    }
 }
 
 tasks.withType(Test) {

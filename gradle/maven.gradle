@@ -42,7 +42,7 @@ publishing {
 
     repositories {
         maven {
-            url project.hasProperty('sonatypeUrl') ? project['sonatypeUrl'] : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url = project.hasProperty('sonatypeUrl') ? project['sonatypeUrl'] : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
 
             credentials {
                 username = project.hasProperty('sonatypeUsername') ? project['sonatypeUsername'] : 'fake-user'
