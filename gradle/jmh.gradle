@@ -27,6 +27,7 @@ jmh {
     failOnError = true
     verbosity = 'NORMAL'
     includeTests = true
+    duplicateClassesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 task jmhProfilers(type: JavaExec, description:'Lists the available profilers for the jmh task', group: 'jmh') {
