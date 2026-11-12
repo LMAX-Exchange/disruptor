@@ -75,6 +75,15 @@ public final class FixedSequenceGroup extends Sequence
      * Not supported.
      */
     @Override
+    public long compareAndExchange(final long expectedValue, final long newValue)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Not supported.
+     */
+    @Override
     public long incrementAndGet()
     {
         throw new UnsupportedOperationException();
