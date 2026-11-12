@@ -131,6 +131,18 @@ public class Sequence extends RhsPadding
     }
 
     /**
+     * Perform a compare and exchange operation on the sequence.
+     *
+     * @param expectedValue The expected current value.
+     * @param newValue      The value to update to.
+     * @return the value before the operation: {@code expectedValue} if it succeeded, the current value otherwise.
+     */
+    public long compareAndExchange(final long expectedValue, final long newValue)
+    {
+        return (long) VALUE_FIELD.compareAndExchange(this, expectedValue, newValue);
+    }
+
+    /**
      * Atomically increment the sequence by one.
      *
      * @return The value after the increment

@@ -156,22 +156,22 @@ public final class MultiProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        long current;
-        long next;
-
-        do
+        long current = cursor.get();
+        while (true)
         {
-            current = cursor.get();
-            next = current + n;
-
             if (!hasAvailableCapacity(gatingSequences, n, current))
             {
                 throw InsufficientCapacityException.INSTANCE;
             }
-        }
-        while (!cursor.compareAndSet(current, next));
 
-        return next;
+            final long next = current + n;
+            final long witness = cursor.compareAndExchange(current, next);
+            if (witness == current)
+            {
+                return next;
+            }
+            current = witness;
+        }
     }
 
     /**
