@@ -17,6 +17,7 @@ package com.lmax.disruptor;
 
 import com.lmax.disruptor.util.Util;
 
+import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,10 +104,10 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         {
             if (doStore)
             {
-                cursor.setVolatile(nextValue);  // StoreLoad fence
+                VarHandle.fullFence();  // StoreLoad fence, pairs with addGatingSequences
             }
 
-            long minSequence = Util.getMinimumSequence(gatingSequences, nextValue);
+            long minSequence = Util.getMinimumSequence(gatingSequences, cursor.get());
             this.cachedValue = minSequence;
 
             if (wrapPoint > minSequence)
@@ -148,10 +149,10 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
-            cursor.setVolatile(nextValue);  // StoreLoad fence
+            VarHandle.fullFence();  // StoreLoad fence, pairs with addGatingSequences
 
             long minSequence;
-            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
+            while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, cursor.get())))
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
