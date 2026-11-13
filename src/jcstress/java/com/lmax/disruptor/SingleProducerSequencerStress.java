@@ -60,4 +60,34 @@ public final class SingleProducerSequencerStress
             r.r2 = gatingSequence.get();
         }
     }
+
+    /**
+     * As {@link AddGatingSequenceWhilePublishing}, but the producer calls hasAvailableCapacity first, and the claim
+     * uses the gating sequence it cached.
+     */
+    @JCStressTest
+    @Outcome(id = "1, 0", expect = ACCEPTABLE, desc = "Gating sequence starts at the published 0, 1 fits.")
+    @Outcome(id = {"-100, -1", "-100, 0"}, expect = ACCEPTABLE, desc = "Producer saw the gating sequence at -1.")
+    @Outcome(id = "1, -1", expect = FORBIDDEN, desc = "Producer wrapped past a gating sequence that missed 0.")
+    @State
+    public static class AddGatingSequenceAfterHasAvailableCapacity
+    {
+        final SingleProducerSequencer sequencer = new SingleProducerSequencer(1, new BusySpinWaitStrategy());
+        final Sequence gatingSequence = new Sequence();
+
+        @Actor
+        public void producer(final JJ_Result r)
+        {
+            sequencer.publish(sequencer.next());
+            sequencer.hasAvailableCapacity(1);
+            r.r1 = tryClaim(sequencer);
+        }
+
+        @Actor
+        public void adder(final JJ_Result r)
+        {
+            sequencer.addGatingSequences(gatingSequence);
+            r.r2 = gatingSequence.get();
+        }
+    }
 }
