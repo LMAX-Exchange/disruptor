@@ -39,7 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Fork(value = 1, jvmArgsAppend = {
+    "-Xms1g",
     "-Xmx1g",
+    "-XX:+AlwaysPreTouch",
     "-XX:+UseZGC",
     "-XX:+UnlockExperimentalVMOptions",
     "-XX:+TrustFinalNonStaticFields"})
