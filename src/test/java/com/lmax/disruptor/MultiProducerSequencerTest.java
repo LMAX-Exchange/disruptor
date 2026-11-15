@@ -25,7 +25,7 @@ public class MultiProducerSequencerTest
     private final Sequencer publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
 
     @Test
-    public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished() throws Exception
+    public void shouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished()
     {
         publisher.publish(3);
         publisher.publish(5);
@@ -37,5 +37,46 @@ public class MultiProducerSequencerTest
         assertThat(publisher.isAvailable(4), is(false));
         assertThat(publisher.isAvailable(5), is(true));
         assertThat(publisher.isAvailable(6), is(false));
+    }
+
+    @Test
+    public void shouldTrackEachSequenceInItsOwnSlotForEveryBufferSize()
+    {
+        for (int bufferSize = 1; bufferSize <= 1024; bufferSize <<= 1)
+        {
+            final Sequencer sequencer = new MultiProducerSequencer(bufferSize, new BlockingWaitStrategy());
+
+            for (long sequence = 0; sequence < bufferSize; sequence++)
+            {
+                sequencer.publish(sequence);
+
+                for (long other = 0; other < bufferSize; other++)
+                {
+                    assertThat(
+                        "bufferSize " + bufferSize + ", published up to " + sequence + ", checking " + other,
+                        sequencer.isAvailable(other), is(other <= sequence));
+                }
+                assertThat(sequencer.getHighestPublishedSequence(0, bufferSize - 1), is(sequence));
+            }
+        }
+    }
+
+    @Test
+    public void shouldReportHighestPublishedSequenceUpToFirstGapAfterWrapping()
+    {
+        final int bufferSize = 64;
+        final Sequencer sequencer = new MultiProducerSequencer(bufferSize, new BlockingWaitStrategy());
+
+        for (long sequence = 0; sequence < 3L * bufferSize; sequence++)
+        {
+            if (sequence != 150)
+            {
+                sequencer.publish(sequence);
+            }
+        }
+
+        assertThat(sequencer.getHighestPublishedSequence(128, 191), is(149L));
+        assertThat(sequencer.isAvailable(150), is(false));
+        assertThat(sequencer.isAvailable(151), is(true));
     }
 }

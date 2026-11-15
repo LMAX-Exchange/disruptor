@@ -35,6 +35,8 @@ public final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final VarHandle AVAILABLE_ARRAY = MethodHandles.arrayElementVarHandle(int[].class);
 
+    private static final int AVAILABLE_STRIDE = 17;
+
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     // availableBuffer tracks the state of each ringbuffer slot
@@ -267,9 +269,15 @@ public final class MultiProducerSequencer extends AbstractSequencer
         return (int) (sequence >>> indexShift);
     }
 
+    /**
+     * The slot of the availableBuffer that holds the flag for a sequence. Consecutive sequences are
+     * {@link #AVAILABLE_STRIDE} slots apart, so a producer publishing a sequence does not write to the cache line
+     * that a consumer is reading to see whether the sequence before it has been published. For buffers of sixteen
+     * slots or fewer this is the sequence's position in the ring.
+     */
     private int calculateIndex(final long sequence)
     {
-        return ((int) sequence) & indexMask;
+        return (((int) sequence) * AVAILABLE_STRIDE) & indexMask;
     }
 
     @Override
