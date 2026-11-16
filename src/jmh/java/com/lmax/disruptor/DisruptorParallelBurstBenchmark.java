@@ -15,6 +15,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
@@ -86,10 +87,11 @@ public class DisruptorParallelBurstBenchmark
     private SumHandler messageHandler;
     private RingBuffer<Message> ringBuffer;
     private SequenceBarrier barrier;
+    private EventPoller<Message> poller;
     private long expectedSum;
 
     @Setup
-    public void setup()
+    public void setup(final BenchmarkParams benchmarkParams)
     {
         affinityLocks.add(AffinityLock.acquireLock(CONSUMER_CPU_ID));
 
@@ -99,8 +101,16 @@ public class DisruptorParallelBurstBenchmark
         final int messageLength = this.messageLength;
         ringBuffer = RingBuffer.createMultiProducer(
             () -> new Message(messageLength), ringBufferSize(rbSizeMb, messageLength), new BusySpinWaitStrategy());
-        ringBuffer.addGatingSequences(consumed);
-        barrier = ringBuffer.newBarrier();
+        if (benchmarkParams.getBenchmark().endsWith(".consumer"))
+        {
+            ringBuffer.addGatingSequences(consumed);
+            barrier = ringBuffer.newBarrier();
+        }
+        else
+        {
+            poller = ringBuffer.newPoller();
+            ringBuffer.addGatingSequences(poller.getSequence());
+        }
 
         for (int i = 0; i < producers; i++)
         {
@@ -254,6 +264,53 @@ public class DisruptorParallelBurstBenchmark
         return handler.sum;
     }
 
+    /** The same burst consumed with {@link EventPoller#poll}. */
+    @Benchmark
+    public long consumerPoll(final Counters counters) throws Exception
+    {
+        return pollBurst(counters, false);
+    }
+
+    /** The same burst consumed with {@link EventPoller#pollRelaxed}, which does not read the cursor. */
+    @Benchmark
+    public long consumerPollRelaxed(final Counters counters) throws Exception
+    {
+        return pollBurst(counters, true);
+    }
+
+    private long pollBurst(final Counters counters, final boolean relaxed) throws Exception
+    {
+        startSignal.incrementAndGet();
+        final SumHandler handler = this.messageHandler;
+        handler.sum = 0;
+
+        final EventPoller<Message> poller = this.poller;
+        final Sequence pollerSequence = poller.getSequence();
+        final int batchSizeReadMax = this.batchSizeReadMax;
+
+        long next = pollerSequence.get() + 1;
+        final long last = next - 1 + messagesPerProducer * producers;
+        while (next <= last)
+        {
+            handler.batchEnd = next + batchSizeReadMax - 1;
+            final EventPoller.PollState state = relaxed ? poller.pollRelaxed(handler) : poller.poll(handler);
+            if (state == EventPoller.PollState.PROCESSING)
+            {
+                final long end = pollerSequence.get();
+                if (end - next + 1 == batchSizeReadMax)
+                {
+                    counters.maxBatchReads++;
+                }
+                next = end + 1;
+            }
+            else
+            {
+                Thread.onSpinWait();
+            }
+        }
+        return handler.sum;
+    }
+
     @TearDown
     public void tearDown() throws InterruptedException
     {
@@ -300,6 +357,8 @@ public class DisruptorParallelBurstBenchmark
     private abstract static class SumValue extends SumLhsPadding
     {
         protected long sum;
+        /** The last sequence a poll may handle. */
+        protected long batchEnd;
     }
 
     /**
@@ -320,7 +379,7 @@ public class DisruptorParallelBurstBenchmark
             p150, p151, p152, p153, p154, p155, p156, p157;
     }
 
-    private static final class SumHandler extends PaddedSum
+    private static final class SumHandler extends PaddedSum implements EventPoller.Handler<Message>
     {
         private final long consumerTokens;
 
@@ -337,6 +396,13 @@ public class DisruptorParallelBurstBenchmark
                 sum += (long) LONG_VIEW.get(bytes, i);
             }
             Blackhole.consumeCPU(consumerTokens);
+        }
+
+        @Override
+        public boolean onEvent(final Message event, final long sequence, final boolean endOfBatch)
+        {
+            onEvent(event);
+            return sequence < batchEnd;
         }
     }
 
