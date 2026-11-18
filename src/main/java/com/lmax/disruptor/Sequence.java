@@ -79,28 +79,23 @@ public class Sequence extends RhsPadding
     }
 
     /**
-     * Perform a volatile read of this sequence's value.
+     * Perform an acquire read of this sequence's value.
      *
      * @return The current value of the sequence.
      */
     public long get()
     {
-        long value = this.value;
-        VarHandle.acquireFence();
-        return value;
+        return (long) VALUE_FIELD.getAcquire(this);
     }
 
     /**
-     * Perform an ordered write of this sequence.  The intent is
-     * a Store/Store barrier between this write and any previous
-     * store.
+     * Perform a release write of this sequence.
      *
      * @param value The new value for the sequence.
      */
     public void set(final long value)
     {
-        VarHandle.releaseFence();
-        this.value = value;
+        VALUE_FIELD.setRelease(this, value);
     }
 
     /**
