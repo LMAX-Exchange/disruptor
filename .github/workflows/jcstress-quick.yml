@@ -25,3 +25,25 @@ jobs:
         with:
           name: jcstress-report-quick-${{ matrix.java }}
           path: build/reports/jcstress
+
+  arm:
+    # Without LSE atomics HotSpot compiles compare-and-set as LDAXR/STLXR, which a later plain load may pass.
+    runs-on: ubuntu-24.04-arm
+    name: Java 21, Arm without LSE
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew jcstress -Pmode=quick -PjvmArgsPrepend=-XX:-UseLSE
+      - name: Archive artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jcstress-report-quick-arm-no-lse
+          path: build/reports/jcstress

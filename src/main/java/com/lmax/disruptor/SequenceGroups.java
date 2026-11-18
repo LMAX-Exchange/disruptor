@@ -15,6 +15,7 @@
  */
 package com.lmax.disruptor;
 
+import java.lang.invoke.VarHandle;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static java.util.Arrays.copyOf;
@@ -49,6 +50,7 @@ class SequenceGroups
         }
         while (!updater.compareAndSet(holder, currentSequences, updatedSequences));
 
+        VarHandle.fullFence();  // StoreLoad fence, pairs with SingleProducerSequencer
         cursorSequence = cursor.getCursor();
         for (Sequence sequence : sequencesToAdd)
         {
