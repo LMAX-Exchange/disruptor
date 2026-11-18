@@ -42,7 +42,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
     // availableBuffer tracks the state of each ringbuffer slot
     // see below for more details on the approach
     private final int[] availableBuffer;
-    private final int indexMask;
     private final int indexShift;
 
     /**
@@ -57,7 +56,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
         availableBuffer = new int[bufferSize];
         Arrays.fill(availableBuffer, -1);
 
-        indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
     }
 
@@ -277,7 +275,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
      */
     private int calculateIndex(final long sequence)
     {
-        return (((int) sequence) * AVAILABLE_STRIDE) & indexMask;
+        return (((int) sequence) * AVAILABLE_STRIDE) & (availableBuffer.length - 1);
     }
 
     @Override
