@@ -35,12 +35,13 @@ public final class MultiProducerSequencer extends AbstractSequencer
 {
     private static final VarHandle AVAILABLE_ARRAY = MethodHandles.arrayElementVarHandle(int[].class);
 
+    private static final int AVAILABLE_STRIDE = 17;
+
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     // availableBuffer tracks the state of each ringbuffer slot
     // see below for more details on the approach
     private final int[] availableBuffer;
-    private final int indexMask;
     private final int indexShift;
 
     /**
@@ -55,7 +56,6 @@ public final class MultiProducerSequencer extends AbstractSequencer
         availableBuffer = new int[bufferSize];
         Arrays.fill(availableBuffer, -1);
 
-        indexMask = bufferSize - 1;
         indexShift = Util.log2(bufferSize);
     }
 
@@ -156,22 +156,22 @@ public final class MultiProducerSequencer extends AbstractSequencer
             throw new IllegalArgumentException("n must be > 0");
         }
 
-        long current;
-        long next;
-
-        do
+        long current = cursor.get();
+        while (true)
         {
-            current = cursor.get();
-            next = current + n;
-
             if (!hasAvailableCapacity(gatingSequences, n, current))
             {
                 throw InsufficientCapacityException.INSTANCE;
             }
-        }
-        while (!cursor.compareAndSet(current, next));
 
-        return next;
+            final long next = current + n;
+            final long witness = cursor.compareAndExchange(current, next);
+            if (witness == current)
+            {
+                return next;
+            }
+            current = witness;
+        }
     }
 
     /**
@@ -267,9 +267,15 @@ public final class MultiProducerSequencer extends AbstractSequencer
         return (int) (sequence >>> indexShift);
     }
 
+    /**
+     * The slot of the availableBuffer that holds the flag for a sequence. Consecutive sequences are
+     * {@link #AVAILABLE_STRIDE} slots apart, so a producer publishing a sequence does not write to the cache line
+     * that a consumer is reading to see whether the sequence before it has been published. For buffers of sixteen
+     * slots or fewer this is the sequence's position in the ring.
+     */
     private int calculateIndex(final long sequence)
     {
-        return ((int) sequence) & indexMask;
+        return (((int) sequence) * AVAILABLE_STRIDE) & (availableBuffer.length - 1);
     }
 
     @Override
