@@ -159,6 +159,9 @@ public class EventPoller<T>
      */
     public PollState pollRelaxed(final Handler<T> eventHandler) throws Exception
     {
+        final Sequencer sequencer = this.sequencer;
+        final DataProvider<T> dataProvider = this.dataProvider;
+        final Sequence sequence = this.sequence;
         final long currentSequence = sequence.get();
         long nextSequence = currentSequence + 1;
         if (!sequencer.isAvailable(nextSequence))
